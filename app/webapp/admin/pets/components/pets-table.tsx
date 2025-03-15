@@ -1,0 +1,237 @@
+"use client"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  MoreHorizontal,
+  Edit,
+  Trash2,
+  Hotel,
+  CheckCircle,
+  Dog,
+  Cat,
+  Info,
+} from "lucide-react"
+import type { Pet, PetOwner } from "../utils/types"
+
+interface PetsTableProps {
+  pets: Pet[]
+  petOwners: PetOwner[]
+  onEdit: (pet: Pet) => void
+  onDelete: (pet: Pet) => void
+  onBoard: (pet: Pet) => void
+  onEndBoarding: (pet: Pet) => void
+  currentPage: number
+  totalPages: number
+  goToPage: (page: number) => void
+  nextPage: () => void
+  prevPage: () => void
+}
+
+export function PetsTable({
+  pets,
+  petOwners,
+  onEdit,
+  onDelete,
+  onBoard,
+  onEndBoarding,
+  currentPage,
+  totalPages,
+  goToPage,
+  nextPage,
+  prevPage,
+}: PetsTableProps) {
+  // Find owner name by pet's ownerId
+  const getOwnerName = (ownerId: string): string => {
+    const owner = petOwners.find((owner) => owner.id === ownerId)
+    return owner ? owner.name : "Unknown Owner"
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-md border overflow-x-auto">
+        <Table>
+          <TableHeader className="bg-muted">
+            <TableRow>
+              <TableHead className="w-[60px]">Avatar</TableHead>
+              <TableHead>Pet Name</TableHead>
+              <TableHead>Pet Owner</TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead>Breed</TableHead>
+              <TableHead>Age</TableHead>
+              <TableHead>Size</TableHead>
+              <TableHead>Notes</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {pets.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={10} className="h-24 text-center">
+                  No pets found.
+                </TableCell>
+              </TableRow>
+            ) : (
+              pets.map((pet) => (
+                <TableRow key={pet.id}>
+                  <TableCell>
+                    <Avatar className="h-9 w-9 border">
+                      <AvatarImage src={pet.image} alt={pet.name} />
+                      <AvatarFallback className="bg-primary/10">
+                        {pet.type === "Dog" ? (
+                          <Dog className="h-4 w-4 text-primary" />
+                        ) : (
+                          <Cat className="h-4 w-4 text-primary" />
+                        )}
+                      </AvatarFallback>
+                    </Avatar>
+                  </TableCell>
+                  <TableCell className="font-medium">{pet.name}</TableCell>
+                  <TableCell>{getOwnerName(pet.ownerId)}</TableCell>
+                  <TableCell>
+                    <Badge
+                      className={
+                        pet.type === "Dog"
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-secondary text-secondary-foreground"
+                      }
+                    >
+                      {pet.type === "Dog" ? <Dog className="mr-1 h-3 w-3" /> : <Cat className="mr-1 h-3 w-3" />}
+                      {pet.type}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>{pet.breed}</TableCell>
+                  <TableCell>
+                    {pet.age} {pet.age === 1 ? "year" : "years"}
+                  </TableCell>
+                  <TableCell>{pet.size}</TableCell>
+                  <TableCell>
+                    {pet.notes ? (
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="flex items-center cursor-help">
+                              <span className="truncate max-w-[100px]">{pet.notes}</span>
+                              <Info className="h-3 w-3 ml-1 text-muted-foreground" />
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p className="max-w-xs">{pet.notes}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    ) : (
+                      <span className="text-muted-foreground text-sm">No notes</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <Badge className={pet.isBoarding ? "bg-green-500 text-white" : "bg-red-500 text-white"}>
+                      {pet.isBoarding ? "Boarding" : "Not Boarding"}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end">
+                      {pet.isBoarding ? (
+                        <Button
+                          className="mr-2 bg-amber-500 hover:bg-amber-600 text-white"
+                          size="sm"
+                          onClick={() => onEndBoarding(pet)}
+                        >
+                          <CheckCircle className="h-4 w-4 mr-1" />
+                          End Boarding
+                        </Button>
+                      ) : (
+                        <Button
+                          className="mr-2 bg-green-500 hover:bg-green-600 text-white"
+                          size="sm"
+                          onClick={() => onBoard(pet)}
+                        >
+                          <Hotel className="h-4 w-4 mr-1" />
+                          Board
+                        </Button>
+                      )}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => onEdit(pet)}>
+                            <Edit className="h-4 w-4 mr-2" />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => onDelete(pet)}
+                            className="text-destructive focus:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Pagination */}
+      {pets.length > 0 && (
+        <div className="flex items-center justify-between">
+          <div className="text-sm text-muted-foreground">
+            Showing <span className="font-medium">{pets.length}</span> of{" "}
+            <span className="font-medium">{totalPages * 10}</span> pets
+          </div>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => goToPage(1)}
+              disabled={currentPage === 1}
+              className="h-8 w-8"
+            >
+              <ChevronsLeft className="h-4 w-4" />
+            </Button>
+            <Button variant="outline" size="icon" onClick={prevPage} disabled={currentPage === 1} className="h-8 w-8">
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <span className="text-sm">
+              Page {currentPage} of {totalPages || 1}
+            </span>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={nextPage}
+              disabled={currentPage === totalPages || totalPages === 0}
+              className="h-8 w-8"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => goToPage(totalPages)}
+              disabled={currentPage === totalPages || totalPages === 0}
+              className="h-8 w-8"
+            >
+              <ChevronsRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
