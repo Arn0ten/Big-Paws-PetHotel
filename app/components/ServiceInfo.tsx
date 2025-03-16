@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
-import { Card } from "@/components/ui/card"
-import { Dog, Cat, Heart, Shield, Clock, CheckCircle } from "lucide-react"
-import { Hotel } from "lucide-react"
+import { motion } from "framer-motion";
+import { Card } from "@/components/ui/card";
+import { Dog, Cat, Heart, Shield, Clock, CheckCircle } from "lucide-react";
+import { Hotel } from "lucide-react";
 
 export default function ServiceInfo() {
   const services = [
@@ -52,7 +52,7 @@ export default function ServiceInfo() {
         "Special care for senior cats",
       ],
     },
-  ]
+  ];
 
   return (
     <section className="py-16 bg-background">
@@ -63,9 +63,12 @@ export default function ServiceInfo() {
           viewport={{ once: true }}
           className="text-center mb-12"
         >
-          <h2 className="text-3xl font-bold mb-4">Why Choose Our Pet Care Services?</h2>
+          <h2 className="text-3xl font-bold mb-4">
+            Why Choose Our Pet Care Services?
+          </h2>
           <p className="text-lg text-muted-foreground">
-            We provide comprehensive care tailored to your pet's individual needs
+            We provide comprehensive care tailored to your pet's individual
+            needs
           </p>
         </motion.div>
 
@@ -83,7 +86,9 @@ export default function ServiceInfo() {
                   <service.icon className="w-8 h-8 text-primary" />
                   <h3 className="text-xl font-semibold">{service.title}</h3>
                 </div>
-                <p className="text-muted-foreground mb-6">{service.description}</p>
+                <p className="text-muted-foreground mb-6">
+                  {service.description}
+                </p>
                 <ul className="space-y-3">
                   {service.features.map((feature, i) => (
                     <li key={i} className="flex items-start gap-2">
@@ -103,7 +108,9 @@ export default function ServiceInfo() {
           viewport={{ once: true }}
           className="mt-16 bg-muted rounded-lg p-8"
         >
-          <h3 className="text-2xl font-bold mb-6 text-center">Our Commitment to Your Pet's Well-being</h3>
+          <h3 className="text-2xl font-bold mb-6 text-center">
+            Our Commitment to Your Pet's Well-being
+          </h3>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             {[
               {
@@ -137,13 +144,14 @@ export default function ServiceInfo() {
               >
                 <item.icon className="w-10 h-10 mx-auto mb-4 text-primary" />
                 <h4 className="font-semibold mb-2">{item.title}</h4>
-                <p className="text-sm text-muted-foreground">{item.description}</p>
+                <p className="text-sm text-muted-foreground">
+                  {item.description}
+                </p>
               </motion.div>
             ))}
           </div>
         </motion.div>
       </div>
     </section>
-  )
+  );
 }
-
