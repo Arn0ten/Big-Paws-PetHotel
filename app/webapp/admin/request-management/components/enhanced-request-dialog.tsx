@@ -1,55 +1,63 @@
 "use client"
 
+import { DialogFooter } from "@/components/ui/dialog"
+
 import type React from "react"
 
 import { useState, useEffect, useRef } from "react"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Input } from "@/components/ui/input"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { format, addDays, addHours, parseISO } from "date-fns"
 import { cn } from "@/lib/utils"
-import {
-  CalendarIcon,
-  Clock,
-  Loader2,
-  Trash2,
-  Upload,
-  ChevronLeft,
-  ChevronRight,
-  Maximize,
-  Minimize,
-  Film,
-  ImageIcon,
-  X,
-} from "lucide-react"
+import { CalendarIcon, Clock, Loader2 } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { formatCurrency, formatDate } from "../utils/helpers"
-import { Switch } from "@/components/ui/switch"
 import { useMediaQuery } from "@/hooks/use-media-query"
+import { PhotoUpload } from "./media-upload/photo-upload"
+import { VideoUpload } from "./media-upload/video-upload"
 
 interface EnhancedRequestDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   request: any
-  onComplete: (updatedRequest: any) => void
+  onComplete: () => void
   isProcessing: boolean
   activeTab: string
   setActiveTab: (tab: string) => void
+  selectedFiles: File[]
+  previewUrls: string[]
+  handleMultipleFileSelect: (e: React.ChangeEvent<HTMLInputElement>) => void
+  handleRemoveSelectedFile: (index: number) => void
 }
 
+/**
+ * Enhanced Request Dialog Component
+ *
+ * BACKEND INTEGRATION NOTES:
+ *
+ * 1. File Upload:
+ *    - This component handles file selection and preview
+ *    - The actual upload happens in the parent component's handleCompleteRequest function
+ *    - Ensure the backend can handle multiple file uploads via multipart/form-data
+ *
+ * 2. Form Data:
+ *    - processingNotes: Text notes about the request processing
+ *    - selectedFiles: Array of File objects to be uploaded
+ *    - extensionDate: Date object for boarding extensions
+ *    - selectedGroomingService: String ID of the selected grooming service
+ *    - selectedAudioUrl: URL of the selected background audio for videos
+ *
+ * 3. Validation:
+ *    - Add server-side validation for all form inputs
+ *    - Ensure file types, sizes, and video duration are validated on both client and server
+ */
+// Fix dialog responsiveness and ensure audio stops when dialog closes
 export function EnhancedRequestDialog({
   open,
   onOpenChange,
@@ -58,13 +66,15 @@ export function EnhancedRequestDialog({
   isProcessing,
   activeTab,
   setActiveTab,
+  selectedFiles,
+  previewUrls,
+  handleMultipleFileSelect,
+  handleRemoveSelectedFile,
 }: EnhancedRequestDialogProps) {
   // State for handling multiple files
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
-  const [previewUrls, setPreviewUrls] = useState<string[]>([])
-  const [currentPreviewIndex, setCurrentPreviewIndex] = useState(0)
-  const [isFullScreen, setIsFullScreen] = useState(false)
-  const [isMultipleUpload, setIsMultipleUpload] = useState(false)
+  const [videoFile, setVideoFile] = useState<File | null>(null)
+  const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null)
+  const [selectedAudioUrl, setSelectedAudioUrl] = useState<string | null>(null)
 
   // Other state variables
   const [processingNotes, setProcessingNotes] = useState("")
@@ -75,17 +85,19 @@ export function EnhancedRequestDialog({
   const [newEndDate, setNewEndDate] = useState<Date | undefined>(undefined)
   const [newEndTime, setNewEndTime] = useState<string>("")
   const videoRef = useRef<HTMLVideoElement>(null)
+  const audioRef = useRef<HTMLAudioElement>(null)
   const isMobile = useMediaQuery("(max-width: 640px)")
+  const [extensionDate, setExtensionDate] = useState<Date | undefined>(undefined)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Reset state when dialog opens/closes or request changes
   useEffect(() => {
     if (open && request) {
       setProcessingNotes("")
-      setSelectedFiles([])
-      setPreviewUrls([])
-      setCurrentPreviewIndex(0)
-      setIsFullScreen(false)
-      setIsMultipleUpload(false)
+      setVideoFile(null)
+      setVideoPreviewUrl(null)
+      setSelectedAudioUrl(null)
+      setExtensionDate(undefined)
 
       // Check if this is an hour extension
       if (request.type === "boarding-extension" && request.extensionDetails) {
@@ -116,105 +128,117 @@ export function EnhancedRequestDialog({
       } else {
         setSelectedGroomingService("premium-wash-and-cut")
       }
+
+      // Set default extension date if available
+      if (request.type === "boarding-extension" && request.currentEndDate) {
+        // Calculate a default extension date (current end date + requested extension)
+        const currentEndDate = new Date(request.currentEndDate)
+        if (request.extensionDetails) {
+          const { duration, unit } = request.extensionDetails
+          if (unit === "days") {
+            currentEndDate.setDate(currentEndDate.getDate() + Number.parseInt(duration))
+          } else if (unit === "weeks") {
+            currentEndDate.setDate(currentEndDate.getDate() + Number.parseInt(duration) * 7)
+          } else if (unit === "hours") {
+            currentEndDate.setHours(currentEndDate.getHours() + Number.parseInt(duration))
+          }
+          setExtensionDate(currentEndDate)
+        }
+      }
+    } else if (!open) {
+      // Clean up audio and video when dialog closes
+      if (videoRef.current) {
+        videoRef.current.pause()
+      }
+      if (audioRef.current) {
+        audioRef.current.pause()
+      }
     }
   }, [open, request])
 
-  // Handle file selection with support for multiple files and video duration validation
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Handle photo file selection
+  const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      const files = Array.from(e.target.files)
+      const files = Array.from(e.target.files).filter((file) => file.type.startsWith("image/"))
 
-      // For video, check duration
-      if (request.type === "video" && files.length > 0) {
-        const file = files[0]
-        const videoElement = document.createElement("video")
-        videoElement.preload = "metadata"
+      if (files.length === 0) return
 
-        videoElement.onloadedmetadata = () => {
-          window.URL.revokeObjectURL(videoElement.src)
-          if (videoElement.duration > 60) {
-            // More than 1 minute
-            alert("Video must be 1 minute or less in duration")
-            return
-          } else {
-            setSelectedFiles([file])
-            const url = URL.createObjectURL(file)
-            setPreviewUrls([url])
-            setCurrentPreviewIndex(0)
-          }
-        }
+      // Pass the files to parent component
+      const event = {
+        target: {
+          files: files,
+        },
+      } as unknown as React.ChangeEvent<HTMLInputElement>
 
-        videoElement.src = URL.createObjectURL(file)
+      handleMultipleFileSelect(event)
+    }
+  }
+
+  // Handle video file selection
+  const handleVideoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0]
+
+      // Validate file type
+      if (!file.type.startsWith("video/")) {
+        alert("Please select a valid video file")
         return
       }
 
-      // For photos
-      let filesToAdd: File[] = []
+      // Create preview URL
+      const url = URL.createObjectURL(file)
+      setVideoFile(file)
+      setVideoPreviewUrl(url)
 
-      if (isMultipleUpload) {
-        // Limit to 5 photos total
-        const totalFiles = [...selectedFiles, ...files]
-        filesToAdd = totalFiles.slice(0, 5)
-      } else {
-        // Single photo mode - replace existing
-        filesToAdd = [files[0]]
-      }
+      // Also update the parent component's state for form submission
+      const event = {
+        target: {
+          files: [file],
+        },
+      } as unknown as React.ChangeEvent<HTMLInputElement>
 
-      setSelectedFiles(filesToAdd)
-
-      // Create preview URLs
-      const urls = filesToAdd.map((file) => URL.createObjectURL(file))
-
-      // Clean up any existing preview URLs to prevent memory leaks
-      previewUrls.forEach((url) => URL.revokeObjectURL(url))
-
-      setPreviewUrls(urls)
-      setCurrentPreviewIndex(0)
+      handleMultipleFileSelect(event)
     }
   }
 
-  // Remove selected file(s)
-  const handleRemoveFile = (index?: number) => {
-    if (index !== undefined) {
-      // Remove a specific file
-      const newFiles = [...selectedFiles]
-      const newUrls = [...previewUrls]
+  // Remove all photo files
+  const handleRemoveAllPhotos = () => {
+    // Clean up preview URLs
+    previewUrls.forEach((url) => URL.revokeObjectURL(url))
 
-      // Revoke the URL to prevent memory leaks
-      URL.revokeObjectURL(newUrls[index])
+    // Reset state
+    const event = {
+      target: {
+        files: [],
+      },
+    } as unknown as React.ChangeEvent<HTMLInputElement>
 
-      newFiles.splice(index, 1)
-      newUrls.splice(index, 1)
+    handleMultipleFileSelect(event)
+  }
 
-      setSelectedFiles(newFiles)
-      setPreviewUrls(newUrls)
-
-      // Adjust current index if needed
-      if (currentPreviewIndex >= newUrls.length && newUrls.length > 0) {
-        setCurrentPreviewIndex(newUrls.length - 1)
-      }
-    } else {
-      // Remove all files
-      previewUrls.forEach((url) => URL.revokeObjectURL(url))
-      setSelectedFiles([])
-      setPreviewUrls([])
-      setCurrentPreviewIndex(0)
+  // Remove video file
+  const handleRemoveVideo = () => {
+    if (videoPreviewUrl) {
+      URL.revokeObjectURL(videoPreviewUrl)
     }
+
+    setVideoFile(null)
+    setVideoPreviewUrl(null)
+    setSelectedAudioUrl(null)
+
+    // Also update the parent component's state
+    const event = {
+      target: {
+        files: [],
+      },
+    } as unknown as React.ChangeEvent<HTMLInputElement>
+
+    handleMultipleFileSelect(event)
   }
 
-  // Navigation for preview carousel
-  const goToPreviousImage = () => {
-    if (previewUrls.length <= 1) return
-    setCurrentPreviewIndex((prev) => (prev === 0 ? previewUrls.length - 1 : prev - 1))
-  }
-
-  const goToNextImage = () => {
-    if (previewUrls.length <= 1) return
-    setCurrentPreviewIndex((prev) => (prev === previewUrls.length - 1 ? 0 : prev + 1))
-  }
-
-  const toggleFullScreen = () => {
-    setIsFullScreen((prev) => !prev)
+  // Handle audio selection for video
+  const handleAudioSelect = (audioUrl: string | null) => {
+    setSelectedAudioUrl(audioUrl)
   }
 
   // Validate form before submission
@@ -222,8 +246,16 @@ export function EnhancedRequestDialog({
     if (!request) return false
 
     // For photo/video requests, a file must be selected
-    if ((request.type === "photo" || request.type === "video") && selectedFiles.length === 0) {
+    if (request.type === "photo" && selectedFiles.length === 0) {
       return false
+    }
+
+    if (request.type === "video") {
+      // Must have a video file
+      if (!videoFile) return false
+
+      // Video must be valid duration
+      if (videoRef.current && videoRef.current.duration > 60) return false
     }
 
     // For boarding extensions, a date must be selected
@@ -244,22 +276,57 @@ export function EnhancedRequestDialog({
   const handleComplete = () => {
     if (isProcessing) return
 
-    // Add the processing notes to the request object
+    // Add the processing notes and audio selection to the request object
     const updatedRequest = {
       ...request,
       processingNotes: processingNotes,
-      // BACKEND INTEGRATION: Store the selected files in your backend storage
-      // and save the URLs/references to the request record
-      mediaFiles: selectedFiles.map((file, index) => ({
-        name: file.name,
-        type: file.type,
-        size: file.size,
-        url: previewUrls[index], // This should be replaced with actual stored URLs from your backend
-      })),
+      selectedAudioUrl: selectedAudioUrl,
     }
 
     // Call the onComplete callback with the updated request
-    onComplete(updatedRequest)
+    onComplete()
+  }
+
+  // Cleanup function to stop audio and video when dialog closes
+  useEffect(() => {
+    return () => {
+      // Stop audio and video playback when component unmounts
+      if (audioRef.current) {
+        audioRef.current.pause()
+      }
+      if (videoRef.current) {
+        videoRef.current.pause()
+      }
+
+      // Clean up preview URLs
+      if (videoPreviewUrl) {
+        URL.revokeObjectURL(videoPreviewUrl)
+      }
+    }
+  }, [])
+
+  // Handle file input click
+  const handleFileInputClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click()
+    }
+  }
+
+  // Determine if the complete button should be disabled
+  const isCompleteDisabled = () => {
+    if (isProcessing) return true
+
+    // For photo and video requests, require at least one file
+    if ((request?.type === "photo" || request?.type === "video") && selectedFiles.length === 0) {
+      return true
+    }
+
+    // For boarding extensions, require an extension date
+    if (request?.type === "boarding-extension" && !extensionDate) {
+      return true
+    }
+
+    return false
   }
 
   if (!request) return null
@@ -286,13 +353,22 @@ export function EnhancedRequestDialog({
     : "Not specified"
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        className={cn(
-          "sm:max-w-[900px] max-h-[90vh] overflow-y-auto p-0",
-          isFullScreen && "w-screen h-screen max-w-none max-h-none rounded-none",
-        )}
-      >
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        // Stop audio and video when dialog closes
+        if (!isOpen) {
+          if (videoRef.current) {
+            videoRef.current.pause()
+          }
+          if (audioRef.current) {
+            audioRef.current.pause()
+          }
+        }
+        onOpenChange(isOpen)
+      }}
+    >
+      <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto p-0 max-w-[95vw] w-full">
         <DialogHeader className="p-6 pb-2 border-b">
           <DialogTitle className="text-xl font-semibold">Process Request</DialogTitle>
           <DialogDescription>
@@ -309,7 +385,7 @@ export function EnhancedRequestDialog({
           </div>
 
           <TabsContent value="info" className="p-6 pt-4">
-            <div className="space-y-4">
+            <div className="space-y-4 max-w-full overflow-x-hidden">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label className="text-xs text-muted-foreground uppercase tracking-wider">Request Type</Label>
@@ -390,241 +466,36 @@ export function EnhancedRequestDialog({
             </div>
           </TabsContent>
 
-          <TabsContent value="process" className="p-6 pt-4">
-            <div className="space-y-6">
-              {/* Photo/Video Upload Section */}
-              {(request.type === "photo" || request.type === "video") && (
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="media-upload" className="text-base font-medium">
-                      Upload {request.type === "photo" ? "Photo" : "Video"}
-                    </Label>
-                    <p className="text-sm text-muted-foreground mb-2">
-                      {request.type === "photo"
-                        ? "Upload photos of the pet to share with the owner."
-                        : "Upload a short video (max 1 minute) of the pet to share with the owner."}
-                    </p>
+          <TabsContent value="process" className="px-4 sm:px-6 pt-4 overflow-hidden">
+            <div className="space-y-6 w-full">
+              {/* Photo Upload Section */}
+              {request.type === "photo" && (
+                <PhotoUpload
+                  selectedFiles={selectedFiles}
+                  previewUrls={previewUrls}
+                  onFileSelect={handlePhotoSelect}
+                  onRemoveFile={handleRemoveSelectedFile}
+                  onRemoveAllFiles={handleRemoveAllPhotos}
+                  maxFiles={5}
+                />
+              )}
 
-                    {/* Toggle for multiple photo upload */}
-                    {request.type === "photo" && (
-                      <div className="flex items-center space-x-2 mb-4">
-                        <Switch id="multiple-upload" checked={isMultipleUpload} onCheckedChange={setIsMultipleUpload} />
-                        <Label htmlFor="multiple-upload" className="text-sm cursor-pointer">
-                          Upload multiple photos (max 5)
-                        </Label>
-                      </div>
-                    )}
-
-                    {selectedFiles.length === 0 ? (
-                      <div className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center">
-                        <Input
-                          id="media-upload"
-                          type="file"
-                          accept={request.type === "photo" ? "image/*" : "video/*"}
-                          className="hidden"
-                          onChange={handleFileChange}
-                          multiple={request.type === "photo" && isMultipleUpload}
-                        />
-                        <div className="flex flex-col items-center justify-center gap-2">
-                          {request.type === "photo" ? (
-                            <ImageIcon className="h-8 w-8 text-muted-foreground" />
-                          ) : (
-                            <Film className="h-8 w-8 text-muted-foreground" />
-                          )}
-                          <p className="text-sm text-muted-foreground">
-                            Drag and drop or click to upload {isMultipleUpload ? "photos" : "a " + request.type}
-                          </p>
-                          <Button
-                            variant="outline"
-                            onClick={() => document.getElementById("media-upload")?.click()}
-                            className="mt-2"
-                          >
-                            <Upload className="h-4 w-4 mr-2" />
-                            Select {request.type === "photo" ? (isMultipleUpload ? "Photos" : "Photo") : "Video"}
-                          </Button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="border rounded-lg p-4">
-                        <div className="flex justify-between items-start mb-2">
-                          <div className="text-sm font-medium">
-                            {selectedFiles.length > 1
-                              ? `${selectedFiles.length} files selected`
-                              : selectedFiles[0].name}
-                          </div>
-                          <div className="flex gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => document.getElementById("media-upload")?.click()}
-                            >
-                              <Upload className="h-3 w-3 mr-1" />
-                              Replace
-                            </Button>
-                            <Button variant="outline" size="sm" onClick={() => handleRemoveFile()}>
-                              <Trash2 className="h-3 w-3 mr-1" />
-                              Remove
-                            </Button>
-                          </div>
-                        </div>
-
-                        {/* Media Preview Carousel */}
-                        {previewUrls.length > 0 && (
-                          <div className="relative mt-2">
-                            {/* Full screen overlay */}
-                            {isFullScreen && (
-                              <div className="fixed inset-0 bg-black z-50 flex items-center justify-center">
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="absolute top-4 right-4 text-white"
-                                  onClick={toggleFullScreen}
-                                >
-                                  <Minimize className="h-6 w-6" />
-                                </Button>
-
-                                {request.type === "photo" ? (
-                                  <img
-                                    src={previewUrls[currentPreviewIndex] || "/placeholder.svg"}
-                                    alt={`Preview ${currentPreviewIndex + 1}`}
-                                    className="max-h-[90vh] max-w-[90vw] object-contain"
-                                  />
-                                ) : (
-                                  <video
-                                    src={previewUrls[currentPreviewIndex]}
-                                    controls
-                                    className="max-h-[90vh] max-w-[90vw]"
-                                    ref={videoRef}
-                                  >
-                                    Your browser does not support the video tag.
-                                  </video>
-                                )}
-
-                                {previewUrls.length > 1 && (
-                                  <>
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      className="absolute left-4 top-1/2 -translate-y-1/2 text-white"
-                                      onClick={goToPreviousImage}
-                                    >
-                                      <ChevronLeft className="h-8 w-8" />
-                                    </Button>
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      className="absolute right-4 top-1/2 -translate-y-1/2 text-white"
-                                      onClick={goToNextImage}
-                                    >
-                                      <ChevronRight className="h-8 w-8" />
-                                    </Button>
-                                  </>
-                                )}
-                              </div>
-                            )}
-
-                            {/* Regular preview */}
-                            <div className="relative rounded-md overflow-hidden">
-                              {request.type === "photo" ? (
-                                <img
-                                  src={previewUrls[currentPreviewIndex] || "/placeholder.svg"}
-                                  alt={`Preview ${currentPreviewIndex + 1}`}
-                                  className="w-full h-[300px] object-contain bg-black/5"
-                                />
-                              ) : (
-                                <video
-                                  src={previewUrls[currentPreviewIndex]}
-                                  controls
-                                  className="w-full h-[300px] object-contain bg-black/5"
-                                  ref={videoRef}
-                                >
-                                  Your browser does not support the video tag.
-                                </video>
-                              )}
-
-                              {/* Navigation controls */}
-                              <div className="absolute top-2 right-2 flex gap-1">
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="bg-black/20 text-white hover:bg-black/30"
-                                  onClick={toggleFullScreen}
-                                >
-                                  <Maximize className="h-4 w-4" />
-                                </Button>
-                                {selectedFiles.length > 1 && (
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="bg-black/20 text-white hover:bg-black/30"
-                                    onClick={() => handleRemoveFile(currentPreviewIndex)}
-                                  >
-                                    <X className="h-4 w-4" />
-                                  </Button>
-                                )}
-                              </div>
-
-                              {previewUrls.length > 1 && (
-                                <>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/20 text-white hover:bg-black/30"
-                                    onClick={goToPreviousImage}
-                                  >
-                                    <ChevronLeft className="h-6 w-6" />
-                                  </Button>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/20 text-white hover:bg-black/30"
-                                    onClick={goToNextImage}
-                                  >
-                                    <ChevronRight className="h-6 w-6" />
-                                  </Button>
-                                </>
-                              )}
-                            </div>
-
-                            {/* Thumbnail navigation for multiple photos */}
-                            {previewUrls.length > 1 && (
-                              <div className="flex justify-center mt-2 gap-2 overflow-x-auto py-2">
-                                {previewUrls.map((url, index) => (
-                                  <button
-                                    key={index}
-                                    onClick={() => setCurrentPreviewIndex(index)}
-                                    className={`w-16 h-16 rounded-md overflow-hidden border-2 flex-shrink-0 ${
-                                      index === currentPreviewIndex ? "border-primary" : "border-transparent"
-                                    }`}
-                                  >
-                                    <img
-                                      src={url || "/placeholder.svg"}
-                                      alt={`Thumbnail ${index + 1}`}
-                                      className="w-full h-full object-cover"
-                                    />
-                                  </button>
-                                ))}
-                              </div>
-                            )}
-
-                            {/* File counter */}
-                            {previewUrls.length > 1 && (
-                              <div className="absolute top-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded-md">
-                                {currentPreviewIndex + 1} / {previewUrls.length}
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
+              {/* Video Upload Section */}
+              {request.type === "video" && (
+                <VideoUpload
+                  selectedFile={videoFile}
+                  previewUrl={videoPreviewUrl}
+                  onFileSelect={handleVideoSelect}
+                  onRemoveFile={handleRemoveVideo}
+                  maxDuration={60}
+                  onAudioSelect={handleAudioSelect}
+                />
               )}
 
               {/* Boarding Extension Section */}
               {request.type === "boarding-extension" && (
                 <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Card className="border-amber-200 dark:border-amber-800">
                       <CardContent className="p-4 space-y-4">
                         <h3 className="text-base font-medium text-amber-700 dark:text-amber-400 flex items-center">
@@ -637,7 +508,7 @@ export function EnhancedRequestDialog({
                             <Label className="text-xs text-muted-foreground uppercase tracking-wider">
                               Current End Date:
                             </Label>
-                            <div className="text-base font-medium">{formattedCurrentEndDate}</div>
+                            <div className="text-base font-medium break-words">{formattedCurrentEndDate}</div>
                           </div>
 
                           <div className="space-y-1">
@@ -655,7 +526,7 @@ export function EnhancedRequestDialog({
                                 <Label className="text-xs text-muted-foreground uppercase tracking-wider">
                                   New End Date:
                                 </Label>
-                                <div className="text-base font-medium">{formattedNewEndDate}</div>
+                                <div className="text-base font-medium break-words">{formattedNewEndDate}</div>
                               </div>
 
                               <div className="space-y-1">
@@ -750,7 +621,7 @@ export function EnhancedRequestDialog({
                     <Card className="border-green-200 dark:border-green-800">
                       <CardContent className="p-4 space-y-4">
                         <div className="space-y-2">
-                          <div className="flex justify-between items-center">
+                          <div className="flex flex-wrap justify-between items-center gap-2">
                             <Label className="text-xs text-muted-foreground uppercase tracking-wider">
                               Requested Service:
                             </Label>
@@ -823,7 +694,6 @@ export function EnhancedRequestDialog({
               )}
             </div>
           </TabsContent>
-        </Tabs>
 
         <DialogFooter className="p-4 border-t">
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isProcessing}>

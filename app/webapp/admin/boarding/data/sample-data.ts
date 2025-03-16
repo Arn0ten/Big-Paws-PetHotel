@@ -1,10 +1,38 @@
 import type { BoardingOrder } from "../types"
 
+/**
+ * BOARDING MANAGEMENT MODULE - SAMPLE DATA
+ *
+ * This file contains sample data for the Boarding Management module.
+ * In a production environment, this data would be fetched from the backend API.
+ *
+ * BACKEND INTEGRATION NOTES:
+ *
+ * 1. API Endpoints Required:
+ *    - GET /api/boarding - Fetch all boarding orders with optional filters
+ *      Parameters: status, paymentStatus, search, page, limit, sortBy, sortOrder
+ *    - GET /api/boarding/:id - Fetch a single boarding order by ID
+ *    - PUT /api/boarding/:id/payment-status - Update payment status
+ *      Payload: { paymentStatus }
+ *    - PUT /api/boarding/:id/release - Release a pet from boarding
+ *      Payload: { releaseNotes }
+ *    - DELETE /api/boarding/:id - Delete a boarding record
+ *
+ * 2. Data Models:
+ *    - BoardingOrder: id, petId, ownerId, pet, owner, startDate, endDate,
+ *      boardingType, boardingStatus, paymentStatus, totalPrice, baseAmount,
+ *      additionalServices, createdAt, updatedAt, isOverdue, lastModifiedBy,
+ *      lastModificationReason, paymentHistory, releaseTimestamp, receiptGenerated,
+ *      notificationSent
+ *
+ * 3. Data Transformation:
+ *    - Convert ISO date strings to Date objects if needed
+ *    - Format currency values for display
+ *    - Calculate overdue status based on current date and end date
+ */
+
 // Helper function to generate random time between 1 and 22 hours
 const randomHours = () => Math.floor(Math.random() * 22) + 1
-
-// Update the sample data to include the new fields for tracking changes
-// Add some examples with additional services to demonstrate the functionality
 
 // Sample data for demonstration purposes
 export const sampleBoardingOrders: BoardingOrder[] = [
@@ -202,6 +230,7 @@ export const sampleBoardingOrders: BoardingOrder[] = [
       address: "202 Cedar Ln, Anyplace, FL 33001",
     },
     startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days ago
+    endDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days  // 7 days ago
     endDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
     boardingType: "LongStay",
     boardingStatus: "Done Boarding",
@@ -305,4 +334,64 @@ export const sampleBoardingOrders: BoardingOrder[] = [
     notificationSent: true,
   },
 ]
+
+/**
+ * Check for overdue pickups based on current date and end date
+ *
+ * @param orders - Array of boarding orders to check
+ * @returns Array of boarding orders with updated overdue status
+ */
+export const checkOverduePickups = (orders: BoardingOrder[]): BoardingOrder[] => {
+  const now = new Date()
+
+  return orders.map((order) => {
+    if (order.boardingStatus === "Done Boarding") {
+      const endDate = new Date(order.endDate)
+      const isOverdue = endDate < now
+      return { ...order, isOverdue }
+    }
+    return order
+  })
+}
+
+/**
+ * Update boarding status for an order
+ *
+ * @param order - The boarding order to update
+ * @param paymentStatus - The new payment status
+ * @returns Updated boarding order
+ */
+export const updateBoardingStatus = (order: BoardingOrder, paymentStatus: string): BoardingOrder => {
+  return {
+    ...order,
+    paymentStatus: paymentStatus as any,
+    updatedAt: new Date().toISOString(),
+    paymentHistory: [
+      ...(order.paymentHistory || []),
+      {
+        status: paymentStatus,
+        timestamp: new Date().toISOString(),
+        modifiedBy: "Admin",
+        reason: `Payment status updated to ${paymentStatus}`,
+      },
+    ],
+  }
+}
+
+/**
+ * Release a pet from boarding
+ *
+ * @param order - The boarding order to update
+ * @returns Updated boarding order with released status
+ */
+export const releasePet = (order: BoardingOrder): BoardingOrder => {
+  return {
+    ...order,
+    boardingStatus: "Released",
+    releaseTimestamp: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    receiptGenerated: true,
+    notificationSent: true,
+  }
+}
 

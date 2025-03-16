@@ -1,15 +1,9 @@
-"use client";
+"use client"
 
-import { Check, Clock, Moon, Cat } from "lucide-react";
-import { motion } from "framer-motion";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Check, Clock, Moon, Cat } from "lucide-react"
+import { motion } from "framer-motion"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 
 const dayCareRates = {
   icon: Clock,
@@ -22,13 +16,8 @@ const dayCareRates = {
     { size: "Large Breed", price: "40", unit: "per hour" },
     { size: "XLarge Breed", price: "50", unit: "per hour" },
   ],
-  features: [
-    "Supervised playtime",
-    "Feeding schedule",
-    "Rest periods",
-    "Climate controlled environment",
-  ],
-};
+  features: ["Supervised playtime", "Feeding schedule", "Rest periods", "Climate controlled environment"],
+}
 
 const longStayRates = {
   icon: Moon,
@@ -41,13 +30,8 @@ const longStayRates = {
     { size: "Large Breed", price: "520", unit: "per night" },
     { size: "XLarge Breed", price: "620", unit: "per night" },
   ],
-  features: [
-    "24/7 supervision",
-    "Comfortable bedding",
-    "Regular walks",
-    "Meals included",
-  ],
-};
+  features: ["24/7 supervision", "Comfortable bedding", "Regular walks", "Meals included"],
+}
 
 const catHotelRates = {
   icon: Cat,
@@ -62,13 +46,8 @@ const catHotelRates = {
     { type: "Small to Medium", price: "200", note: "additional" },
     { type: "Large Breed", price: "300", note: "additional" },
   ],
-  features: [
-    "Cat-specific amenities",
-    "Separate quiet areas",
-    "Climbing spaces",
-    "Litter box service",
-  ],
-};
+  features: ["Cat-specific amenities", "Separate quiet areas", "Climbing spaces", "Litter box service"],
+}
 
 function PriceCard({ price, unit }: { price: string; unit: string }) {
   return (
@@ -77,15 +56,12 @@ function PriceCard({ price, unit }: { price: string; unit: string }) {
       <span className="text-4xl font-bold">{price}</span>
       <span className="text-sm text-muted-foreground ml-1">/{unit}</span>
     </div>
-  );
+  )
 }
 
 export default function Pricing() {
   return (
-    <div
-      className="bg-background py-16 sm:py-24 relative overflow-hidden"
-      id="rates"
-    >
+    <div className="bg-background py-16 sm:py-24 relative overflow-hidden" id="rates">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <motion.div
           className="text-center"
@@ -94,12 +70,8 @@ export default function Pricing() {
           transition={{ duration: 0.5 }}
           viewport={{ once: true }}
         >
-          <h2 className="text-3xl font-extrabold text-foreground sm:text-4xl">
-            Simple, Transparent Pricing
-          </h2>
-          <p className="mt-4 text-xl text-muted-foreground">
-            Choose the perfect care package for your pet
-          </p>
+          <h2 className="text-3xl font-extrabold text-foreground sm:text-4xl">Simple, Transparent Pricing</h2>
+          <p className="mt-4 text-xl text-muted-foreground">Choose the perfect care package for your pet</p>
         </motion.div>
 
         <div className="mt-16 grid gap-8 lg:grid-cols-3">
@@ -123,9 +95,7 @@ export default function Pricing() {
                 <div className="space-y-4">
                   {dayCareRates.rates.map((rate) => (
                     <div key={rate.size} className="bg-muted/50 rounded-lg p-4">
-                      <div className="text-sm font-medium mb-2">
-                        {rate.size}
-                      </div>
+                      <div className="text-sm font-medium mb-2">{rate.size}</div>
                       <PriceCard price={rate.price} unit={rate.unit} />
                     </div>
                   ))}
@@ -164,9 +134,7 @@ export default function Pricing() {
                 <div className="space-y-4">
                   {longStayRates.rates.map((rate) => (
                     <div key={rate.size} className="bg-muted/50 rounded-lg p-4">
-                      <div className="text-sm font-medium mb-2">
-                        {rate.size}
-                      </div>
+                      <div className="text-sm font-medium mb-2">{rate.size}</div>
                       <PriceCard price={rate.price} unit={rate.unit} />
                     </div>
                   ))}
@@ -206,13 +174,8 @@ export default function Pricing() {
                   <h4 className="text-sm font-semibold mb-4">Standard Room</h4>
                   <div className="space-y-4">
                     {catHotelRates.standardRoom.map((rate) => (
-                      <div
-                        key={rate.type}
-                        className="bg-muted/50 rounded-lg p-4"
-                      >
-                        <div className="text-sm font-medium mb-2">
-                          {rate.type}
-                        </div>
+                      <div key={rate.type} className="bg-muted/50 rounded-lg p-4">
+                        <div className="text-sm font-medium mb-2">{rate.type}</div>
                         <PriceCard price={rate.price} unit="night" />
                       </div>
                     ))}
@@ -222,14 +185,10 @@ export default function Pricing() {
                   <h4 className="text-sm font-semibold mb-4">Extra Guest</h4>
                   <div className="space-y-4">
                     {catHotelRates.extraGuest.map((rate) => (
-                      <div
-                        key={rate.type}
-                        className="bg-muted/50 rounded-lg p-4"
-                      >
-                        <div className="text-sm font-medium mb-2">
-                          {rate.type}
-                        </div>
+                      <div key={rate.type} className="bg-muted/50 rounded-lg p-4">
+                        <div className="text-sm font-medium mb-2">{rate.type}</div>
                         <PriceCard price={rate.price} unit="guest" />
+                        <div className="text-xs text-muted-foreground mt-1">{rate.note}</div>
                       </div>
                     ))}
                   </div>
@@ -257,17 +216,12 @@ export default function Pricing() {
           viewport={{ once: true }}
         >
           <p className="text-sm text-muted-foreground">
-            * All rates include basic care services. Additional services
-            available upon request.
+            * All rates include basic care services. Additional services available upon request.
           </p>
-          <p className="text-sm text-muted-foreground mt-2">
-            * Prices may vary during peak seasons and holidays.
-          </p>
-          <p className="text-sm text-muted-foreground mt-2">
-            * Additional guests are charged extra.
-          </p>
+          <p className="text-sm text-muted-foreground mt-2">* Prices may vary during peak seasons and holidays.</p>
         </motion.div>
       </div>
     </div>
-  );
+  )
 }
+

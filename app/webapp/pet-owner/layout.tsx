@@ -3,62 +3,168 @@
 import type React from "react"
 
 import { useState, useEffect } from "react"
-import { usePathname } from "next/navigation"
-import { Topbar } from "./components/topbar"
-import { BottomNavbar } from "./components/bottom-navbar"
+import Link from "next/link"
+import { Home, FileText, Bell, User, Menu } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
+import ThemeToggle from "./components/theme-toggle"
+import BottomNavigation from "./components/bottom-navigation"
+import { notifications } from "../data/sample-data"
 
-export default function PetOwnerLayout({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname()
-  const [showNavbar, setShowNavbar] = useState(true)
-  const [lastScrollY, setLastScrollY] = useState(0)
+export default function PetOwnerLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  const [isMounted, setIsMounted] = useState(false)
 
-  // Hide navbar on scroll down, show on scroll up
   useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY
+    setIsMounted(true)
+  }, [])
 
-      // Don't hide navbar on mobile - we'll make it fixed instead
-      if (window.innerWidth <= 768) {
-        setShowNavbar(true)
-        return
-      }
+  // Count unread notifications
+  const unreadCount = notifications.filter((n) => !n.isRead).length
 
-      if (currentScrollY > lastScrollY) {
-        setShowNavbar(false)
-      } else {
-        setShowNavbar(true)
-      }
-
-      setLastScrollY(currentScrollY)
-    }
-
-    window.addEventListener("scroll", handleScroll, { passive: true })
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll)
-    }
-  }, [lastScrollY])
-
-  // Check if we're on the login page
-  const isLoginPage = pathname === "/webapp/pet-owner/login"
-
-  if (isLoginPage) {
-    return <>{children}</>
-  }
+  const navItems = [
+    {
+      name: "Home",
+      href: "/webapp/pet-owner",
+      icon: Home,
+    },
+    {
+      name: "Requests",
+      href: "/webapp/pet-owner/requests",
+      icon: FileText,
+    },
+    {
+      name: "Notifications",
+      href: "/webapp/pet-owner/notifications",
+      icon: Bell,
+      badge: unreadCount > 0 ? unreadCount : null,
+    },
+    {
+      name: "Profile",
+      href: "/webapp/pet-owner/profile",
+      icon: User,
+    },
+  ]
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <Topbar />
-      <main className="flex-1 pb-20 md:pb-0">{children}</main>
-      <div
-        className={cn(
-          "md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border transition-transform duration-300",
-          !showNavbar && "translate-y-full",
-        )}
-      >
-        <BottomNavbar />
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="sticky top-0 z-40 w-full border-b bg-background">
+        <div className="container flex h-16 items-center justify-between px-4 sm:px-8">
+          <div className="flex items-center gap-2">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="md:hidden">
+                  <Menu className="h-5 w-5" />
+                  <span className="sr-only">Toggle menu</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-[240px] sm:w-[300px]">
+                <div className="flex flex-col gap-6 py-4">
+                  <div className="flex items-center gap-2">
+                    <Avatar>
+                      <AvatarImage src="/placeholder.svg?height=32&width=32" alt="User" />
+                      <AvatarFallback>U</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="text-sm font-medium">John Doe</p>
+                      <p className="text-xs text-muted-foreground">john.doe@example.com</p>
+                    </div>
+                  </div>
+
+                  <nav className="flex flex-col gap-1">
+                    {navItems.map((item) => (
+                      <Link
+                        key={item.name}
+                        href={item.href}
+                        className={cn(
+                          "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium",
+                          "hover:bg-accent hover:text-accent-foreground",
+                        )}
+                      >
+                        <div className="relative">
+                          <item.icon className="h-5 w-5" />
+                          {item.badge && (
+                            <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground">
+                              {item.badge > 9 ? "9+" : item.badge}
+                            </span>
+                          )}
+                        </div>
+                        {item.name}
+                      </Link>
+                    ))}
+                  </nav>
+                </div>
+              </SheetContent>
+            </Sheet>
+
+            <Link href="/webapp/pet-owner" className="flex items-center gap-2">
+              <span className="font-bold text-xl">PetCare</span>
+            </Link>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {isMounted && <ThemeToggle />}
+
+            <Avatar className="h-8 w-8 md:hidden">
+              <AvatarImage src="/placeholder.svg?height=32&width=32" alt="User" />
+              <AvatarFallback>U</AvatarFallback>
+            </Avatar>
+          </div>
+        </div>
+      </header>
+
+      {/* Sidebar (desktop only) */}
+      <div className="hidden md:fixed md:inset-y-0 md:left-0 md:z-30 md:w-60 md:flex md:flex-col md:border-r md:bg-background md:pt-16">
+        <div className="flex flex-col gap-4 p-4">
+          <div className="flex items-center gap-2 px-2">
+            <Avatar>
+              <AvatarImage src="/placeholder.svg?height=32&width=32" alt="User" />
+              <AvatarFallback>U</AvatarFallback>
+            </Avatar>
+            <div>
+              <p className="text-sm font-medium">John Doe</p>
+              <p className="text-xs text-muted-foreground">john.doe@example.com</p>
+            </div>
+          </div>
+
+          <nav className="flex flex-col gap-1">
+            {navItems.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={cn(
+                  "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium",
+                  "hover:bg-accent hover:text-accent-foreground",
+                )}
+              >
+                <div className="relative">
+                  <item.icon className="h-5 w-5" />
+                  {item.badge && (
+                    <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground">
+                      {item.badge > 9 ? "9+" : item.badge}
+                    </span>
+                  )}
+                </div>
+                {item.name}
+              </Link>
+            ))}
+          </nav>
+        </div>
       </div>
+
+      {/* Main content */}
+      <main className="flex-1 md:pl-60">
+        <div className="container max-w-screen-md mx-auto p-4 sm:p-6 pb-20 md:pb-6">{children}</div>
+      </main>
+
+      {/* Bottom navigation (mobile only) */}
+      <BottomNavigation />
     </div>
   )
 }

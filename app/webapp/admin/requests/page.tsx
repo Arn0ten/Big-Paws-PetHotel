@@ -1,6 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import type React from "react"
+
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -1090,6 +1092,26 @@ export default function RequestsPage() {
 function NewRequestCard({ request, onApprove, onReject, onViewDetails }: NewRequestCardProps) {
   const isMobile = useMediaQuery("(max-width: 640px)")
   const isSmallCard = useMediaQuery("(max-width: 400px)")
+  const [isApproving, setIsApproving] = useState(false)
+
+  // Force stacking on narrow cards
+  useEffect(() => {
+    const handleResize = () => {
+      const cardElements = document.querySelectorAll(".request-card")
+      cardElements.forEach((card) => {
+        const cardWidth = (card as HTMLElement).offsetWidth
+        if (cardWidth < 300) {
+          ;(card as HTMLElement).classList.add("narrow-card")
+        } else {
+          ;(card as HTMLElement).classList.remove("narrow-card")
+        }
+      })
+    }
+
+    handleResize()
+    window.addEventListener("resize", handleResize)
+    return () => window.removeEventListener("resize", handleResize)
+  }, [])
 
   const getCardBorderColor = (type: string, isUrgent: boolean) => {
     if (isUrgent) return "border-red-300 dark:border-red-800"
@@ -1129,6 +1151,20 @@ function NewRequestCard({ request, onApprove, onReject, onViewDetails }: NewRequ
     }
   }
 
+  const handleApprove = (e: React.MouseEvent) => {
+    e.stopPropagation() // Prevent card click event
+    setIsApproving(true)
+
+    // Call the onApprove function
+    onApprove()
+
+    // Reset the state after a delay (this would normally be handled by the API response)
+    // In a real implementation, you would reset this in the .then() or .finally() of your API call
+    setTimeout(() => {
+      setIsApproving(false)
+    }, 2000)
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
@@ -1141,7 +1177,7 @@ function NewRequestCard({ request, onApprove, onReject, onViewDetails }: NewRequ
       className="h-full"
     >
       <Card
-        className={`w-full h-full flex flex-col ${getCardBorderColor(request.type, request.isUrgent)} ${getCardBgColor(request.type, request.isUrgent)}`}
+        className={`w-full h-full flex flex-col request-card ${getCardBorderColor(request.type, request.isUrgent)} ${getCardBgColor(request.type, request.isUrgent)}`}
       >
         <CardHeader className="p-4 pb-2">
           <div className="flex justify-between items-start">
@@ -1224,7 +1260,7 @@ function NewRequestCard({ request, onApprove, onReject, onViewDetails }: NewRequ
           <Button variant="outline" className="w-full" onClick={onViewDetails}>
             View Details
           </Button>
-          <div className={`flex flex-col sm:flex-row gap-2 w-full`}>
+          <div className={`flex flex-col ${!isSmallCard ? "sm:flex-row" : ""} gap-2 w-full`}>
             <Button
               variant="outline"
               className="w-full text-sm px-2 sm:px-4"
@@ -1234,9 +1270,23 @@ function NewRequestCard({ request, onApprove, onReject, onViewDetails }: NewRequ
               <ThumbsDown className="mr-1 sm:mr-2 h-4 w-4" />
               <span>Reject</span>
             </Button>
-            <Button className="w-full text-sm px-2 sm:px-4" onClick={onApprove} size={isSmallCard ? "sm" : "default"}>
-              <ThumbsUp className="mr-1 sm:mr-2 h-4 w-4" />
-              <span>Approve</span>
+            <Button
+              className="w-full text-sm px-2 sm:px-4"
+              onClick={handleApprove}
+              size={isSmallCard ? "sm" : "default"}
+              disabled={isApproving}
+            >
+              {isApproving ? (
+                <>
+                  <Loader2 className="mr-1 sm:mr-2 h-4 w-4 animate-spin" />
+                  <span>Approving...</span>
+                </>
+              ) : (
+                <>
+                  <ThumbsUp className="mr-1 sm:mr-2 h-4 w-4" />
+                  <span>Approve</span>
+                </>
+              )}
             </Button>
           </div>
         </CardFooter>
@@ -1259,7 +1309,7 @@ function RejectedRequestCard({ request, onViewDetails, onReconsider }: RejectedR
       whileHover={{ scale: 1.02 }}
       className="h-full"
     >
-      <Card className="border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/20 w-full h-full flex flex-col">
+      <Card className="border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/20 w-full h-full flex flex-col request-card">
         <CardHeader className="p-4 pb-2">
           <div className="flex justify-between items-start">
             <div className="flex items-center space-x-2">

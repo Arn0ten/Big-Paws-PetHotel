@@ -10,11 +10,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import {
-  Camera,
-  Video,
-  Scissors,
-  Clock,
-  FileText,
   CheckCircle,
   Search,
   Filter,
@@ -40,486 +35,21 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
 import { SuccessDialog } from "./components/success-dialog"
-import type { BoardingStatus, PaymentStatus } from "../boarding/types"
 import { formatCurrency, formatDate } from "./utils/helpers"
 import { EnhancedRequestDialog } from "./components/enhanced-request-dialog"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { ChatBubble } from "./components/chat-bubble"
+import { sampleRequests, sampleBoardingData } from "./data/sample-data"
+import { PRICING, calculateExtensionCost } from "./data/pricing-data"
+import { getRequestTypeIcon, getRequestTypeLabel, getCardBorderColor, getCardBgColor } from "./utils/ui-helpers"
 
-// Utility functions for request management
-const getRequestTypeIcon = (type: string) => {
-  switch (type) {
-    case "photo":
-      return <Camera className="h-5 w-5" />
-    case "video":
-      return <Video className="h-5 w-5" />
-    case "grooming":
-      return <Scissors className="h-5 w-5" />
-    case "boarding-extension":
-      return <Clock className="h-5 w-5" />
-    case "custom":
-      return <FileText className="h-5 w-5" />
-    default:
-      return <FileText className="h-5 w-5" />
-  }
-}
-
-const getRequestTypeLabel = (type: string) => {
-  switch (type) {
-    case "photo":
-      return "Photo Update"
-    case "video":
-      return "Video Request"
-    case "grooming":
-      return "Grooming Service"
-    case "boarding-extension":
-      return "Boarding Extension"
-    case "custom":
-      return "Custom Request"
-    default:
-      return "Request"
-  }
-}
-
-// Pricing data for services from the uploaded images
-// NOTE FOR BACKEND: Replace with actual pricing data from database
-const PRICING = {
-  grooming: {
-    // For dogs
-    "basic-wash": {
-      Small: 180,
-      Medium: 220,
-      Large: 280,
-      XLarge: 320,
-    },
-    "premium-wash": {
-      Small: 300,
-      Medium: 450,
-      Large: 550,
-      XLarge: 850,
-    },
-    "premium-wash-and-cut": {
-      Small: 450,
-      Medium: 600,
-      Large: 650,
-      XLarge: 850,
-    },
-    "full-grooming": {
-      Small: 500,
-      Medium: 650,
-      Large: 700,
-      XLarge: 800,
-    },
-    // For cats
-    "cat-basic-wash": {
-      Small: 150,
-      Medium: 200,
-      Large: 250,
-      XLarge: 280,
-    },
-    "cat-premium-wash": {
-      Small: 200,
-      Medium: 250,
-      Large: 300,
-      XLarge: 350,
-    },
-  },
-  boarding: {
-    hourly: {
-      Small: 25,
-      Medium: 30,
-      Large: 40,
-      XLarge: 50,
-    },
-    daily: {
-      Small: 320,
-      Medium: 400,
-      Large: 480,
-      XLarge: 550,
-    },
-  },
-  catHotel: {
-    standard: {
-      Kitten: 300,
-      Adult: 400,
-    },
-    extraGuest: {
-      SmallToMedium: 200,
-      Large: 300,
-    },
-  },
-}
-
-// Calculate boarding extension cost
-// NOTE FOR BACKEND: Implement proper calculation based on actual boarding rates
-const calculateExtensionCost = (duration: string, unit: string, petSize: string): number => {
-  const durationNum = Number.parseInt(duration)
-
-  if (!petSize || !PRICING.boarding) return 0
-
-  switch (unit) {
-    case "hours":
-      return durationNum * PRICING.boarding.hourly[petSize as keyof typeof PRICING.boarding.hourly]
-    case "days":
-      return durationNum * PRICING.boarding.daily[petSize as keyof typeof PRICING.boarding.daily]
-    case "weeks":
-      return durationNum * 7 * PRICING.boarding.daily[petSize as keyof typeof PRICING.boarding.daily]
-    default:
-      return 0
-  }
-}
-
-// Sample data for demonstration - shared with boarding management module
-// NOTE FOR BACKEND: Replace with API call to fetch requests
-const sampleRequests = [
-  {
-    id: "req-001",
-    type: "photo",
-    petName: "Max",
-    petId: "pet-001",
-    petOwnerId: "owner-001",
-    petOwnerName: "John Smith",
-    status: "in-progress",
-    createdAt: "2025-03-10T10:30:00Z",
-    description: "Would love to see how Max is doing today!",
-    isUrgent: false,
-    petSize: "Medium",
-    boardingId: "board-001",
-  },
-  {
-    id: "req-002",
-    type: "grooming",
-    petName: "Bella",
-    petId: "pet-002",
-    petOwnerId: "owner-002",
-    petOwnerName: "Sarah Johnson",
-    status: "in-progress",
-    createdAt: "2025-03-09T14:15:00Z",
-    description: "Please give Bella a bath and trim her nails.",
-    isUrgent: true,
-    groomingService: "premium-wash-and-cut",
-    price: 600,
-    petSize: "Medium",
-    boardingId: "board-002",
-  },
-  {
-    id: "req-003",
-    type: "boarding-extension",
-    petName: "Charlie",
-    petId: "pet-003",
-    petOwnerId: "owner-003",
-    petOwnerName: "Michael Brown",
-    status: "in-progress",
-    createdAt: "2025-03-08T09:45:00Z",
-    description: "Need to extend Charlie's stay by 2 more days.",
-    extensionDetails: {
-      duration: "2",
-      unit: "days",
-    },
-    currentEndDate: "2025-03-10T12:00:00Z",
-    price: 800,
-    isUrgent: true,
-    petSize: "Medium",
-    boardingId: "board-003",
-  },
-  {
-    id: "req-004",
-    type: "video",
-    petName: "Luna",
-    petId: "pet-004",
-    petOwnerId: "owner-004",
-    petOwnerName: "Emily Davis",
-    status: "completed",
-    createdAt: "2025-03-07T16:20:00Z",
-    completedAt: "2025-03-07T18:45:00Z",
-    description: "Would like a short video of Luna playing.",
-    isUrgent: false,
-    completedBy: "Admin",
-    petSize: "Small",
-    boardingId: "board-004",
-  },
-  {
-    id: "req-005",
-    type: "photo",
-    petName: "Rocky",
-    petId: "pet-005",
-    petOwnerId: "owner-005",
-    petOwnerName: "David Wilson",
-    status: "completed",
-    createdAt: "2025-03-06T11:10:00Z",
-    completedAt: "2025-03-06T14:30:00Z",
-    description: "Would like to see a photo of Rocky during playtime.",
-    isUrgent: false,
-    completedBy: "Admin",
-    petSize: "Large",
-    boardingId: "board-005",
-  },
-  {
-    id: "req-006",
-    type: "grooming",
-    petName: "Daisy",
-    petId: "pet-006",
-    petOwnerId: "owner-006",
-    petOwnerName: "Jennifer Taylor",
-    status: "in-progress",
-    createdAt: "2025-03-05T13:25:00Z",
-    description: "Daisy needs a full grooming session with special attention to her ears.",
-    isUrgent: false,
-    groomingService: "full-grooming",
-    price: 650,
-    petSize: "Medium",
-    boardingId: "board-006",
-  },
-  {
-    id: "req-007",
-    type: "boarding-extension",
-    petName: "Cooper",
-    petId: "pet-007",
-    petOwnerId: "owner-007",
-    petOwnerName: "Robert Johnson",
-    status: "completed",
-    createdAt: "2025-03-04T09:15:00Z",
-    completedAt: "2025-03-04T11:30:00Z",
-    description: "Need to extend Cooper's stay by 3 more days due to delayed flight.",
-    extensionDetails: {
-      duration: "3",
-      unit: "days",
-    },
-    currentEndDate: "2025-03-07T12:00:00Z",
-    price: 1440,
-    isUrgent: true,
-    completedBy: "Admin",
-    processingNotes: "Extended stay approved. Owner notified via email about additional charges.",
-    petSize: "Large",
-    boardingId: "board-007",
-  },
-  {
-    id: "req-008",
-    type: "custom",
-    petName: "Milo",
-    petId: "pet-008",
-    petOwnerId: "owner-008",
-    petOwnerName: "Amanda Clark",
-    status: "in-progress",
-    createdAt: "2025-03-03T15:40:00Z",
-    description: "Can you make sure Milo gets his medication at 3pm every day? It's in his bag.",
-    isUrgent: true,
-    petSize: "Small",
-    boardingId: "board-008",
-  },
-  {
-    id: "req-009",
-    type: "video",
-    petName: "Zoe",
-    petId: "pet-009",
-    petOwnerId: "owner-009",
-    petOwnerName: "Thomas Wright",
-    status: "in-progress",
-    createdAt: "2025-03-02T10:20:00Z",
-    description: "Would love to see a video of Zoe playing with other dogs if possible.",
-    isUrgent: false,
-    petSize: "Medium",
-    boardingId: "board-009",
-  },
-  {
-    id: "req-010",
-    type: "grooming",
-    petName: "Bailey",
-    petId: "pet-010",
-    petOwnerId: "owner-010",
-    petOwnerName: "Sophia Martinez",
-    status: "completed",
-    createdAt: "2025-03-01T14:10:00Z",
-    completedAt: "2025-03-01T16:45:00Z",
-    description: "Bailey needs a bath and nail trim.",
-    groomingService: "premium-wash-and-cut",
-    price: 450,
-    isUrgent: false,
-    completedBy: "Admin",
-    processingNotes: "Bailey was very cooperative during the grooming session.",
-    petSize: "Small",
-    boardingId: "board-010",
-  },
-  // Adding hourly boarding extension request
-  {
-    id: "req-011",
-    type: "boarding-extension",
-    petName: "Buddy",
-    petId: "pet-011",
-    petOwnerId: "owner-011",
-    petOwnerName: "James Wilson",
-    status: "in-progress",
-    createdAt: "2025-03-11T08:30:00Z",
-    description: "Need to extend Buddy's daycare by 4 more hours.",
-    extensionDetails: {
-      duration: "4",
-      unit: "hours",
-    },
-    currentEndDate: "2025-03-11T17:00:00Z",
-    price: 120,
-    isUrgent: false,
-    petSize: "Medium",
-    boardingId: "board-011",
-  },
-  {
-    id: "req-012",
-    type: "boarding-extension",
-    petName: "Coco",
-    petId: "pet-012",
-    petOwnerId: "owner-012",
-    petOwnerName: "Lisa Thompson",
-    status: "in-progress",
-    createdAt: "2025-03-11T09:15:00Z",
-    description: "Need to extend Coco's daycare by 2 more hours due to traffic.",
-    extensionDetails: {
-      duration: "2",
-      unit: "hours",
-    },
-    currentEndDate: "2025-03-11T18:00:00Z",
-    price: 50,
-    isUrgent: true,
-    petSize: "Small",
-    boardingId: "board-012",
-  },
-]
-
-// Sample boarding data that matches with the requests
-// NOTE FOR BACKEND: Replace with API call to fetch boarding data
-const sampleBoardingData = [
-  {
-    id: "board-001",
-    pet: { id: "pet-001", name: "Max", size: "Medium" },
-    owner: { id: "owner-001", name: "John Smith" },
-    startDate: "2025-03-05T10:00:00Z",
-    endDate: "2025-03-12T10:00:00Z",
-    boardingStatus: "Boarding" as BoardingStatus,
-    paymentStatus: "Paid" as PaymentStatus,
-    totalPrice: 2800,
-  },
-  {
-    id: "board-002",
-    pet: { id: "pet-002", name: "Bella", size: "Medium" },
-    owner: { id: "owner-002", name: "Sarah Johnson" },
-    startDate: "2025-03-06T14:00:00Z",
-    endDate: "2025-03-13T14:00:00Z",
-    boardingStatus: "Boarding" as BoardingStatus,
-    paymentStatus: "Paid" as PaymentStatus,
-    totalPrice: 2800,
-  },
-  {
-    id: "board-003",
-    pet: { id: "pet-003", name: "Charlie", size: "Medium" },
-    owner: { id: "owner-003", name: "Michael Brown" },
-    startDate: "2025-03-03T09:00:00Z",
-    endDate: "2025-03-10T12:00:00Z",
-    boardingStatus: "Boarding" as BoardingStatus,
-    paymentStatus: "Paid" as PaymentStatus,
-    totalPrice: 2800,
-  },
-  {
-    id: "board-004",
-    pet: { id: "pet-004", name: "Luna", size: "Small" },
-    owner: { id: "owner-004", name: "Emily Davis" },
-    startDate: "2025-03-01T16:00:00Z",
-    endDate: "2025-03-08T16:00:00Z",
-    boardingStatus: "Boarding" as BoardingStatus,
-    paymentStatus: "Paid" as PaymentStatus,
-    totalPrice: 2240,
-  },
-  {
-    id: "board-005",
-    pet: { id: "pet-005", name: "Rocky", size: "Large" },
-    owner: { id: "owner-005", name: "David Wilson" },
-    startDate: "2025-03-01T11:00:00Z",
-    endDate: "2025-03-08T11:00:00Z",
-    boardingStatus: "Boarding" as BoardingStatus,
-    paymentStatus: "Paid" as PaymentStatus,
-    totalPrice: 3360,
-  },
-  {
-    id: "board-006",
-    pet: { id: "pet-006", name: "Daisy", size: "Medium" },
-    owner: { id: "owner-006", name: "Jennifer Taylor" },
-    startDate: "2025-03-01T13:00:00Z",
-    endDate: "2025-03-08T13:00:00Z",
-    boardingStatus: "Boarding" as BoardingStatus,
-    paymentStatus: "Paid" as PaymentStatus,
-    totalPrice: 2800,
-  },
-  {
-    id: "board-007",
-    pet: { id: "pet-007", name: "Cooper", size: "Large" },
-    owner: { id: "owner-007", name: "Robert Johnson" },
-    startDate: "2025-03-01T09:00:00Z",
-    endDate: "2025-03-07T12:00:00Z",
-    boardingStatus: "Done Boarding" as BoardingStatus,
-    paymentStatus: "Paid" as PaymentStatus,
-    totalPrice: 3360,
-    additionalCharges: 1440,
-    additionalChargesReason: "3-day extension",
-  },
-  {
-    id: "board-008",
-    pet: { id: "pet-008", name: "Milo", size: "Small" },
-    owner: { id: "owner-008", name: "Amanda Clark" },
-    startDate: "2025-03-01T15:00:00Z",
-    endDate: "2025-03-08T15:00:00Z",
-    boardingStatus: "Boarding" as BoardingStatus,
-    paymentStatus: "Paid" as PaymentStatus,
-    totalPrice: 2240,
-  },
-  {
-    id: "board-009",
-    pet: { id: "pet-009", name: "Zoe", size: "Medium" },
-    owner: { id: "owner-009", name: "Thomas Wright" },
-    startDate: "2025-02-25T10:00:00Z",
-    endDate: "2025-03-04T10:00:00Z",
-    boardingStatus: "Boarding" as BoardingStatus,
-    paymentStatus: "Paid" as PaymentStatus,
-    totalPrice: 2800,
-  },
-  {
-    id: "board-010",
-    pet: { id: "pet-010", name: "Bailey", size: "Small" },
-    owner: { id: "owner-010", name: "Sophia Martinez" },
-    startDate: "2025-02-25T14:00:00Z",
-    endDate: "2025-03-04T14:00:00Z",
-    boardingStatus: "Done Boarding" as BoardingStatus,
-    paymentStatus: "Paid" as PaymentStatus,
-    totalPrice: 2240,
-    additionalCharges: 450,
-    additionalChargesReason: "Grooming service",
-  },
-  {
-    id: "board-011",
-    pet: { id: "pet-011", name: "Buddy", size: "Medium" },
-    owner: { id: "owner-011", name: "James Wilson" },
-    startDate: "2025-03-11T09:00:00Z",
-    endDate: "2025-03-11T17:00:00Z",
-    boardingStatus: "Boarding" as BoardingStatus,
-    paymentStatus: "Paid" as PaymentStatus,
-    totalPrice: 240, // 8 hours of daycare
-  },
-  {
-    id: "board-012",
-    pet: { id: "pet-012", name: "Coco", size: "Small" },
-    owner: { id: "owner-012", name: "Lisa Thompson" },
-    startDate: "2025-03-11T10:00:00Z",
-    endDate: "2025-03-11T18:00:00Z",
-    boardingStatus: "Boarding" as BoardingStatus,
-    paymentStatus: "Paid" as PaymentStatus,
-    totalPrice: 200, // 8 hours of daycare
-  },
-]
-
-// Update the interface for InProgressRequestCard to include onUndoAccept
 interface InProgressRequestCardProps {
   request: any
   onProcess: () => void
-  onUndoAccept?: () => void
-  onViewDetails: () => void // Add this new prop for viewing details
+  onUndoAccept: () => void
+  onViewDetails: () => void
 }
 
 interface CompletedRequestCardProps {
@@ -594,13 +124,58 @@ export default function RequestManagementPage() {
     }
   }, [selectedRequest, selectedGroomingService])
 
-  // Modify the handleCompleteRequest function to immediately remove the completed request from the In Progress tab
-
-  // Update the handleCompleteRequest function to handle multiple files
+  // Update handleCompleteRequest to properly incorporate audio with video
   const handleCompleteRequest = () => {
     if (!selectedRequest) return
 
     setIsProcessing(true)
+
+    // BACKEND INTEGRATION:
+    // Replace this setTimeout with an actual API call
+    // Example:
+    // try {
+    //   const formData = new FormData();
+    //   selectedFiles.forEach(file => formData.append('files', file));
+    //   formData.append('processingNotes', processingNotes);
+    //   if (extensionDate) formData.append('extensionDate', extensionDate.toISOString());
+    //   if (selectedGroomingService) formData.append('groomingService', selectedGroomingService);
+    //   if (selectedAudioUrl) formData.append('audioUrl', selectedAudioUrl); // Add audio URL if selected
+    //
+    //   const response = await fetch(`/api/requests/${selectedRequest.id}/complete`, {
+    //     method: 'PUT',
+    //     body: formData,
+    //   });
+    //
+    //   if (!response.ok) throw new Error('Failed to complete request');
+    //
+    //   const updatedRequest = await response.json();
+    //
+    //   // Update local state with the response from the server
+    //   setRequests(prev => prev.map(req =>
+    //     req.id === updatedRequest.id ? updatedRequest : req
+    //   ));
+    //
+    //   // If boarding data was updated, fetch the latest boarding data
+    //   if (selectedRequest.type === "boarding-extension" || selectedRequest.type === "grooming") {
+    //     const boardingResponse = await fetch(`/api/boarding/${selectedRequest.boardingId}`);
+    //     if (boardingResponse.ok) {
+    //       const updatedBoarding = await boardingResponse.json();
+    //       setBoardingData(prev => prev.map(b =>
+    //         b.id === updatedBoarding.id ? updatedBoarding : b
+    //       ));
+    //       setSelectedBoardingDetails(updatedBoarding);
+    //     }
+    //   }
+    // } catch (error) {
+    //   console.error('Error completing request:', error);
+    //   toast({
+    //     title: "Error",
+    //     description: "Failed to complete the request. Please try again.",
+    //     variant: "destructive",
+    //   });
+    //   setIsProcessing(false);
+    //   return;
+    // }
 
     // NOTE FOR BACKEND: Replace with actual API call to update request status
     setTimeout(() => {
@@ -626,6 +201,15 @@ export default function RequestManagementPage() {
                       // In a real implementation, these would be URLs from your storage service
                       urls: previewUrls,
                       count: selectedFiles.length,
+                      // Include audio information if this is a video with audio
+                      audioUrl: selectedRequest.type === "video" ? selectedRequest.selectedAudioUrl : undefined,
+                      audioName:
+                        selectedRequest.type === "video" && selectedRequest.selectedAudioUrl
+                          ? selectedRequest.selectedAudioUrl
+                              .split("/")
+                              .pop()
+                              ?.replace(/\.[^/.]+$/, "")
+                          : undefined,
                     }
                   : undefined,
               ...(extensionDate && {
@@ -650,28 +234,66 @@ export default function RequestManagementPage() {
       if (selectedRequest.type === "boarding-extension" || selectedRequest.type === "grooming") {
         const updatedBoardingData = boardingData.map((boarding) => {
           if (boarding.id === selectedRequest.boardingId) {
+            // Create a transaction record for financial tracking
+            const transactionRecord = {
+              id: `txn-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+              timestamp: new Date().toISOString(),
+              requestId: selectedRequest.id,
+              requestType: selectedRequest.type,
+              amount: calculatedPrice || 0,
+              status: "pending",
+              petId: boarding.pet.id,
+              petName: boarding.pet.name,
+              ownerId: boarding.owner.id,
+              ownerName: boarding.owner.name,
+              description: "",
+              processedBy: "Admin",
+            }
+
             // For boarding extension
             if (selectedRequest.type === "boarding-extension" && extensionDate) {
               // Create a record of the additional charge
               const additionalService = {
+                id: `svc-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
                 name: `${selectedRequest.extensionDetails.duration} ${selectedRequest.extensionDetails.unit} extension`,
                 price: calculatedPrice || 0,
                 requestId: selectedRequest.id,
                 timestamp: new Date().toISOString(),
+                appliedDate: new Date().toISOString(),
               }
 
               // Get existing additional services or initialize empty array
               const existingServices = boarding.additionalServices || []
 
+              // Update transaction record description
+              transactionRecord.description = `Boarding extension: ${selectedRequest.extensionDetails.duration} ${selectedRequest.extensionDetails.unit}`
+
+              // Calculate the new total with all charges
+              const newTotalPrice = boarding.totalPrice + (calculatedPrice || 0)
+
+              // Update the boarding record
               return {
                 ...boarding,
                 endDate: extensionDate.toISOString(),
-                paymentStatus: "Pending" as PaymentStatus, // Change to pending regardless of previous status
-                totalPrice: boarding.totalPrice + (calculatedPrice || 0),
+                paymentStatus: "Pending", // Change to pending regardless of previous status
+                totalPrice: newTotalPrice,
                 additionalServices: [...existingServices, additionalService],
+                transactions: [...(boarding.transactions || []), transactionRecord],
+                outstandingBalance: (boarding.outstandingBalance || 0) + (calculatedPrice || 0),
                 updatedAt: new Date().toISOString(),
                 lastModifiedBy: "Admin",
                 lastModificationReason: "Boarding extension approved",
+                paymentDue: true,
+                paymentHistory: [
+                  ...(boarding.paymentHistory || []),
+                  {
+                    date: new Date().toISOString(),
+                    description: "Boarding extension added",
+                    amount: calculatedPrice || 0,
+                    type: "charge",
+                    status: "pending",
+                  },
+                ],
               }
             }
 
@@ -679,23 +301,45 @@ export default function RequestManagementPage() {
             if (selectedRequest.type === "grooming") {
               // Create a record of the grooming service
               const groomingService = {
+                id: `svc-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
                 name: `Grooming: ${selectedGroomingService.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}`,
                 price: calculatedPrice || 0,
                 requestId: selectedRequest.id,
                 timestamp: new Date().toISOString(),
+                appliedDate: new Date().toISOString(),
               }
 
               // Get existing additional services or initialize empty array
               const existingServices = boarding.additionalServices || []
 
+              // Update transaction record description
+              transactionRecord.description = `Grooming service: ${selectedGroomingService.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}`
+
+              // Calculate the new total with all charges
+              const newTotalPrice = boarding.totalPrice + (calculatedPrice || 0)
+
+              // Update the boarding record
               return {
                 ...boarding,
-                paymentStatus: "Pending" as PaymentStatus, // Change to pending regardless of previous status
-                totalPrice: boarding.totalPrice + (calculatedPrice || 0),
+                paymentStatus: "Pending", // Change to pending regardless of previous status
+                totalPrice: newTotalPrice,
                 additionalServices: [...existingServices, groomingService],
+                transactions: [...(boarding.transactions || []), transactionRecord],
+                outstandingBalance: (boarding.outstandingBalance || 0) + (calculatedPrice || 0),
                 updatedAt: new Date().toISOString(),
                 lastModifiedBy: "Admin",
                 lastModificationReason: "Grooming service added",
+                paymentDue: true,
+                paymentHistory: [
+                  ...(boarding.paymentHistory || []),
+                  {
+                    date: new Date().toISOString(),
+                    description: "Grooming service added",
+                    amount: calculatedPrice || 0,
+                    type: "charge",
+                    status: "pending",
+                  },
+                ],
               }
             }
           }
@@ -708,6 +352,16 @@ export default function RequestManagementPage() {
         const updatedBoarding = updatedBoardingData.find((b) => b.id === selectedRequest.boardingId)
         if (updatedBoarding) {
           setSelectedBoardingDetails(updatedBoarding)
+
+          // Notify the system about the payment update
+          // BACKEND INTEGRATION: Replace with actual API call to notify relevant systems
+          // Example: notifyPaymentSystem(updatedBoarding.id, calculatedPrice, selectedRequest.type);
+
+          // In a real implementation, you might want to:
+          // 1. Send an email notification to the pet owner about the new charges
+          // 2. Update the financial system with the new transaction
+          // 3. Generate an invoice for the new charges
+          // 4. Update any dashboards or reports with the new financial data
         }
       }
 
@@ -765,6 +419,47 @@ export default function RequestManagementPage() {
 
     setIsProcessing(true)
 
+    // BACKEND INTEGRATION:
+    // Replace this setTimeout with an actual API call
+    // Example:
+    // try {
+    //   const response = await fetch(`/api/requests/${requestToUndo.id}/return`, {
+    //     method: 'PUT',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify({ reason: undoAcceptMessage }),
+    //   });
+    //
+    //   if (!response.ok) throw new Error('Failed to return request');
+    //
+    //   const updatedRequest = await response.json();
+    //
+    //   // Update local state with the response from the server
+    //   setRequests(prev => prev.map(req =>
+    //     req.id === updatedRequest.id ? updatedRequest : req
+    //   ));
+    //
+    //   setIsProcessing(false);
+    //   setShowUndoAcceptDialog(false);
+    //
+    //   toast({
+    //     title: "Request Returned",
+    //     description: `The request has been returned to the New Requests tab.`,
+    //   });
+    //
+    //   setRequestToUndo(null);
+    //   setUndoAcceptMessage("");
+    // } catch (error) {
+    //   console.error('Error returning request:', error);
+    //   toast({
+    //     title: "Error",
+    //     description: "Failed to return the request. Please try again.",
+    //     variant: "destructive",
+    //   });
+    //   setIsProcessing(false);
+    // }
+
     // Simulate API call
     setTimeout(() => {
       // Update the request status back to "new" (not in-progress)
@@ -807,6 +502,25 @@ export default function RequestManagementPage() {
     setSearchQuery("")
     setFilterType("all")
 
+    // BACKEND INTEGRATION:
+    // Replace this setTimeout with an actual API call
+    // Example:
+    // try {
+    //   const response = await fetch('/api/requests?status=in-progress,completed');
+    //   if (!response.ok) throw new Error('Failed to fetch requests');
+    //   const data = await response.json();
+    //   setRequests(data);
+    //   setIsLoading(false);
+    // } catch (error) {
+    //   console.error('Error fetching requests:', error);
+    //   toast({
+    //     title: "Error",
+    //     description: "Failed to refresh data. Please try again.",
+    //     variant: "destructive",
+    //   });
+    //   setIsLoading(false);
+    // }
+
     // NOTE FOR BACKEND: Replace with actual API call to refresh data
     setTimeout(() => {
       // Simulate refreshing data
@@ -818,6 +532,25 @@ export default function RequestManagementPage() {
   const handleSearch = (query: string) => {
     setSearchQuery(query)
     setIsLoading(true)
+
+    // BACKEND INTEGRATION:
+    // Replace this setTimeout with an actual API call
+    // Example:
+    // try {
+    //   const response = await fetch(`/api/requests?search=${encodeURIComponent(query)}&status=${activeTab}`);
+    //   if (!response.ok) throw new Error('Failed to search requests');
+    //   const data = await response.json();
+    //   setRequests(data);
+    //   setIsLoading(false);
+    // } catch (error) {
+    //   console.error('Error searching requests:', error);
+    //   toast({
+    //     title: "Error",
+    //     description: "Failed to search. Please try again.",
+    //     variant: "destructive",
+    //   });
+    //   setIsLoading(false);
+    // }
 
     // NOTE FOR BACKEND: Replace with actual API call to search requests
     setTimeout(() => {
@@ -1182,14 +915,20 @@ export default function RequestManagementPage() {
                 <div className="p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-md">
                   <div className="flex items-center gap-2 text-sm text-amber-800 dark:text-amber-300">
                     <Bell className="h-4 w-4" />
-                    <span className="font-medium">Payment Status Updated:</span>
+                    <span className="font-medium">Payment Status:</span>
                     <Badge
                       variant="outline"
                       className="bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/50 dark:text-amber-300 dark:border-amber-800"
                     >
-                      Pending
+                      {selectedBoardingDetails.paymentStatus}
                     </Badge>
                   </div>
+                  {selectedBoardingDetails.outstandingBalance > 0 && (
+                    <div className="mt-2 text-sm text-amber-800 dark:text-amber-300">
+                      <span className="font-medium">Outstanding Balance:</span>{" "}
+                      <span className="font-bold">{formatCurrency(selectedBoardingDetails.outstandingBalance)}</span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -1236,6 +975,53 @@ export default function RequestManagementPage() {
                     {formatCurrency(selectedBoardingDetails.totalPrice)}
                   </div>
                 </div>
+
+                {/* New section: Recent Transaction */}
+                {selectedBoardingDetails.transactions && selectedBoardingDetails.transactions.length > 0 && (
+                  <div>
+                    <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+                      Recent Transaction
+                    </span>
+                    <div className="mt-1 p-3 bg-blue-50 border border-blue-100 rounded-md text-blue-700 dark:bg-blue-950/20 dark:border-blue-800 dark:text-blue-300">
+                      <div className="flex justify-between items-center">
+                        <span className="font-medium">ID:</span>
+                        <span className="text-sm">
+                          {selectedBoardingDetails.transactions[selectedBoardingDetails.transactions.length - 1].id}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center mt-1">
+                        <span className="font-medium">Type:</span>
+                        <span className="text-sm capitalize">
+                          {
+                            selectedBoardingDetails.transactions[selectedBoardingDetails.transactions.length - 1]
+                              .requestType
+                          }
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center mt-1">
+                        <span className="font-medium">Amount:</span>
+                        <span className="text-sm text-green-600 dark:text-green-400 font-bold">
+                          {formatCurrency(
+                            selectedBoardingDetails.transactions[selectedBoardingDetails.transactions.length - 1]
+                              .amount,
+                          )}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center mt-1">
+                        <span className="font-medium">Status:</span>
+                        <Badge variant="outline" className="capitalize">
+                          {selectedBoardingDetails.transactions[selectedBoardingDetails.transactions.length - 1].status}
+                        </Badge>
+                      </div>
+                      <div className="mt-2 text-xs text-muted-foreground">
+                        {new Date(
+                          selectedBoardingDetails.transactions[selectedBoardingDetails.transactions.length - 1]
+                            .timestamp,
+                        ).toLocaleString()}
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 <div className="p-4 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-md">
                   <div className="text-sm text-blue-800 dark:text-blue-300">
@@ -1323,44 +1109,6 @@ export default function RequestManagementPage() {
 function InProgressRequestCard({ request, onProcess, onUndoAccept, onViewDetails }: InProgressRequestCardProps) {
   const isMobile = useMediaQuery("(max-width: 640px)")
   const isSmallCard = useMediaQuery("(max-width: 400px)")
-
-  const getCardBorderColor = (type: string, isUrgent: boolean) => {
-    if (isUrgent) return "border-red-300 dark:border-red-800"
-
-    switch (type) {
-      case "photo":
-        return "border-blue-200 dark:border-blue-800"
-      case "video":
-        return "border-purple-200 dark:border-purple-800"
-      case "grooming":
-        return "border-green-200 dark:border-green-800"
-      case "boarding-extension":
-        return "border-amber-200 dark:border-amber-800"
-      case "custom":
-        return "border-gray-200 dark:border-gray-700"
-      default:
-        return ""
-    }
-  }
-
-  const getCardBgColor = (type: string, isUrgent: boolean) => {
-    if (isUrgent) return "bg-red-50 dark:bg-red-950/20"
-
-    switch (type) {
-      case "photo":
-        return "bg-blue-50 dark:bg-blue-950/20"
-      case "video":
-        return "bg-purple-50 dark:bg-purple-950/20"
-      case "grooming":
-        return "bg-green-50 dark:bg-green-950/20"
-      case "boarding-extension":
-        return "bg-amber-50 dark:bg-amber-950/20"
-      case "custom":
-        return "bg-gray-50 dark:bg-gray-950/20"
-      default:
-        return ""
-    }
-  }
 
   return (
     <motion.div
@@ -1490,13 +1238,17 @@ function InProgressRequestCard({ request, onProcess, onUndoAccept, onViewDetails
   )
 }
 
-// Update the CompletedRequestCard component to enhance labels and values
+// Update CompletedRequestCard to remove 'new' badge when viewed
 function CompletedRequestCard({ request }: CompletedRequestCardProps) {
   const [showDetails, setShowDetails] = useState(false)
+  const [isNewlyCompleted, setIsNewlyCompleted] = useState(request.isNewlyCompleted)
   const isMobile = useMediaQuery("(max-width: 640px)")
 
-  // Check if this is a newly completed request
-  const isNewlyCompleted = request.isNewlyCompleted
+  // Remove the 'new' badge when the details dialog is opened
+  const handleViewDetails = () => {
+    setIsNewlyCompleted(false)
+    setShowDetails(true)
+  }
 
   return (
     <>
@@ -1512,6 +1264,7 @@ function CompletedRequestCard({ request }: CompletedRequestCardProps) {
           className={`border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950/20 w-full h-full flex flex-col ${
             isNewlyCompleted ? "ring-2 ring-green-400 dark:ring-green-600 shadow-md" : ""
           }`}
+          onClick={handleViewDetails}
         >
           <CardHeader className="p-4 pb-2">
             <div className="flex justify-between items-start">
@@ -1603,26 +1356,42 @@ function CompletedRequestCard({ request }: CompletedRequestCardProps) {
             )}
           </CardContent>
           <CardFooter className="p-4 pt-0 mt-auto">
-            <Button variant="outline" className="w-full" onClick={() => setShowDetails(true)}>
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={(e) => {
+                e.stopPropagation()
+                handleViewDetails()
+              }}
+            >
               View Details
             </Button>
           </CardFooter>
         </Card>
       </motion.div>
 
-      <Dialog open={showDetails} onOpenChange={setShowDetails}>
-        <DialogContent className={`${isMobile ? "w-[95vw] max-w-lg" : "max-w-4xl"} h-[80vh] p-0 flex flex-col`}>
+      <Dialog
+        open={showDetails}
+        onOpenChange={(open) => {
+          if (!open) {
+            setShowDetails(false)
+          }
+        }}
+      >
+        <DialogContent
+          className={`${isMobile ? "w-[95vw] max-w-lg" : "max-w-4xl"} ${isMobile ? "h-[90vh]" : "h-[85vh]"} p-0 flex flex-col`}
+        >
           <DialogHeader className="px-6 py-4 border-b">
             <DialogTitle className="text-xl flex items-center gap-2">
               <div
                 className={`
-            p-2 rounded-full 
-            ${request.type === "photo" ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300" : ""}
-            ${request.type === "video" ? "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300" : ""}
-            ${request.type === "grooming" ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300" : ""}
-            ${request.type === "boarding-extension" ? "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300" : ""}
-            ${request.type === "custom" ? "bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300" : ""}
-          `}
+        p-2 rounded-full 
+        ${request.type === "photo" ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300" : ""}
+        ${request.type === "video" ? "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300" : ""}
+        ${request.type === "grooming" ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300" : ""}
+        ${request.type === "boarding-extension" ? "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300" : ""}
+        ${request.type === "custom" ? "bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300" : ""}
+      `}
               >
                 {getRequestTypeIcon(request.type)}
               </div>
@@ -1635,65 +1404,94 @@ function CompletedRequestCard({ request }: CompletedRequestCardProps) {
 
           <div className="flex-1 overflow-hidden flex flex-col md:flex-row">
             {/* Left panel - Request details */}
-            <div className="w-full md:w-1/2 border-r overflow-y-auto p-4">
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-1">Pet Information</h3>
-                  <p className="text-base font-medium">{request.petName}</p>
-                  <p className="text-sm text-muted-foreground">Owner: {request.petOwnerName}</p>
+            <div className="w-full md:w-1/2 border-r overflow-y-auto p-4 bg-slate-50 dark:bg-slate-900/30">
+              <div className="space-y-5">
+                <div className="bg-white dark:bg-slate-800 p-3 rounded-lg shadow-sm">
+                  <h3 className="text-xs uppercase tracking-wide text-muted-foreground font-medium mb-2">
+                    Pet Information
+                  </h3>
+                  <p className="text-lg font-semibold">{request.petName}</p>
+                  <p className="text-sm">
+                    Owner: <span className="font-medium">{request.petOwnerName}</span>
+                  </p>
                 </div>
 
                 {request.type === "boarding-extension" && request.extensionDetails && (
-                  <div>
-                    <h3 className="text-sm font-medium text-muted-foreground mb-1">Extension Details</h3>
-                    <p className="text-base">
-                      <span className="font-medium">Duration:</span> {request.extensionDetails.duration}{" "}
-                      {request.extensionDetails.unit}
-                    </p>
-                    {request.price && (
-                      <p className="text-base">
-                        <span className="font-medium">Price:</span> {formatCurrency(request.price)}
-                      </p>
-                    )}
-                    {request.newEndDate && (
-                      <p className="text-base">
-                        <span className="font-medium">New End Date:</span> {formatDate(request.newEndDate)}
-                      </p>
-                    )}
+                  <div className="bg-white dark:bg-slate-800 p-3 rounded-lg shadow-sm">
+                    <h3 className="text-xs uppercase tracking-wide text-muted-foreground font-medium mb-2">
+                      Extension Details
+                    </h3>
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm">Duration:</span>
+                        <span className="text-base font-medium text-amber-700 dark:text-amber-400">
+                          {request.extensionDetails.duration} {request.extensionDetails.unit}
+                        </span>
+                      </div>
+                      {request.price && (
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm">Price:</span>
+                          <span className="text-base font-medium text-green-600 dark:text-green-400">
+                            {formatCurrency(request.price)}
+                          </span>
+                        </div>
+                      )}
+                      {request.newEndDate && (
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm">New End Date:</span>
+                          <span className="text-base font-medium">{formatDate(request.newEndDate)}</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
 
                 {request.type === "grooming" && request.groomingService && (
-                  <div>
-                    <h3 className="text-sm font-medium text-muted-foreground mb-1">Grooming Service</h3>
-                    <p className="text-base">
-                      {request.groomingService.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
-                    </p>
-                    {request.price && (
-                      <p className="text-base">
-                        <span className="font-medium">Price:</span> {formatCurrency(request.price)}
-                      </p>
-                    )}
+                  <div className="bg-white dark:bg-slate-800 p-3 rounded-lg shadow-sm">
+                    <h3 className="text-xs uppercase tracking-wide text-muted-foreground font-medium mb-2">
+                      Grooming Service
+                    </h3>
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm">Service:</span>
+                        <span className="text-base font-medium text-green-700 dark:text-green-400">
+                          {request.groomingService.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+                        </span>
+                      </div>
+                      {request.price && (
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm">Price:</span>
+                          <span className="text-base font-medium text-green-600 dark:text-green-400">
+                            {formatCurrency(request.price)}
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <h3 className="text-sm font-medium text-muted-foreground mb-1">Submitted</h3>
-                    <p className="text-base">{formatDate(request.createdAt)}</p>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-muted-foreground mb-1">Completed</h3>
-                    <p className="text-base">{formatDate(request.completedAt)}</p>
+                <div className="bg-white dark:bg-slate-800 p-3 rounded-lg shadow-sm">
+                  <h3 className="text-xs uppercase tracking-wide text-muted-foreground font-medium mb-2">Timeline</h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Submitted:</span>
+                      <span className="text-base font-medium">{formatDate(request.createdAt)}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Completed:</span>
+                      <span className="text-base font-medium">{formatDate(request.completedAt)}</span>
+                    </div>
                   </div>
                 </div>
 
                 {request.mediaFiles && (
-                  <div>
-                    <h3 className="text-sm font-medium text-muted-foreground mb-1">Media</h3>
-                    <div className="mt-2 p-3 bg-muted rounded-md text-center text-muted-foreground">
-                      {request.mediaFiles.count || 1} {request.type}
-                      {request.mediaFiles.count > 1 ? "s" : ""} uploaded
+                  <div className="bg-white dark:bg-slate-800 p-3 rounded-lg shadow-sm">
+                    <h3 className="text-xs uppercase tracking-wide text-muted-foreground font-medium mb-2">Media</h3>
+                    <div className="p-3 bg-muted/50 rounded-md text-center">
+                      <span className="font-medium">
+                        {request.mediaFiles.count || 1} {request.type}
+                        {request.mediaFiles.count > 1 ? "s" : ""} uploaded
+                      </span>
                     </div>
                   </div>
                 )}
@@ -1739,6 +1537,8 @@ function CompletedRequestCard({ request }: CompletedRequestCardProps) {
                         : "/placeholder.svg?height=300&width=400",
                       type: request.type === "photo" ? "image" : "video",
                       urls: request.mediaFiles.urls,
+                      audioUrl: request.mediaFiles.audioUrl,
+                      audioName: request.mediaFiles.audioName,
                     }}
                   />
                 )}

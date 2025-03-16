@@ -55,7 +55,9 @@ export function PetOwnerHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <ThemeToggle />
+          <div className="text-primary">
+            <ThemeToggle />
+          </div>
           <Button variant="outline" size="sm" onClick={handleLogout} disabled={isLoggingOut}>
             {isLoggingOut ? (
               <>
@@ -73,7 +75,7 @@ export function PetOwnerHeader() {
           {/* Mobile Navigation */}
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden">
+              <Button variant="ghost" size="icon" className="md:hidden text-primary">
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">Toggle menu</span>
               </Button>

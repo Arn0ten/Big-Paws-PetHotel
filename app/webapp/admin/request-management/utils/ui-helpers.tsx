@@ -1,7 +1,14 @@
 import { Camera, Video, Scissors, Clock, FileText } from "lucide-react"
-import type { PaymentStatus, BoardingStatus } from "../../boarding/types"
 
-// Request type icon mapping
+/**
+ * UI Helper functions for request management
+ *
+ * BACKEND INTEGRATION NOTES:
+ * - These functions can be shared across modules
+ * - Consider moving them to a shared utility library
+ */
+
+// Get the appropriate icon for a request type
 export const getRequestTypeIcon = (type: string) => {
   switch (type) {
     case "photo":
@@ -19,7 +26,7 @@ export const getRequestTypeIcon = (type: string) => {
   }
 }
 
-// Request type label mapping
+// Get the human-readable label for a request type
 export const getRequestTypeLabel = (type: string) => {
   switch (type) {
     case "photo":
@@ -37,7 +44,7 @@ export const getRequestTypeLabel = (type: string) => {
   }
 }
 
-// Card styling helpers
+// Get the appropriate border color for a request card
 export const getCardBorderColor = (type: string, isUrgent: boolean) => {
   if (isUrgent) return "border-red-300 dark:border-red-800"
 
@@ -57,6 +64,7 @@ export const getCardBorderColor = (type: string, isUrgent: boolean) => {
   }
 }
 
+// Get the appropriate background color for a request card
 export const getCardBgColor = (type: string, isUrgent: boolean) => {
   if (isUrgent) return "bg-red-50 dark:bg-red-950/20"
 
@@ -76,123 +84,39 @@ export const getCardBgColor = (type: string, isUrgent: boolean) => {
   }
 }
 
-// Pricing data for services
-export const PRICING = {
-  grooming: {
-    // For dogs
-    "basic-wash": {
-      Small: 180,
-      Medium: 220,
-      Large: 280,
-      XLarge: 320,
-    },
-    "premium-wash": {
-      Small: 300,
-      Medium: 450,
-      Large: 550,
-      XLarge: 850,
-    },
-    "premium-wash-and-cut": {
-      Small: 450,
-      Medium: 600,
-      Large: 650,
-      XLarge: 850,
-    },
-    "full-grooming": {
-      Small: 500,
-      Medium: 650,
-      Large: 700,
-      XLarge: 800,
-    },
-    // For cats
-    "cat-basic-wash": {
-      Small: 150,
-      Medium: 200,
-      Large: 250,
-      XLarge: 280,
-    },
-    "cat-premium-wash": {
-      Small: 200,
-      Medium: 250,
-      Large: 300,
-      XLarge: 350,
-    },
-  },
-  boarding: {
-    hourly: {
-      Small: 25,
-      Medium: 30,
-      Large: 40,
-      XLarge: 50,
-    },
-    daily: {
-      Small: 320,
-      Medium: 400,
-      Large: 480,
-      XLarge: 550,
-    },
-  },
-  catHotel: {
-    standard: {
-      Kitten: 300,
-      Adult: 400,
-    },
-    extraGuest: {
-      SmallToMedium: 200,
-      Large: 300,
-    },
-  },
-}
-
-// Calculate boarding extension cost
-export const calculateExtensionCost = (duration: string, unit: string, petSize: string): number => {
-  const durationNum = Number.parseInt(duration)
-
-  if (!petSize || !PRICING.boarding) return 0
-
-  switch (unit) {
-    case "hours":
-      return durationNum * PRICING.boarding.hourly[petSize as keyof typeof PRICING.boarding.hourly]
-    case "days":
-      return durationNum * PRICING.boarding.daily[petSize as keyof typeof PRICING.boarding.daily]
-    case "weeks":
-      return durationNum * 7 * PRICING.boarding.daily[petSize as keyof typeof PRICING.boarding.daily]
+// Get the appropriate badge color for a request type
+export const getRequestTypeBadgeClass = (type: string) => {
+  switch (type) {
+    case "photo":
+      return "bg-blue-100 text-blue-700 hover:bg-blue-100 dark:bg-blue-900 dark:text-blue-300"
+    case "video":
+      return "bg-purple-100 text-purple-700 hover:bg-purple-100 dark:bg-purple-900 dark:text-purple-300"
+    case "grooming":
+      return "bg-green-100 text-green-700 hover:bg-green-100 dark:bg-green-900 dark:text-green-300"
+    case "boarding-extension":
+      return "bg-amber-100 text-amber-700 hover:bg-amber-100 dark:bg-amber-900 dark:text-amber-300"
+    case "custom":
+      return "bg-gray-100 text-gray-700 hover:bg-gray-100 dark:bg-gray-900 dark:text-gray-300"
     default:
-      return 0
+      return ""
   }
 }
 
-// Sample data for demonstration
-export const sampleRequests = [
-  {
-    id: "req-001",
-    type: "photo",
-    petName: "Max",
-    petId: "pet-001",
-    petOwnerId: "owner-001",
-    petOwnerName: "John Smith",
-    status: "in-progress",
-    createdAt: "2025-03-10T10:30:00Z",
-    description: "Would love to see how Max is doing today!",
-    isUrgent: false,
-    petSize: "Medium",
-    boardingId: "board-001",
-  },
-  // ... other sample requests (truncated for brevity)
-]
-
-// Sample boarding data
-export const sampleBoardingData = [
-  {
-    id: "board-001",
-    pet: { id: "pet-001", name: "Max", size: "Medium" },
-    owner: { id: "owner-001", name: "John Smith" },
-    startDate: "2025-03-05T10:00:00Z",
-    endDate: "2025-03-12T10:00:00Z",
-    boardingStatus: "Boarding" as BoardingStatus,
-    paymentStatus: "Paid" as PaymentStatus,
-    totalPrice: 2800,
-  },
-  // ... other sample boarding data (truncated for brevity)
-]
+// Get the appropriate icon background color for a request type
+export const getIconBgClass = (type: string) => {
+  switch (type) {
+    case "photo":
+      return "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300"
+    case "video":
+      return "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300"
+    case "grooming":
+      return "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
+    case "boarding-extension":
+      return "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300"
+    case "custom":
+      return "bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300"
+    default:
+      return ""
+  }
+}
 

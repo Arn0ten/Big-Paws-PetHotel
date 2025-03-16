@@ -1,326 +1,255 @@
 "use client"
 
 import { useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { PetOwnerHeader } from "../../components/pet-owner/Header"
-import { PetOwnerFooter } from "../../components/pet-owner/Footer"
-import { Button } from "@/components/ui/button"
+import Link from "next/link"
+import { motion } from "framer-motion"
 import { Card, CardContent } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Bell, CheckCircle2, XCircle, Clock8, Trash2, Camera, Video, Scissors, Clock, FileText } from "lucide-react"
-import MobileNavbar from "../requests/components/mobile-navbar"
-import { useMediaQuery } from "@/hooks/use-media-query"
-import { formatDistanceToNow } from "date-fns"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Input } from "@/components/ui/input"
+import { Bell, Search, CheckCircle, ArrowRight } from "lucide-react"
 
-// Sample data for demonstration
-const sampleNotifications = [
-  {
-    id: "notif-001",
-    type: "request-approved",
-    requestType: "photo",
-    petName: "Max",
-    message: "Your request for a photo update of Max has been approved.",
-    createdAt: "2025-03-10T11:30:00Z",
-    isRead: false,
-  },
-  {
-    id: "notif-002",
-    type: "request-completed",
-    requestType: "photo",
-    petName: "Max",
-    message: "Your request for a photo update of Max has been completed. Check it out!",
-    createdAt: "2025-03-10T14:15:00Z",
-    isRead: false,
-    actionUrl: "/webapp/pet-owner/requests",
-  },
-  {
-    id: "notif-003",
-    type: "request-rejected",
-    requestType: "video",
-    petName: "Luna",
-    message: "Your request for a video of Luna has been rejected. Staff unavailable for video at the moment.",
-    createdAt: "2025-03-09T16:20:00Z",
-    isRead: true,
-  },
-  {
-    id: "notif-004",
-    type: "boarding-reminder",
-    petName: "Charlie",
-    message: "Reminder: Charlie's boarding ends tomorrow. Please make arrangements for pickup.",
-    createdAt: "2025-03-08T09:45:00Z",
-    isRead: true,
-  },
-  {
-    id: "notif-005",
-    type: "system",
-    message: "Welcome to Big Paws Pet Hotel! We're excited to have you and your pets with us.",
-    createdAt: "2025-03-07T10:30:00Z",
-    isRead: true,
-  },
-]
-
-const getNotificationIcon = (type: string, requestType?: string) => {
-  if (type === "request-approved" || type === "request-completed" || type === "request-rejected") {
-    switch (requestType) {
-      case "photo":
-        return <Camera className="h-5 w-5" />
-      case "video":
-        return <Video className="h-5 w-5" />
-      case "grooming":
-        return <Scissors className="h-5 w-5" />
-      case "boarding-extension":
-        return <Clock className="h-5 w-5" />
-      default:
-        return <FileText className="h-5 w-5" />
-    }
-  }
-
-  switch (type) {
-    case "request-approved":
-      return <CheckCircle2 className="h-5 w-5" />
-    case "request-completed":
-      return <CheckCircle2 className="h-5 w-5" />
-    case "request-rejected":
-      return <XCircle className="h-5 w-5" />
-    case "boarding-reminder":
-      return <Clock8 className="h-5 w-5" />
-    case "system":
-      return <Bell className="h-5 w-5" />
-    default:
-      return <Bell className="h-5 w-5" />
-  }
-}
-
-const getNotificationColor = (type: string) => {
-  switch (type) {
-    case "request-approved":
-      return "bg-green-100 text-green-700"
-    case "request-completed":
-      return "bg-blue-100 text-blue-700"
-    case "request-rejected":
-      return "bg-red-100 text-red-700"
-    case "boarding-reminder":
-      return "bg-amber-100 text-amber-700"
-    case "system":
-      return "bg-purple-100 text-purple-700"
-    default:
-      return "bg-gray-100 text-gray-700"
-  }
-}
-
+// Local utility function to format dates
 const formatDate = (dateString: string) => {
-  try {
-    const date = new Date(dateString)
-    return formatDistanceToNow(date, { addSuffix: true })
-  } catch (error) {
-    return "some time ago"
+  const date = new Date(dateString)
+
+  // Check if date is today
+  const today = new Date()
+  const isToday =
+    date.getDate() === today.getDate() &&
+    date.getMonth() === today.getMonth() &&
+    date.getFullYear() === today.getFullYear()
+
+  if (isToday) {
+    return `Today at ${date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
   }
+
+  // Check if date is yesterday
+  const yesterday = new Date(today)
+  yesterday.setDate(yesterday.getDate() - 1)
+  const isYesterday =
+    date.getDate() === yesterday.getDate() &&
+    date.getMonth() === yesterday.getMonth() &&
+    date.getFullYear() === yesterday.getFullYear()
+
+  if (isYesterday) {
+    return `Yesterday at ${date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
+  }
+
+  // Otherwise, return full date
+  return date.toLocaleDateString([], {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  })
 }
 
-export default function PetOwnerNotificationsPage() {
-  const [notifications, setNotifications] = useState(sampleNotifications)
+export default function NotificationsPage() {
   const [activeTab, setActiveTab] = useState("all")
-  const isMobile = useMediaQuery("(max-width: 768px)")
+  const [searchQuery, setSearchQuery] = useState("")
 
-  const handleMarkAsRead = (id: string) => {
-    setNotifications(notifications.map((notif) => (notif.id === id ? { ...notif, isRead: true } : notif)))
-  }
+  const [notifications, setNotifications] = useState([
+    {
+      id: "notif-001",
+      type: "request-completed",
+      title: "Photo Request Completed",
+      message: "Your photo request for Max has been completed.",
+      timestamp: "2025-03-10T14:45:00Z",
+      isRead: false,
+      requestId: "req-001",
+    },
+    {
+      id: "notif-002",
+      type: "request-in-progress",
+      title: "Grooming Request In Progress",
+      message: "Your grooming request for Max is now being processed.",
+      timestamp: "2025-03-11T09:30:00Z",
+      isRead: false,
+      requestId: "req-002",
+    },
+    {
+      id: "notif-003",
+      type: "payment-reminder",
+      title: "Payment Reminder",
+      message: "You have an outstanding balance of $250 for Max's boarding.",
+      timestamp: "2025-03-12T08:15:00Z",
+      isRead: true,
+    },
+    {
+      id: "notif-004",
+      type: "request-rejected",
+      title: "Video Request Rejected",
+      message: "Your video request for Max has been rejected. Please check the details.",
+      timestamp: "2025-03-07T18:45:00Z",
+      isRead: true,
+      requestId: "req-004",
+    },
+    {
+      id: "notif-005",
+      type: "boarding-update",
+      title: "Boarding Check-in Confirmed",
+      message: "Max has been checked in for boarding. We'll take good care of him!",
+      timestamp: "2025-03-05T10:30:00Z",
+      isRead: true,
+    },
+  ])
 
-  const handleMarkAllAsRead = () => {
+  // Mark all as read
+  const markAllAsRead = () => {
     setNotifications(notifications.map((notif) => ({ ...notif, isRead: true })))
   }
 
-  const handleDeleteNotification = (id: string) => {
-    setNotifications(notifications.filter((notif) => notif.id !== id))
-  }
-
-  const handleClearAll = () => {
-    setNotifications([])
-  }
-
+  // Filter notifications based on active tab and search query
   const filteredNotifications = notifications.filter((notification) => {
-    if (activeTab === "all") return true
-    if (activeTab === "unread") return !notification.isRead
+    // Filter by tab
+    if (activeTab === "unread" && notification.isRead) return false
+
+    // Filter by search query
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase()
+      if (!notification.title.toLowerCase().includes(query) && !notification.message.toLowerCase().includes(query)) {
+        return false
+      }
+    }
+
     return true
   })
 
-  return (
-    <div className="min-h-screen flex flex-col">
-      <PetOwnerHeader />
+  // Sort notifications by timestamp (newest first)
+  const sortedNotifications = [...filteredNotifications].sort((a, b) => {
+    return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+  })
 
-      <main className="flex-1 container py-6 px-4 md:py-10">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+  // Get notification icon
+  const getNotificationIcon = (type: string) => {
+    switch (type) {
+      case "request-completed":
+        return <CheckCircle className="h-5 w-5 text-green-500" />
+      case "request-in-progress":
+        return <Bell className="h-5 w-5 text-amber-500" />
+      case "payment-reminder":
+        return <Bell className="h-5 w-5 text-red-500" />
+      case "request-rejected":
+        return <Bell className="h-5 w-5 text-red-500" />
+      case "boarding-update":
+        return <Bell className="h-5 w-5 text-blue-500" />
+      default:
+        return <Bell className="h-5 w-5" />
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5 }}>
+        <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Notifications</h1>
-            <p className="text-muted-foreground mt-1">Stay updated on your pet's activities and service requests</p>
+            <h1 className="text-2xl font-bold tracking-tight">Notifications</h1>
+            <p className="text-muted-foreground">Stay updated on your pet's care</p>
           </div>
 
-          <div className="flex gap-2 mt-4 md:mt-0">
-            <Button
-              variant="outline"
-              size={isMobile ? "sm" : "default"}
-              onClick={handleMarkAllAsRead}
-              disabled={!notifications.some((n) => !n.isRead)}
-            >
-              <CheckCircle2 className="mr-2 h-4 w-4" />
+          {notifications.some((n) => !n.isRead) && (
+            <Button variant="outline" size="sm" onClick={markAllAsRead}>
               Mark All Read
             </Button>
-            <Button
-              variant="outline"
-              size={isMobile ? "sm" : "default"}
-              onClick={handleClearAll}
-              disabled={notifications.length === 0}
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Clear All
-            </Button>
-          </div>
+          )}
         </div>
+      </motion.div>
 
-        <Tabs defaultValue="all" className="w-full" onValueChange={setActiveTab}>
-          <div className="flex justify-between items-center mb-4">
-            <TabsList>
-              <TabsTrigger value="all">
-                All
-                <Badge variant="secondary" className="ml-2">
-                  {notifications.length}
-                </Badge>
-              </TabsTrigger>
-              <TabsTrigger value="unread">
-                Unread
-                <Badge variant="secondary" className="ml-2">
+      {/* Search */}
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+        className="relative"
+      >
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Search notifications..."
+          className="pl-9"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </motion.div>
+
+      {/* Tabs */}
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
+        <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid grid-cols-2">
+            <TabsTrigger value="all">All</TabsTrigger>
+            <TabsTrigger value="unread">
+              Unread
+              {notifications.filter((n) => !n.isRead).length > 0 && (
+                <Badge className="ml-2 bg-primary text-primary-foreground">
                   {notifications.filter((n) => !n.isRead).length}
                 </Badge>
-              </TabsTrigger>
-            </TabsList>
-          </div>
+              )}
+            </TabsTrigger>
+          </TabsList>
 
-          <TabsContent value="all" className="mt-0">
-            {notifications.length === 0 ? (
-              <EmptyState />
-            ) : (
-              <div className="space-y-4">
-                <AnimatePresence initial={false}>
-                  {filteredNotifications.map((notification) => (
-                    <NotificationItem
-                      key={notification.id}
-                      notification={notification}
-                      onMarkAsRead={handleMarkAsRead}
-                      onDelete={handleDeleteNotification}
-                    />
-                  ))}
-                </AnimatePresence>
+          <TabsContent value={activeTab} className="mt-4 space-y-4">
+            {sortedNotifications.length === 0 ? (
+              <div className="text-center py-8">
+                <Bell className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
+                <h3 className="text-lg font-medium">No notifications</h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {activeTab === "all"
+                    ? "You don't have any notifications yet."
+                    : "You don't have any unread notifications."}
+                </p>
               </div>
-            )}
-          </TabsContent>
+            ) : (
+              sortedNotifications.map((notification) => (
+                <Link
+                  href={
+                    notification.requestId
+                      ? `/webapp/pet-owner/requests/${notification.requestId}`
+                      : `/webapp/pet-owner/notifications/${notification.id}`
+                  }
+                  key={notification.id}
+                >
+                  <Card
+                    className={`hover:bg-muted/50 transition-colors cursor-pointer ${!notification.isRead ? "border-l-4 border-l-primary" : ""}`}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0 mt-1">{getNotificationIcon(notification.type)}</div>
 
-          <TabsContent value="unread" className="mt-0">
-            {filteredNotifications.length === 0 ? (
-              <EmptyState message="No unread notifications" />
-            ) : (
-              <div className="space-y-4">
-                <AnimatePresence initial={false}>
-                  {filteredNotifications.map((notification) => (
-                    <NotificationItem
-                      key={notification.id}
-                      notification={notification}
-                      onMarkAsRead={handleMarkAsRead}
-                      onDelete={handleDeleteNotification}
-                    />
-                  ))}
-                </AnimatePresence>
-              </div>
+                        <div className="flex-1">
+                          <div className="flex justify-between items-start">
+                            <h3 className="font-medium">{notification.title}</h3>
+                            <div className="flex items-center gap-2">
+                              {!notification.isRead && (
+                                <Badge
+                                  variant="outline"
+                                  className="bg-primary/10 text-primary border-primary/20 text-xs"
+                                >
+                                  New
+                                </Badge>
+                              )}
+                              <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                            </div>
+                          </div>
+
+                          <p className="text-sm mt-1">{notification.message}</p>
+                          <p className="text-xs text-muted-foreground mt-2">{formatDate(notification.timestamp)}</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))
             )}
           </TabsContent>
         </Tabs>
-      </main>
-
-      {isMobile && <MobileNavbar />}
-      <PetOwnerFooter />
+      </motion.div>
     </div>
-  )
-}
-
-interface NotificationItemProps {
-  notification: any
-  onMarkAsRead: (id: string) => void
-  onDelete: (id: string) => void
-}
-
-function NotificationItem({ notification, onMarkAsRead, onDelete }: NotificationItemProps) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, height: 0, marginBottom: 0 }}
-      transition={{ duration: 0.2 }}
-      layout
-    >
-      <Card className={`w-full ${!notification.isRead ? "border-l-4 border-l-primary" : ""}`}>
-        <CardContent className="p-4">
-          <div className="flex gap-4">
-            <div className={`p-2 rounded-full ${getNotificationColor(notification.type)}`}>
-              {getNotificationIcon(notification.type, notification.requestType)}
-            </div>
-
-            <div className="flex-1">
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="text-sm font-medium">{notification.message}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{formatDate(notification.createdAt)}</p>
-                </div>
-
-                <div className="flex gap-1 ml-4">
-                  {!notification.isRead && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={() => onMarkAsRead(notification.id)}
-                    >
-                      <CheckCircle2 className="h-4 w-4" />
-                      <span className="sr-only">Mark as read</span>
-                    </Button>
-                  )}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-destructive hover:text-destructive"
-                    onClick={() => onDelete(notification.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    <span className="sr-only">Delete</span>
-                  </Button>
-                </div>
-              </div>
-
-              {notification.actionUrl && (
-                <div className="mt-2">
-                  <Button variant="link" className="p-0 h-auto" asChild>
-                    <a href={notification.actionUrl}>View Details</a>
-                  </Button>
-                </div>
-              )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </motion.div>
-  )
-}
-
-function EmptyState({ message = "No notifications found" }: { message?: string }) {
-  return (
-    <Card className="w-full">
-      <CardContent className="flex flex-col items-center justify-center py-10">
-        <Bell className="h-12 w-12 text-muted-foreground mb-4" />
-        <h3 className="text-lg font-medium">{message}</h3>
-        <p className="text-sm text-muted-foreground text-center mt-1">
-          Notifications about your pets and requests will appear here
-        </p>
-      </CardContent>
-    </Card>
   )
 }
 
