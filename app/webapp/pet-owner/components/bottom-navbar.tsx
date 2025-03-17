@@ -57,7 +57,7 @@ export function BottomNavbar() {
   ]
 
   return (
-    <nav className="w-full h-16 px-2 bg-background">
+    <nav className="fixed bottom-0 left-0 right-0 w-full h-16 px-2 bg-background border-t z-40">
       <div className="h-full flex items-center justify-around">
         {navItems.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`)
@@ -68,7 +68,9 @@ export function BottomNavbar() {
               href={item.href}
               className={cn(
                 "flex flex-col items-center justify-center w-16 h-full relative",
-                isActive ? "text-primary" : "text-muted-foreground",
+                isActive
+                  ? "text-primary dark:text-primary"
+                  : "text-muted-foreground dark:text-muted-foreground/80 hover:text-foreground dark:hover:text-foreground",
               )}
             >
               <div className="relative">
@@ -77,7 +79,7 @@ export function BottomNavbar() {
                   <motion.span
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="absolute -top-1 -right-1 h-2 w-2 bg-red-500 rounded-full"
+                    className="absolute -top-1 -right-1 h-2.5 w-2.5 bg-red-500 dark:bg-red-400 rounded-full"
                   />
                 )}
               </div>
@@ -85,7 +87,7 @@ export function BottomNavbar() {
               {isActive && (
                 <motion.div
                   layoutId="bottomNavIndicator"
-                  className="absolute bottom-0 h-1 w-10 bg-primary rounded-t-full"
+                  className="absolute bottom-0 h-1 w-10 bg-primary dark:bg-primary rounded-t-full"
                   transition={{ type: "spring", duration: 0.5 }}
                 />
               )}

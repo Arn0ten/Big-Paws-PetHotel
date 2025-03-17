@@ -8,8 +8,8 @@ import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Camera, Video, Scissors, Clock, FileText, Plus, ArrowRight, Calendar, DollarSign } from "lucide-react"
-import { formatCurrency, formatDate } from "../utils/date-helpers"
+import { Camera, Video, Scissors, Clock, FileText, Plus, ArrowRight, Calendar, DollarSign, Info } from "lucide-react"
+import { formatDate } from "../utils/date-helpers"
 import { pets, requests, notifications } from "../data/sample-data"
 
 export default function PetOwnerHomePage() {
@@ -75,25 +75,37 @@ export default function PetOwnerHomePage() {
     switch (status) {
       case "new":
         return (
-          <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-200">
+          <Badge
+            variant="outline"
+            className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border-blue-200 dark:border-blue-800"
+          >
             New
           </Badge>
         )
       case "in-progress":
         return (
-          <Badge variant="outline" className="bg-amber-100 text-amber-700 border-amber-200">
+          <Badge
+            variant="outline"
+            className="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 border-amber-200 dark:border-amber-800"
+          >
             In Progress
           </Badge>
         )
       case "completed":
         return (
-          <Badge variant="outline" className="bg-green-100 text-green-700 border-green-200">
+          <Badge
+            variant="outline"
+            className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 border-green-200 dark:border-green-800"
+          >
             Completed
           </Badge>
         )
       case "rejected":
         return (
-          <Badge variant="outline" className="bg-red-100 text-red-700 border-red-200">
+          <Badge
+            variant="outline"
+            className="bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 border-red-200 dark:border-red-800"
+          >
             Rejected
           </Badge>
         )
@@ -121,10 +133,21 @@ export default function PetOwnerHomePage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20">
       <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5 }}>
-        <h1 className="text-2xl font-bold tracking-tight">Welcome Back!</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground dark:text-foreground">Welcome Back!</h1>
         <p className="text-muted-foreground">Check on your pets and manage your requests.</p>
+        
+        <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
+          <div className="flex items-start gap-2">
+            <Info className="h-5 w-5 text-blue-500 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm text-blue-700 dark:text-blue-300">
+                <span className="font-medium">Suggested next steps:</span> Check your pet's boarding status, make a new request, or view our pricing page for service rates.
+              </p>
+            </div>
+          </div>
+        </div>
       </motion.div>
 
       {/* Active Boarding Section */}
@@ -134,9 +157,9 @@ export default function PetOwnerHomePage() {
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
-          <Card className="bg-primary/5 border-primary/20">
+          <Card className="bg-primary/5 dark:bg-primary/10 border-primary/20 dark:border-primary/30">
             <CardHeader className="pb-2">
-              <CardTitle className="text-lg flex items-center gap-2">
+              <CardTitle className="text-lg flex items-center gap-2 text-foreground dark:text-foreground">
                 <Calendar className="h-5 w-5 text-primary" />
                 Active Boarding
               </CardTitle>
@@ -149,7 +172,7 @@ export default function PetOwnerHomePage() {
                   <AvatarFallback>{activeBoardingPet.name.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <div className="space-y-1">
-                  <h3 className="font-semibold text-lg">{activeBoardingPet.name}</h3>
+                  <h3 className="font-semibold text-lg text-foreground dark:text-foreground">{activeBoardingPet.name}</h3>
                   <p className="text-sm text-muted-foreground">{activeBoardingPet.breed}</p>
                 </div>
               </div>
@@ -157,53 +180,74 @@ export default function PetOwnerHomePage() {
               <div className="grid grid-cols-2 gap-4 mt-4">
                 <div>
                   <p className="text-xs text-muted-foreground uppercase tracking-wide">Check-in</p>
-                  <p className="font-medium">{formatDate(activeBoardingPet.boarding?.startDate || "")}</p>
+                  <p className="font-medium text-foreground dark:text-foreground">
+                    {formatDate(activeBoardingPet.boarding?.startDate || "")}
+                  </p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground uppercase tracking-wide">Check-out</p>
-                  <p className="font-medium">{formatDate(activeBoardingPet.boarding?.endDate || "")}</p>
+                  <p className="font-medium text-foreground dark:text-foreground">{formatDate(activeBoardingPet.boarding?.endDate || "")}</p>
                 </div>
               </div>
 
-              <div className="mt-4 p-3 bg-background rounded-md">
+              <div className="mt-4 p-3 bg-background rounded-md border border-border dark:border-border/50">
                 <div className="flex justify-between items-center">
                   <div>
                     <p className="text-xs text-muted-foreground uppercase tracking-wide">Package</p>
-                    <p className="font-medium">{activeBoardingPet.boarding?.package}</p>
+                    <p className="font-medium text-foreground dark:text-foreground">{activeBoardingPet.boarding?.package}</p>
                   </div>
                   <div className="text-right">
                     <p className="text-xs text-muted-foreground uppercase tracking-wide">Total Price</p>
-                    <p className="font-medium">{formatCurrency(activeBoardingPet.boarding?.totalPrice || 0, "PHP")}</p>
+                    <p className="font-medium text-green-600 dark:text-green-400">
+                      ₱{(activeBoardingPet.boarding?.totalPrice || 0).toLocaleString()}
+                    </p>
                   </div>
                 </div>
 
                 {activeBoardingPet.boarding?.remainingAmount ? (
-                  <div className="mt-3 pt-3 border-t">
+                  <div className="mt-3 pt-3 border-t border-border dark:border-border/50">
                     <div className="flex justify-between items-center">
                       <div>
-                        <p className="text-xs text-muted-foreground uppercase tracking-wide">Remaining Balance</p>
+                        <p className="text-xs text-muted-foreground dark:text-muted-foreground/90 uppercase tracking-wide">
+                          Remaining Balance
+                        </p>
+                        <p className="text-xs text-muted-foreground dark:text-muted-foreground/90">
+                          (To be paid during pickup)
+                        </p>
                       </div>
                       <div className="text-right">
-                        <p className="font-medium text-amber-600">
-                          {formatCurrency(activeBoardingPet.boarding?.remainingAmount || 0, "PHP")}
+                        <p className="font-medium text-amber-600 dark:text-amber-400">
+                          ₱{(activeBoardingPet.boarding?.remainingAmount || 0).toLocaleString()}
                         </p>
                       </div>
                     </div>
                   </div>
                 ) : null}
               </div>
+
+              <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-md">
+                <h4 className="text-sm font-medium text-amber-700 dark:text-amber-400">Additional Charges</h4>
+                <ul className="mt-1 text-xs text-amber-600 dark:text-amber-300 space-y-1">
+                  <li>• Grooming services: ₱250-550 (based on pet size and service)</li>
+                  <li>• Boarding extension: ₱50-75/hour or ₱500-750/day</li>
+                  <li>• Special diet/medication: ₱100-200/day</li>
+                </ul>
+                <p className="text-xs text-amber-600 dark:text-amber-300 mt-1 font-medium">All charges will be collected during pickup.</p>
+                <div className="mt-2">
+                  <Link href="/webapp/pet-owner/pricing" className="text-xs text-primary dark:text-primary-foreground hover:underline inline-flex items-center">
+                    <DollarSign className="h-3 w-3 mr-1" />
+                    View full pricing details
+                  </Link>
+                </div>
+              </div>
             </CardContent>
             <CardFooter>
-              <div className="flex gap-2 w-full">
-                <Button variant="outline" className="flex-1">
-                  <DollarSign className="h-4 w-4 mr-2" />
-                  Pay Balance
+              <Link href="/webapp/pet-owner/requests/new" className="w-full">
+                <Button variant="default" className="w-full">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Make a Request for {activeBoardingPet.name}
                 </Button>
-                <Button variant="default" className="flex-1">
-                  Make Request
-                  <ArrowRight className="h-4 w-4 ml-2" />
-                </Button>
-              </div>
+              </Link>
             </CardFooter>
           </Card>
         </motion.div>
@@ -217,14 +261,14 @@ export default function PetOwnerHomePage() {
       >
         <Tabs defaultValue="boarding" value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="boarding">My Pets</TabsTrigger>
-            <TabsTrigger value="requests">Recent Requests</TabsTrigger>
+            <TabsTrigger value="boarding" className="text-foreground dark:text-foreground">My Pets</TabsTrigger>
+            <TabsTrigger value="requests" className="text-foreground dark:text-foreground">Recent Requests</TabsTrigger>
           </TabsList>
 
           <TabsContent value="boarding" className="mt-4 space-y-4">
             {pets.map((pet) => (
               <Link href={`/webapp/pet-owner/pets/${pet.id}`} key={pet.id}>
-                <Card className="hover:bg-muted/50 transition-colors cursor-pointer">
+                <Card className="hover:bg-muted/50 dark:hover:bg-muted/20 transition-colors cursor-pointer">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-4">
                       <Avatar className="h-14 w-14">
@@ -232,22 +276,28 @@ export default function PetOwnerHomePage() {
                         <AvatarFallback>{pet.name.charAt(0)}</AvatarFallback>
                       </Avatar>
                       <div className="flex-1">
-                        <h3 className="font-semibold">{pet.name}</h3>
-                        <p className="text-sm text-muted-foreground">
-                          {pet.breed} • {pet.age}
+                        <h3 className="font-semibold text-foreground dark:text-foreground">{pet.name}</h3>
+                        <p className="text-sm text-muted-foreground dark:text-muted-foreground/90">
+                          {pet.breed} • {pet.size || 'Medium'} size • {pet.age} years old
                         </p>
 
                         {pet.boarding ? (
-                          <Badge variant="outline" className="mt-2 bg-primary/10 text-primary border-primary/20">
+                          <Badge
+                            variant="outline"
+                            className="mt-2 bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700"
+                          >
                             Currently Boarding
                           </Badge>
                         ) : (
-                          <Badge variant="outline" className="mt-2">
+                          <Badge
+                            variant="outline"
+                            className="mt-2 bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700"
+                          >
                             Not Boarding
                           </Badge>
                         )}
                       </div>
-                      <ArrowRight className="h-5 w-5 text-muted-foreground" />
+                      <ArrowRight className="h-5 w-5 text-muted-foreground dark:text-muted-foreground/80" />
                     </div>
                   </CardContent>
                 </Card>
@@ -255,7 +305,7 @@ export default function PetOwnerHomePage() {
             ))}
 
             <Link href="/webapp/pet-owner/pets/add">
-              <Button variant="outline" className="w-full">
+              <Button variant="outline" className="w-full border-foreground/20 hover:bg-foreground/5 text-foreground dark:text-foreground">
                 <Plus className="h-4 w-4 mr-2" />
                 Add New Pet
               </Button>
@@ -263,44 +313,65 @@ export default function PetOwnerHomePage() {
           </TabsContent>
 
           <TabsContent value="requests" className="mt-4 space-y-4">
-            {recentRequests.map((request) => (
-              <Link href={`/webapp/pet-owner/requests/${request.id}`} key={request.id}>
-                <Card className="hover:bg-muted/50 transition-colors cursor-pointer">
-                  <CardContent className="p-4">
-                    <div className="flex items-start gap-3">
-                      <div
-                        className={`
-                        p-2 rounded-full flex-shrink-0
-                        ${request.type === "photo" ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300" : ""}
-                        ${request.type === "video" ? "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300" : ""}
-                        ${request.type === "grooming" ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300" : ""}
-                        ${request.type === "boarding-extension" ? "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300" : ""}
-                        ${request.type === "custom" ? "bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300" : ""}
-                      `}
-                      >
-                        {getRequestTypeIcon(request.type)}
-                      </div>
+            {recentRequests.length > 0 ? (
+              <>
+                {recentRequests.map((request) => (
+                  <Link href={`/webapp/pet-owner/requests/${request.id}`} key={request.id}>
+                    <Card className="hover:bg-muted/50 dark:hover:bg-muted/20 transition-colors cursor-pointer">
+                      <CardContent className="p-4">
+                        <div className="flex items-start gap-3">
+                          <div
+                            className={`
+                            p-2 rounded-full flex-shrink-0
+                            ${request.type === "photo" ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300" : ""}
+                            ${request.type === "video" ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300" : ""}
+                            ${request.type === "grooming" ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300" : ""}
+                            ${request.type === "boarding-extension" ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300" : ""}
+                            ${request.type === "custom" ? "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300" : ""}
+                          `}
+                          >
+                            {getRequestTypeIcon(request.type)}
+                          </div>
 
-                      <div className="flex-1">
-                        <div className="flex justify-between items-start">
-                          <h3 className="font-medium">{getRequestTypeLabel(request.type)}</h3>
-                          {getRequestStatusBadge(request.status)}
+                          <div className="flex-1">
+                            <div className="flex justify-between items-start">
+                              <h3 className="font-medium text-foreground dark:text-foreground">
+                                {getRequestTypeLabel(request.type)}
+                              </h3>
+                              {getRequestStatusBadge(request.status)}
+                            </div>
+
+                            <p className="text-sm text-muted-foreground dark:text-muted-foreground/90 mt-1">
+                              For {request.petName}
+                            </p>
+                            <p className="text-sm line-clamp-1 mt-1 text-foreground/80 dark:text-foreground/80">
+                              {request.description}
+                            </p>
+
+                            <p className="text-xs text-muted-foreground dark:text-muted-foreground/80 mt-2">
+                              {request.status === "completed"
+                                ? `Completed ${formatDate(request.completedAt || "")}`
+                                : request.status === "rejected"
+                                  ? `Rejected ${formatDate(request.rejectedAt || "")}`
+                                  : `Requested ${formatDate(request.createdAt)}`}
+                            </p>
+                          </div>
                         </div>
-
-                        <p className="text-sm text-muted-foreground mt-1">For {request.petName}</p>
-                        <p className="text-sm line-clamp-1 mt-1">{request.description}</p>
-
-                        <p className="text-xs text-muted-foreground mt-2">
-                          {request.status === "completed"
-                            ? `Completed ${formatDate(request.completedAt || "")}`
-                            : `Requested ${formatDate(request.createdAt)}`}
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </>
+            ) : (
+              <div className="text-center py-8 border rounded-lg bg-muted/20 dark:bg-muted/10 dark:border-muted/30">
+                <FileText className="h-12 w-12 mx-auto text-muted-foreground dark:text-muted-foreground/80 mb-3" />
+                <h3 className="text-lg font-medium text-foreground dark:text-foreground">No requests yet</h3>
+                <p className="text-sm text-muted-foreground dark:text-muted-foreground/90 mt-1 max-w-md mx-auto">
+                  You haven't made any requests for your pets. Create a request to ask for photos, videos, grooming
+                  services, or boarding extensions.
+                </p>
+              </div>
+            )}
 
             <Link href="/webapp/pet-owner/requests/new">
               <Button className="w-full">
@@ -313,37 +384,48 @@ export default function PetOwnerHomePage() {
       </motion.div>
 
       {/* Notifications Preview */}
-      <motion.div
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.3 }}
-      >
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-semibold">Recent Notifications</h2>
-          <Link href="/webapp/pet-owner/notifications" className="text-sm text-primary hover:underline">
-            View All
-          </Link>
-        </div>
-
-        <div className="space-y-3">
-          {unreadNotifications.map((notification) => (
-            <Link href={`/webapp/pet-owner/notifications/${notification.id}`} key={notification.id}>
-              <Card className="hover:bg-muted/50 transition-colors cursor-pointer border-l-4 border-l-primary">
-                <CardContent className="p-3">
-                  <div className="flex justify-between items-start">
-                    <h3 className="font-medium">{notification.title}</h3>
-                    <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 text-xs">
-                      New
-                    </Badge>
-                  </div>
-                  <p className="text-sm mt-1 line-clamp-1">{notification.message}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{formatDate(notification.timestamp)}</p>
-                </CardContent>
-              </Card>
+      {unreadNotifications.length > 0 && (
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.y: 20, opacity: 0}}
+          animate={{y: 0, opacity: 1}}
+          transition={{duration: 0.5, delay: 0.3}}
+        >
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-lg font-semibold text-foreground dark:text-foreground">Recent Notifications</h2>
+            <Link href="/webapp/pet-owner/notifications" className="text-sm text-primary hover:underline">
+              View All
             </Link>
-          ))}
-        </div>
-      </motion.div>
+          </div>
+
+          <div className="space-y-3">
+            {unreadNotifications.map((notification) => (
+              <Link href={`/webapp/pet-owner/notifications/${notification.id}`} key={notification.id}>
+                <Card className="hover:bg-muted/50 dark:hover:bg-muted/20 transition-colors cursor-pointer border-l-4 border-l-primary dark:border-l-primary">
+                  <CardContent className="p-3">
+                    <div className="flex justify-between items-start">
+                      <h3 className="font-medium text-foreground dark:text-foreground">{notification.title}</h3>
+                      <Badge
+                        variant="outline"
+                        className="bg-primary/10 text-primary border-primary/20 dark:bg-primary/20 dark:border-primary/30 dark:text-primary-foreground text-xs"
+                      >
+                        New
+                      </Badge>
+                    </div>
+                    <p className="text-sm mt-1 line-clamp-1 text-foreground/80 dark:text-foreground/80">
+                      {notification.message}
+                    </p>
+                    <p className="text-xs text-muted-foreground dark:text-muted-foreground/80 mt-1">
+                      {formatDate(notification.timestamp)}
+                    </p>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        </motion.div>
+      )}
     </div>
   )
 }

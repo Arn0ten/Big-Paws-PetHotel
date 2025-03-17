@@ -10,93 +10,34 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
 import { Camera, Video, Scissors, Clock, FileText, Plus, Search, Filter, ArrowRight } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { requests, formatDate, getRequestTypeLabel } from "@/app/webapp/data/sample-data"
 
-// Utility function to format dates
-const formatDate = (dateString: string): string => {
-  if (!dateString) return ""
-  const date = new Date(dateString)
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "numeric",
-    hour12: true,
-  }).format(date)
-}
-
+/**
+ * RequestsPage Component
+ *
+ * This page displays all service requests made by the pet owner.
+ *
+ * API Integration Points:
+ * 1. Request data fetching - GET /api/requests
+ * 2. Request filtering - GET /api/requests?status=:status&type=:type
+ * 3. Request searching - GET /api/requests?search=:searchTerm
+ *
+ * @returns {JSX.Element} The requests page component
+ */
 export default function RequestsPage() {
   const [activeTab, setActiveTab] = useState("all")
   const [searchQuery, setSearchQuery] = useState("")
   const [filterType, setFilterType] = useState("all")
 
-  const [requests, setRequests] = useState([
-    {
-      id: "req-001",
-      type: "photo",
-      petName: "Max",
-      petId: "pet-1",
-      status: "completed",
-      createdAt: "2025-03-10T10:30:00Z",
-      completedAt: "2025-03-10T14:45:00Z",
-      description: "Would love to see how Max is doing today!",
-      mediaFiles: {
-        type: "photo",
-        urls: ["/placeholder.svg?height=300&width=400"],
-        count: 1,
-      },
-    },
-    {
-      id: "req-002",
-      type: "grooming",
-      petName: "Max",
-      petId: "pet-1",
-      status: "in-progress",
-      createdAt: "2025-03-11T09:15:00Z",
-      description: "Please give Max a bath and trim his nails.",
-      groomingService: "premium-wash-and-cut",
-      price: 45,
-    },
-    {
-      id: "req-003",
-      type: "boarding-extension",
-      petName: "Max",
-      petId: "pet-1",
-      status: "new",
-      createdAt: "2025-03-12T11:30:00Z",
-      description: "Need to extend Max's stay by 2 more days.",
-      extensionDetails: {
-        duration: "2",
-        unit: "days",
-      },
-      currentEndDate: "2025-03-15T18:00:00Z",
-    },
-    {
-      id: "req-004",
-      type: "video",
-      petName: "Max",
-      petId: "pet-1",
-      status: "rejected",
-      createdAt: "2025-03-07T16:20:00Z",
-      rejectedAt: "2025-03-07T18:45:00Z",
-      description: "Would like a short video of Max playing.",
-      rejectedBy: "Admin",
-      rejectionReason:
-        "We're unable to record a video at this time as Max is resting. We can try again tomorrow if you'd like.",
-    },
-    {
-      id: "req-005",
-      type: "custom",
-      petName: "Luna",
-      petId: "pet-2",
-      status: "completed",
-      createdAt: "2025-03-05T13:25:00Z",
-      completedAt: "2025-03-05T16:40:00Z",
-      description: "Can you please check if Luna is eating properly? She sometimes gets picky with her food.",
-    },
-  ])
-
-  // Get request type icon
-  const getRequestTypeIcon = (type: string) => {
+  /**
+   * Get request type icon
+   * @param type The request type
+   * @returns The icon component
+   *
+   * NOTE: This function is now imported from the centralized data store
+   * but we're keeping the implementation here for the icon components
+   */
+  const getRequestTypeIconComponent = (type: string) => {
     switch (type) {
       case "photo":
         return <Camera className="h-5 w-5" />
@@ -113,48 +54,46 @@ export default function RequestsPage() {
     }
   }
 
-  // Get request type label
-  const getRequestTypeLabel = (type: string) => {
-    switch (type) {
-      case "photo":
-        return "Photo Update"
-      case "video":
-        return "Video Request"
-      case "grooming":
-        return "Grooming Service"
-      case "boarding-extension":
-        return "Boarding Extension"
-      case "custom":
-        return "Custom Request"
-      default:
-        return "Request"
-    }
-  }
-
-  // Get request status badge
+  /**
+   * Get request status badge
+   * @param status The request status
+   * @returns The badge component
+   */
   const getRequestStatusBadge = (status: string) => {
     switch (status) {
       case "new":
         return (
-          <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-200">
+          <Badge
+            variant="outline"
+            className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border-blue-200 dark:border-blue-800"
+          >
             New
           </Badge>
         )
       case "in-progress":
         return (
-          <Badge variant="outline" className="bg-amber-100 text-amber-700 border-amber-200">
+          <Badge
+            variant="outline"
+            className="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 border-amber-200 dark:border-amber-800"
+          >
             In Progress
           </Badge>
         )
       case "completed":
         return (
-          <Badge variant="outline" className="bg-green-100 text-green-700 border-green-200">
+          <Badge
+            variant="outline"
+            className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 border-green-200 dark:border-green-800"
+          >
             Completed
           </Badge>
         )
       case "rejected":
         return (
-          <Badge variant="outline" className="bg-red-100 text-red-700 border-red-200">
+          <Badge
+            variant="outline"
+            className="bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 border-red-200 dark:border-red-800"
+          >
             Rejected
           </Badge>
         )
@@ -163,7 +102,15 @@ export default function RequestsPage() {
     }
   }
 
-  // Filter requests based on active tab, search query, and filter type
+  /**
+   * Filter requests based on active tab, search query, and filter type
+   *
+   * @returns {Array} Filtered requests
+   *
+   * API Integration:
+   * - Replace with a fetch call to GET /api/requests with appropriate query parameters
+   * - Handle pagination if needed
+   */
   const filteredRequests = requests.filter((request) => {
     // Filter by tab
     if (activeTab !== "all" && request.status !== activeTab) return false
@@ -192,10 +139,11 @@ export default function RequestsPage() {
             <h1 className="text-2xl font-bold tracking-tight">My Requests</h1>
             <p className="text-muted-foreground">View and manage your requests</p>
           </div>
+          {/* FIXED: Updated the link to point to the correct new request page */}
           <Link href="/webapp/pet-owner/requests/new">
             <Button size="sm">
               <Plus className="h-4 w-4 mr-2" />
-              New
+              New Request
             </Button>
           </Link>
         </div>
@@ -264,9 +212,9 @@ export default function RequestsPage() {
           <TabsContent value={activeTab} className="mt-4 space-y-4">
             {filteredRequests.length === 0 ? (
               <div className="text-center py-8">
-                <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
-                <h3 className="text-lg font-medium">No requests found</h3>
-                <p className="text-sm text-muted-foreground mt-1">
+                <FileText className="h-12 w-12 mx-auto text-muted-foreground dark:text-muted-foreground/80 mb-3" />
+                <h3 className="text-lg font-medium text-foreground dark:text-foreground">No requests found</h3>
+                <p className="text-sm text-muted-foreground dark:text-muted-foreground/90 mt-1">
                   {activeTab === "all"
                     ? "You haven't made any requests yet."
                     : `You don't have any ${activeTab} requests.`}
@@ -281,35 +229,41 @@ export default function RequestsPage() {
             ) : (
               filteredRequests.map((request) => (
                 <Link href={`/webapp/pet-owner/requests/${request.id}`} key={request.id}>
-                  <Card className="hover:bg-muted/50 transition-colors cursor-pointer">
+                  <Card className="hover:bg-muted/50 dark:hover:bg-muted/20 transition-colors cursor-pointer">
                     <CardContent className="p-4">
                       <div className="flex items-start gap-3">
                         <div
                           className={`
-                          p-2 rounded-full flex-shrink-0
-                          ${request.type === "photo" ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300" : ""}
-                          ${request.type === "video" ? "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300" : ""}
-                          ${request.type === "grooming" ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300" : ""}
-                          ${request.type === "boarding-extension" ? "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300" : ""}
-                          ${request.type === "custom" ? "bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300" : ""}
-                        `}
+        p-2 rounded-full flex-shrink-0
+        ${request.type === "photo" ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300" : ""}
+        ${request.type === "video" ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300" : ""}
+        ${request.type === "grooming" ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300" : ""}
+        ${request.type === "boarding-extension" ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300" : ""}
+        ${request.type === "custom" ? "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300" : ""}
+      `}
                         >
-                          {getRequestTypeIcon(request.type)}
+                          {getRequestTypeIconComponent(request.type)}
                         </div>
 
                         <div className="flex-1">
                           <div className="flex justify-between items-start">
-                            <h3 className="font-medium">{getRequestTypeLabel(request.type)}</h3>
+                            <h3 className="font-medium text-foreground dark:text-foreground">
+                              {getRequestTypeLabel(request.type)}
+                            </h3>
                             <div className="flex items-center gap-2">
                               {getRequestStatusBadge(request.status)}
-                              <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                              <ArrowRight className="h-4 w-4 text-muted-foreground dark:text-muted-foreground/80" />
                             </div>
                           </div>
 
-                          <p className="text-sm text-muted-foreground mt-1">For {request.petName}</p>
-                          <p className="text-sm line-clamp-2 mt-1">{request.description}</p>
+                          <p className="text-sm text-muted-foreground dark:text-muted-foreground/90 mt-1">
+                            For {request.petName}
+                          </p>
+                          <p className="text-sm line-clamp-2 mt-1 text-foreground/90 dark:text-foreground/80">
+                            {request.description}
+                          </p>
 
-                          <p className="text-xs text-muted-foreground mt-2">
+                          <p className="text-xs text-muted-foreground dark:text-muted-foreground/80 mt-2">
                             {request.status === "completed"
                               ? `Completed ${formatDate(request.completedAt || "")}`
                               : request.status === "rejected"

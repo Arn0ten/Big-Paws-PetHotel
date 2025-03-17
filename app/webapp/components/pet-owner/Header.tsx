@@ -34,31 +34,47 @@ export function PetOwnerHeader() {
               height={40}
               className="h-8 w-auto"
             />
-            <span className="font-bold text-lg hidden sm:inline-block">Big Paws Pet Hotel</span>
+            <span className="font-bold text-lg hidden sm:inline-block text-foreground">Big Paws Pet Hotel</span>
           </Link>
         </div>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-6">
-          <Link href="/webapp/pet-owner/dashboard" className="text-sm font-medium transition-colors hover:text-primary">
+          <Link
+            href="/webapp/pet-owner/dashboard"
+            className="text-sm font-medium text-foreground transition-colors hover:text-primary"
+          >
             Dashboard
           </Link>
-          <Link href="/webapp/pet-owner/bookings" className="text-sm font-medium transition-colors hover:text-primary">
+          <Link
+            href="/webapp/pet-owner/bookings"
+            className="text-sm font-medium text-foreground transition-colors hover:text-primary"
+          >
             Bookings
           </Link>
-          <Link href="/webapp/pet-owner/pets" className="text-sm font-medium transition-colors hover:text-primary">
+          <Link
+            href="/webapp/pet-owner/pets"
+            className="text-sm font-medium text-foreground transition-colors hover:text-primary"
+          >
             My Pets
           </Link>
-          <Link href="/webapp/pet-owner/profile" className="text-sm font-medium transition-colors hover:text-primary">
+          <Link
+            href="/webapp/pet-owner/profile"
+            className="text-sm font-medium text-foreground transition-colors hover:text-primary"
+          >
             Profile
           </Link>
         </nav>
 
         <div className="flex items-center gap-2">
-          <div className="text-primary">
-            <ThemeToggle />
-          </div>
-          <Button variant="outline" size="sm" onClick={handleLogout} disabled={isLoggingOut}>
+          <ThemeToggle />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            className="border-foreground/20 hover:bg-foreground/5"
+          >
             {isLoggingOut ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -75,7 +91,7 @@ export function PetOwnerHeader() {
           {/* Mobile Navigation */}
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden text-primary">
+              <Button variant="ghost" size="icon" className="md:hidden text-foreground hover:bg-foreground/10">
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">Toggle menu</span>
               </Button>
@@ -84,28 +100,43 @@ export function PetOwnerHeader() {
               <div className="flex flex-col gap-4 mt-8">
                 <Link
                   href="/webapp/pet-owner/dashboard"
-                  className="text-sm font-medium transition-colors hover:text-primary"
+                  className="text-base font-medium text-foreground transition-colors hover:text-primary py-2"
                 >
                   Dashboard
                 </Link>
                 <Link
                   href="/webapp/pet-owner/bookings"
-                  className="text-sm font-medium transition-colors hover:text-primary"
+                  className="text-base font-medium text-foreground transition-colors hover:text-primary py-2"
                 >
                   Bookings
                 </Link>
                 <Link
                   href="/webapp/pet-owner/pets"
-                  className="text-sm font-medium transition-colors hover:text-primary"
+                  className="text-base font-medium text-foreground transition-colors hover:text-primary py-2"
                 >
                   My Pets
                 </Link>
                 <Link
                   href="/webapp/pet-owner/profile"
-                  className="text-sm font-medium transition-colors hover:text-primary"
+                  className="text-base font-medium text-foreground transition-colors hover:text-primary py-2"
                 >
                   Profile
                 </Link>
+                <div className="pt-4 mt-4 border-t">
+                  <Button variant="outline" onClick={handleLogout} disabled={isLoggingOut} className="w-full">
+                    {isLoggingOut ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Logging out...
+                      </>
+                    ) : (
+                      <>
+                        <LogOut className="mr-2 h-4 w-4" />
+                        Logout
+                      </>
+                    )}
+                  </Button>
+                </div>
               </div>
             </SheetContent>
           </Sheet>

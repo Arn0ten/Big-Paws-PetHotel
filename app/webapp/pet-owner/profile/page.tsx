@@ -42,6 +42,7 @@ export default function ProfilePage() {
         startDate: "2025-03-05T10:00:00Z",
         endDate: "2025-03-15T18:00:00Z",
       },
+      size: "Large",
     },
     {
       id: "pet-2",
@@ -54,6 +55,7 @@ export default function ProfilePage() {
       microchip: "987654321098765",
       avatar: "/placeholder.svg?height=100&width=100",
       boarding: null,
+      size: "Small",
     },
   ])
 

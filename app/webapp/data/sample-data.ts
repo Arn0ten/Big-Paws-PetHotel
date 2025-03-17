@@ -1,15 +1,27 @@
 /**
- * Sample data for the pet owner interface
+ * CENTRALIZED SAMPLE DATA STORE
  *
- * @note This file contains mock data for development and testing purposes.
- * In a production environment, this data would be fetched from an API.
+ * This file contains all sample data used throughout the pet owner interface.
+ * Backend developers should replace these with actual API calls.
  *
- * @important Backend developers should replace these static objects with
- * actual API calls to fetch real data from the database.
+ * INTEGRATION INSTRUCTIONS:
+ * 1. Replace the exported constants with API fetching functions
+ * 2. Maintain the same data structure to ensure compatibility
+ * 3. Add proper error handling and loading states
+ * 4. Update the types in types.ts to match your actual data model
  */
 
-// Sample pet data
-export const pets = [
+import type { Pet, Request, Notification, Pricing } from "./types"
+
+/**
+ * SAMPLE PETS DATA
+ *
+ * API Integration:
+ * - Endpoint: GET /api/pets (for all pets)
+ * - Endpoint: GET /api/pets/:id (for single pet)
+ * - Response should match the Pet interface in types.ts
+ */
+export const pets: Pet[] = [
   {
     id: "pet-1",
     name: "Max",
@@ -38,8 +50,18 @@ export const pets = [
   },
 ]
 
-// Sample request data
-export const requests = [
+/**
+ * SAMPLE REQUESTS DATA
+ *
+ * API Integration:
+ * - Endpoint: GET /api/requests (for all requests)
+ * - Endpoint: GET /api/requests/:id (for single request)
+ * - Endpoint: POST /api/requests (for creating a request)
+ * - Endpoint: PUT /api/requests/:id (for updating a request)
+ * - Endpoint: DELETE /api/requests/:id (for cancelling a request)
+ * - Response should match the Request interface in types.ts
+ */
+export const requests: Request[] = [
   {
     id: "req-001",
     type: "photo",
@@ -193,8 +215,16 @@ export const requests = [
   },
 ]
 
-// Sample notification data
-export const notifications = [
+/**
+ * SAMPLE NOTIFICATIONS DATA
+ *
+ * API Integration:
+ * - Endpoint: GET /api/notifications (for all notifications)
+ * - Endpoint: PUT /api/notifications/:id (for marking as read)
+ * - Endpoint: DELETE /api/notifications/:id (for deleting a notification)
+ * - Response should match the Notification interface in types.ts
+ */
+export const notifications: Notification[] = [
   {
     id: "notif-001",
     type: "request-completed",
@@ -242,27 +272,218 @@ export const notifications = [
 ]
 
 /**
- * API Integration Notes for Backend Developers:
+ * SAMPLE PRICING DATA
  *
- * 1. Replace static data with API endpoints:
- *    - GET /api/pets - Fetch user's pets
- *    - GET /api/pets/:id - Fetch specific pet details
- *    - GET /api/requests - Fetch all requests (with optional filters)
- *    - GET /api/requests/:id - Fetch specific request details
- *    - GET /api/notifications - Fetch user notifications
- *
- * 2. Implement real-time updates using WebSockets for:
- *    - New notifications
- *    - Request status changes
- *    - New messages in conversations
- *
- * 3. Authentication:
- *    - All API requests should include authentication headers
- *    - Implement token refresh mechanism
- *
- * 4. Error handling:
- *    - Implement proper error handling for API failures
- *    - Add retry logic for failed requests
- *    - Show appropriate error messages to users
+ * API Integration:
+ * - Endpoint: GET /api/pricing (for all pricing data)
+ * - Response should match the Pricing interface in types.ts
  */
+export const pricing: Pricing = {
+  boarding: {
+    dogs: {
+      small: 35,
+      medium: 45,
+      large: 55,
+      xlarge: 65,
+    },
+    cats: 30,
+    daycare: {
+      hourly: 5,
+      daily: 25,
+    },
+  },
+  grooming: {
+    dogs: {
+      basicWash: {
+        small: 25,
+        medium: 35,
+        large: 45,
+        xlarge: 55,
+      },
+      premiumWash: {
+        small: 35,
+        medium: 45,
+        large: 55,
+        xlarge: 65,
+      },
+      premiumWashAndCut: {
+        small: 45,
+        medium: 55,
+        large: 65,
+        xlarge: 75,
+      },
+      fullGrooming: {
+        small: 55,
+        medium: 65,
+        large: 75,
+        xlarge: 85,
+      },
+    },
+    cats: {
+      basicWash: 30,
+      premiumWash: 40,
+    },
+  },
+  additionalServices: {
+    tickAndFleaRemoval: 15,
+    nailCut: 10,
+    earCleaning: 10,
+    analSacCleaning: 15,
+    blowDry: 10,
+    woundTreatment: 20,
+  },
+}
+
+/**
+ * HELPER FUNCTIONS
+ *
+ * These functions help with common data operations.
+ * Backend developers can modify these to work with actual API data.
+ */
+
+/**
+ * Get a pet by ID
+ * @param id The pet ID
+ * @returns The pet object or undefined if not found
+ *
+ * API Integration:
+ * - Replace with a fetch call to GET /api/pets/:id
+ */
+export const getPetById = (id: string): Pet | undefined => {
+  return pets.find((pet) => pet.id === id)
+}
+
+/**
+ * Get all boarding pets
+ * @returns Array of pets that are currently boarding
+ *
+ * API Integration:
+ * - Replace with a fetch call to GET /api/pets?boarding=true
+ */
+export const getBoardingPets = (): Pet[] => {
+  return pets.filter((pet) => pet.boarding !== null)
+}
+
+/**
+ * Get requests for a specific pet
+ * @param petId The pet ID
+ * @returns Array of requests for the specified pet
+ *
+ * API Integration:
+ * - Replace with a fetch call to GET /api/requests?petId=:petId
+ */
+export const getRequestsByPetId = (petId: string): Request[] => {
+  return requests.filter((request) => request.petId === petId)
+}
+
+/**
+ * Get unread notifications count
+ * @returns Number of unread notifications
+ *
+ * API Integration:
+ * - Replace with a fetch call to GET /api/notifications/unread/count
+ */
+export const getUnreadNotificationsCount = (): number => {
+  return notifications.filter((notification) => !notification.isRead).length
+}
+
+/**
+ * Mark a notification as read
+ * @param id The notification ID
+ *
+ * API Integration:
+ * - Replace with a fetch call to PUT /api/notifications/:id/read
+ */
+export const markNotificationAsRead = (id: string): void => {
+  // In a real implementation, this would update the server
+  // For now, we just update the local data
+  const notification = notifications.find((n) => n.id === id)
+  if (notification) {
+    notification.isRead = true
+  }
+}
+
+/**
+ * Create a new request
+ * @param requestData The request data
+ * @returns The created request
+ *
+ * API Integration:
+ * - Replace with a fetch call to POST /api/requests
+ */
+export const createRequest = (requestData: Omit<Request, "id" | "status" | "createdAt">): Request => {
+  // In a real implementation, this would send data to the server
+  // and return the created request with an ID
+  const newRequest: Request = {
+    id: `req-${requests.length + 1}`,
+    status: "new",
+    createdAt: new Date().toISOString(),
+    ...requestData,
+  }
+
+  // In a real implementation, we would add this to the server
+  // For now, we just return it
+  return newRequest
+}
+
+/**
+ * Format a date string
+ * @param dateString The ISO date string
+ * @returns Formatted date string
+ */
+export const formatDate = (dateString: string): string => {
+  if (!dateString) return ""
+  const date = new Date(dateString)
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+    hour12: true,
+  }).format(date)
+}
+
+/**
+ * Get request type icon name
+ * @param type The request type
+ * @returns The icon name
+ */
+export const getRequestTypeIcon = (type: string): string => {
+  switch (type) {
+    case "photo":
+      return "Camera"
+    case "video":
+      return "Video"
+    case "grooming":
+      return "Scissors"
+    case "boarding-extension":
+      return "Clock"
+    case "custom":
+      return "FileText"
+    default:
+      return "FileText"
+  }
+}
+
+/**
+ * Get request type label
+ * @param type The request type
+ * @returns The label
+ */
+export const getRequestTypeLabel = (type: string): string => {
+  switch (type) {
+    case "photo":
+      return "Photo Update"
+    case "video":
+      return "Video Request"
+    case "grooming":
+      return "Grooming Service"
+    case "boarding-extension":
+      return "Boarding Extension"
+    case "custom":
+      return "Custom Request"
+    default:
+      return "Request"
+  }
+}
 

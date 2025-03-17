@@ -1,84 +1,96 @@
 /**
- * Utility functions for date formatting and manipulation
+ * Date Helper Functions
  *
- * @note These functions are used across both pet-owner and admin interfaces
- * to ensure consistent date formatting throughout the application
+ * This file contains helper functions for working with dates.
+ * Backend developers can modify these to work with actual API data.
  */
 
 /**
- * Format a date string into a user-friendly format
- *
- * @param dateString - ISO date string to format
+ * Format a date string
+ * @param dateString The ISO date string
  * @returns Formatted date string
  */
 export const formatDate = (dateString: string): string => {
   if (!dateString) return ""
-
   const date = new Date(dateString)
-
-  // Check if date is today
-  const today = new Date()
-  const isToday =
-    date.getDate() === today.getDate() &&
-    date.getMonth() === today.getMonth() &&
-    date.getFullYear() === today.getFullYear()
-
-  if (isToday) {
-    return `Today at ${date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
-  }
-
-  // Check if date is yesterday
-  const yesterday = new Date(today)
-  yesterday.setDate(yesterday.getDate() - 1)
-  const isYesterday =
-    date.getDate() === yesterday.getDate() &&
-    date.getMonth() === yesterday.getMonth() &&
-    date.getFullYear() === yesterday.getFullYear()
-
-  if (isYesterday) {
-    return `Yesterday at ${date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
-  }
-
-  // Otherwise, return full date
-  return date.toLocaleDateString([], {
+  return new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  })
+    hour: "numeric",
+    minute: "numeric",
+    hour12: true,
+  }).format(date)
 }
 
 /**
- * Format a currency value
- *
- * @param amount - Number to format as currency
- * @param currency - Currency code (default: USD)
- * @returns Formatted currency string
+ * Format a date string with day of week
+ * @param dateString The ISO date string
+ * @returns Formatted date string with day of week
  */
-export const formatCurrency = (amount: number, currency = "PHP"): string => {
-  return new Intl.NumberFormat("en-PH", {
-    style: "currency",
-    currency,
-    minimumFractionDigits: 2,
-  }).format(amount)
+export const formatDateWithDay = (dateString: string): string => {
+  if (!dateString) return ""
+  const date = new Date(dateString)
+  return new Intl.DateTimeFormat("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+    hour12: true,
+  }).format(date)
 }
 
 /**
- * Calculate the duration between two dates
- *
- * @param startDate - Start date string
- * @param endDate - End date string
- * @returns Duration object with days, hours, minutes
+ * Format a date string as a date only
+ * @param dateString The ISO date string
+ * @returns Formatted date string without time
  */
-export const calculateDuration = (startDate: string, endDate: string) => {
+export const formatDateOnly = (dateString: string): string => {
+  if (!dateString) return ""
+  const date = new Date(dateString)
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(date)
+}
+
+/**
+ * Calculate the difference between two dates in days
+ * @param startDate The start date
+ * @param endDate The end date
+ * @returns The difference in days
+ */
+export const getDaysDifference = (startDate: string, endDate: string): number => {
+  if (!startDate || !endDate) return 0
   const start = new Date(startDate)
   const end = new Date(endDate)
+  const diffTime = Math.abs(end.getTime() - start.getTime())
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+  return diffDays
+}
 
-  const durationMs = end.getTime() - start.getTime()
-  const days = Math.floor(durationMs / (1000 * 60 * 60 * 24))
-  const hours = Math.floor((durationMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-  const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60))
+/**
+ * Check if a date is in the past
+ * @param dateString The ISO date string
+ * @returns True if the date is in the past
+ */
+export const isDateInPast = (dateString: string): boolean => {
+  if (!dateString) return false
+  const date = new Date(dateString)
+  const now = new Date()
+  return date < now
+}
 
-  return { days, hours, minutes }
+/**
+ * Check if a date is in the future
+ * @param dateString The ISO date string
+ * @returns True if the date is in the future
+ */
+export const isDateInFuture = (dateString: string): boolean => {
+  if (!dateString) return false
+  const date = new Date(dateString)
+  const now = new Date()
+  return date > now
 }
 

@@ -51,12 +51,16 @@ export default function NotificationsPage() {
   const [activeTab, setActiveTab] = useState("all")
   const [searchQuery, setSearchQuery] = useState("")
 
+  // Update the notifications page to focus on request updates and boarding information
+  // Improve color contrast and simplify the UI
+
+  // Update the notification types and content to be more focused:
   const [notifications, setNotifications] = useState([
     {
       id: "notif-001",
       type: "request-completed",
       title: "Photo Request Completed",
-      message: "Your photo request for Max has been completed.",
+      message: "Your photo request for Max has been completed. You can view the photos now.",
       timestamp: "2025-03-10T14:45:00Z",
       isRead: false,
       requestId: "req-001",
@@ -65,7 +69,7 @@ export default function NotificationsPage() {
       id: "notif-002",
       type: "request-in-progress",
       title: "Grooming Request In Progress",
-      message: "Your grooming request for Max is now being processed.",
+      message: "Your grooming request for Max is now being processed. You'll be notified when it's completed.",
       timestamp: "2025-03-11T09:30:00Z",
       isRead: false,
       requestId: "req-002",
@@ -73,8 +77,9 @@ export default function NotificationsPage() {
     {
       id: "notif-003",
       type: "payment-reminder",
-      title: "Payment Reminder",
-      message: "You have an outstanding balance of $250 for Max's boarding.",
+      title: "Additional Charges Added",
+      message:
+        "Additional charges of ₱250 have been added for Max's grooming service. Payment will be collected during pickup.",
       timestamp: "2025-03-12T08:15:00Z",
       isRead: true,
     },
@@ -82,7 +87,7 @@ export default function NotificationsPage() {
       id: "notif-004",
       type: "request-rejected",
       title: "Video Request Rejected",
-      message: "Your video request for Max has been rejected. Please check the details.",
+      message: "Your video request for Max has been rejected. Please check the details for more information.",
       timestamp: "2025-03-07T18:45:00Z",
       isRead: true,
       requestId: "req-004",
@@ -90,8 +95,8 @@ export default function NotificationsPage() {
     {
       id: "notif-005",
       type: "boarding-update",
-      title: "Boarding Check-in Confirmed",
-      message: "Max has been checked in for boarding. We'll take good care of him!",
+      title: "Boarding Pickup Reminder",
+      message: "Max's boarding period ends tomorrow. Please prepare for pickup between 8:00 AM and 6:00 PM.",
       timestamp: "2025-03-05T10:30:00Z",
       isRead: true,
     },
@@ -123,19 +128,19 @@ export default function NotificationsPage() {
     return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
   })
 
-  // Get notification icon
+  // Update the notification icon function to be more descriptive:
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case "request-completed":
-        return <CheckCircle className="h-5 w-5 text-green-500" />
+        return <CheckCircle className="h-5 w-5 text-green-500 dark:text-green-400" />
       case "request-in-progress":
-        return <Bell className="h-5 w-5 text-amber-500" />
+        return <Bell className="h-5 w-5 text-amber-500 dark:text-amber-400" />
       case "payment-reminder":
-        return <Bell className="h-5 w-5 text-red-500" />
+        return <Bell className="h-5 w-5 text-red-500 dark:text-red-400" />
       case "request-rejected":
-        return <Bell className="h-5 w-5 text-red-500" />
+        return <Bell className="h-5 w-5 text-red-500 dark:text-red-400" />
       case "boarding-update":
-        return <Bell className="h-5 w-5 text-blue-500" />
+        return <Bell className="h-5 w-5 text-blue-500 dark:text-blue-400" />
       default:
         return <Bell className="h-5 w-5" />
     }
@@ -214,8 +219,9 @@ export default function NotificationsPage() {
                   }
                   key={notification.id}
                 >
+                  {/* Update the card styling for better visibility in dark mode: */}
                   <Card
-                    className={`hover:bg-muted/50 transition-colors cursor-pointer ${!notification.isRead ? "border-l-4 border-l-primary" : ""}`}
+                    className={`hover:bg-muted/50 dark:hover:bg-muted/20 transition-colors cursor-pointer ${!notification.isRead ? "border-l-4 border-l-primary dark:border-l-primary" : ""}`}
                   >
                     <CardContent className="p-4">
                       <div className="flex items-start gap-3">
@@ -225,10 +231,11 @@ export default function NotificationsPage() {
                           <div className="flex justify-between items-start">
                             <h3 className="font-medium">{notification.title}</h3>
                             <div className="flex items-center gap-2">
+                              {/* Update the badge styling: */}
                               {!notification.isRead && (
                                 <Badge
                                   variant="outline"
-                                  className="bg-primary/10 text-primary border-primary/20 text-xs"
+                                  className="bg-primary/10 text-primary border-primary/20 dark:bg-primary/20 dark:border-primary/30 dark:text-primary-foreground text-xs px-2 py-0 h-5"
                                 >
                                   New
                                 </Badge>
