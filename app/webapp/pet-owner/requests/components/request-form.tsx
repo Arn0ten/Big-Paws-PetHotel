@@ -11,12 +11,13 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Loader2, Camera, Video, Scissors, Calendar, HelpCircle } from "lucide-react"
+import { Loader2, Camera, Video, Scissors, Calendar, HelpCircle, AlertCircle } from "lucide-react"
 import { pets } from "@/app/webapp/data/sample-data"
 import { cn } from "@/lib/utils"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 
 /**
- * Form schema for request creation
+ * Form schema for request creation with improved validation
  */
 const formSchema = z.object({
   petId: z.string({
@@ -34,7 +35,12 @@ const formSchema = z.object({
       message: "Description must not exceed 500 characters",
     }),
   groomingService: z.string().optional(),
-  extensionDuration: z.string().optional(),
+  extensionDuration: z
+    .string()
+    .refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
+      message: "Duration must be a positive number",
+    })
+    .optional(),
   extensionUnit: z.string().optional(),
   isUrgent: z.boolean().default(false),
 })
@@ -45,35 +51,35 @@ const requestTypes = [
     id: "photo",
     name: "Photo Update",
     icon: Camera,
-    description: "Request photos of your pet",
+    description: "Request photos of your pet during their stay",
     color: "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400",
   },
   {
     id: "video",
     name: "Video Request",
     icon: Video,
-    description: "Request videos of your pet",
+    description: "Request a short video of your pet's activities",
     color: "bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400",
   },
   {
     id: "grooming",
     name: "Grooming Service",
     icon: Scissors,
-    description: "Schedule a grooming service",
+    description: "Schedule a grooming service for your pet",
     color: "bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400",
   },
   {
     id: "boarding-extension",
     name: "Boarding Extension",
     icon: Calendar,
-    description: "Extend your pet's stay",
+    description: "Request to extend your pet's current stay",
     color: "bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400",
   },
   {
     id: "custom",
     name: "Custom Request",
     icon: HelpCircle,
-    description: "Make a custom request",
+    description: "Make a special request not covered by other options",
     color: "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400",
   },
 ]
@@ -81,15 +87,21 @@ const requestTypes = [
 /**
  * RequestForm Component
  *
- * This component provides a form for creating new service requests.
+ * Enhanced form component for creating service requests with improved UX for users 30+:
+ * - Larger text and input fields
+ * - Clear visual hierarchy
+ * - Helpful descriptions and tooltips
+ * - Immediate feedback on actions
+ * - Clear error messages
  *
  * API Integration Points:
  * 1. Pet data fetching - GET /api/pets?boarding=true
+ * 2. Request submission - POST /api/requests
  *
- * @param {Object} props - Component props
- * @param {Function} props.onSubmit - Function to handle form submission
- * @param {Function} props.onCancel - Function to handle form cancellation
- * @param {boolean} props.isSubmitting - Whether the form is currently submitting
+ * @param {Object} props Component props
+ * @param {Function} props.onSubmit Function to handle form submission
+ * @param {Function} props.onCancel Function to handle form cancellation
+ * @param {boolean} props.isSubmitting Whether the form is currently submitting
  * @returns {JSX.Element} The request form component
  */
 export default function RequestForm({
@@ -152,232 +164,246 @@ export default function RequestForm({
         <Card>
           <CardContent className="pt-6">
             <div className="space-y-6">
-              {/* Pet Selection */}
-              <FormField
-                control={form.control}
-                name="petId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-base font-medium text-foreground dark:text-foreground">
-                      Select Pet
-                    </FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="h-12 text-base">
-                          <SelectValue placeholder="Select a pet" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {boardingPets.length === 0 ? (
-                          <SelectItem value="none" disabled>
-                            No pets currently boarding
-                          </SelectItem>
-                        ) : (
-                          boardingPets.map((pet) => (
-                            <SelectItem key={pet.id} value={pet.id}>
-                              {pet.name} ({pet.type})
-                            </SelectItem>
-                          ))
-                        )}
-                      </SelectContent>
-                    </Select>
-                    <FormDescription className="text-muted-foreground dark:text-muted-foreground/90">
-                      Only pets that are currently boarding are shown.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Request Type */}
-              <FormField
-                control={form.control}
-                name="type"
-                render={({ field }) => (
-                  <FormItem className="space-y-3">
-                    <FormLabel className="text-base font-medium text-foreground dark:text-foreground">
-                      Request Type
-                    </FormLabel>
-                    <FormDescription className="text-muted-foreground dark:text-muted-foreground/90">
-                      Select the type of service you're requesting.
-                    </FormDescription>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {requestTypes.map((type) => (
-                        <div
-                          key={type.id}
-                          className={cn(
-                            "relative flex cursor-pointer rounded-lg border border-border p-4 transition-all",
-                            "hover:border-primary/50 hover:shadow-sm",
-                            field.value === type.id ? "border-primary ring-2 ring-primary/20" : "",
-                          )}
-                          onClick={() => {
-                            field.onChange(type.id)
-                            setRequestType(type.id)
-                          }}
-                        >
-                          <div className="flex w-full items-start space-x-3">
-                            <div className={cn("rounded-full p-2", type.color)}>
-                              <type.icon className="h-5 w-5" />
-                            </div>
-                            <div className="space-y-1">
-                              <p className="font-medium text-foreground dark:text-foreground">{type.name}</p>
-                              <p className="text-sm text-muted-foreground dark:text-muted-foreground/90">
-                                {type.description}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Grooming Service (conditional) */}
-              {requestType === "grooming" && (
-                <FormField
-                  control={form.control}
-                  name="groomingService"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-base font-medium text-foreground dark:text-foreground">
-                        Grooming Service
-                      </FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger className="h-12 text-base">
-                            <SelectValue placeholder="Select grooming service" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="basic-wash">Basic Wash</SelectItem>
-                          <SelectItem value="premium-wash">Premium Wash</SelectItem>
-                          <SelectItem value="premium-wash-and-cut">Premium Wash & Cut</SelectItem>
-                          <SelectItem value="full-grooming">Full Grooming</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormDescription className="text-muted-foreground dark:text-muted-foreground/90">
-                        Select the grooming service you'd like for your pet.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-
-              {/* Boarding Extension (conditional) */}
-              {requestType === "boarding-extension" && (
-                <div className="grid grid-cols-2 gap-4">
+              {boardingPets.length === 0 ? (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    You don't have any pets currently boarding. Requests can only be made for pets that are staying with
+                    us.
+                  </AlertDescription>
+                </Alert>
+              ) : (
+                <>
+                  {/* Pet Selection */}
                   <FormField
                     control={form.control}
-                    name="extensionDuration"
+                    name="petId"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-base font-medium text-foreground dark:text-foreground">
-                          Extension Duration
-                        </FormLabel>
-                        <FormControl>
-                          <Input type="number" min="1" placeholder="Duration" className="h-12 text-base" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="extensionUnit"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-base font-medium text-foreground dark:text-foreground">
-                          Unit
+                          Select Pet
                         </FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger className="h-12 text-base">
-                              <SelectValue placeholder="Select unit" />
+                              <SelectValue placeholder="Select a pet" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="hours">Hours</SelectItem>
-                            <SelectItem value="days">Days</SelectItem>
+                            {boardingPets.map((pet) => (
+                              <SelectItem key={pet.id} value={pet.id}>
+                                {pet.name} ({pet.type})
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
+                        <FormDescription className="text-muted-foreground dark:text-muted-foreground/90">
+                          Only pets that are currently boarding are shown.
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                </div>
-              )}
 
-              {/* Description */}
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-base font-medium text-foreground dark:text-foreground">
-                      Description
-                    </FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Please provide details about your request..."
-                        className="min-h-[120px] text-base resize-none"
-                        {...field}
+                  {/* Request Type */}
+                  <FormField
+                    control={form.control}
+                    name="type"
+                    render={({ field }) => (
+                      <FormItem className="space-y-3">
+                        <FormLabel className="text-base font-medium text-foreground dark:text-foreground">
+                          Request Type
+                        </FormLabel>
+                        <FormDescription className="text-muted-foreground dark:text-muted-foreground/90">
+                          Select the type of service you're requesting.
+                        </FormDescription>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {requestTypes.map((type) => (
+                            <div
+                              key={type.id}
+                              className={cn(
+                                "relative flex cursor-pointer rounded-lg border border-border p-4 transition-all",
+                                "hover:border-primary/50 hover:shadow-sm",
+                                field.value === type.id ? "border-primary ring-2 ring-primary/20" : "",
+                              )}
+                              onClick={() => {
+                                field.onChange(type.id)
+                                setRequestType(type.id)
+                              }}
+                            >
+                              <div className="flex w-full items-start space-x-3">
+                                <div className={cn("rounded-full p-2", type.color)}>
+                                  <type.icon className="h-5 w-5" />
+                                </div>
+                                <div className="space-y-1">
+                                  <p className="font-medium text-foreground dark:text-foreground">{type.name}</p>
+                                  <p className="text-sm text-muted-foreground dark:text-muted-foreground/90">
+                                    {type.description}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Grooming Service (conditional) */}
+                  {requestType === "grooming" && (
+                    <FormField
+                      control={form.control}
+                      name="groomingService"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-base font-medium text-foreground dark:text-foreground">
+                            Grooming Service
+                          </FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger className="h-12 text-base">
+                                <SelectValue placeholder="Select grooming service" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="basic-wash">Basic Wash (₱180-₱320)</SelectItem>
+                              <SelectItem value="premium-wash">Premium Wash (₱300-₱850)</SelectItem>
+                              <SelectItem value="premium-wash-and-cut">Premium Wash & Cut (₱450-₱850)</SelectItem>
+                              <SelectItem value="full-grooming">Full Grooming (₱500-₱800)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormDescription className="text-muted-foreground dark:text-muted-foreground/90">
+                            Select the grooming service you'd like for your pet. Prices vary based on pet size.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
+
+                  {/* Boarding Extension (conditional) */}
+                  {requestType === "boarding-extension" && (
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="extensionDuration"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-base font-medium text-foreground dark:text-foreground">
+                              Extension Duration
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                min="1"
+                                placeholder="Duration"
+                                className="h-12 text-base"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
-                    </FormControl>
-                    <FormDescription className="text-muted-foreground dark:text-muted-foreground/90">
-                      {requestType === "photo" && "Describe what kind of photos you'd like."}
-                      {requestType === "video" && "Describe what kind of video you'd like."}
-                      {requestType === "grooming" && "Provide any specific instructions for the grooming service."}
-                      {requestType === "boarding-extension" && "Explain why you need to extend your pet's stay."}
-                      {requestType === "custom" && "Describe your request in detail."}
-                      {!requestType && "Provide details about your request."}
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
 
-              {/* Urgency */}
-              <FormField
-                control={form.control}
-                name="isUrgent"
-                render={({ field }) => (
-                  <FormItem className="space-y-3">
-                    <FormLabel className="text-base font-medium text-foreground dark:text-foreground">
-                      Priority
-                    </FormLabel>
-                    <FormControl>
-                      <RadioGroup
-                        onValueChange={(value) => field.onChange(value === "urgent")}
-                        defaultValue={field.value ? "urgent" : "normal"}
-                        className="flex flex-col space-y-1"
-                      >
-                        <FormItem className="flex items-center space-x-3 space-y-0">
-                          <FormControl>
-                            <RadioGroupItem value="normal" />
-                          </FormControl>
-                          <FormLabel className="font-normal text-foreground dark:text-foreground">Normal</FormLabel>
-                        </FormItem>
-                        <FormItem className="flex items-center space-x-3 space-y-0">
-                          <FormControl>
-                            <RadioGroupItem value="urgent" />
-                          </FormControl>
-                          <FormLabel className="font-normal text-foreground dark:text-foreground">Urgent</FormLabel>
-                        </FormItem>
-                      </RadioGroup>
-                    </FormControl>
-                    <FormDescription className="text-muted-foreground dark:text-muted-foreground/90">
-                      Select "Urgent" if this request requires immediate attention.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      <FormField
+                        control={form.control}
+                        name="extensionUnit"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-base font-medium text-foreground dark:text-foreground">
+                              Unit
+                            </FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger className="h-12 text-base">
+                                  <SelectValue placeholder="Select unit" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="hours">Hours</SelectItem>
+                                <SelectItem value="days">Days</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  )}
+
+                  {/* Description */}
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-base font-medium text-foreground dark:text-foreground">
+                          Description
+                        </FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Please provide details about your request..."
+                            className="min-h-[120px] text-base resize-none"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription className="text-muted-foreground dark:text-muted-foreground/90">
+                          {requestType === "photo" && "Describe what kind of photos you'd like of your pet."}
+                          {requestType === "video" && "Describe what kind of video you'd like of your pet."}
+                          {requestType === "grooming" &&
+                            "Provide any specific instructions or preferences for the grooming service."}
+                          {requestType === "boarding-extension" &&
+                            "Please explain why you need to extend your pet's stay."}
+                          {requestType === "custom" && "Describe your request in detail."}
+                          {!requestType && "Provide details about your request."}
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Urgency */}
+                  <FormField
+                    control={form.control}
+                    name="isUrgent"
+                    render={({ field }) => (
+                      <FormItem className="space-y-3">
+                        <FormLabel className="text-base font-medium text-foreground dark:text-foreground">
+                          Priority
+                        </FormLabel>
+                        <FormControl>
+                          <RadioGroup
+                            onValueChange={(value) => field.onChange(value === "urgent")}
+                            defaultValue={field.value ? "urgent" : "normal"}
+                            className="flex flex-col space-y-1"
+                          >
+                            <FormItem className="flex items-center space-x-3 space-y-0">
+                              <FormControl>
+                                <RadioGroupItem value="normal" />
+                              </FormControl>
+                              <FormLabel className="font-normal text-foreground dark:text-foreground">Normal</FormLabel>
+                            </FormItem>
+                            <FormItem className="flex items-center space-x-3 space-y-0">
+                              <FormControl>
+                                <RadioGroupItem value="urgent" />
+                              </FormControl>
+                              <FormLabel className="font-normal text-foreground dark:text-foreground">Urgent</FormLabel>
+                            </FormItem>
+                          </RadioGroup>
+                        </FormControl>
+                        <FormDescription className="text-muted-foreground dark:text-muted-foreground/90">
+                          Select "Urgent" if this request requires immediate attention.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -394,7 +420,7 @@ export default function RequestForm({
           </Button>
           <Button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || boardingPets.length === 0}
             className="h-12 px-6 text-base font-medium bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-600 dark:hover:bg-emerald-700 dark:text-white"
           >
             {isSubmitting && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}

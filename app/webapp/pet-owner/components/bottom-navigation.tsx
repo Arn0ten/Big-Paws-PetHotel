@@ -6,21 +6,8 @@ import { Home, FileText, Bell, User, DollarSign } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { getUnreadNotificationsCount } from "@/app/webapp/data/sample-data"
 
-/**
- * BottomNavigation Component
- *
- * This component provides a mobile-friendly bottom navigation bar.
- *
- * API Integration Points:
- * 1. Notification count - GET /api/notifications/unread/count
- *
- * @returns {JSX.Element} The bottom navigation component
- */
 export default function BottomNavigation() {
   const pathname = usePathname()
-
-  // Get unread notifications count
-  // In a real implementation, this would be fetched from an API
   const unreadCount = getUnreadNotificationsCount()
 
   const navItems = [
@@ -28,6 +15,7 @@ export default function BottomNavigation() {
       name: "Home",
       href: "/webapp/pet-owner",
       icon: Home,
+      exact: true,
     },
     {
       name: "Requests",
@@ -39,7 +27,7 @@ export default function BottomNavigation() {
       href: "/webapp/pet-owner/notifications",
       icon: Bell,
       badge: unreadCount > 0 ? unreadCount : null,
-      badgeColor: "bg-amber-500 text-amber-50",
+      badgeColor: "bg-emerald-500 text-white",
     },
     {
       name: "Pricing",
@@ -58,7 +46,8 @@ export default function BottomNavigation() {
     <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden border-t border-border dark:border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex items-center justify-around">
         {navItems.map((item) => {
-          const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`)
+          const isActive = item.exact ? pathname === item.href : pathname.startsWith(item.href)
+
           return (
             <Link
               key={item.name}
@@ -67,7 +56,7 @@ export default function BottomNavigation() {
                 "flex flex-col items-center justify-center py-2 px-3",
                 isActive
                   ? "text-primary"
-                  : "text-foreground/70 dark:text-foreground/60 hover:text-foreground dark:hover:text-foreground",
+                  : "text-foreground/80 dark:text-foreground/70 hover:text-foreground dark:hover:text-foreground",
               )}
             >
               <div className="relative">
@@ -75,7 +64,7 @@ export default function BottomNavigation() {
                 {item.badge && (
                   <span
                     className={cn(
-                      "absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px]",
+                      "absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-medium",
                       item.badgeColor || "bg-primary text-primary-foreground",
                     )}
                   >
@@ -83,7 +72,7 @@ export default function BottomNavigation() {
                   </span>
                 )}
               </div>
-              <span className="text-[10px] font-medium mt-1">{item.name}</span>
+              <span className="text-xs font-medium mt-1">{item.name}</span>
             </Link>
           )
         })}

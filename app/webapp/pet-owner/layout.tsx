@@ -1,44 +1,30 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Home, FileText, Bell, User, Menu, DollarSign } from "lucide-react"
+import Image from "next/image"
+import { usePathname } from "next/navigation"
+import { Home, FileText, Bell, User, DollarSign, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
 import ThemeToggle from "./components/theme-toggle"
 import BottomNavigation from "./components/bottom-navigation"
 import { getUnreadNotificationsCount } from "../data/sample-data"
 
-/**
- * PetOwnerLayout Component
- *
- * This component provides the layout for the pet owner interface.
- *
- * API Integration Points:
- * 1. User profile data - GET /api/users/me
- * 2. Notification count - GET /api/notifications/unread/count
- *
- * @param {Object} props - Component props
- * @param {React.ReactNode} props.children - Child components
- * @returns {JSX.Element} The pet owner layout component
- */
 export default function PetOwnerLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
   const [isMounted, setIsMounted] = useState(false)
+  const pathname = usePathname()
 
   useEffect(() => {
     setIsMounted(true)
   }, [])
 
-  // Get unread notifications count
-  // In a real implementation, this would be fetched from an API
   const unreadCount = getUnreadNotificationsCount()
 
   const navItems = [
@@ -46,6 +32,7 @@ export default function PetOwnerLayout({
       name: "Home",
       href: "/webapp/pet-owner",
       icon: Home,
+      exact: true, // Only active when path exactly matches
     },
     {
       name: "Requests",
@@ -57,7 +44,7 @@ export default function PetOwnerLayout({
       href: "/webapp/pet-owner/notifications",
       icon: Bell,
       badge: unreadCount > 0 ? unreadCount : null,
-      badgeColor: "bg-amber-500 text-amber-50",
+      badgeColor: "bg-emerald-500 text-white",
     },
     {
       name: "Pricing",
@@ -73,130 +60,101 @@ export default function PetOwnerLayout({
   ]
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background font-sans">
       {/* Header */}
       <header className="sticky top-0 z-40 w-full border-b border-border dark:border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between px-4 sm:px-8">
-          <div className="flex items-center gap-2">
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden text-foreground dark:text-foreground">
-                  <Menu className="h-5 w-5" />
-                  <span className="sr-only">Toggle menu</span>
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-[240px] sm:w-[300px] border-r border-border dark:border-border/50">
-                <div className="flex flex-col gap-6 py-4">
-                  <div className="flex items-center gap-2">
-                    <Avatar>
-                      <AvatarImage src="/placeholder.svg?height=32&width=32" alt="User" />
-                      <AvatarFallback>U</AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="text-sm font-medium text-foreground dark:text-foreground">John Doe</p>
-                      <p className="text-xs text-muted-foreground">john.doe@example.com</p>
-                    </div>
-                  </div>
-
-                  <nav className="flex flex-col gap-1">
-                    {navItems.map((item) => (
-                      <Link
-                        key={item.name}
-                        href={item.href}
-                        className={cn(
-                          "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium",
-                          "hover:bg-accent hover:text-accent-foreground",
-                          "text-foreground dark:text-foreground/90 dark:hover:bg-accent/90 dark:hover:text-foreground",
-                        )}
-                      >
-                        <div className="relative">
-                          <item.icon className={cn("h-5 w-5", item.iconColor)} />
-                          {item.badge && (
-                            <span
-                              className={cn(
-                                "absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px]",
-                                item.badgeColor || "bg-primary text-primary-foreground",
-                              )}
-                            >
-                              {item.badge > 9 ? "9+" : item.badge}
-                            </span>
-                          )}
-                        </div>
-                        {item.name}
-                      </Link>
-                    ))}
-                  </nav>
-                </div>
-              </SheetContent>
-            </Sheet>
-
-            <Link href="/webapp/pet-owner" className="flex items-center gap-2">
-              <span className="font-bold text-xl text-foreground dark:text-foreground">PetCare</span>
-            </Link>
-          </div>
+        <div className="container flex h-16 items-center justify-between px-4">
+          <Link href="/webapp/pet-owner" className="flex items-center gap-2">
+            <div className="relative h-10 w-10 overflow-hidden rounded-full border border-border">
+              <Image
+                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/BigPawsLogo-d2ofu2hZIV9GwZco2rVEbvBXHEjbGC.png"
+                alt="Big Paws Logo"
+                fill
+                className="object-cover"
+                priority
+              />
+            </div>
+            <span className="font-bold text-lg text-foreground dark:text-foreground">Big Paws</span>
+          </Link>
 
           <div className="flex items-center gap-2">
             {isMounted && <ThemeToggle />}
-
             <Avatar className="h-8 w-8 md:hidden">
-              <AvatarImage src="/placeholder.svg?height=32&width=32" alt="User" />
-              <AvatarFallback>U</AvatarFallback>
+              <AvatarFallback className="bg-primary/10 text-primary dark:bg-primary/20">JD</AvatarFallback>
             </Avatar>
           </div>
         </div>
       </header>
 
-      {/* Sidebar (desktop only) */}
-      <div className="hidden md:fixed md:inset-y-0 md:left-0 md:z-30 md:w-60 md:flex md:flex-col md:border-r md:border-border dark:md:border-border/50 md:bg-background/95 md:pt-16">
+      {/* Desktop Sidebar */}
+      <div className="hidden md:fixed md:inset-y-0 md:left-0 md:z-30 md:w-64 md:flex md:flex-col md:border-r md:border-border dark:md:border-border/50 md:bg-background/95 md:pt-16">
         <div className="flex flex-col gap-4 p-4">
           <div className="flex items-center gap-2 px-2">
             <Avatar>
-              <AvatarImage src="/placeholder.svg?height=32&width=32" alt="User" />
-              <AvatarFallback>U</AvatarFallback>
+              <AvatarFallback className="bg-primary/10 text-primary dark:bg-primary/20">JD</AvatarFallback>
             </Avatar>
             <div>
               <p className="text-sm font-medium text-foreground dark:text-foreground">John Doe</p>
-              <p className="text-xs text-muted-foreground">john.doe@example.com</p>
+              <p className="text-sm text-muted-foreground dark:text-muted-foreground/90">john.doe@example.com</p>
             </div>
           </div>
 
           <nav className="flex flex-col gap-1">
-            {navItems.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={cn(
-                  "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium",
-                  "hover:bg-accent hover:text-accent-foreground",
-                  "text-foreground dark:text-foreground/90 dark:hover:bg-accent/90 dark:hover:text-foreground",
-                )}
-              >
-                <div className="relative">
-                  <item.icon className={cn("h-5 w-5", item.iconColor)} />
-                  {item.badge && (
-                    <span
-                      className={cn(
-                        "absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px]",
-                        item.badgeColor || "bg-primary text-primary-foreground",
-                      )}
-                    >
-                      {item.badge > 9 ? "9+" : item.badge}
-                    </span>
+            {navItems.map((item) => {
+              const isActive = item.exact ? pathname === item.href : pathname.startsWith(item.href)
+
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={cn(
+                    "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors",
+                    "hover:bg-accent hover:text-accent-foreground",
+                    isActive
+                      ? "bg-accent text-accent-foreground dark:bg-accent/80"
+                      : "text-foreground/90 dark:text-foreground/90",
                   )}
-                </div>
-                {item.name}
-              </Link>
-            ))}
+                >
+                  <div className="relative">
+                    <item.icon className={cn("h-5 w-5", item.iconColor)} />
+                    {item.badge && (
+                      <span
+                        className={cn(
+                          "absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-medium",
+                          item.badgeColor || "bg-primary text-primary-foreground",
+                        )}
+                      >
+                        {item.badge > 9 ? "9+" : item.badge}
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-base">{item.name}</span>
+                </Link>
+              )
+            })}
           </nav>
+
+          <div className="mt-auto pt-4">
+            <Button
+              variant="outline"
+              className="w-full justify-start text-base font-medium text-foreground dark:text-foreground"
+              asChild
+            >
+              <Link href="/webapp/auth/login">
+                <LogOut className="mr-2 h-4 w-4" />
+                Sign Out
+              </Link>
+            </Button>
+          </div>
         </div>
       </div>
 
-      {/* Main content */}
-      <main className="flex-1 md:pl-60">
+      {/* Main Content */}
+      <main className="flex-1 md:pl-64">
         <div className="container max-w-screen-md mx-auto p-4 sm:p-6 pb-20 md:pb-6">{children}</div>
       </main>
 
-      {/* Bottom navigation (mobile only) */}
+      {/* Bottom Navigation */}
       <BottomNavigation />
     </div>
   )
