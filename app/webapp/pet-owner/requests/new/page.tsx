@@ -29,15 +29,18 @@ import { REQUEST_TYPES, REQUEST_TYPE_LABELS } from "@/app/webapp/constants"
  * 1. Replace getBoardingPets() with actual API call to fetch boarding pets
  *    - Endpoint: GET /api/pets?boarding=true
  *    - This should return all pets that are currently boarding
+ *    - Response format should match the sample data structure in sample-data.js
  *
  * 2. Replace createRequest() with actual API call to create a new request
  *    - Endpoint: POST /api/requests
  *    - Payload structure is defined in the handleSubmit function
  *    - The backend should validate the request data and return the created request
+ *    - On success, the backend should trigger notifications to admins about the new request
  *
  * 3. Add proper error handling for API calls
  *    - Display user-friendly error messages
  *    - Implement retry logic for failed API calls
+ *    - Log errors for debugging purposes
  *
  * 4. Implement real-time validation of form fields
  *    - Validate pet selection, request type, and required fields
@@ -64,10 +67,8 @@ export default function EnhancedRequestCreationPage() {
   const [groomingService, setGroomingService] = useState("")
   const [extensionDuration, setExtensionDuration] = useState("")
   const [extensionUnit, setExtensionUnit] = useState("days")
-  const [photoCount, setPhotoCount] = useState("3")
+  const [photoCount, setPhotoCount] = useState("3") // Photos limited to 5 for admins
   const [photoType, setPhotoType] = useState("general")
-  const [videoDuration, setVideoDuration] = useState("30-60")
-  const [videoType, setVideoType] = useState("general")
   const [customRequestCategory, setCustomRequestCategory] = useState("other")
 
   // Boarding pets state
@@ -168,14 +169,6 @@ export default function EnhancedRequestCreationPage() {
     { value: "groomed", label: "After Grooming", description: "Photos after grooming session" },
   ]
 
-  // Video type options
-  const videoTypeOptions = [
-    { value: "general", label: "General Activity", description: "Regular activity of your pet" },
-    { value: "playing", label: "Playing", description: "Video of your pet playing" },
-    { value: "interaction", label: "Interaction", description: "Interaction with staff or other pets" },
-    { value: "exercise", label: "Exercise", description: "Exercise or training session" },
-  ]
-
   // Custom request categories
   const customRequestCategories = [
     { value: "feeding", label: "Special Feeding", description: "Special feeding instructions" },
@@ -262,8 +255,6 @@ export default function EnhancedRequestCreationPage() {
    *   },
    *   photoCount?: number,            // For photo requests
    *   photoType?: string,             // For photo requests
-   *   videoDuration?: string,         // For video requests
-   *   videoType?: string,             // For video requests
    *   customRequestCategory?: string, // For custom requests
    * }
    *
@@ -321,8 +312,7 @@ export default function EnhancedRequestCreationPage() {
       requestData.photoCount = Number.parseInt(photoCount)
       requestData.photoType = photoType
     } else if (selectedRequestType === REQUEST_TYPES.VIDEO) {
-      requestData.videoDuration = videoDuration
-      requestData.videoType = videoType
+      // No video duration or type needed
     } else if (selectedRequestType === REQUEST_TYPES.CUSTOM) {
       requestData.customRequestCategory = customRequestCategory
     }
@@ -392,160 +382,6 @@ export default function EnhancedRequestCreationPage() {
     )
   }
 
-  // Render step 1: Request Type Selection
-  const renderStep1 = () => {
-    return (
-      <div className="space-y-6">
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <Label className="text-base font-medium">
-              Request Type <span className="text-destructive">*</span>
-            </Label>
-            {formErrors.requestType && (
-              <span className="text-sm text-destructive flex items-center">
-                <AlertCircle className="h-3 w-3 mr-1" />
-                Please select a request type
-              </span>
-            )}
-          </div>
-          <p className="text-sm text-muted-foreground">Select the type of service you're requesting</p>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {requestTypes.map((type) => (
-              <div
-                key={type.id}
-                className={`relative flex cursor-pointer rounded-lg border p-4 transition-all hover:border-primary/50 hover:shadow-sm ${
-                  selectedRequestType === type.id
-                    ? `border-${type.color}-400 dark:border-${type.color}-600 bg-${type.color}-50 dark:bg-${type.color}-900/20`
-                    : "border-border hover:bg-muted/50"
-                }`}
-                onClick={() => {
-                  setSelectedRequestType(type.id)
-                  setFormErrors({ ...formErrors, requestType: false })
-                }}
-              >
-                <div className="flex w-full items-start space-x-3">
-                  <div
-                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
-                      selectedRequestType === type.id
-                        ? `bg-${type.color}-100 text-${type.color}-700 dark:bg-${type.color}-900 dark:text-${type.color}-300`
-                        : "bg-muted text-foreground"
-                    }`}
-                  >
-                    <type.icon className="h-5 w-5" />
-                  </div>
-                  <div className="space-y-1">
-                    <p className="font-medium text-foreground">{type.name}</p>
-                    <p className="text-sm text-muted-foreground">{type.description}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  // Render step 2: Pet Selection
-  const renderStep2 = () => {
-    return (
-      <div className="space-y-6">
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="pet" className="text-base font-medium">
-              Select Pet <span className="text-destructive">*</span>
-            </Label>
-            {formErrors.pet && (
-              <span className="text-sm text-destructive flex items-center">
-                <AlertCircle className="h-3 w-3 mr-1" />
-                Please select a pet
-              </span>
-            )}
-          </div>
-          <p className="text-sm text-muted-foreground">Choose which pet this request is for</p>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {isLoading ? (
-              <div className="col-span-full p-8 text-center">
-                <p className="text-muted-foreground">Loading your pets...</p>
-              </div>
-            ) : boardingPets.length === 0 ? (
-              <div className="col-span-full p-8 text-center border rounded-lg">
-                <p className="text-muted-foreground">No pets currently boarding</p>
-              </div>
-            ) : (
-              boardingPets.map((pet) => (
-                <div
-                  key={pet.id}
-                  className={`relative flex cursor-pointer rounded-lg border p-4 transition-all hover:border-primary/50 hover:shadow-sm ${
-                    selectedPet === pet.id
-                      ? "border-primary bg-primary/5 dark:bg-primary/10"
-                      : "border-border hover:bg-muted/50"
-                  }`}
-                  onClick={() => {
-                    setSelectedPet(pet.id)
-                    setFormErrors({ ...formErrors, pet: false })
-                  }}
-                >
-                  <div className="flex w-full items-center space-x-3">
-                    <div className="h-12 w-12 rounded-full overflow-hidden bg-muted">
-                      <img
-                        src={pet.avatar || "/placeholder.svg?height=48&width=48"}
-                        alt={pet.name}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <p className="font-medium text-foreground">{pet.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {pet.breed} • {pet.type}
-                      </p>
-                      {pet.boarding && (
-                        <div className="flex items-center">
-                          <Badge
-                            variant="outline"
-                            className="text-xs bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800"
-                          >
-                            Currently Boarding
-                          </Badge>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-
-        {selectedPetDetails && selectedPetDetails.boarding && (
-          <Card className="bg-muted/30 dark:bg-muted/10 border-muted">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base">Boarding Details</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2 text-sm">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <span className="text-muted-foreground">Check-in:</span>
-                  <p>{new Date(selectedPetDetails.boarding.startDate).toLocaleDateString()}</p>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Check-out:</span>
-                  <p>{new Date(selectedPetDetails.boarding.endDate).toLocaleDateString()}</p>
-                </div>
-              </div>
-              <div>
-                <span className="text-muted-foreground">Package:</span>
-                <p>{selectedPetDetails.boarding.package}</p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-      </div>
-    )
-  }
-
   // Render step 3: Request Details
   const renderStep3 = () => {
     return (
@@ -600,8 +436,7 @@ export default function EnhancedRequestCreationPage() {
                 <SelectContent>
                   <SelectItem value="1">1 photo</SelectItem>
                   <SelectItem value="3">3 photos</SelectItem>
-                  <SelectItem value="5">5 photos</SelectItem>
-                  <SelectItem value="10">10 photos</SelectItem>
+                  <SelectItem value="5">5 photos (maximum)</SelectItem>
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground">How many photos would you like of your pet?</p>
@@ -611,42 +446,14 @@ export default function EnhancedRequestCreationPage() {
 
         {selectedRequestType === REQUEST_TYPES.VIDEO && (
           <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="videoType" className="text-base font-medium">
-                Video Type
-              </Label>
-              <Select value={videoType} onValueChange={setVideoType}>
-                <SelectTrigger id="videoType" className="text-base">
-                  <SelectValue placeholder="Select video type" />
-                </SelectTrigger>
-                <SelectContent>
-                  {videoTypeOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground">What kind of video would you like?</p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="videoDuration" className="text-base font-medium">
-                Video Duration
-              </Label>
-              <Select value={videoDuration} onValueChange={setVideoDuration}>
-                <SelectTrigger id="videoDuration" className="text-base">
-                  <SelectValue placeholder="Select video duration" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="15-30">15-30 seconds</SelectItem>
-                  <SelectItem value="30-60">30-60 seconds</SelectItem>
-                  <SelectItem value="60-120">1-2 minutes</SelectItem>
-                  <SelectItem value="120+">2+ minutes</SelectItem>
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground">How long would you like the video to be?</p>
-            </div>
+            <Alert className="bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800">
+              <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+              <AlertTitle className="text-blue-800 dark:text-blue-300">Video Request Information</AlertTitle>
+              <AlertDescription className="text-blue-700 dark:text-blue-400">
+                Videos will be up to 1 minute in length. Our staff will capture the best moments of your pet during
+                their stay.
+              </AlertDescription>
+            </Alert>
           </div>
         )}
 
@@ -826,6 +633,118 @@ export default function EnhancedRequestCreationPage() {
             <p className="text-sm text-muted-foreground">Urgent requests will be prioritized by our staff</p>
           </div>
         </div>
+      </div>
+    )
+  }
+
+  // Render step 1: Request Type Selection
+  const renderStep1 = () => {
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        {requestTypes.map((type) => (
+          <motion.div
+            key={type.id}
+            className={`relative rounded-lg border shadow-md transition-colors hover:shadow-lg
+              ${selectedRequestType === type.id ? "border-primary" : "border-muted"}`}
+            onClick={() => {
+              setSelectedRequestType(type.id)
+              setFormErrors({ ...formErrors, requestType: false })
+            }}
+            style={{ cursor: "pointer" }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            {selectedRequestType === type.id && <Badge className="absolute top-2 right-2 z-10">Selected</Badge>}
+            <Card className="h-full">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg font-semibold">
+                  <type.icon className={`h-5 w-5 text-${type.color}-500`} />
+                  {type.name}
+                </CardTitle>
+                <CardDescription>{type.description}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  {type.id === REQUEST_TYPES.PHOTO && "Request photos of your pet during their stay."}
+                  {type.id === REQUEST_TYPES.VIDEO && "Request a short video of your pet's activities."}
+                  {type.id === REQUEST_TYPES.GROOMING && "Schedule a grooming service for your pet."}
+                  {type.id === REQUEST_TYPES.BOARDING_EXTENSION && "Request to extend your pet's current stay."}
+                  {type.id === REQUEST_TYPES.CUSTOM && "Make a special request not covered by other options."}
+                </p>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
+        {formErrors.requestType && (
+          <Alert variant="destructive">
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>Please select a request type</AlertDescription>
+          </Alert>
+        )}
+      </div>
+    )
+  }
+
+  // Render step 2: Pet Selection
+  const renderStep2 = () => {
+    return (
+      <div className="space-y-6">
+        {isLoading ? (
+          <p>Loading your boarding pets...</p>
+        ) : boardingPets.length === 0 ? (
+          <Alert className="bg-yellow-50 border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-800">
+            <Info className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+            <AlertTitle className="text-yellow-800 dark:text-yellow-300">No Boarding Pets Found</AlertTitle>
+            <AlertDescription className="text-yellow-700 dark:text-yellow-400">
+              You don't have any pets currently boarding with us. Please contact support if this is incorrect.
+            </AlertDescription>
+          </Alert>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {boardingPets.map((pet) => (
+              <motion.div
+                key={pet.id}
+                className={`relative rounded-lg border shadow-md transition-colors hover:shadow-lg
+                  ${selectedPet === pet.id ? "border-primary" : "border-muted"}`}
+                onClick={() => {
+                  setSelectedPet(pet.id)
+                  setFormErrors({ ...formErrors, pet: false })
+                }}
+                style={{ cursor: "pointer" }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                {selectedPet === pet.id && <Badge className="absolute top-2 right-2 z-10">Selected</Badge>}
+                <Card className="h-full">
+                  <CardHeader>
+                    <CardTitle className="text-lg font-semibold">{pet.name}</CardTitle>
+                    <CardDescription>
+                      {pet.breed} - {pet.age} years old
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      <p className="text-sm text-muted-foreground">{pet.notes || "No additional notes provided."}</p>
+                      {pet.boarding && (
+                        <div className="p-3 bg-blue-50 border border-blue-200 rounded-md dark:bg-blue-900/20 dark:border-blue-800">
+                          <p className="text-sm text-blue-700 dark:text-blue-300">
+                            Checkout Date: <strong>{new Date(pet.boarding.endDate).toLocaleDateString()}</strong>
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        )}
+        {formErrors.pet && (
+          <Alert variant="destructive">
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>Please select a pet</AlertDescription>
+          </Alert>
+        )}
       </div>
     )
   }

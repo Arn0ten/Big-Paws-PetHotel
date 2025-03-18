@@ -41,7 +41,10 @@ export default function RequestDetailPage() {
         // For demo, we'll use the local data
         const foundRequest = requests.find((r) => r.id === requestId)
         if (!foundRequest) {
-          throw new Error("Request not found")
+          console.log("Request not found for id:", requestId) // Log the request ID for debugging
+          setError("Request not found")
+          setLoading(false)
+          return
         }
 
         setRequest(foundRequest)
