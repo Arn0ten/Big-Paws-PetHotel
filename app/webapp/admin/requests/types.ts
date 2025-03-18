@@ -1,18 +1,46 @@
 // Types for request management module
+
+/**
+ * Request Type Enum
+ *
+ * BACKEND INTEGRATION:
+ * These types MUST match the types used in the pet owner interface
+ * and in the database schema
+ */
 export type RequestType = "photo" | "video" | "grooming" | "boarding-extension" | "custom"
 
-export type RequestStatus = "in-progress" | "completed"
+/**
+ * Request Status Enum
+ *
+ * BACKEND INTEGRATION:
+ * These statuses should match your database schema
+ */
+export type RequestStatus = "new" | "in-progress" | "completed" | "rejected"
 
+/**
+ * Payment Status Enum
+ */
 export type PaymentStatus = "Paid" | "Not Paid" | "Pending"
 
+/**
+ * Pet Size Enum
+ */
 export type PetSize = "Small" | "Medium" | "Large" | "XLarge"
 
+/**
+ * Media Preview Interface
+ * Used for file uploads in the UI
+ */
 export interface MediaPreview {
   file: File
   url: string
   type: "image" | "video"
 }
 
+/**
+ * Boarding Extension Interface
+ * Details for boarding extension requests
+ */
 export interface BoardingExtension {
   duration: string
   unit: "hours" | "days"
@@ -20,11 +48,22 @@ export interface BoardingExtension {
   newEndDate?: string
 }
 
+/**
+ * Grooming Service Interface
+ * Details for grooming service requests
+ */
 export interface GroomingService {
   type: string
   price: number
 }
 
+/**
+ * Request Interface
+ * Main data structure for request management
+ *
+ * BACKEND INTEGRATION:
+ * This should match your database schema for requests
+ */
 export interface Request {
   id: string
   type: RequestType
@@ -48,9 +87,15 @@ export interface Request {
   extensionApproved?: boolean
   newEndDate?: string
   isNew?: boolean
+  boardingId?: string
 }
 
-// Pricing constants based on uploaded images
+/**
+ * Pricing constants based on pet size
+ *
+ * BACKEND INTEGRATION:
+ * These rates should be fetched from your database or configuration
+ */
 export const BOARDING_RATES = {
   hourly: {
     Small: 25,

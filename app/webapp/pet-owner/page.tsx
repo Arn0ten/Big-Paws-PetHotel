@@ -12,11 +12,58 @@ import { Camera, Video, Scissors, Clock, FileText, Plus, ArrowRight, Calendar, D
 import { formatDate } from "../utils/date-helpers"
 import { pets, requests, notifications } from "../data/sample-data"
 
+/**
+ * Pet Owner Dashboard Page
+ *
+ * BACKEND INTEGRATION POINTS:
+ * 1. Replace static data imports with API calls:
+ *    - GET /api/pets - To fetch the pet owner's pets
+ *    - GET /api/requests?limit=3 - To fetch recent requests
+ *    - GET /api/notifications?unread=true&limit=2 - To fetch unread notifications
+ *
+ * 2. Add proper loading states and error handling for API calls
+ *
+ * 3. Implement real-time updates for notifications using WebSockets or polling
+ *    - This would allow notifications to appear without page refresh
+ */
 export default function PetOwnerHomePage() {
   const [activeTab, setActiveTab] = useState("boarding")
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
+    // BACKEND INTEGRATION:
+    // Replace this with actual API calls to fetch data
+    // Example:
+    // const fetchData = async () => {
+    //   try {
+    //     const [petsResponse, requestsResponse, notificationsResponse] = await Promise.all([
+    //       fetch('/api/pets'),
+    //       fetch('/api/requests?limit=3'),
+    //       fetch('/api/notifications?unread=true&limit=2')
+    //     ]);
+    //
+    //     if (!petsResponse.ok || !requestsResponse.ok || !notificationsResponse.ok) {
+    //       throw new Error('Failed to fetch data');
+    //     }
+    //
+    //     const petsData = await petsResponse.json();
+    //     const requestsData = await requestsResponse.json();
+    //     const notificationsData = await notificationsResponse.json();
+    //
+    //     // Update state with fetched data
+    //     setPets(petsData);
+    //     setRequests(requestsData);
+    //     setNotifications(notificationsData);
+    //   } catch (error) {
+    //     console.error('Error fetching data:', error);
+    //     // Handle error state
+    //   } finally {
+    //     setIsLoading(false);
+    //   }
+    // };
+    //
+    // fetchData();
+
     // Simulate API loading
     const timer = setTimeout(() => {
       setIsLoading(false)
@@ -74,6 +121,7 @@ export default function PetOwnerHomePage() {
   const getRequestStatusBadge = (status: string) => {
     switch (status) {
       case "new":
+      case "pending":
         return (
           <Badge
             variant="outline"

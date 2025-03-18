@@ -1,14 +1,21 @@
 import { Camera, Video, Scissors, Clock, FileText } from "lucide-react"
 
 /**
- * UI Helper functions for request management
+ * UI Helper Functions for Request Management
  *
- * BACKEND INTEGRATION NOTES:
- * - These functions can be shared across modules
- * - Consider moving them to a shared utility library
+ * These functions provide consistent UI elements and styling across
+ * both the admin and pet owner interfaces.
+ *
+ * BACKEND INTEGRATION:
+ * - No direct API integration needed for these helper functions
+ * - Ensure that the request types used in the API match these constants
  */
 
-// Get the appropriate icon for a request type
+/**
+ * Get the icon component for a request type
+ * @param type The request type
+ * @returns The icon component
+ */
 export const getRequestTypeIcon = (type: string) => {
   switch (type) {
     case "photo":
@@ -26,7 +33,11 @@ export const getRequestTypeIcon = (type: string) => {
   }
 }
 
-// Get the human-readable label for a request type
+/**
+ * Get the display label for a request type
+ * @param type The request type
+ * @returns The display label
+ */
 export const getRequestTypeLabel = (type: string) => {
   switch (type) {
     case "photo":
@@ -44,7 +55,12 @@ export const getRequestTypeLabel = (type: string) => {
   }
 }
 
-// Get the appropriate border color for a request card
+/**
+ * Get the border color class for a request card
+ * @param type The request type
+ * @param isUrgent Whether the request is urgent
+ * @returns The Tailwind CSS class for the border color
+ */
 export const getCardBorderColor = (type: string, isUrgent: boolean) => {
   if (isUrgent) return "border-red-300 dark:border-red-800"
 
@@ -64,7 +80,12 @@ export const getCardBorderColor = (type: string, isUrgent: boolean) => {
   }
 }
 
-// Get the appropriate background color for a request card
+/**
+ * Get the background color class for a request card
+ * @param type The request type
+ * @param isUrgent Whether the request is urgent
+ * @returns The Tailwind CSS class for the background color
+ */
 export const getCardBgColor = (type: string, isUrgent: boolean) => {
   if (isUrgent) return "bg-red-50 dark:bg-red-950/20"
 
@@ -84,26 +105,12 @@ export const getCardBgColor = (type: string, isUrgent: boolean) => {
   }
 }
 
-// Get the appropriate badge color for a request type
-export const getRequestTypeBadgeClass = (type: string) => {
-  switch (type) {
-    case "photo":
-      return "bg-blue-100 text-blue-700 hover:bg-blue-100 dark:bg-blue-900 dark:text-blue-300"
-    case "video":
-      return "bg-purple-100 text-purple-700 hover:bg-purple-100 dark:bg-purple-900 dark:text-purple-300"
-    case "grooming":
-      return "bg-green-100 text-green-700 hover:bg-green-100 dark:bg-green-900 dark:text-green-300"
-    case "boarding-extension":
-      return "bg-amber-100 text-amber-700 hover:bg-amber-100 dark:bg-amber-900 dark:text-amber-300"
-    case "custom":
-      return "bg-gray-100 text-gray-700 hover:bg-gray-100 dark:bg-gray-900 dark:text-gray-300"
-    default:
-      return ""
-  }
-}
-
-// Get the appropriate icon background color for a request type
-export const getIconBgClass = (type: string) => {
+/**
+ * Get the icon background color class for a request type
+ * @param type The request type
+ * @returns The Tailwind CSS class for the icon background
+ */
+export const getIconBgColorClass = (type: string) => {
   switch (type) {
     case "photo":
       return "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300"
@@ -116,7 +123,87 @@ export const getIconBgClass = (type: string) => {
     case "custom":
       return "bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300"
     default:
-      return ""
+      return "bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300"
+  }
+}
+
+/**
+ * Format a date string for display
+ * @param dateString The ISO date string
+ * @returns Formatted date string
+ */
+export const formatDate = (dateString: string): string => {
+  if (!dateString) return "N/A"
+
+  try {
+    const date = new Date(dateString)
+    return new Intl.DateTimeFormat("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true,
+    }).format(date)
+  } catch (error) {
+    console.error("Error formatting date:", error)
+    return "Invalid Date"
+  }
+}
+
+/**
+ * Format a currency value for display
+ * @param amount The amount to format
+ * @returns Formatted currency string
+ */
+export const formatCurrency = (amount: number): string => {
+  return new Intl.NumberFormat("en-PH", {
+    style: "currency",
+    currency: "PHP",
+    minimumFractionDigits: 2,
+  }).format(amount)
+}
+
+/**
+ * Get time ago in words
+ * @param date ISO date string
+ * @returns Time ago in words
+ */
+export const getTimeAgo = (date: string) => {
+  try {
+    const now = new Date()
+    const pastDate = new Date(date)
+    const diffInSeconds = Math.floor((now.getTime() - pastDate.getTime()) / 1000)
+
+    if (diffInSeconds < 60) {
+      return "just now"
+    }
+
+    const diffInMinutes = Math.floor(diffInSeconds / 60)
+    if (diffInMinutes < 60) {
+      return `${diffInMinutes} minute${diffInMinutes !== 1 ? "s" : ""} ago`
+    }
+
+    const diffInHours = Math.floor(diffInMinutes / 60)
+    if (diffInHours < 24) {
+      return `${diffInHours} hour${diffInHours !== 1 ? "s" : ""} ago`
+    }
+
+    const diffInDays = Math.floor(diffInHours / 24)
+    if (diffInDays < 30) {
+      return `${diffInDays} day${diffInDays !== 1 ? "s" : ""} ago`
+    }
+
+    const diffInMonths = Math.floor(diffInDays / 30)
+    if (diffInMonths < 12) {
+      return `${diffInMonths} month${diffInMonths !== 1 ? "s" : ""} ago`
+    }
+
+    const diffInYears = Math.floor(diffInMonths / 12)
+    return `${diffInYears} year${diffInYears !== 1 ? "s" : ""} ago`
+  } catch (error) {
+    console.error("Error calculating time ago:", error)
+    return "N/A"
   }
 }
 

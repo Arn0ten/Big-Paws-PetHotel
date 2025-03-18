@@ -2,127 +2,62 @@
 
 import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { motion } from "framer-motion"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Camera, Video, Scissors, Clock, FileText, ArrowLeft, AlertTriangle, X } from "lucide-react"
-import { formatDate } from "../../../utils/date-helpers"
-import Image from "next/image"
 import Link from "next/link"
+import { motion } from "framer-motion"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { ArrowLeft, Calendar, Clock, Camera, Video, Scissors, CheckCircle2, XCircle, AlertCircle } from "lucide-react"
+import { requests } from "@/app/webapp/data/sample-data"
+import { formatDate } from "@/app/webapp/utils/date-utils"
 
-// Sample data for demonstration
-const sampleRequests = [
-  {
-    id: "req-001",
-    type: "photo",
-    petName: "Max",
-    petId: "pet-1",
-    status: "completed",
-    createdAt: "2025-03-10T10:30:00Z",
-    completedAt: "2025-03-10T14:45:00Z",
-    description: "Would love to see how Max is doing today!",
-    mediaFiles: {
-      type: "photo",
-      urls: ["/placeholder.svg?height=300&width=400", "/placeholder.svg?height=300&width=400"],
-      count: 2,
-    },
-    adminNotes: "Here are some photos of Max playing in the yard today. He's having a great time!",
-  },
-  {
-    id: "req-002",
-    type: "grooming",
-    petName: "Max",
-    petId: "pet-1",
-    status: "in-progress",
-    createdAt: "2025-03-11T09:15:00Z",
-    description: "Please give Max a bath and trim his nails.",
-    groomingService: "premium-wash-and-cut",
-    price: 450,
-    adminNotes: "We've scheduled Max's grooming for tomorrow at 2:00 PM. We'll update you once it's completed.",
-  },
-  {
-    id: "req-003",
-    type: "boarding-extension",
-    petName: "Max",
-    petId: "pet-1",
-    status: "new",
-    createdAt: "2025-03-12T11:30:00Z",
-    description: "Need to extend Max's stay by 2 more days.",
-    extensionDetails: {
-      duration: "2",
-      unit: "days",
-    },
-    currentEndDate: "2025-03-15T18:00:00Z",
-    adminNotes: "",
-  },
-  {
-    id: "req-004",
-    type: "video",
-    petName: "Max",
-    petId: "pet-1",
-    status: "rejected",
-    createdAt: "2025-03-07T16:20:00Z",
-    rejectedAt: "2025-03-07T18:45:00Z",
-    description: "Would like a short video of Max playing.",
-    rejectedBy: "Admin",
-    rejectionReason:
-      "We're unable to record a video at this time as Max is resting. We can try again tomorrow if you'd like.",
-    adminNotes: "",
-  },
-  {
-    id: "req-005",
-    type: "photo",
-    petName: "Luna",
-    petId: "pet-2",
-    status: "rejected",
-    createdAt: "2025-03-05T13:25:00Z",
-    rejectedAt: "2025-03-05T15:40:00Z",
-    description: "Would love to see some photos of Luna today.",
-    rejectedBy: "Admin",
-    rejectionReason: "Luna was sleeping most of the day. We'll try to take photos tomorrow when she's more active.",
-    adminNotes: "",
-  },
-]
-
+/**
+ * Request Detail Page
+ *
+ * BACKEND INTEGRATION POINTS:
+ * 1. Replace the static data with an API call to fetch the request details
+ *    - Endpoint: GET /api/pet-owner/requests/:id
+ *
+ * 2. Add proper error handling and loading states
+ */
 export default function RequestDetailPage() {
   const params = useParams()
   const router = useRouter()
+  const requestId = params.id as string
+
   const [request, setRequest] = useState<any>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
 
   useEffect(() => {
-    // Simulate API call to fetch request details
     const fetchRequest = async () => {
       try {
-        // In a real implementation, this would be an API call
-        // const response = await fetch(`/api/requests/${params.id}`);
-        // const data = await response.json();
+        // In production, replace with actual API call
+        // const response = await fetch(`/api/pet-owner/requests/${requestId}`)
+        // if (!response.ok) throw new Error('Request not found')
+        // const data = await response.json()
 
-        // Using sample data for now
-        await new Promise((resolve) => setTimeout(resolve, 500)) // Simulate API delay
-        const foundRequest = sampleRequests.find((req) => req.id === params.id)
-
-        if (foundRequest) {
-          setRequest(foundRequest)
-        } else {
-          // Handle not found
-          router.push("/webapp/pet-owner/requests")
+        // For demo, we'll use the local data
+        const foundRequest = requests.find((r) => r.id === requestId)
+        if (!foundRequest) {
+          throw new Error("Request not found")
         }
+
+        setRequest(foundRequest)
       } catch (error) {
         console.error("Error fetching request:", error)
+        setError("Request not found or could not be loaded")
       } finally {
-        setIsLoading(false)
+        setLoading(false)
       }
     }
 
-    if (params.id) {
-      fetchRequest()
-    }
-  }, [params.id, router])
+    fetchRequest()
+  }, [requestId])
 
   // Get request type icon
-  const getRequestTypeIcon = (type: string) => {
+  const getRequestTypeIcon = (type) => {
     switch (type) {
       case "photo":
         return <Camera className="h-5 w-5" />
@@ -132,15 +67,63 @@ export default function RequestDetailPage() {
         return <Scissors className="h-5 w-5" />
       case "boarding-extension":
         return <Clock className="h-5 w-5" />
-      case "custom":
-        return <FileText className="h-5 w-5" />
       default:
-        return <FileText className="h-5 w-5" />
+        return <Calendar className="h-5 w-5" />
     }
   }
 
-  // Get request type label
-  const getRequestTypeLabel = (type: string) => {
+  // Get status badge
+  const getStatusBadge = (status) => {
+    switch (status) {
+      case "pending":
+      case "new":
+        return (
+          <Badge
+            variant="outline"
+            className="bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-700/30 dark:text-yellow-400"
+          >
+            <Clock className="h-3 w-3 mr-1" /> Pending
+          </Badge>
+        )
+      case "approved":
+      case "in-progress":
+        return (
+          <Badge
+            variant="outline"
+            className="bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:border-green-700/30 dark:text-green-400"
+          >
+            <CheckCircle2 className="h-3 w-3 mr-1" /> In Progress
+          </Badge>
+        )
+      case "completed":
+        return (
+          <Badge
+            variant="outline"
+            className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:border-blue-700/30 dark:text-blue-400"
+          >
+            <CheckCircle2 className="h-3 w-3 mr-1" /> Completed
+          </Badge>
+        )
+      case "rejected":
+        return (
+          <Badge
+            variant="outline"
+            className="bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:border-red-700/30 dark:text-red-400"
+          >
+            <XCircle className="h-3 w-3 mr-1" /> Rejected
+          </Badge>
+        )
+      default:
+        return (
+          <Badge variant="outline">
+            <AlertCircle className="h-3 w-3 mr-1" /> {status}
+          </Badge>
+        )
+    }
+  }
+
+  // Get request type title
+  const getRequestTypeTitle = (type) => {
     switch (type) {
       case "photo":
         return "Photo Update"
@@ -150,262 +133,257 @@ export default function RequestDetailPage() {
         return "Grooming Service"
       case "boarding-extension":
         return "Boarding Extension"
-      case "custom":
-        return "Custom Request"
       default:
-        return "Request"
+        return "Service Request"
     }
   }
 
-  // Get request status badge
-  const getRequestStatusBadge = (status: string) => {
-    switch (status) {
-      case "new":
-        return (
-          <Badge
-            variant="outline"
-            className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border-blue-200 dark:border-blue-800"
-          >
-            New
-          </Badge>
-        )
-      case "in-progress":
-        return (
-          <Badge
-            variant="outline"
-            className="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 border-amber-200 dark:border-amber-800"
-          >
-            In Progress
-          </Badge>
-        )
-      case "completed":
-        return (
-          <Badge
-            variant="outline"
-            className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 border-green-200 dark:border-green-800"
-          >
-            Completed
-          </Badge>
-        )
-      case "rejected":
-        return (
-          <Badge
-            variant="outline"
-            className="bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 border-red-200 dark:border-red-800"
-          >
-            Rejected
-          </Badge>
-        )
-      default:
-        return <Badge variant="outline">{status}</Badge>
-    }
-  }
-
-  if (isLoading) {
+  if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="h-8 w-3/4 bg-muted animate-pulse rounded-md"></div>
-        <div className="h-64 bg-muted animate-pulse rounded-md"></div>
-        <div className="h-32 bg-muted animate-pulse rounded-md"></div>
+      <div className="flex justify-center items-center h-64">
+        <p className="text-muted-foreground">Loading request details...</p>
       </div>
     )
   }
 
-  if (!request) {
+  if (error || !request) {
     return (
-      <div className="text-center py-12">
-        <AlertTriangle className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-        <h2 className="text-xl font-semibold text-foreground">Request Not Found</h2>
-        <p className="text-muted-foreground mt-2">The request you're looking for doesn't exist or has been removed.</p>
-        <Button variant="outline" className="mt-6" asChild>
+      <div className="space-y-6">
+        <Button variant="ghost" size="icon" asChild className="mb-4">
           <Link href="/webapp/pet-owner/requests">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Requests
+            <ArrowLeft className="h-5 w-5" />
           </Link>
         </Button>
+
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{error || "Request not found"}</AlertDescription>
+        </Alert>
+
+        <div className="flex justify-center">
+          <Button asChild>
+            <Link href="/webapp/pet-owner/requests">Return to Requests</Link>
+          </Button>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="space-y-6 pb-20">
-      <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => router.back()}
-          className="text-foreground hover:bg-foreground/5"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back
+    <div className="space-y-6">
+      <div className="flex items-center mb-6">
+        <Button variant="ghost" size="icon" asChild className="mr-4">
+          <Link href="/webapp/pet-owner/requests">
+            <ArrowLeft className="h-5 w-5" />
+          </Link>
         </Button>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground dark:text-foreground">Request Details</h1>
+          <p className="text-base text-muted-foreground dark:text-muted-foreground/90">
+            View details of your service request
+          </p>
+        </div>
       </div>
 
-      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5 }}>
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
         <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
+          <CardHeader className="pb-3">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="flex items-center gap-3">
-                <div
-                  className={`
-                  p-2 rounded-full
-                  ${request.type === "photo" ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300" : ""}
-                  ${request.type === "video" ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300" : ""}
-                  ${request.type === "grooming" ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300" : ""}
-                  ${request.type === "boarding-extension" ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300" : ""}
-                  ${request.type === "custom" ? "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300" : ""}
-                `}
-                >
+                <div className="flex items-center justify-center h-10 w-10 rounded-full bg-primary/10 text-primary">
                   {getRequestTypeIcon(request.type)}
                 </div>
                 <div>
-                  <CardTitle className="text-foreground">{getRequestTypeLabel(request.type)}</CardTitle>
-                  <CardDescription>For {request.petName}</CardDescription>
+                  <h2 className="text-xl font-semibold text-foreground dark:text-foreground">
+                    {request.title || getRequestTypeTitle(request.type)}
+                  </h2>
+                  <p className="text-sm text-muted-foreground dark:text-muted-foreground/90">
+                    Request ID: {request.id}
+                  </p>
                 </div>
               </div>
-              {getRequestStatusBadge(request.status)}
+              <div className="flex flex-col sm:items-end gap-2">
+                {getStatusBadge(request.status)}
+                <p className="text-sm text-muted-foreground dark:text-muted-foreground/90">
+                  Submitted: {formatDate(request.createdAt)}
+                </p>
+              </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div>
-              <h3 className="text-sm font-medium text-muted-foreground mb-2">Request Details</h3>
-              <div className="bg-muted/30 p-3 rounded-md text-foreground">{request.description}</div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <h3 className="text-sm font-medium text-muted-foreground mb-1">Requested On</h3>
-                <p className="text-foreground">{formatDate(request.createdAt)}</p>
-              </div>
-
-              {request.status === "completed" && (
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-1">Completed On</h3>
-                  <p className="text-foreground">{formatDate(request.completedAt || "")}</p>
-                </div>
-              )}
-
-              {request.status === "rejected" && (
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-1">Rejected On</h3>
-                  <p className="text-foreground">{formatDate(request.rejectedAt || "")}</p>
-                </div>
-              )}
-            </div>
-
-            {/* Type-specific details */}
-            {request.type === "boarding-extension" && (
-              <div>
-                <h3 className="text-sm font-medium text-muted-foreground mb-2">Extension Details</h3>
-                <div className="bg-muted/30 p-3 rounded-md">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Current End Date</p>
-                      <p className="text-foreground font-medium">{formatDate(request.currentEndDate || "")}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Extension Requested</p>
-                      <p className="text-foreground font-medium">
-                        {request.extensionDetails?.duration} {request.extensionDetails?.unit}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {request.type === "grooming" && (
-              <div>
-                <h3 className="text-sm font-medium text-muted-foreground mb-2">Grooming Service</h3>
-                <div className="bg-muted/30 p-3 rounded-md">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Service Type</p>
-                      <p className="text-foreground font-medium">
-                        {request.groomingService?.replace(/-/g, " ").replace(/\b\w/g, (l: string) => l.toUpperCase())}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Price</p>
-                      <p className="text-foreground font-medium">₱{request.price?.toLocaleString()}</p>
-                      <p className="text-xs text-muted-foreground">(To be paid during pickup)</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Admin notes */}
-            {request.adminNotes && (
-              <div>
-                <h3 className="text-sm font-medium text-muted-foreground mb-2">Notes from Staff</h3>
-                <div className="bg-primary/5 border border-primary/10 p-3 rounded-md text-foreground">
-                  {request.adminNotes}
-                </div>
-              </div>
-            )}
-
-            {/* Rejection reason */}
             {request.status === "rejected" && request.rejectionReason && (
-              <div>
-                <h3 className="text-sm font-medium text-muted-foreground mb-2">Reason for Rejection</h3>
-                <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 p-3 rounded-md text-red-700 dark:text-red-300">
-                  {request.rejectionReason}
-                </div>
-              </div>
+              <Alert
+                variant="destructive"
+                className="bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800/30"
+              >
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Request Rejected</AlertTitle>
+                <AlertDescription>{request.rejectionReason}</AlertDescription>
+              </Alert>
             )}
 
-            {/* Media content for completed photo/video requests */}
-            {request.status === "completed" && request.type === "photo" && request.mediaFiles?.urls && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <h3 className="text-sm font-medium text-muted-foreground mb-2">Photos</h3>
-                <div className="grid grid-cols-2 gap-3">
-                  {request.mediaFiles.urls.map((url: string, index: number) => (
-                    <div key={index} className="relative aspect-square rounded-md overflow-hidden border">
-                      <Image src={url || "/placeholder.svg"} alt={`Photo ${index + 1}`} fill className="object-cover" />
+                <h3 className="text-base font-medium mb-2">Request Details</h3>
+                <Card className="bg-muted/50 dark:bg-muted/20">
+                  <CardContent className="p-4 space-y-3">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Request Type</p>
+                      <p className="text-sm text-foreground dark:text-foreground">
+                        {getRequestTypeTitle(request.type)}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Pet</p>
+                      <p className="text-sm text-foreground dark:text-foreground">{request.petName}</p>
+                    </div>
+                    {request.type === "grooming" && request.groomingService && (
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Grooming Service</p>
+                        <p className="text-sm text-foreground dark:text-foreground">
+                          {request.groomingService.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+                        </p>
+                      </div>
+                    )}
+                    {request.type === "boarding-extension" && request.extensionDetails && (
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Extension Details</p>
+                        <p className="text-sm text-foreground dark:text-foreground">
+                          {request.extensionDetails.duration} {request.extensionDetails.unit}
+                        </p>
+                      </div>
+                    )}
+                    {request.price && (
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Price</p>
+                        <p className="text-sm text-foreground dark:text-foreground">₱{request.price}</p>
+                      </div>
+                    )}
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Description</p>
+                      <p className="text-sm text-foreground dark:text-foreground whitespace-pre-wrap">
+                        {request.description}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <div>
+                <h3 className="text-base font-medium mb-2">Status Timeline</h3>
+                <Card className="bg-muted/50 dark:bg-muted/20">
+                  <CardContent className="p-4 space-y-4">
+                    <div className="flex gap-3 items-start">
+                      <div className="flex items-center justify-center h-6 w-6 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                        <Calendar className="h-3 w-3" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-foreground dark:text-foreground">Request Submitted</p>
+                        <p className="text-xs text-muted-foreground dark:text-muted-foreground/90">
+                          {formatDate(request.createdAt)}
+                        </p>
+                      </div>
+                    </div>
+
+                    {request.status === "in-progress" && (
+                      <div className="flex gap-3 items-start">
+                        <div className="flex items-center justify-center h-6 w-6 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                          <CheckCircle2 className="h-3 w-3" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-foreground dark:text-foreground">In Progress</p>
+                          <p className="text-xs text-muted-foreground dark:text-muted-foreground/90">
+                            Your request is being processed
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {request.completedAt && (
+                      <div className="flex gap-3 items-start">
+                        <div className="flex items-center justify-center h-6 w-6 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                          <CheckCircle2 className="h-3 w-3" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-foreground dark:text-foreground">Completed</p>
+                          <p className="text-xs text-muted-foreground dark:text-muted-foreground/90">
+                            {formatDate(request.completedAt)}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {request.status === "rejected" && (
+                      <div className="flex gap-3 items-start">
+                        <div className="flex items-center justify-center h-6 w-6 rounded-full bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
+                          <XCircle className="h-3 w-3" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-foreground dark:text-foreground">Rejected</p>
+                          <p className="text-xs text-muted-foreground dark:text-muted-foreground/90">
+                            {formatDate(request.updatedAt || request.createdAt)}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+
+            {/* Media Files Section */}
+            {request.mediaFiles && request.mediaFiles.urls && request.mediaFiles.urls.length > 0 && (
+              <div>
+                <h3 className="text-base font-medium mb-2">
+                  {request.mediaFiles.type === "photo" ? "Photos" : "Videos"}
+                </h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                  {request.mediaFiles.urls.map((url, index) => (
+                    <div key={index} className="rounded-md overflow-hidden border">
+                      {request.mediaFiles.type === "photo" ? (
+                        <img
+                          src={url || "/placeholder.svg"}
+                          alt={`${request.petName} photo ${index + 1}`}
+                          className="object-cover w-full h-48"
+                        />
+                      ) : (
+                        <video src={url} controls className="w-full h-48" />
+                      )}
                     </div>
                   ))}
                 </div>
               </div>
             )}
 
-            {request.status === "completed" && request.type === "video" && request.mediaFiles?.url && (
+            {/* Conversation Section */}
+            {request.conversation && request.conversation.length > 0 && (
               <div>
-                <h3 className="text-sm font-medium text-muted-foreground mb-2">Video</h3>
-                <div className="relative aspect-video rounded-md overflow-hidden border">
-                  <video
-                    src={request.mediaFiles.url}
-                    controls
-                    className="w-full h-full"
-                    poster="/placeholder.svg?height=400&width=600"
-                  />
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-base font-medium">Conversation</h3>
                 </div>
-              </div>
-            )}
-
-            {/* No media content for rejected photo/video requests */}
-            {request.status === "rejected" && (request.type === "photo" || request.type === "video") && (
-              <div className="bg-muted/30 p-6 rounded-md flex flex-col items-center justify-center">
-                <X className="h-12 w-12 text-muted-foreground mb-3" />
-                <h3 className="text-lg font-medium text-foreground">No Media Available</h3>
-                <p className="text-sm text-muted-foreground text-center mt-1">
-                  This request was rejected, so no {request.type === "photo" ? "photos" : "video"} were provided.
-                </p>
+                <Card className="bg-muted/50 dark:bg-muted/20">
+                  <CardContent className="p-4 space-y-4">
+                    {request.conversation.map((message, index) => (
+                      <div key={message.id} className={`flex gap-3 ${message.sender === "owner" ? "justify-end" : ""}`}>
+                        <div
+                          className={`max-w-[80%] rounded-lg p-3
+                            ${
+                              message.sender === "owner"
+                                ? "bg-primary text-primary-foreground ml-auto"
+                                : "bg-gray-100 dark:bg-gray-800 text-foreground dark:text-foreground"
+                            }`}
+                        >
+                          <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                          <p className="text-xs opacity-70 mt-1 text-right">{formatDate(message.timestamp)}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
               </div>
             )}
           </CardContent>
-          <CardFooter className="flex justify-between border-t pt-6">
-            <Button variant="outline" onClick={() => router.back()} className="text-foreground hover:bg-foreground/5">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Requests
-            </Button>
-
-            {request.status === "rejected" && (
-              <Link href="/webapp/pet-owner/requests/new">
-                <Button>Try Again</Button>
-              </Link>
-            )}
-          </CardFooter>
         </Card>
       </motion.div>
     </div>

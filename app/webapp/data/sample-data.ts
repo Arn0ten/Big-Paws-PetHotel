@@ -2,13 +2,28 @@
  * CENTRALIZED SAMPLE DATA STORE
  *
  * This file contains all sample data used throughout the pet owner interface.
- * Backend developers should replace these with actual API calls.
  *
- * INTEGRATION INSTRUCTIONS:
+ * =====================================================================
+ * BACKEND INTEGRATION INSTRUCTIONS:
+ * =====================================================================
+ *
  * 1. Replace the exported constants with API fetching functions
  * 2. Maintain the same data structure to ensure compatibility
  * 3. Add proper error handling and loading states
  * 4. Update the types in types.ts to match your actual data model
+ *
+ * Example API integration:
+ *
+ * export const getPets = async () => {
+ *   try {
+ *     const response = await fetch('/api/pets');
+ *     if (!response.ok) throw new Error('Failed to fetch pets');
+ *     return await response.json();
+ *   } catch (error) {
+ *     console.error('Error fetching pets:', error);
+ *     return []; // Return empty array as fallback
+ *   }
+ * };
  */
 
 import type { Pet, Request, Notification, Pricing } from "./types"
@@ -60,6 +75,13 @@ export const pets: Pet[] = [
  * - Endpoint: PUT /api/requests/:id (for updating a request)
  * - Endpoint: DELETE /api/requests/:id (for cancelling a request)
  * - Response should match the Request interface in types.ts
+ *
+ * NOTE: These request types must match the types used in the admin interface:
+ * - photo: For photo update requests
+ * - video: For video requests
+ * - grooming: For grooming service requests
+ * - boarding-extension: For extending boarding stays
+ * - custom: For any other custom requests
  */
 export const requests: Request[] = [
   {
@@ -213,6 +235,107 @@ export const requests: Request[] = [
       },
     ],
   },
+  {
+    id: "req-006",
+    type: "photo",
+    petName: "Max",
+    petId: "pet-1",
+    status: "rejected",
+    createdAt: "2025-03-07T08:15:00Z",
+    updatedAt: "2025-03-07T10:30:00Z",
+    description: "Would love to get some photos of Max playing with other dogs.",
+    rejectionReason:
+      "We're unable to fulfill this request as Max prefers to play alone and gets anxious around other dogs.",
+    conversation: [
+      {
+        id: "msg-001",
+        sender: "owner",
+        timestamp: "2025-03-07T08:15:00Z",
+        content: "Would love to get some photos of Max playing with other dogs.",
+      },
+      {
+        id: "msg-002",
+        sender: "admin",
+        timestamp: "2025-03-07T10:30:00Z",
+        content:
+          "We're unable to fulfill this request as Max prefers to play alone and gets anxious around other dogs. We can provide photos of him playing alone if you'd like.",
+      },
+    ],
+  },
+]
+
+/**
+ * SAMPLE PET OWNER REQUESTS DATA
+ *
+ * This data is specifically formatted for the pet owner requests page.
+ *
+ * API Integration:
+ * - Endpoint: GET /api/pet-owner/requests
+ * - Response should match the structure below
+ */
+export const petOwnerRequests = [
+  {
+    id: "req-001",
+    title: "Photo Update Request",
+    type: "photo",
+    petName: "Max",
+    petId: "pet-1",
+    status: "completed",
+    createdAt: "2025-03-10T10:30:00Z",
+    updatedAt: "2025-03-10T14:45:00Z",
+  },
+  {
+    id: "req-002",
+    title: "Grooming Service",
+    type: "grooming",
+    petName: "Max",
+    petId: "pet-1",
+    status: "pending",
+    createdAt: "2025-03-11T09:15:00Z",
+    updatedAt: "2025-03-11T09:30:00Z",
+  },
+  {
+    id: "req-003",
+    title: "Boarding Extension",
+    type: "boarding-extension",
+    petName: "Max",
+    petId: "pet-1",
+    status: "pending",
+    createdAt: "2025-03-12T11:30:00Z",
+    updatedAt: "2025-03-12T11:30:00Z",
+  },
+  {
+    id: "req-004",
+    title: "Video Request",
+    type: "video",
+    petName: "Max",
+    petId: "pet-1",
+    status: "completed",
+    createdAt: "2025-03-09T16:20:00Z",
+    updatedAt: "2025-03-09T18:45:00Z",
+  },
+  {
+    id: "req-005",
+    title: "Grooming Service",
+    type: "grooming",
+    petName: "Max",
+    petId: "pet-1",
+    status: "completed",
+    createdAt: "2025-03-08T13:25:00Z",
+    updatedAt: "2025-03-08T16:40:00Z",
+  },
+  {
+    id: "req-006",
+    title: "Photos with Other Dogs",
+    type: "photo",
+    petName: "Max",
+    petId: "pet-1",
+    status: "rejected",
+    createdAt: "2025-03-07T08:15:00Z",
+    updatedAt: "2025-03-07T10:30:00Z",
+    rejectionReason:
+      "We're unable to fulfill this request as Max prefers to play alone and gets anxious around other dogs.",
+  },
 ]
 
 /**
@@ -268,6 +391,15 @@ export const notifications: Notification[] = [
     timestamp: "2025-03-08T16:40:00Z",
     isRead: true,
     requestId: "req-005",
+  },
+  {
+    id: "notif-006",
+    type: "request-rejected",
+    title: "Request Rejected",
+    message: "Your request for photos with other dogs has been rejected.",
+    timestamp: "2025-03-07T10:30:00Z",
+    isRead: false,
+    requestId: "req-006",
   },
 ]
 
@@ -365,6 +497,17 @@ export const getBoardingPets = (): Pet[] => {
 }
 
 /**
+ * Get all pets for a pet owner
+ * @returns Array of all pets belonging to the pet owner
+ *
+ * API Integration:
+ * - Replace with a fetch call to GET /api/pet-owner/pets
+ */
+export const getPetOwnerPets = (): Pet[] => {
+  return pets
+}
+
+/**
  * Get requests for a specific pet
  * @param petId The pet ID
  * @returns Array of requests for the specified pet
@@ -374,6 +517,17 @@ export const getBoardingPets = (): Pet[] => {
  */
 export const getRequestsByPetId = (petId: string): Request[] => {
   return requests.filter((request) => request.petId === petId)
+}
+
+/**
+ * Get pet owner requests
+ * @returns Array of requests for the pet owner
+ *
+ * API Integration:
+ * - Replace with a fetch call to GET /api/pet-owner/requests
+ */
+export const getPetOwnerRequests = () => {
+  return petOwnerRequests
 }
 
 /**
@@ -411,18 +565,30 @@ export const markNotificationAsRead = (id: string): void => {
  * API Integration:
  * - Replace with a fetch call to POST /api/requests
  */
-export const createRequest = (requestData: Omit<Request, "id" | "status" | "createdAt">): Request => {
+export const createRequest = (requestData: Omit<Request, "id" | "createdAt">): Request => {
   // In a real implementation, this would send data to the server
   // and return the created request with an ID
   const newRequest: Request = {
     id: `req-${requests.length + 1}`,
-    status: "new",
     createdAt: new Date().toISOString(),
     ...requestData,
   }
 
-  // In a real implementation, we would add this to the server
-  // For now, we just return it
+  // Add to sample data (in a real implementation, this would be handled by the server)
+  requests.push(newRequest)
+
+  // Also add to pet owner requests list
+  petOwnerRequests.push({
+    id: newRequest.id,
+    title: newRequest.title || `${newRequest.type} Request`,
+    type: newRequest.type,
+    petName: newRequest.petName,
+    petId: newRequest.petId,
+    status: newRequest.status,
+    createdAt: newRequest.createdAt,
+    updatedAt: newRequest.createdAt,
+  })
+
   return newRequest
 }
 
