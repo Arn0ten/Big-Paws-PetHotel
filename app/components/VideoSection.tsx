@@ -1,33 +1,33 @@
-"use client"
+"use client";
 
-import { useRef, useState, useEffect } from "react"
-import { motion, useInView } from "framer-motion"
-import { X } from "lucide-react"
+import { useRef, useState, useEffect } from "react";
+import { motion, useInView } from "framer-motion";
+import { X } from "lucide-react";
 
 export default function VideoSection() {
-  const ref = useRef<HTMLDivElement | null>(null)
-  const isInView = useInView(ref, { once: true })
-  const [isFloating, setIsFloating] = useState(false)
-  const [hasClosedFloating, setHasClosedFloating] = useState(false)
+  const ref = useRef<HTMLDivElement | null>(null);
+  const isInView = useInView(ref, { once: true });
+  const [isFloating, setIsFloating] = useState(false);
+  const [hasClosedFloating, setHasClosedFloating] = useState(false);
 
   useEffect(() => {
-    if (typeof window === "undefined") return
+    if (typeof window === "undefined") return;
 
     const handleScroll = () => {
       if (ref.current && !hasClosedFloating) {
-        const rect = ref.current.getBoundingClientRect()
-        setIsFloating(rect.bottom < 0)
+        const rect = ref.current.getBoundingClientRect();
+        setIsFloating(rect.bottom < 0);
       }
-    }
+    };
 
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [hasClosedFloating])
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [hasClosedFloating]);
 
   const handleClose = () => {
-    setIsFloating(false)
-    setHasClosedFloating(true)
-  }
+    setIsFloating(false);
+    setHasClosedFloating(true);
+  };
 
   return (
     <>
@@ -44,7 +44,8 @@ export default function VideoSection() {
               Experience Big Paws Pet Hotel & Grooming Services
             </h2>
             <p className="mt-4 text-lg text-muted-foreground">
-              Take a virtual tour of our facilities and see why pets love staying with us.
+              Take a virtual tour of our facilities and see why pets love
+              staying with us.
             </p>
           </motion.div>
 
@@ -54,8 +55,14 @@ export default function VideoSection() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="relative aspect-video w-full max-w-5xl mx-auto rounded-xl overflow-hidden shadow-lg"
           >
-            <video className="w-full h-full object-cover" autoPlay loop muted playsInline>
-              <source src="/videos/video-montage.mp4" type="video/mp4" />
+            <video
+              className="w-full h-full object-cover"
+              autoPlay
+              loop
+              muted
+              playsInline
+            >
+              <source src="video-montage.mp4" type="video/mp4" />
               Your browser does not support the video tag.
             </video>
           </motion.div>
@@ -71,12 +78,17 @@ export default function VideoSection() {
           >
             <X className="w-4 h-4 text-white" />
           </button>
-          <video className="w-full h-full object-cover" autoPlay loop muted playsInline>
-            <source src="/videos/video-montage.mp4" type="video/mp4" />
+          <video
+            className="w-full h-full object-cover"
+            autoPlay
+            loop
+            muted
+            playsInline
+          >
+            <source src="video-montage.mp4" type="video/mp4" />
           </video>
         </div>
       )}
     </>
-  )
+  );
 }
-

@@ -5,11 +5,11 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 
 const images = [
-  "/images/pet-hotel-1.png",
-  "/images/pet-hotel-2.png",
-  "/images/pet-hotel-3.png",
-  "/images/pet-hotel-4.png",
-  "/images/pet-hotel-5.png",
+  "/pet-hotel-1.jpg",
+  "/pet-hotel-2.jpg",
+  "/pet-hotel-3.jpg",
+  "/pet-hotel-4.jpg",
+  "/pet-hotel-5.jpg",
 ];
 
 export default function LoginSlideshow() {

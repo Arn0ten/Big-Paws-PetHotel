@@ -1,19 +1,28 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
-import { Card } from "@/components/ui/card"
-import { useRef, useState } from "react"
-import { Clock, Shield, Heart, Sparkles, Scissors, Bath, Brush } from "lucide-react"
-import FloatingImageModal from "./FloatingImageModal"
+import { motion } from "framer-motion";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { Card } from "@/components/ui/card";
+import { useRef, useState } from "react";
+import {
+  Clock,
+  Shield,
+  Heart,
+  Sparkles,
+  Scissors,
+  Bath,
+  Brush,
+} from "lucide-react";
+import FloatingImageModal from "./FloatingImageModal";
 
 const services = [
   {
     icon: Bath,
     title: "Basic Wash",
-    description: "A thorough bath with premium shampoo, blow-dry, and light brushing to keep your pet clean and fresh.",
+    description:
+      "A thorough bath with premium shampoo, blow-dry, and light brushing to keep your pet clean and fresh.",
   },
   {
     icon: Scissors,
@@ -27,18 +36,20 @@ const services = [
     description:
       "Specialized treatment to reduce shedding, remove loose fur, and promote a healthier coat for your pet.",
   },
-]
+];
 
 const benefits = [
   {
     icon: Clock,
     title: "Flexible Scheduling",
-    description: "Book appointments at your convenience, including weekends and holidays",
+    description:
+      "Book appointments at your convenience, including weekends and holidays",
   },
   {
     icon: Shield,
     title: "Professional Care",
-    description: "Experienced groomers trained in handling all breeds and temperaments",
+    description:
+      "Experienced groomers trained in handling all breeds and temperaments",
   },
   {
     icon: Heart,
@@ -50,26 +61,29 @@ const benefits = [
     title: "Premium Products",
     description: "We use high-quality, pet-safe grooming products",
   },
-]
+];
 
 export default function HomeService() {
-  const videoRef = useRef<HTMLVideoElement>(null)
+  const videoRef = useRef<HTMLVideoElement>(null);
   const [selectedImage, setSelectedImage] = useState<{
-    src: string
-    alt: string
-    description: string
-  } | null>(null)
+    src: string;
+    alt: string;
+    description: string;
+  } | null>(null);
 
   const handleImageClick = (image: {
-    src: string
-    alt: string
-    description: string
+    src: string;
+    alt: string;
+    description: string;
   }) => {
-    setSelectedImage(image)
-  }
+    setSelectedImage(image);
+  };
 
   return (
-    <section className="py-12 sm:py-16 bg-background relative overflow-hidden" id="home-service">
+    <section
+      className="py-12 sm:py-16 bg-background relative overflow-hidden"
+      id="home-service"
+    >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
@@ -78,7 +92,9 @@ export default function HomeService() {
           viewport={{ once: true }}
           className="text-center mb-12"
         >
-          <h2 className="text-2xl sm:text-3xl font-bold mb-4">Professional Home Service</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold mb-4">
+            Professional Home Service
+          </h2>
           <p className="text-lg sm:text-xl text-muted-foreground">
             Experience premium pet grooming in the comfort of your home
           </p>
@@ -93,10 +109,13 @@ export default function HomeService() {
         >
           <div className="bg-muted rounded-lg p-4 sm:p-6">
             <p className="text-sm sm:text-lg leading-relaxed text-muted-foreground">
-              Our professional home grooming service brings the complete salon experience directly to your doorstep. We
-              understand that some pets feel anxious in unfamiliar environments, which is why we offer this convenient
-              solution. Our mobile grooming unit is fully equipped with professional-grade tools and products, ensuring
-              your pet receives the same high-quality care as they would in our salon.
+              Our professional home grooming service brings the complete salon
+              experience directly to your doorstep. We understand that some pets
+              feel anxious in unfamiliar environments, which is why we offer
+              this convenient solution. Our mobile grooming unit is fully
+              equipped with professional-grade tools and products, ensuring your
+              pet receives the same high-quality care as they would in our
+              salon.
             </p>
           </div>
         </motion.div>
@@ -113,8 +132,12 @@ export default function HomeService() {
             >
               <Card className="p-4 sm:p-6 h-full flex flex-col">
                 <service.icon className="w-8 h-8 sm:w-12 sm:h-12 text-primary mb-4" />
-                <h3 className="text-lg sm:text-xl font-semibold mb-2">{service.title}</h3>
-                <p className="text-sm sm:text-base text-muted-foreground flex-grow">{service.description}</p>
+                <h3 className="text-lg sm:text-xl font-semibold mb-2">
+                  {service.title}
+                </h3>
+                <p className="text-sm sm:text-base text-muted-foreground flex-grow">
+                  {service.description}
+                </p>
               </Card>
             </motion.div>
           ))}
@@ -155,7 +178,9 @@ export default function HomeService() {
                 className="object-cover transition-transform duration-500 group-hover:scale-110"
               />
               <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                <p className="text-white text-center px-4 text-sm sm:text-base">{image.description}</p>
+                <p className="text-white text-center px-4 text-sm sm:text-base">
+                  {image.description}
+                </p>
               </div>
             </motion.div>
           ))}
@@ -174,12 +199,20 @@ export default function HomeService() {
               Take a Tour of Our Store
             </h2>
             <p className="mt-4 text-sm sm:text-lg text-muted-foreground">
-              Take a tour of our Pet Store and see why pets love staying with us.
+              Take a tour of our Pet Store and see why pets love staying with
+              us.
             </p>
           </div>
           <div className="relative aspect-[6/4] rounded-xl overflow-hidden shadow-lg">
-            <video ref={videoRef} className="w-full h-full object-cover" autoPlay loop muted playsInline>
-              <source src="/videos/home-service.mp4" type="video/mp4" />
+            <video
+              ref={videoRef}
+              className="w-full h-full object-cover"
+              autoPlay
+              loop
+              muted
+              playsInline
+            >
+              <source src="store.mp4" type="video/mp4" />
               Your browser does not support the video tag.
             </video>
           </div>
@@ -188,22 +221,30 @@ export default function HomeService() {
         {/* Features */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           <Card className="p-4 sm:p-6">
-            <h3 className="text-lg sm:text-xl font-semibold mb-4">Convenience</h3>
+            <h3 className="text-lg sm:text-xl font-semibold mb-4">
+              Convenience
+            </h3>
             <p className="text-sm sm:text-base text-muted-foreground">
-              Professional grooming services delivered right to your doorstep, saving you time and reducing pet travel
-              stress.
+              Professional grooming services delivered right to your doorstep,
+              saving you time and reducing pet travel stress.
             </p>
           </Card>
           <Card className="p-4 sm:p-6">
-            <h3 className="text-lg sm:text-xl font-semibold mb-4">Professional Equipment</h3>
+            <h3 className="text-lg sm:text-xl font-semibold mb-4">
+              Professional Equipment
+            </h3>
             <p className="text-sm sm:text-base text-muted-foreground">
-              Our mobile grooming unit comes fully equipped with professional-grade tools and products.
+              Our mobile grooming unit comes fully equipped with
+              professional-grade tools and products.
             </p>
           </Card>
           <Card className="p-4 sm:p-6">
-            <h3 className="text-lg sm:text-xl font-semibold mb-4">Experienced Groomers</h3>
+            <h3 className="text-lg sm:text-xl font-semibold mb-4">
+              Experienced Groomers
+            </h3>
             <p className="text-sm sm:text-base text-muted-foreground">
-              Skilled professionals who provide personalized attention and care for your pet in familiar surroundings.
+              Skilled professionals who provide personalized attention and care
+              for your pet in familiar surroundings.
             </p>
           </Card>
         </div>
@@ -219,18 +260,18 @@ export default function HomeService() {
             <Link
               href="#contact"
               onClick={(e) => {
-                e.preventDefault()
-                const contactSection = document.getElementById("contact")
+                e.preventDefault();
+                const contactSection = document.getElementById("contact");
                 if (contactSection) {
-                  contactSection.scrollIntoView({ behavior: "smooth" })
+                  contactSection.scrollIntoView({ behavior: "smooth" });
                   setTimeout(() => {
                     const bookServiceTab = document.querySelector(
                       '[data-state="inactive"][value="book-service"]',
-                    ) as HTMLButtonElement
+                    ) as HTMLButtonElement;
                     if (bookServiceTab) {
-                      bookServiceTab.click()
+                      bookServiceTab.click();
                     }
-                  }, 100)
+                  }, 100);
                 }
               }}
             >
@@ -242,7 +283,8 @@ export default function HomeService() {
         {/* Note section */}
         <div className="mt-12 bg-muted p-4 rounded-lg">
           <p className="text-sm text-muted-foreground font-semibold">
-            Note: All pets must be fully vaccinated and have anti-rabies shots before using our services.
+            Note: All pets must be fully vaccinated and have anti-rabies shots
+            before using our services.
           </p>
         </div>
       </div>
@@ -256,6 +298,5 @@ export default function HomeService() {
         description={selectedImage?.description || ""}
       />
     </section>
-  )
+  );
 }
-

@@ -1,17 +1,16 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
-import Image from "next/image"
-import { useState } from "react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Heart, Shield, Users, Clock } from "lucide-react"
-import FloatingImageModal from "./FloatingImageModal"
+import { motion } from "framer-motion";
+import Image from "next/image";
+import { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Heart, Shield, Users, Clock } from "lucide-react";
+import FloatingImageModal from "./FloatingImageModal";
 
 const facilities = [
   {
-    image:
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/475884722_1437552477217404_9052949441849644312_n.jpg-JbnkqPprm03WzTb2XdupRvvpTVnsdB.jpeg",
+    image: "/pet-hotel-5.jpg",
     title: "Professional Grooming",
     description: "Expert grooming services by certified professionals",
     icon: Heart,
@@ -37,18 +36,18 @@ const facilities = [
     description: "Round-the-clock supervision for your pets",
     icon: Clock,
   },
-]
+];
 
 export default function FacilityShowcase() {
-  const [selectedImage, setSelectedImage] = useState<string | null>(null)
-  const [selectedTitle, setSelectedTitle] = useState<string>("")
-  const [selectedDescription, setSelectedDescription] = useState<string>("")
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedTitle, setSelectedTitle] = useState<string>("");
+  const [selectedDescription, setSelectedDescription] = useState<string>("");
 
   const handleImageClick = (facility: (typeof facilities)[0]) => {
-    setSelectedImage(facility.image)
-    setSelectedTitle(facility.title)
-    setSelectedDescription(facility.description)
-  }
+    setSelectedImage(facility.image);
+    setSelectedTitle(facility.title);
+    setSelectedDescription(facility.description);
+  };
 
   return (
     <section className="py-20 bg-gradient-to-b from-background to-secondary/20">
@@ -59,9 +58,12 @@ export default function FacilityShowcase() {
           transition={{ duration: 0.8 }}
           className="text-center mb-12"
         >
-          <h2 className="text-3xl font-bold mb-4">Our World-Class Facilities</h2>
+          <h2 className="text-3xl font-bold mb-4">
+            Our World-Class Facilities
+          </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Experience our state-of-the-art pet care facilities designed with your pets' comfort and safety in mind.
+            Experience our state-of-the-art pet care facilities designed with
+            your pets' comfort and safety in mind.
           </p>
         </motion.div>
 
@@ -74,7 +76,10 @@ export default function FacilityShowcase() {
               transition={{ duration: 0.5, delay: index * 0.1 }}
               whileHover={{ scale: 1.02 }}
             >
-              <Card className="overflow-hidden h-full cursor-pointer" onClick={() => handleImageClick(facility)}>
+              <Card
+                className="overflow-hidden h-full cursor-pointer"
+                onClick={() => handleImageClick(facility)}
+              >
                 <div className="relative h-48 overflow-hidden">
                   <Image
                     src={facility.image || "/placeholder.svg"}
@@ -82,14 +87,21 @@ export default function FacilityShowcase() {
                     fill
                     className="object-cover"
                   />
-                  <Badge className="absolute top-4 right-4 bg-primary text-primary-foreground" variant="secondary">
+                  <Badge
+                    className="absolute top-4 right-4 bg-primary text-primary-foreground"
+                    variant="secondary"
+                  >
                     <facility.icon className="w-4 h-4 mr-1" />
                     Featured
                   </Badge>
                 </div>
                 <CardContent className="p-4">
-                  <h3 className="text-lg font-semibold mb-2">{facility.title}</h3>
-                  <p className="text-muted-foreground text-sm">{facility.description}</p>
+                  <h3 className="text-lg font-semibold mb-2">
+                    {facility.title}
+                  </h3>
+                  <p className="text-muted-foreground text-sm">
+                    {facility.description}
+                  </p>
                 </CardContent>
               </Card>
             </motion.div>
@@ -109,7 +121,8 @@ export default function FacilityShowcase() {
                 image:
                   "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/480899995_642061011656747_972779387843409689_n.jpg-qdPkAESKW0ppJDAeBKGbpCwthU8aVT.jpeg",
                 title: "Comfortable Accommodations",
-                description: "Spacious and cozy spaces designed for your pet's comfort",
+                description:
+                  "Spacious and cozy spaces designed for your pet's comfort",
                 icon: Heart,
               })
             }
@@ -128,7 +141,8 @@ export default function FacilityShowcase() {
                 image:
                   "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/480337857_1160308045475973_2711174277454434026_n.jpg-FwpY8D1sDEBabby5EQpjgrv7LqV9EW.jpeg",
                 title: "Social Environment",
-                description: "Safe and supervised socialization opportunities for compatible pets",
+                description:
+                  "Safe and supervised socialization opportunities for compatible pets",
                 icon: Users,
               })
             }
@@ -151,6 +165,5 @@ export default function FacilityShowcase() {
         description={selectedDescription}
       />
     </section>
-  )
+  );
 }
-
