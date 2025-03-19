@@ -25,7 +25,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Lock, ChevronRight } from "lucide-react";
+import { Lock, ChevronRight, LogOut } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("profile");
@@ -116,6 +117,22 @@ export default function ProfilePage() {
     e.preventDefault();
     setProfile(formData);
     setIsEditing(false);
+  };
+
+  const router = useRouter();
+
+  // Add this function to handle logout
+  const handleLogout = () => {
+    // In a real app, you would call your auth service to sign out
+    // For example: await authService.signOut();
+
+    // For demo purposes, we'll just redirect to the login page
+    // You might want to clear local storage, cookies, etc.
+    localStorage.removeItem("auth_token"); // Remove any stored tokens
+    sessionStorage.clear(); // Clear session storage
+
+    // Redirect to login page
+    router.push("/webapp/auth/login");
   };
 
   return (
@@ -377,6 +394,14 @@ export default function ProfilePage() {
                 </div>
               </CardContent>
             </Card>
+            <Button
+              variant="destructive"
+              className="w-full mt-4"
+              onClick={handleLogout}
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              Sign Out
+            </Button>
           </TabsContent>
 
           <TabsContent value="pets" className="mt-4 space-y-4">

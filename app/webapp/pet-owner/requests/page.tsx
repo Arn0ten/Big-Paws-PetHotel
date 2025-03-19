@@ -34,6 +34,8 @@ import {
   SelectTrigger,
 } from "@/components/ui/select";
 
+// Add this at the top of the file after the imports
+
 /**
  * Enhanced Pet Owner Requests Page
  *
@@ -60,13 +62,33 @@ import {
  */
 export default function PetOwnerRequestsPage() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState("all");
+  const [activeTab, setActiveTab] = useState("pending");
   const [isLoading, setIsLoading] = useState(true);
   const [requests, setRequests] = useState([]);
   const [error, setError] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+
+  // Add this CSS class to hide scrollbars
+  useEffect(() => {
+    // Add CSS to hide scrollbars but keep functionality
+    const style = document.createElement("style");
+    style.textContent = `
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+    }
+    .scrollbar-hide {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  `;
+    document.head.appendChild(style);
+
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
 
   useEffect(() => {
     // Simulate API call
@@ -75,11 +97,10 @@ export default function PetOwnerRequestsPage() {
         setIsLoading(true);
 
         // BACKEND INTEGRATION:
-        // Replace this with actual API call to fetch requests with filters
+        // Replace this with actual API call to fetch all requests
         // Example:
-        // const status = activeTab !== 'all' ? activeTab : '';
         // const response = await fetch(
-        //   `/api/pet-owner/requests?status=${status}&type=${filterType}&search=${searchQuery}&sort=${sortOrder}`
+        //   `/api/pet-owner/requests?type=${filterType}&search=${searchQuery}&sort=${sortOrder}`
         // );
         // if (!response.ok) throw new Error('Failed to fetch requests');
         // const data = await response.json();
@@ -98,7 +119,7 @@ export default function PetOwnerRequestsPage() {
     };
 
     fetchRequests();
-  }, [activeTab, filterType, searchQuery, sortOrder]);
+  }, [filterType, searchQuery, sortOrder]);
 
   // Handle "New Request" button click with error handling
   const handleNewRequest = () => {
@@ -178,35 +199,175 @@ export default function PetOwnerRequestsPage() {
     }
   };
 
-  // Filter requests based on active tab, search query, and filter type
-  const filteredRequests = requests
-    .filter((request) => {
-      // Filter by tab
-      if (activeTab !== "all" && request.status !== activeTab) return false;
+  // Helper function to render requests list based on status
+  const renderRequestsList = (status) => {
+    const statusRequests = requests
+      .filter((request) => {
+        // Match the request status with the tab status
+        // Handle both "pending" and "new" statuses for the Pending tab
+        if (
+          status === "pending" &&
+          (request.status === "pending" || request.status === "new")
+        ) {
+          return true;
+        }
+        return request.status === status;
+      })
+      .filter((request) => {
+        // Apply additional filters (type and search)
+        if (filterType !== "all" && request.type !== filterType) return false;
 
-      // Filter by type
-      if (filterType !== "all" && request.type !== filterType) return false;
+        if (searchQuery) {
+          const query = searchQuery.toLowerCase();
+          return (
+            request.title?.toLowerCase().includes(query) ||
+            request.petName?.toLowerCase().includes(query) ||
+            request.description?.toLowerCase().includes(query)
+          );
+        }
 
-      // Filter by search query
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase();
-        return (
-          request.title?.toLowerCase().includes(query) ||
-          request.petName?.toLowerCase().includes(query) ||
-          request.description?.toLowerCase().includes(query)
-        );
-      }
+        return true;
+      })
+      .sort((a, b) => {
+        // Sort by date
+        const dateA = new Date(a.createdAt).getTime();
+        const dateB = new Date(b.createdAt).getTime();
+        return sortOrder === "desc" ? dateB - dateA : dateA - dateB;
+      });
 
-      return true;
-    })
-    .sort((a, b) => {
-      // Sort by date
-      const dateA = new Date(a.createdAt).getTime();
-      const dateB = new Date(b.createdAt).getTime();
-      return sortOrder === "desc" ? dateB - dateA : dateA - dateB;
-    });
+    if (isLoading) {
+      return (
+        <Card>
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="flex flex-col space-y-3">
+                  <div className="flex items-center space-x-4">
+                    <div className="h-10 w-10 rounded-full bg-muted animate-pulse"></div>
+                    <div className="space-y-2 flex-1">
+                      <div className="h-4 w-1/4 bg-muted animate-pulse rounded"></div>
+                      <div className="h-3 w-1/3 bg-muted animate-pulse rounded"></div>
+                    </div>
+                    <div className="h-5 w-16 bg-muted animate-pulse rounded-full"></div>
+                  </div>
+                  <div className="h-3 w-full bg-muted animate-pulse rounded"></div>
+                  <div className="h-3 w-2/3 bg-muted animate-pulse rounded"></div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
 
-  // Toggle sort order
+    if (statusRequests.length === 0) {
+      return (
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex flex-col items-center justify-center h-40 text-center">
+              <FileText className="h-8 w-8 text-muted-foreground mb-2" />
+              <p className="text-muted-foreground mb-4">
+                No {status.replace("-", " ")} requests found
+              </p>
+              <Button onClick={handleNewRequest} variant="outline">
+                <Plus className="h-4 w-4 mr-2" />
+                Create New Request
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="space-y-4"
+      >
+        {statusRequests.map((request, index) => (
+          <motion.div
+            key={request.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: index * 0.1 }}
+          >
+            <Card className="overflow-hidden">
+              <CardContent className="p-0">
+                <Link
+                  href={`/webapp/pet-owner/requests/${request.id}`}
+                  passHref
+                >
+                  <div className="p-6 hover:bg-muted/50 transition-colors cursor-pointer">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-2">
+                      <div className="flex items-center gap-2">
+                        <div
+                          className={`flex items-center justify-center h-8 w-8 rounded-full 
+                          ${request.type === "photo" ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300" : ""}
+                          ${request.type === "video" ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300" : ""}
+                          ${request.type === "grooming" ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300" : ""}
+                          ${request.type === "boarding-extension" ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300" : ""}
+                          ${request.type === "custom" ? "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300" : ""}
+                        `}
+                        >
+                          {getRequestTypeIcon(request.type)}
+                        </div>
+                        <h3 className="font-semibold text-foreground dark:text-foreground">
+                          {request.title}
+                        </h3>
+                      </div>
+                      {getStatusBadge(request.status)}
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Pet
+                        </p>
+                        <p className="text-sm text-foreground dark:text-foreground">
+                          {request.petName}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Request Date
+                        </p>
+                        <p className="text-sm text-foreground dark:text-foreground">
+                          {formatDate(request.createdAt)}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Last Updated
+                        </p>
+                        <p className="text-sm text-foreground dark:text-foreground">
+                          {formatDate(request.updatedAt || request.createdAt)}
+                        </p>
+                      </div>
+                    </div>
+
+                    {request.status === "rejected" &&
+                      request.rejectionReason && (
+                        <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md dark:bg-red-900/20 dark:border-red-700/30">
+                          <p className="text-sm font-medium text-red-700 dark:text-red-400">
+                            Rejection Reason:
+                          </p>
+                          <p className="text-sm text-red-600 dark:text-red-300">
+                            {request.rejectionReason}
+                          </p>
+                        </div>
+                      )}
+                  </div>
+                </Link>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
+      </motion.div>
+    );
+  };
+
   const toggleSortOrder = () => {
     setSortOrder(sortOrder === "asc" ? "desc" : "asc");
   };
@@ -301,11 +462,12 @@ export default function PetOwnerRequestsPage() {
         </div>
       </div>
 
-      <Tabs defaultValue="all" className="w-full">
-        <TabsList className="flex flex-wrap gap-2 mb-4">
-          <TabsTrigger className="flex-grow sm:flex-grow-0" value="all">
-            All
-          </TabsTrigger>
+      <Tabs
+        defaultValue="pending"
+        className="w-full"
+        onValueChange={setActiveTab}
+      >
+        <TabsList className="flex w-full overflow-x-auto scrollbar-hide mb-4">
           <TabsTrigger className="flex-grow sm:flex-grow-0" value="pending">
             Pending
           </TabsTrigger>
@@ -320,130 +482,21 @@ export default function PetOwnerRequestsPage() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value={activeTab} className="mt-0">
-          {isLoading ? (
-            <Card>
-              <CardContent className="p-6">
-                <div className="space-y-4">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="flex flex-col space-y-3">
-                      <div className="flex items-center space-x-4">
-                        <div className="h-10 w-10 rounded-full bg-muted animate-pulse"></div>
-                        <div className="space-y-2 flex-1">
-                          <div className="h-4 w-1/4 bg-muted animate-pulse rounded"></div>
-                          <div className="h-3 w-1/3 bg-muted animate-pulse rounded"></div>
-                        </div>
-                        <div className="h-5 w-16 bg-muted animate-pulse rounded-full"></div>
-                      </div>
-                      <div className="h-3 w-full bg-muted animate-pulse rounded"></div>
-                      <div className="h-3 w-2/3 bg-muted animate-pulse rounded"></div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          ) : filteredRequests.length > 0 ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5 }}
-              className="space-y-4"
-            >
-              {filteredRequests.map((request, index) => (
-                <motion.div
-                  key={request.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: index * 0.1 }}
-                >
-                  <Card className="overflow-hidden">
-                    <CardContent className="p-0">
-                      <Link
-                        href={`/webapp/pet-owner/requests/${request.id}`}
-                        passHref
-                      >
-                        <div className="p-6 hover:bg-muted/50 transition-colors cursor-pointer">
-                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-2">
-                            <div className="flex items-center gap-2">
-                              <div
-                                className={`flex items-center justify-center h-8 w-8 rounded-full 
-                                  ${request.type === "photo" ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300" : ""}
-                                  ${request.type === "video" ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300" : ""}
-                                  ${request.type === "grooming" ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300" : ""}
-                                  ${request.type === "boarding-extension" ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300" : ""}
-                                  ${request.type === "custom" ? "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300" : ""}
-                                `}
-                              >
-                                {getRequestTypeIcon(request.type)}
-                              </div>
-                              <h3 className="font-semibold text-foreground dark:text-foreground">
-                                {request.title}
-                              </h3>
-                            </div>
-                            {getStatusBadge(request.status)}
-                          </div>
+        {/* Individual TabsContent for each status */}
+        <TabsContent value="pending" className="mt-0">
+          {renderRequestsList("pending")}
+        </TabsContent>
 
-                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
-                            <div>
-                              <p className="text-sm font-medium text-muted-foreground">
-                                Pet
-                              </p>
-                              <p className="text-sm text-foreground dark:text-foreground">
-                                {request.petName}
-                              </p>
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium text-muted-foreground">
-                                Request Date
-                              </p>
-                              <p className="text-sm text-foreground dark:text-foreground">
-                                {formatDate(request.createdAt)}
-                              </p>
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium text-muted-foreground">
-                                Last Updated
-                              </p>
-                              <p className="text-sm text-foreground dark:text-foreground">
-                                {formatDate(request.updatedAt)}
-                              </p>
-                            </div>
-                          </div>
+        <TabsContent value="in-progress" className="mt-0">
+          {renderRequestsList("in-progress")}
+        </TabsContent>
 
-                          {request.status === "rejected" &&
-                            request.rejectionReason && (
-                              <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md dark:bg-red-900/20 dark:border-red-700/30">
-                                <p className="text-sm font-medium text-red-700 dark:text-red-400">
-                                  Rejection Reason:
-                                </p>
-                                <p className="text-sm text-red-600 dark:text-red-300">
-                                  {request.rejectionReason}
-                                </p>
-                              </div>
-                            )}
-                        </div>
-                      </Link>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
-            </motion.div>
-          ) : (
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex flex-col items-center justify-center h-40 text-center">
-                  <FileText className="h-8 w-8 text-muted-foreground mb-2" />
-                  <p className="text-muted-foreground mb-4">
-                    No {activeTab !== "all" ? activeTab : ""} requests found
-                  </p>
-                  <Button onClick={handleNewRequest} variant="outline">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Create New Request
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+        <TabsContent value="completed" className="mt-0">
+          {renderRequestsList("completed")}
+        </TabsContent>
+
+        <TabsContent value="rejected" className="mt-0">
+          {renderRequestsList("rejected")}
         </TabsContent>
       </Tabs>
     </div>
