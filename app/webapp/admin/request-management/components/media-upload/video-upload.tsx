@@ -6,7 +6,6 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Loader2,
   Upload,
@@ -16,9 +15,14 @@ import {
   CheckCircle,
   Play,
   Pause,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { cn } from "@/lib/utils";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface VideoUploadProps {
   selectedFile: File | null;
@@ -40,7 +44,6 @@ export function VideoUpload({
   const [isLoading, setIsLoading] = useState(false);
   const [duration, setDuration] = useState<number | null>(null);
   const [isDurationValid, setIsDurationValid] = useState(true);
-  const [activeTab, setActiveTab] = useState("upload");
   const [selectedAudio, setSelectedAudio] = useState<string | null>(null);
   const [selectedAudioName, setSelectedAudioName] = useState<string | null>(
     null,
@@ -49,6 +52,8 @@ export function VideoUpload({
   const [audioMerged, setAudioMerged] = useState(false);
   const [mergedVideoUrl, setMergedVideoUrl] = useState<string | null>(null);
   const [isAudioPlaying, setIsAudioPlaying] = useState<string | null>(null);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -148,7 +153,7 @@ export function VideoUpload({
     }
   };
 
-  // Handle audio selection
+  // Handle audio selection and auto-play video with selected audio
   const handleAudioSelect = (
     audioUrl: string | null,
     audioName: string | null,
@@ -174,6 +179,75 @@ export function VideoUpload({
     if (mergedVideoUrl) {
       URL.revokeObjectURL(mergedVideoUrl);
       setMergedVideoUrl(null);
+    }
+
+    // Auto-play video with selected audio
+    if (videoRef.current && audioUrl) {
+      // Reset video to beginning
+      videoRef.current.currentTime = 0;
+      // Mute original audio
+      videoRef.current.muted = true;
+      setIsMuted(true);
+
+      // Set up audio
+      if (audioRef.current) {
+        audioRef.current.src = audioUrl;
+        audioRef.current.currentTime = 0;
+
+        // Play video with audio
+        const playPromise = videoRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              setIsVideoPlaying(true);
+              audioRef.current
+                ?.play()
+                .catch((err) => console.error("Error playing audio:", err));
+            })
+            .catch((err) => {
+              console.error("Error playing video:", err);
+            });
+        }
+      }
+    }
+  };
+
+  // Toggle video playback
+  const toggleVideoPlayback = () => {
+    if (videoRef.current) {
+      if (isVideoPlaying) {
+        videoRef.current.pause();
+        if (audioRef.current && selectedAudio) {
+          audioRef.current.pause();
+        }
+        setIsVideoPlaying(false);
+      } else {
+        const playPromise = videoRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              setIsVideoPlaying(true);
+              if (audioRef.current && selectedAudio) {
+                audioRef.current.currentTime =
+                  videoRef.current?.currentTime || 0;
+                audioRef.current
+                  .play()
+                  .catch((err) => console.error("Error playing audio:", err));
+              }
+            })
+            .catch((err) => {
+              console.error("Error playing video:", err);
+            });
+        }
+      }
+    }
+  };
+
+  // Toggle mute state
+  const toggleMute = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = !isMuted;
+      setIsMuted(!isMuted);
     }
   };
 
@@ -214,6 +288,7 @@ export function VideoUpload({
     if (!videoElement || !audioElement || !selectedAudio) return;
 
     const handlePlay = () => {
+      setIsVideoPlaying(true);
       audioElement.currentTime = videoElement.currentTime;
       audioElement.play().catch((error) => {
         console.error("Error playing audio:", error);
@@ -221,6 +296,7 @@ export function VideoUpload({
     };
 
     const handlePause = () => {
+      setIsVideoPlaying(false);
       audioElement.pause();
     };
 
@@ -232,6 +308,7 @@ export function VideoUpload({
     };
 
     const handleEnded = () => {
+      setIsVideoPlaying(false);
       audioElement.pause();
       audioElement.currentTime = 0;
     };
@@ -276,13 +353,20 @@ export function VideoUpload({
       // Notify parent component about the merged video
       if (onAudioSelect) {
         // Pass the audio URL but also set a flag that it's been "merged"
+        // This ensures the backend knows to use this version for the pet owner
         onAudioSelect(selectedAudio, selectedAudioName);
       }
+
+      // Show success message or notification
+      // In a real implementation, you would show a toast or notification
+      console.log(
+        "Video audio successfully replaced. This version will be sent to the pet owner.",
+      );
     }, 2000);
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div>
         <Label className="text-base font-medium">Video Upload</Label>
         <p className="text-sm text-muted-foreground mb-2">
@@ -290,202 +374,244 @@ export function VideoUpload({
         </p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="upload">Upload Video</TabsTrigger>
-          <TabsTrigger value="audio" disabled={!selectedFile}>
-            Background Audio
-          </TabsTrigger>
-        </TabsList>
+      {!selectedFile ? (
+        <Card className="border-dashed border-2">
+          <CardContent className="flex flex-col items-center justify-center py-6">
+            <input
+              type="file"
+              accept="video/*"
+              onChange={onFileSelect}
+              className="hidden"
+              ref={fileInputRef}
+            />
+            <Upload className="h-8 w-8 text-muted-foreground mb-2" />
+            <p className="text-sm font-medium mb-1">Click to upload a video</p>
+            <p className="text-xs text-muted-foreground text-center mb-4">
+              MP4, MOV, or WebM format (max {maxDuration} seconds)
+            </p>
+            <Button onClick={handleFileInputClick} className="mt-2">
+              Select Video
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-6">
+          {/* Video Preview Section */}
+          <div className="space-y-4">
+            <div className="relative overflow-hidden rounded-md bg-muted/30 w-full max-w-full">
+              <video
+                ref={videoRef}
+                src={
+                  audioMerged && mergedVideoUrl
+                    ? mergedVideoUrl
+                    : previewUrl || undefined
+                }
+                className="w-full h-auto max-h-[300px] object-contain"
+                muted={isMuted}
+                controls={false}
+              >
+                Your browser does not support the video tag.
+              </video>
 
-        <TabsContent value="upload" className="pt-4">
-          {!selectedFile ? (
-            <Card className="border-dashed border-2">
-              <CardContent className="flex flex-col items-center justify-center py-6">
-                <input
-                  type="file"
-                  accept="video/*"
-                  onChange={onFileSelect}
-                  className="hidden"
-                  ref={fileInputRef}
-                />
-                <Upload className="h-8 w-8 text-muted-foreground mb-2" />
-                <p className="text-sm font-medium mb-1">
-                  Click to upload a video
-                </p>
-                <p className="text-xs text-muted-foreground text-center mb-4">
-                  MP4, MOV, or WebM format (max {maxDuration} seconds)
-                </p>
-                <Button onClick={handleFileInputClick} className="mt-2">
-                  Select Video
-                </Button>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="space-y-4">
-              <div className="relative overflow-hidden rounded-md bg-muted/30 w-full max-w-full">
-                <video
-                  ref={videoRef}
-                  src={previewUrl || undefined}
-                  controls
-                  className="w-full h-auto max-h-[300px] object-contain"
+              {/* Custom video controls */}
+              <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-2 flex items-center justify-between">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-white hover:bg-white/20"
+                  onClick={toggleVideoPlayback}
                 >
-                  Your browser does not support the video tag.
-                </video>
+                  {isVideoPlaying ? (
+                    <Pause className="h-4 w-4" />
+                  ) : (
+                    <Play className="h-4 w-4" />
+                  )}
+                </Button>
 
-                {!isDurationValid && (
-                  <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
-                    <div className="bg-destructive text-destructive-foreground px-4 py-2 rounded-md text-sm font-medium">
-                      Video exceeds maximum duration of {maxDuration} seconds
-                    </div>
-                  </div>
-                )}
-              </div>
+                <div className="flex items-center">
+                  {selectedAudio && (
+                    <Badge className="mr-2 bg-primary/80 hover:bg-primary/80">
+                      <Music className="h-3 w-3 mr-1" />
+                      {selectedAudioName || "Audio"}
+                    </Badge>
+                  )}
 
-              <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center justify-between">
-                <div className="text-sm">
-                  <p className="font-medium break-all">
-                    {selectedFile.name.length > 30
-                      ? selectedFile.name.substring(0, 30) + "..."
-                      : selectedFile.name}
-                  </p>
-                  <p className="text-muted-foreground">
-                    {selectedFile.size
-                      ? `${(selectedFile.size / 1024 / 1024).toFixed(2)} MB`
-                      : ""}
-                    {duration ? ` • ${Math.floor(duration)}s` : ""}
-                  </p>
-                </div>
-
-                <div className="flex gap-2 w-full sm:w-auto">
                   <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={onRemoveFile}
-                    className="w-full sm:w-auto"
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-white hover:bg-white/20"
+                    onClick={toggleMute}
                   >
-                    <X className="h-4 w-4 mr-1" /> Remove
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={handleFileInputClick}
-                    className="w-full sm:w-auto"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-1 animate-spin" />{" "}
-                        Uploading...
-                      </>
+                    {isMuted ? (
+                      <VolumeX className="h-4 w-4" />
                     ) : (
-                      <>
-                        <Upload className="h-4 w-4 mr-1" /> Replace
-                      </>
+                      <Volume2 className="h-4 w-4" />
                     )}
                   </Button>
                 </div>
               </div>
 
-              {selectedFile && isDurationValid && (
-                <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-md p-3">
-                  <p className="text-sm text-blue-700 dark:text-blue-400">
-                    Video ready for upload. You can also add background music in
-                    the "Background Audio" tab.
-                  </p>
+              {/* Hidden audio element for background music */}
+              <audio ref={audioRef} hidden />
+
+              {!isDurationValid && (
+                <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
+                  <div className="bg-destructive text-destructive-foreground px-4 py-2 rounded-md text-sm font-medium">
+                    Video exceeds maximum duration of {maxDuration} seconds
+                  </div>
+                </div>
+              )}
+
+              {selectedAudio &&
+                selectedAudio !== audioOptions[9].url &&
+                !audioMerged && (
+                  <div className="absolute top-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded-md flex items-center">
+                    <Music className="h-3 w-3 mr-1" />
+                    <span>{selectedAudioName || "Background Music"}</span>
+                  </div>
+                )}
+
+              {audioMerged && (
+                <div className="absolute top-2 left-2 bg-green-500/70 text-white text-xs px-2 py-1 rounded-md flex items-center">
+                  <CheckCircle className="h-3 w-3 mr-1" />
+                  <span>Audio Merged</span>
                 </div>
               )}
             </div>
-          )}
-        </TabsContent>
 
-        <TabsContent value="audio" className="pt-4">
+            <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center justify-between">
+              <div className="text-sm">
+                <p className="font-medium break-all">
+                  {selectedFile.name.length > 30
+                    ? selectedFile.name.substring(0, 30) + "..."
+                    : selectedFile.name}
+                </p>
+                <p className="text-muted-foreground">
+                  {selectedFile.size
+                    ? `${(selectedFile.size / 1024 / 1024).toFixed(2)} MB`
+                    : ""}
+                  {duration ? ` • ${Math.floor(duration)}s` : ""}
+                </p>
+              </div>
+
+              <div className="flex gap-2 w-full sm:w-auto">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={onRemoveFile}
+                  className="w-full sm:w-auto"
+                >
+                  <X className="h-4 w-4 mr-1" /> Remove
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={handleFileInputClick}
+                  className="w-full sm:w-auto"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-1 animate-spin" />{" "}
+                      Uploading...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="h-4 w-4 mr-1" /> Replace
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Background Audio Section */}
           <div className="space-y-4">
+            <Separator className="my-4" />
+
             <div>
-              <Label className="text-base font-medium">
-                Select Background Music
-              </Label>
+              <Label className="text-base font-medium">Background Music</Label>
               <p className="text-sm text-muted-foreground mb-2">
-                Choose background music to accompany the video.
+                Choose background music to accompany the video. Click on an
+                option to preview it with the video.
               </p>
             </div>
 
-            {/* Hidden audio element for previewing */}
-            <audio ref={audioRef} hidden />
-
-            <div className="grid grid-cols-1 gap-2 max-h-[300px] overflow-y-auto pr-1 hide-scrollbar">
-              {audioOptions.map((audio) => (
-                <div
-                  key={audio.id}
-                  className={cn(
-                    "flex items-center justify-between p-3 rounded-md cursor-pointer transition-colors",
-                    selectedAudio === audio.url
-                      ? "bg-primary/10 border border-primary/30"
-                      : "bg-muted/50 hover:bg-muted/80 border border-transparent",
-                  )}
-                  onClick={() => handleAudioSelect(audio.url, audio.name)}
-                >
-                  <div className="flex items-center flex-grow">
-                    <Music className="h-4 w-4 mr-2 flex-shrink-0" />
-                    <div className="flex flex-col">
-                      <span className="font-medium text-sm">{audio.name}</span>
-                      {audio.description && (
-                        <span className="text-xs text-muted-foreground">
-                          {audio.description}
+            <ScrollArea className="h-[200px] pr-4">
+              <div className="grid grid-cols-1 gap-2">
+                {audioOptions.map((audio) => (
+                  <div
+                    key={audio.id}
+                    className={cn(
+                      "flex items-center justify-between p-3 rounded-md cursor-pointer transition-colors",
+                      selectedAudio === audio.url
+                        ? "bg-primary/10 border border-primary/30"
+                        : "bg-muted/50 hover:bg-muted/80 border border-transparent",
+                    )}
+                    onClick={() => handleAudioSelect(audio.url, audio.name)}
+                  >
+                    <div className="flex items-center flex-grow">
+                      <Music className="h-4 w-4 mr-2 flex-shrink-0" />
+                      <div className="flex flex-col">
+                        <span className="font-medium text-sm">
+                          {audio.name}
                         </span>
+                        {audio.description && (
+                          <span className="text-xs text-muted-foreground">
+                            {audio.description}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      {audio.url && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 rounded-full"
+                          onClick={(e) => toggleAudioPreview(audio.url, e)}
+                        >
+                          {isAudioPlaying === audio.url ? (
+                            <Pause className="h-4 w-4" />
+                          ) : (
+                            <Play className="h-4 w-4" />
+                          )}
+                        </Button>
+                      )}
+
+                      {selectedAudio === audio.url && (
+                        <div className="h-2 w-2 rounded-full bg-primary"></div>
                       )}
                     </div>
                   </div>
+                ))}
+              </div>
+            </ScrollArea>
 
-                  <div className="flex items-center gap-2">
-                    {audio.url && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 rounded-full"
-                        onClick={(e) => toggleAudioPreview(audio.url, e)}
-                      >
-                        {isAudioPlaying === audio.url ? (
-                          <Pause className="h-4 w-4" />
-                        ) : (
-                          <Play className="h-4 w-4" />
-                        )}
-                      </Button>
-                    )}
-
-                    {selectedAudio === audio.url && (
-                      <div className="h-2 w-2 rounded-full bg-primary"></div>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {selectedAudio && (
-              <div className="space-y-3">
+            {selectedAudio && selectedAudio !== audioOptions[9].url && (
+              <div className="space-y-3 mt-4">
                 <div className="flex items-center justify-between">
                   <Label className="text-sm font-medium">
-                    Preview with Audio
+                    Save with Selected Audio
                   </Label>
-                  {!audioMerged &&
-                    selectedAudio !== null &&
-                    selectedAudio !== audioOptions[9].url && (
-                      <Button
-                        size="sm"
-                        onClick={handleMergeAudio}
-                        disabled={audioMerging}
-                      >
-                        {audioMerging ? (
-                          <>
-                            <Loader2 className="h-4 w-4 mr-1 animate-spin" />{" "}
-                            Processing...
-                          </>
-                        ) : (
-                          <>
-                            <Save className="h-4 w-4 mr-1" /> Save with Audio
-                          </>
-                        )}
-                      </Button>
-                    )}
+                  {!audioMerged && (
+                    <Button
+                      size="sm"
+                      onClick={handleMergeAudio}
+                      disabled={audioMerging}
+                    >
+                      {audioMerging ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-1 animate-spin" />{" "}
+                          Processing...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="h-4 w-4 mr-1" /> Save with Audio
+                        </>
+                      )}
+                    </Button>
+                  )}
 
                   {audioMerged && (
                     <div className="flex items-center text-green-600 dark:text-green-400">
@@ -495,69 +621,29 @@ export function VideoUpload({
                   )}
                 </div>
 
-                <div className="relative overflow-hidden rounded-md bg-muted/30">
-                  <video
-                    ref={videoRef}
-                    src={
-                      audioMerged && mergedVideoUrl
-                        ? mergedVideoUrl
-                        : previewUrl || undefined
-                    }
-                    controls
-                    className="w-full h-auto max-h-[200px] object-contain"
-                  >
-                    Your browser does not support the video tag.
-                  </video>
-
-                  {selectedAudio &&
-                    selectedAudio !== audioOptions[9].url &&
-                    !audioMerged && (
-                      <>
-                        <audio
-                          ref={audioRef}
-                          src={selectedAudio}
-                          loop={false}
-                          hidden
-                        />
-                        <div className="absolute top-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded-md flex items-center">
-                          <Music className="h-3 w-3 mr-1" />
-                          <span>{selectedAudioName || "Background Music"}</span>
-                        </div>
-                      </>
-                    )}
-
-                  {audioMerged && (
-                    <div className="absolute top-2 left-2 bg-green-500/70 text-white text-xs px-2 py-1 rounded-md flex items-center">
-                      <CheckCircle className="h-3 w-3 mr-1" />
-                      <span>Audio Merged</span>
-                    </div>
-                  )}
-                </div>
-
-                {selectedAudio !== null &&
-                  selectedAudio !== audioOptions[9].url &&
-                  !audioMerged && (
-                    <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-md p-3">
-                      <p className="text-sm text-amber-700 dark:text-amber-400">
-                        Click "Save with Audio" to merge the audio with the
-                        video. This will replace the original audio.
-                      </p>
-                    </div>
-                  )}
+                {!audioMerged && (
+                  <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-md p-3">
+                    <p className="text-sm text-amber-700 dark:text-amber-400">
+                      Click "Save with Audio" to merge the audio with the video.
+                      This will replace the original audio and will be sent to
+                      the pet owner.
+                    </p>
+                  </div>
+                )}
 
                 {audioMerged && (
                   <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-md p-3">
                     <p className="text-sm text-green-700 dark:text-green-400">
-                      Audio has been successfully merged with the video. The pet
-                      owner will receive this version.
+                      Audio has been successfully merged with the video. This
+                      version will be sent to the pet owner.
                     </p>
                   </div>
                 )}
               </div>
             )}
           </div>
-        </TabsContent>
-      </Tabs>
+        </div>
+      )}
     </div>
   );
 }

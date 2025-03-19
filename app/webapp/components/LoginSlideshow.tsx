@@ -29,8 +29,8 @@ export default function LoginSlideshow() {
 
   return (
     <div className="relative w-full h-full overflow-hidden">
-      {/* Background color overlay */}
-      <div className="absolute inset-0 bg-primary/20 backdrop-blur-[2px] z-10" />
+      {/* Background blur overlay - removed color tint, just subtle blur */}
+      <div className="absolute inset-0 backdrop-blur-[2px] z-10" />
 
       {/* Logo and text overlay */}
       <div className="absolute inset-0 flex flex-col items-center justify-center z-20 p-6 text-center">

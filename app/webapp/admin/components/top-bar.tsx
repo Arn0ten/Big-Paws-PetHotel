@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Bell, Mail, Settings, User, HelpCircle, LogOut } from "lucide-react";
+import { Bell, User, Settings, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge } from "@/components/ui/badge";
@@ -9,9 +9,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
+  DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { motion } from "framer-motion";
@@ -20,7 +20,6 @@ import { useToast } from "@/hooks/use-toast";
 
 export function TopBar() {
   const [notifications, setNotifications] = useState(3);
-  const [messages, setMessages] = useState(5);
   const router = useRouter();
   const { toast } = useToast();
 
@@ -65,41 +64,6 @@ export function TopBar() {
       </div>
 
       <div className="flex items-center gap-2 md:gap-4">
-        <Button
-          variant="outline"
-          size="sm"
-          className="hidden md:flex items-center gap-2 text-xs"
-          onClick={() => navigateTo("/webapp/admin/help")}
-        >
-          <HelpCircle size={14} />
-          <span>Help</span>
-        </Button>
-
-        <div className="relative">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="relative"
-            onClick={() => navigateTo("/webapp/admin/messages")}
-          >
-            <Mail className="h-5 w-5" />
-            {messages > 0 && (
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: "spring", stiffness: 500, damping: 20 }}
-              >
-                <Badge
-                  variant="destructive"
-                  className="absolute -right-1 -top-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-[10px]"
-                >
-                  {messages}
-                </Badge>
-              </motion.div>
-            )}
-          </Button>
-        </div>
-
         <div className="relative">
           <Button
             variant="ghost"
@@ -131,7 +95,10 @@ export function TopBar() {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
               <Avatar className="h-8 w-8">
-                <AvatarImage src="/images/default-user.png" alt="Admin" />
+                <AvatarImage
+                  src="/default-images/default-pic.png"
+                  alt="Admin"
+                />
                 <AvatarFallback className="bg-primary text-primary-foreground">
                   AJ
                 </AvatarFallback>

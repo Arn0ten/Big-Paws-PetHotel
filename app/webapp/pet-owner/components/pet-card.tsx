@@ -4,11 +4,10 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ArrowRight } from "lucide-react";
 
+// Update the default pet avatars to use the correct paths
 // Default pet avatars
-const DEFAULT_DOG_AVATAR =
-  "https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=200&auto=format&fit=crop";
-const DEFAULT_CAT_AVATAR =
-  "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=200&auto=format&fit=crop";
+const DEFAULT_DOG_AVATAR = "/default-images/default-dog.png";
+const DEFAULT_CAT_AVATAR = "/default-images/default-cat.png";
 
 interface PetCardProps {
   pet: {

@@ -6,9 +6,10 @@ import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { Upload, X, ImageIcon } from "lucide-react";
+import { Upload, X, ImageIcon, AlertCircle } from "lucide-react";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { cn } from "@/lib/utils";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface PhotoUploadProps {
   selectedFiles: File[];
@@ -28,6 +29,7 @@ export function PhotoUpload({
   maxFiles = 5,
 }: PhotoUploadProps) {
   const [isDragging, setIsDragging] = useState(false);
+  const [showLimitWarning, setShowLimitWarning] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isMobile = useMediaQuery("(max-width: 640px)");
 
@@ -35,6 +37,44 @@ export function PhotoUpload({
   const handleFileInputClick = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
+    }
+  };
+
+  // Handle file selection with max limit enforcement
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      // Convert FileList to array
+      const filesArray = Array.from(e.target.files).filter((file) =>
+        file.type.startsWith("image/"),
+      );
+
+      // Check if total would exceed max
+      const totalFiles = selectedFiles.length + filesArray.length;
+
+      if (totalFiles > maxFiles) {
+        // Show warning
+        setShowLimitWarning(true);
+
+        // Only take the first N files that would make the total = maxFiles
+        const remainingSlots = maxFiles - selectedFiles.length;
+        const limitedFiles = filesArray.slice(0, remainingSlots);
+
+        // Create a new event with limited files
+        const newEvent = {
+          target: {
+            files: limitedFiles,
+          },
+        } as unknown as React.ChangeEvent<HTMLInputElement>;
+
+        // Pass to parent handler
+        onFileSelect(newEvent);
+
+        // Hide warning after 3 seconds
+        setTimeout(() => setShowLimitWarning(false), 3000);
+      } else {
+        // No limit exceeded, pass all files
+        onFileSelect(e);
+      }
     }
   };
 
@@ -63,14 +103,44 @@ export function PhotoUpload({
     setIsDragging(false);
 
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      // Create a synthetic event to pass to the onFileSelect handler
-      const event = {
-        target: {
-          files: e.dataTransfer.files,
-        },
-      } as unknown as React.ChangeEvent<HTMLInputElement>;
+      // Filter for image files
+      const imageFiles = Array.from(e.dataTransfer.files).filter((file) =>
+        file.type.startsWith("image/"),
+      );
 
-      onFileSelect(event);
+      // Check if total would exceed max
+      const totalFiles = selectedFiles.length + imageFiles.length;
+
+      if (totalFiles > maxFiles) {
+        // Show warning
+        setShowLimitWarning(true);
+
+        // Only take the first N files that would make the total = maxFiles
+        const remainingSlots = maxFiles - selectedFiles.length;
+        const limitedFiles = imageFiles.slice(0, remainingSlots);
+
+        // Create a new event with limited files
+        const event = {
+          target: {
+            files: limitedFiles,
+          },
+        } as unknown as React.ChangeEvent<HTMLInputElement>;
+
+        // Pass to parent handler
+        onFileSelect(event);
+
+        // Hide warning after 3 seconds
+        setTimeout(() => setShowLimitWarning(false), 3000);
+      } else {
+        // No limit exceeded, pass all files
+        const event = {
+          target: {
+            files: imageFiles,
+          },
+        } as unknown as React.ChangeEvent<HTMLInputElement>;
+
+        onFileSelect(event);
+      }
     }
   };
 
@@ -82,6 +152,19 @@ export function PhotoUpload({
           Upload photos of the pet (maximum {maxFiles} photos).
         </p>
       </div>
+
+      {showLimitWarning && (
+        <Alert
+          variant="warning"
+          className="bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800 mb-4"
+        >
+          <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+          <AlertDescription className="text-amber-700 dark:text-amber-400">
+            Maximum {maxFiles} photos allowed. Only the first {maxFiles} photos
+            were selected.
+          </AlertDescription>
+        </Alert>
+      )}
 
       {selectedFiles.length === 0 ? (
         <Card
@@ -99,7 +182,7 @@ export function PhotoUpload({
               type="file"
               accept="image/*"
               multiple
-              onChange={onFileSelect}
+              onChange={handleFileSelect}
               className="hidden"
               ref={fileInputRef}
             />
@@ -117,7 +200,7 @@ export function PhotoUpload({
         </Card>
       ) : (
         <div className="space-y-4">
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 max-w-full overflow-hidden">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 max-w-full overflow-hidden">
             {previewUrls.map((url, index) => (
               <div key={index} className="relative group">
                 <div className="relative aspect-square rounded-md overflow-hidden bg-muted/30">

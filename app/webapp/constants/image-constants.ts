@@ -7,12 +7,10 @@
 
 // Default images for users and pets
 export const DEFAULT_IMAGES = {
-  // Default user avatar - replace with your actual default user avatar path
-  USER_AVATAR: "/default-pic.png",
+  USER_AVATAR: "/default-images/default-user.png",
+  DOG_IMAGE: "/default-images/default-dog.png",
+  CAT_IMAGE: "/default-images/default-cat.png",
 
-  // Default pet images - replace with your actual default pet image paths
-  DOG_IMAGE: "/default-dog.png",
-  CAT_IMAGE: "/default-cat.png",
   // Default placeholder for when no image is available
   PLACEHOLDER: "/placeholder.svg?height=200&width=200",
 };

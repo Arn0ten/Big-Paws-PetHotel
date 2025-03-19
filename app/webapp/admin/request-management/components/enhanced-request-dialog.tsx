@@ -85,6 +85,9 @@ export function EnhancedRequestDialog({
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null);
   const [selectedAudioUrl, setSelectedAudioUrl] = useState<string | null>(null);
+  const [selectedAudioName, setSelectedAudioName] = useState<string | null>(
+    null,
+  );
   // Add a new state variable to track if audio has been merged with video
   const [audioMerged, setAudioMerged] = useState(false);
   const [mergedVideoUrl, setMergedVideoUrl] = useState<string | null>(null);
@@ -112,6 +115,7 @@ export function EnhancedRequestDialog({
       setVideoFile(null);
       setVideoPreviewUrl(null);
       setSelectedAudioUrl(null);
+      setSelectedAudioName(null);
       setExtensionDate(undefined);
       setAudioMerged(false);
       setMergedVideoUrl(null);
@@ -187,6 +191,7 @@ export function EnhancedRequestDialog({
       setVideoFile(null);
       setVideoPreviewUrl(null);
       setSelectedAudioUrl(null);
+      setSelectedAudioName(null);
 
       // Clear selected files using the parent's handler function
       const event = {
@@ -205,19 +210,22 @@ export function EnhancedRequestDialog({
     }
   }, [open, request]);
 
-  // Handle photo file selection
+  // Handle photo file selection with max limit enforcement
   const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const files = Array.from(e.target.files).filter((file) =>
         file.type.startsWith("image/"),
       );
 
-      if (files.length === 0) return;
+      // Limit to max 5 photos
+      const limitedFiles = files.slice(0, 5);
+
+      if (limitedFiles.length === 0) return;
 
       // Pass the files to parent component
       const event = {
         target: {
-          files: files,
+          files: limitedFiles,
         },
       } as unknown as React.ChangeEvent<HTMLInputElement>;
 
@@ -276,6 +284,8 @@ export function EnhancedRequestDialog({
     setVideoFile(null);
     setVideoPreviewUrl(null);
     setSelectedAudioUrl(null);
+    setSelectedAudioName(null);
+    setAudioMerged(false);
 
     // Also update the parent component's state
     const event = {
@@ -288,8 +298,17 @@ export function EnhancedRequestDialog({
   };
 
   // Handle audio selection for video
-  const handleAudioSelect = (audioUrl: string | null) => {
+  const handleAudioSelect = (
+    audioUrl: string | null,
+    audioName: string | null,
+  ) => {
     setSelectedAudioUrl(audioUrl);
+    setSelectedAudioName(audioName);
+
+    // Reset merged state when new audio is selected
+    if (audioUrl !== selectedAudioUrl) {
+      setAudioMerged(false);
+    }
   };
 
   // Validate form before submission
@@ -332,9 +351,13 @@ export function EnhancedRequestDialog({
       ...request,
       processingNotes: processingNotes,
       selectedAudioUrl: selectedAudioUrl,
+      selectedAudioName: selectedAudioName,
       // Include the merged video URL if available
       mergedVideoUrl: mergedVideoUrl,
       audioMerged: audioMerged,
+      // Add a flag to indicate that the audio should replace the original
+      replaceOriginalAudio:
+        !!selectedAudioUrl && (audioMerged || request.type === "video"),
     };
 
     // Call the onComplete callback with the updated request
@@ -408,12 +431,6 @@ export function EnhancedRequestDialog({
   const formattedExtensionRequested = request.extensionDetails
     ? `${request.extensionDetails.duration} ${request.extensionDetails.unit}`
     : "Not specified";
-
-  // Add a function to handle audio merging with video
-  const handleAudioMergeWithVideo = (audioUrl: string | null) => {
-    setSelectedAudioUrl(audioUrl);
-    setAudioMerged(false); // Reset merged state when new audio is selected
-  };
 
   return (
     <Dialog

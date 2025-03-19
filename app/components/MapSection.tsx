@@ -1,38 +1,49 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { MapPin, Navigation, Compass } from "lucide-react"
-import { motion } from "framer-motion"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { MapPin, Navigation, Compass } from "lucide-react";
+import { motion } from "framer-motion";
+import MapComponent from "./MapComponent";
 
 interface FeatureCardProps {
-  icon: React.ReactNode
-  title: string
-  description: string
+  icon: React.ReactNode;
+  title: string;
+  description: string;
 }
 
-const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description }) => {
+const FeatureCard: React.FC<FeatureCardProps> = ({
+  icon,
+  title,
+  description,
+}) => {
   return (
     <Card className="flex flex-col items-center text-center p-4">
       {icon}
       <h3 className="text-lg font-semibold mt-2">{title}</h3>
       <p className="text-sm text-muted-foreground mt-1">{description}</p>
     </Card>
-  )
-}
+  );
+};
 
 export default function MapSection() {
-  const [isLoading, setIsLoading] = useState(false)
-  const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const handleClick = () => {
-    setIsLoading(true)
-    router.push("/map")
-  }
+    setIsLoading(true);
+    router.push("/map");
+  };
 
   return (
     <section className="py-12 bg-background">
@@ -45,9 +56,12 @@ export default function MapSection() {
         >
           <Card className="w-full max-w-4xl mx-auto">
             <CardHeader>
-              <CardTitle className="text-3xl font-bold text-center">Find Your Way to Big Paws Pet Hotel</CardTitle>
+              <CardTitle className="text-3xl font-bold text-center">
+                Find Your Way to Big Paws Pet Hotel
+              </CardTitle>
               <CardDescription className="text-center text-lg mt-2">
-                Experience our interactive map feature for personalized directions
+                Experience our interactive map feature for personalized
+                directions
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col items-center">
@@ -68,7 +82,11 @@ export default function MapSection() {
                   description="Discover nearby pet-friendly locations and amenities"
                 />
               </div>
-              <Button size="lg" className="flex items-center gap-2" onClick={handleClick}>
+              <Button
+                size="lg"
+                className="flex items-center gap-2"
+                onClick={handleClick}
+              >
                 <MapPin className="w-5 h-5" />
                 Open Interactive Map
                 {isLoading && (
@@ -76,13 +94,22 @@ export default function MapSection() {
                 )}
               </Button>
               <p className="mt-4 text-sm text-muted-foreground text-center">
-                Click to access our custom map and find the best route to Big Paws Pet Hotel
+                Click to access our custom map and find the best route to Big
+                Paws Pet Hotel
               </p>
             </CardContent>
           </Card>
         </motion.div>
       </div>
+      <div className="relative h-[500px] w-full">
+        <MapComponent
+          userLocation={null}
+          petHotelLocation={[14.5995, 120.9842]}
+          route={[]}
+          setUserLocation={() => {}}
+          disableLocationChange={true} // Disable location changes on the landing page
+        />
+      </div>
     </section>
-  )
+  );
 }
-
