@@ -1,31 +1,31 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { usePathname } from "next/navigation"
-import { Home, FileText, Bell, User, DollarSign, LogOut } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { cn } from "@/lib/utils"
-import ThemeToggle from "./components/theme-toggle"
-import BottomNavigation from "./components/bottom-navigation"
-import { getUnreadNotificationsCount } from "../data/sample-data"
+import type React from "react";
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { usePathname } from "next/navigation";
+import { Home, FileText, Bell, User, DollarSign, LogOut } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { cn } from "@/lib/utils";
+import ThemeToggle from "./components/theme-toggle";
+import BottomNavigation from "./components/bottom-navigation";
+import { getUnreadNotificationsCount } from "../data/sample-data";
 
 export default function PetOwnerLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  const [isMounted, setIsMounted] = useState(false)
-  const pathname = usePathname()
+  const [isMounted, setIsMounted] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
-    setIsMounted(true)
-  }, [])
+    setIsMounted(true);
+  }, []);
 
-  const unreadCount = getUnreadNotificationsCount()
+  const unreadCount = getUnreadNotificationsCount();
 
   const navItems = [
     {
@@ -57,7 +57,7 @@ export default function PetOwnerLayout({
       href: "/webapp/pet-owner/profile",
       icon: User,
     },
-  ]
+  ];
 
   return (
     <div className="min-h-screen bg-background font-sans">
@@ -74,13 +74,17 @@ export default function PetOwnerLayout({
                 priority
               />
             </div>
-            <span className="font-bold text-lg text-foreground dark:text-foreground">Big Paws</span>
+            <span className="font-bold text-lg text-foreground dark:text-foreground">
+              Big Paws
+            </span>
           </Link>
 
           <div className="flex items-center gap-2">
             {isMounted && <ThemeToggle />}
             <Avatar className="h-8 w-8 md:hidden">
-              <AvatarFallback className="bg-primary/10 text-primary dark:bg-primary/20">JD</AvatarFallback>
+              <AvatarFallback className="bg-primary/10 text-primary dark:bg-primary/20">
+                JD
+              </AvatarFallback>
             </Avatar>
           </div>
         </div>
@@ -91,17 +95,25 @@ export default function PetOwnerLayout({
         <div className="flex flex-col gap-4 p-4">
           <div className="flex items-center gap-2 px-2">
             <Avatar>
-              <AvatarFallback className="bg-primary/10 text-primary dark:bg-primary/20">JD</AvatarFallback>
+              <AvatarFallback className="bg-primary/10 text-primary dark:bg-primary/20">
+                JD
+              </AvatarFallback>
             </Avatar>
             <div>
-              <p className="text-sm font-medium text-foreground dark:text-foreground">John Doe</p>
-              <p className="text-sm text-muted-foreground dark:text-muted-foreground/90">john.doe@example.com</p>
+              <p className="text-sm font-medium text-foreground dark:text-foreground">
+                John Doe
+              </p>
+              <p className="text-sm text-muted-foreground dark:text-muted-foreground/90">
+                john.doe@example.com
+              </p>
             </div>
           </div>
 
           <nav className="flex flex-col gap-1">
             {navItems.map((item) => {
-              const isActive = item.exact ? pathname === item.href : pathname.startsWith(item.href)
+              const isActive = item.exact
+                ? pathname === item.href
+                : pathname.startsWith(item.href);
 
               return (
                 <Link
@@ -121,7 +133,8 @@ export default function PetOwnerLayout({
                       <span
                         className={cn(
                           "absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-medium",
-                          item.badgeColor || "bg-primary text-primary-foreground",
+                          item.badgeColor ||
+                            "bg-primary text-primary-foreground",
                         )}
                       >
                         {item.badge > 9 ? "9+" : item.badge}
@@ -130,7 +143,7 @@ export default function PetOwnerLayout({
                   </div>
                   <span className="text-base">{item.name}</span>
                 </Link>
-              )
+              );
             })}
           </nav>
 
@@ -151,12 +164,14 @@ export default function PetOwnerLayout({
 
       {/* Main Content */}
       <main className="flex-1 md:pl-64">
-        <div className="container max-w-screen-md mx-auto p-4 sm:p-6 pb-20 md:pb-6">{children}</div>
+        <div className="container max-w-screen-md mx-auto p-4 sm:p-6 pb-20 md:pb-6">
+          {children}
+          {/* ScrollButton is intentionally not included in pet-owner interface */}
+        </div>
       </main>
 
       {/* Bottom Navigation */}
       <BottomNavigation />
     </div>
-  )
+  );
 }
-

@@ -1,16 +1,26 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useParams, useRouter } from "next/navigation"
-import Link from "next/link"
-import { motion } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { ArrowLeft, Calendar, Clock, Camera, Video, Scissors, CheckCircle2, XCircle, AlertCircle } from "lucide-react"
-import { requests } from "@/app/webapp/data/sample-data"
-import { formatDate } from "@/app/webapp/utils/date-utils"
+import { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  ArrowLeft,
+  Calendar,
+  Clock,
+  Camera,
+  Video,
+  Scissors,
+  CheckCircle2,
+  XCircle,
+  AlertCircle,
+} from "lucide-react";
+import { requests } from "@/app/webapp/data/sample-data";
+import { formatDate } from "@/app/webapp/utils/date-utils";
 
 /**
  * Request Detail Page
@@ -22,13 +32,13 @@ import { formatDate } from "@/app/webapp/utils/date-utils"
  * 2. Add proper error handling and loading states
  */
 export default function RequestDetailPage() {
-  const params = useParams()
-  const router = useRouter()
-  const requestId = params.id as string
+  const params = useParams();
+  const router = useRouter();
+  const requestId = params.id as string;
 
-  const [request, setRequest] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState("")
+  const [request, setRequest] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchRequest = async () => {
@@ -39,41 +49,41 @@ export default function RequestDetailPage() {
         // const data = await response.json()
 
         // For demo, we'll use the local data
-        const foundRequest = requests.find((r) => r.id === requestId)
+        const foundRequest = requests.find((r) => r.id === requestId);
         if (!foundRequest) {
-          console.log("Request not found for id:", requestId) // Log the request ID for debugging
-          setError("Request not found")
-          setLoading(false)
-          return
+          console.log("Request not found for id:", requestId); // Log the request ID for debugging
+          setError("Request not found");
+          setLoading(false);
+          return;
         }
 
-        setRequest(foundRequest)
+        setRequest(foundRequest);
       } catch (error) {
-        console.error("Error fetching request:", error)
-        setError("Request not found or could not be loaded")
+        console.error("Error fetching request:", error);
+        setError("Request not found or could not be loaded");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchRequest()
-  }, [requestId])
+    fetchRequest();
+  }, [requestId]);
 
   // Get request type icon
   const getRequestTypeIcon = (type) => {
     switch (type) {
       case "photo":
-        return <Camera className="h-5 w-5" />
+        return <Camera className="h-5 w-5" />;
       case "video":
-        return <Video className="h-5 w-5" />
+        return <Video className="h-5 w-5" />;
       case "grooming":
-        return <Scissors className="h-5 w-5" />
+        return <Scissors className="h-5 w-5" />;
       case "boarding-extension":
-        return <Clock className="h-5 w-5" />
+        return <Clock className="h-5 w-5" />;
       default:
-        return <Calendar className="h-5 w-5" />
+        return <Calendar className="h-5 w-5" />;
     }
-  }
+  };
 
   // Get status badge
   const getStatusBadge = (status) => {
@@ -87,7 +97,7 @@ export default function RequestDetailPage() {
           >
             <Clock className="h-3 w-3 mr-1" /> Pending
           </Badge>
-        )
+        );
       case "approved":
       case "in-progress":
         return (
@@ -97,7 +107,7 @@ export default function RequestDetailPage() {
           >
             <CheckCircle2 className="h-3 w-3 mr-1" /> In Progress
           </Badge>
-        )
+        );
       case "completed":
         return (
           <Badge
@@ -106,7 +116,7 @@ export default function RequestDetailPage() {
           >
             <CheckCircle2 className="h-3 w-3 mr-1" /> Completed
           </Badge>
-        )
+        );
       case "rejected":
         return (
           <Badge
@@ -115,38 +125,38 @@ export default function RequestDetailPage() {
           >
             <XCircle className="h-3 w-3 mr-1" /> Rejected
           </Badge>
-        )
+        );
       default:
         return (
           <Badge variant="outline">
             <AlertCircle className="h-3 w-3 mr-1" /> {status}
           </Badge>
-        )
+        );
     }
-  }
+  };
 
   // Get request type title
   const getRequestTypeTitle = (type) => {
     switch (type) {
       case "photo":
-        return "Photo Update"
+        return "Photo Update";
       case "video":
-        return "Video Request"
+        return "Video Request";
       case "grooming":
-        return "Grooming Service"
+        return "Grooming Service";
       case "boarding-extension":
-        return "Boarding Extension"
+        return "Boarding Extension";
       default:
-        return "Service Request"
+        return "Service Request";
     }
-  }
+  };
 
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
         <p className="text-muted-foreground">Loading request details...</p>
       </div>
-    )
+    );
   }
 
   if (error || !request) {
@@ -170,7 +180,7 @@ export default function RequestDetailPage() {
           </Button>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -182,14 +192,20 @@ export default function RequestDetailPage() {
           </Link>
         </Button>
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground dark:text-foreground">Request Details</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground dark:text-foreground">
+            Request Details
+          </h1>
           <p className="text-base text-muted-foreground dark:text-muted-foreground/90">
             View details of your service request
           </p>
         </div>
       </div>
 
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         <Card>
           <CardHeader className="pb-3">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -226,49 +242,224 @@ export default function RequestDetailPage() {
               </Alert>
             )}
 
+            {/* Conversation Section - Moved to the top */}
+            <div>
+              <h3 className="text-base font-medium mb-2">Conversation</h3>
+              <Card className="bg-muted/50 dark:bg-muted/20">
+                <CardContent className="p-4 space-y-4">
+                  {/* Initial request message */}
+                  <div className="flex gap-3 justify-end">
+                    <div className="max-w-[80%] rounded-lg p-3 bg-primary text-primary-foreground ml-auto">
+                      <p className="text-sm whitespace-pre-wrap">
+                        {request.description}
+                      </p>
+                      <p className="text-xs opacity-70 mt-1 text-right">
+                        {formatDate(request.createdAt)}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Admin response with media for photo/video requests */}
+                  {request.status === "completed" && (
+                    <>
+                      {/* Admin text response */}
+                      <div className="flex gap-3">
+                        <div className="flex-shrink-0 h-8 w-8 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 flex items-center justify-center">
+                          A
+                        </div>
+                        <div className="max-w-[80%] rounded-lg p-3 bg-gray-100 dark:bg-gray-800 text-foreground dark:text-foreground">
+                          <p className="text-sm whitespace-pre-wrap">
+                            {request.processingNotes ||
+                              "Your request has been completed."}
+                          </p>
+                          <p className="text-xs opacity-70 mt-1 text-right">
+                            {formatDate(request.completedAt)}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Media response for photo/video requests */}
+                      {(request.type === "photo" || request.type === "video") &&
+                        request.mediaFiles &&
+                        request.mediaFiles.urls &&
+                        request.mediaFiles.urls.length > 0 && (
+                          <div className="flex gap-3">
+                            <div className="flex-shrink-0 h-8 w-8 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 flex items-center justify-center">
+                              A
+                            </div>
+                            <div className="max-w-[80%] rounded-lg p-3 bg-gray-100 dark:bg-gray-800 text-foreground dark:text-foreground">
+                              <p className="text-sm whitespace-pre-wrap">
+                                Here's the{" "}
+                                {request.type === "photo"
+                                  ? request.mediaFiles.urls.length > 1
+                                    ? "photos"
+                                    : "photo"
+                                  : "video"}{" "}
+                                of {request.petName} as requested.
+                              </p>
+
+                              <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                {request.mediaFiles.urls.map((url, index) => (
+                                  <div
+                                    key={index}
+                                    className="rounded-md overflow-hidden border"
+                                  >
+                                    {request.type === "photo" ? (
+                                      <img
+                                        src={url || "/placeholder.svg"}
+                                        alt={`${request.petName} photo ${index + 1}`}
+                                        className="object-cover w-full h-32"
+                                      />
+                                    ) : (
+                                      <video
+                                        src={url}
+                                        controls
+                                        className="w-full h-32"
+                                      />
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+
+                              <p className="text-xs opacity-70 mt-1 text-right">
+                                {formatDate(request.completedAt)}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+
+                      {/* Specific response for grooming service */}
+                      {request.type === "grooming" && (
+                        <div className="flex gap-3">
+                          <div className="flex-shrink-0 h-8 w-8 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 flex items-center justify-center">
+                            A
+                          </div>
+                          <div className="max-w-[80%] rounded-lg p-3 bg-gray-100 dark:bg-gray-800 text-foreground dark:text-foreground">
+                            <p className="text-sm whitespace-pre-wrap">
+                              The grooming service (
+                              {request.groomingService
+                                ?.replace(/-/g, " ")
+                                .replace(/\b\w/g, (l) => l.toUpperCase())}
+                              ) has been completed for {request.petName}.
+                            </p>
+                            <p className="text-xs opacity-70 mt-1 text-right">
+                              {formatDate(request.completedAt)}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Specific response for boarding extension */}
+                      {request.type === "boarding-extension" &&
+                        request.newEndDate && (
+                          <div className="flex gap-3">
+                            <div className="flex-shrink-0 h-8 w-8 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 flex items-center justify-center">
+                              A
+                            </div>
+                            <div className="max-w-[80%] rounded-lg p-3 bg-gray-100 dark:bg-gray-800 text-foreground dark:text-foreground">
+                              <p className="text-sm whitespace-pre-wrap">
+                                The boarding extension has been approved. The
+                                new end date is {formatDate(request.newEndDate)}
+                                .
+                              </p>
+                              <p className="text-xs opacity-70 mt-1 text-right">
+                                {formatDate(request.completedAt)}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                    </>
+                  )}
+
+                  {/* Include existing conversation messages if available */}
+                  {request.conversation &&
+                    request.conversation.length > 0 &&
+                    request.conversation.map((message, index) => (
+                      <div
+                        key={message.id}
+                        className={`flex gap-3 ${message.sender === "owner" ? "justify-end" : ""}`}
+                      >
+                        {message.sender !== "owner" && (
+                          <div className="flex-shrink-0 h-8 w-8 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 flex items-center justify-center">
+                            A
+                          </div>
+                        )}
+                        <div
+                          className={`max-w-[80%] rounded-lg p-3
+                            ${
+                              message.sender === "owner"
+                                ? "bg-primary text-primary-foreground ml-auto"
+                                : "bg-gray-100 dark:bg-gray-800 text-foreground dark:text-foreground"
+                            }`}
+                        >
+                          <p className="text-sm whitespace-pre-wrap">
+                            {message.content}
+                          </p>
+                          <p className="text-xs opacity-70 mt-1 text-right">
+                            {formatDate(message.timestamp)}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                </CardContent>
+              </Card>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <h3 className="text-base font-medium mb-2">Request Details</h3>
                 <Card className="bg-muted/50 dark:bg-muted/20">
                   <CardContent className="p-4 space-y-3">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Request Type</p>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        Request Type
+                      </p>
                       <p className="text-sm text-foreground dark:text-foreground">
                         {getRequestTypeTitle(request.type)}
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Pet</p>
-                      <p className="text-sm text-foreground dark:text-foreground">{request.petName}</p>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        Pet
+                      </p>
+                      <p className="text-sm text-foreground dark:text-foreground">
+                        {request.petName}
+                      </p>
                     </div>
                     {request.type === "grooming" && request.groomingService && (
                       <div>
-                        <p className="text-sm font-medium text-muted-foreground">Grooming Service</p>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Grooming Service
+                        </p>
                         <p className="text-sm text-foreground dark:text-foreground">
-                          {request.groomingService.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+                          {request.groomingService
+                            .replace(/-/g, " ")
+                            .replace(/\b\w/g, (l) => l.toUpperCase())}
                         </p>
                       </div>
                     )}
-                    {request.type === "boarding-extension" && request.extensionDetails && (
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">Extension Details</p>
-                        <p className="text-sm text-foreground dark:text-foreground">
-                          {request.extensionDetails.duration} {request.extensionDetails.unit}
-                        </p>
-                      </div>
-                    )}
+                    {request.type === "boarding-extension" &&
+                      request.extensionDetails && (
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">
+                            Extension Details
+                          </p>
+                          <p className="text-sm text-foreground dark:text-foreground">
+                            {request.extensionDetails.duration}{" "}
+                            {request.extensionDetails.unit}
+                          </p>
+                        </div>
+                      )}
                     {request.price && (
                       <div>
-                        <p className="text-sm font-medium text-muted-foreground">Price</p>
-                        <p className="text-sm text-foreground dark:text-foreground">₱{request.price}</p>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Price
+                        </p>
+                        <p className="text-sm text-foreground dark:text-foreground">
+                          ₱{request.price}
+                        </p>
                       </div>
                     )}
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">Description</p>
-                      <p className="text-sm text-foreground dark:text-foreground whitespace-pre-wrap">
-                        {request.description}
-                      </p>
-                    </div>
                   </CardContent>
                 </Card>
               </div>
@@ -282,7 +473,9 @@ export default function RequestDetailPage() {
                         <Calendar className="h-3 w-3" />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-foreground dark:text-foreground">Request Submitted</p>
+                        <p className="text-sm font-medium text-foreground dark:text-foreground">
+                          Request Submitted
+                        </p>
                         <p className="text-xs text-muted-foreground dark:text-muted-foreground/90">
                           {formatDate(request.createdAt)}
                         </p>
@@ -295,7 +488,9 @@ export default function RequestDetailPage() {
                           <CheckCircle2 className="h-3 w-3" />
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-foreground dark:text-foreground">In Progress</p>
+                          <p className="text-sm font-medium text-foreground dark:text-foreground">
+                            In Progress
+                          </p>
                           <p className="text-xs text-muted-foreground dark:text-muted-foreground/90">
                             Your request is being processed
                           </p>
@@ -309,7 +504,9 @@ export default function RequestDetailPage() {
                           <CheckCircle2 className="h-3 w-3" />
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-foreground dark:text-foreground">Completed</p>
+                          <p className="text-sm font-medium text-foreground dark:text-foreground">
+                            Completed
+                          </p>
                           <p className="text-xs text-muted-foreground dark:text-muted-foreground/90">
                             {formatDate(request.completedAt)}
                           </p>
@@ -323,7 +520,9 @@ export default function RequestDetailPage() {
                           <XCircle className="h-3 w-3" />
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-foreground dark:text-foreground">Rejected</p>
+                          <p className="text-sm font-medium text-foreground dark:text-foreground">
+                            Rejected
+                          </p>
                           <p className="text-xs text-muted-foreground dark:text-muted-foreground/90">
                             {formatDate(request.updatedAt || request.createdAt)}
                           </p>
@@ -334,62 +533,9 @@ export default function RequestDetailPage() {
                 </Card>
               </div>
             </div>
-
-            {/* Media Files Section */}
-            {request.mediaFiles && request.mediaFiles.urls && request.mediaFiles.urls.length > 0 && (
-              <div>
-                <h3 className="text-base font-medium mb-2">
-                  {request.mediaFiles.type === "photo" ? "Photos" : "Videos"}
-                </h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                  {request.mediaFiles.urls.map((url, index) => (
-                    <div key={index} className="rounded-md overflow-hidden border">
-                      {request.mediaFiles.type === "photo" ? (
-                        <img
-                          src={url || "/placeholder.svg"}
-                          alt={`${request.petName} photo ${index + 1}`}
-                          className="object-cover w-full h-48"
-                        />
-                      ) : (
-                        <video src={url} controls className="w-full h-48" />
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Conversation Section */}
-            {request.conversation && request.conversation.length > 0 && (
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-base font-medium">Conversation</h3>
-                </div>
-                <Card className="bg-muted/50 dark:bg-muted/20">
-                  <CardContent className="p-4 space-y-4">
-                    {request.conversation.map((message, index) => (
-                      <div key={message.id} className={`flex gap-3 ${message.sender === "owner" ? "justify-end" : ""}`}>
-                        <div
-                          className={`max-w-[80%] rounded-lg p-3
-                            ${
-                              message.sender === "owner"
-                                ? "bg-primary text-primary-foreground ml-auto"
-                                : "bg-gray-100 dark:bg-gray-800 text-foreground dark:text-foreground"
-                            }`}
-                        >
-                          <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                          <p className="text-xs opacity-70 mt-1 text-right">{formatDate(message.timestamp)}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
-              </div>
-            )}
           </CardContent>
         </Card>
       </motion.div>
     </div>
-  )
+  );
 }
-

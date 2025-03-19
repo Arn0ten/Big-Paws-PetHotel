@@ -1,13 +1,13 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { motion } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 import {
   Clock,
   CheckCircle2,
@@ -22,12 +22,17 @@ import {
   Filter,
   Calendar,
   ArrowUpDown,
-} from "lucide-react"
-import { getPetOwnerRequests } from "@/app/webapp/data/sample-data"
-import { formatDate } from "@/app/webapp/utils/date-utils"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
+} from "lucide-react";
+import { getPetOwnerRequests } from "@/app/webapp/data/sample-data";
+import { formatDate } from "@/app/webapp/utils/date-utils";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from "@/components/ui/select";
 
 /**
  * Enhanced Pet Owner Requests Page
@@ -54,20 +59,20 @@ import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/u
  *    - Monitor filter usage
  */
 export default function PetOwnerRequestsPage() {
-  const router = useRouter()
-  const [activeTab, setActiveTab] = useState("all")
-  const [isLoading, setIsLoading] = useState(true)
-  const [requests, setRequests] = useState([])
-  const [error, setError] = useState("")
-  const [searchQuery, setSearchQuery] = useState("")
-  const [filterType, setFilterType] = useState("all")
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc")
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState("all");
+  const [isLoading, setIsLoading] = useState(true);
+  const [requests, setRequests] = useState([]);
+  const [error, setError] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterType, setFilterType] = useState("all");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
   useEffect(() => {
     // Simulate API call
     const fetchRequests = async () => {
       try {
-        setIsLoading(true)
+        setIsLoading(true);
 
         // BACKEND INTEGRATION:
         // Replace this with actual API call to fetch requests with filters
@@ -81,47 +86,47 @@ export default function PetOwnerRequestsPage() {
         // setRequests(data);
 
         // For demo, we'll use the sample data
-        await new Promise((resolve) => setTimeout(resolve, 500)) // Simulate network delay
-        const data = getPetOwnerRequests()
-        setRequests(data)
+        await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate network delay
+        const data = getPetOwnerRequests();
+        setRequests(data);
       } catch (error) {
-        console.error("Error fetching requests:", error)
-        setError("Failed to load your requests. Please try again later.")
+        console.error("Error fetching requests:", error);
+        setError("Failed to load your requests. Please try again later.");
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    fetchRequests()
-  }, [activeTab, filterType, searchQuery, sortOrder])
+    fetchRequests();
+  }, [activeTab, filterType, searchQuery, sortOrder]);
 
   // Handle "New Request" button click with error handling
   const handleNewRequest = () => {
     try {
       // Use replace instead of push to avoid navigation history issues
-      router.replace("/webapp/pet-owner/requests/new")
+      router.replace("/webapp/pet-owner/requests/new");
     } catch (error) {
-      console.error("Navigation error:", error)
+      console.error("Navigation error:", error);
       // Fallback redirect if the router fails
-      window.location.href = "/webapp/pet-owner/requests/new"
+      window.location.href = "/webapp/pet-owner/requests/new";
     }
-  }
+  };
 
   // Get request type icon
   const getRequestTypeIcon = (type) => {
     switch (type) {
       case "photo":
-        return <Camera className="h-4 w-4" />
+        return <Camera className="h-4 w-4" />;
       case "video":
-        return <Video className="h-4 w-4" />
+        return <Video className="h-4 w-4" />;
       case "grooming":
-        return <Scissors className="h-4 w-4" />
+        return <Scissors className="h-4 w-4" />;
       case "boarding-extension":
-        return <Clock className="h-4 w-4" />
+        return <Clock className="h-4 w-4" />;
       default:
-        return <FileText className="h-4 w-4" />
+        return <FileText className="h-4 w-4" />;
     }
-  }
+  };
 
   // Get status badge
   const getStatusBadge = (status) => {
@@ -135,7 +140,7 @@ export default function PetOwnerRequestsPage() {
           >
             <Clock className="h-3 w-3 mr-1" /> Pending
           </Badge>
-        )
+        );
       case "approved":
       case "in-progress":
         return (
@@ -145,7 +150,7 @@ export default function PetOwnerRequestsPage() {
           >
             <CheckCircle2 className="h-3 w-3 mr-1" /> In Progress
           </Badge>
-        )
+        );
       case "completed":
         return (
           <Badge
@@ -154,7 +159,7 @@ export default function PetOwnerRequestsPage() {
           >
             <CheckCircle2 className="h-3 w-3 mr-1" /> Completed
           </Badge>
-        )
+        );
       case "rejected":
         return (
           <Badge
@@ -163,60 +168,65 @@ export default function PetOwnerRequestsPage() {
           >
             <XCircle className="h-3 w-3 mr-1" /> Rejected
           </Badge>
-        )
+        );
       default:
         return (
           <Badge variant="outline">
             <AlertCircle className="h-3 w-3 mr-1" /> {status}
           </Badge>
-        )
+        );
     }
-  }
+  };
 
   // Filter requests based on active tab, search query, and filter type
   const filteredRequests = requests
     .filter((request) => {
       // Filter by tab
-      if (activeTab !== "all" && request.status !== activeTab) return false
+      if (activeTab !== "all" && request.status !== activeTab) return false;
 
       // Filter by type
-      if (filterType !== "all" && request.type !== filterType) return false
+      if (filterType !== "all" && request.type !== filterType) return false;
 
       // Filter by search query
       if (searchQuery) {
-        const query = searchQuery.toLowerCase()
+        const query = searchQuery.toLowerCase();
         return (
           request.title?.toLowerCase().includes(query) ||
           request.petName?.toLowerCase().includes(query) ||
           request.description?.toLowerCase().includes(query)
-        )
+        );
       }
 
-      return true
+      return true;
     })
     .sort((a, b) => {
       // Sort by date
-      const dateA = new Date(a.createdAt).getTime()
-      const dateB = new Date(b.createdAt).getTime()
-      return sortOrder === "desc" ? dateB - dateA : dateA - dateB
-    })
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+      return sortOrder === "desc" ? dateB - dateA : dateA - dateB;
+    });
 
   // Toggle sort order
   const toggleSortOrder = () => {
-    setSortOrder(sortOrder === "asc" ? "desc" : "asc")
-  }
+    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+  };
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground dark:text-foreground">Service Requests</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground dark:text-foreground">
+            Service Requests
+          </h1>
           <p className="text-base text-muted-foreground dark:text-muted-foreground/90">
             View and manage your service requests
           </p>
         </div>
 
-        <Button onClick={handleNewRequest} className="bg-primary hover:bg-primary/90 text-primary-foreground">
+        <Button
+          onClick={handleNewRequest}
+          className="bg-primary hover:bg-primary/90 text-primary-foreground"
+        >
           <Plus className="h-4 w-4 mr-2" />
           New Request
         </Button>
@@ -268,7 +278,9 @@ export default function PetOwnerRequestsPage() {
                 <SelectItem value="photo">Photo Updates</SelectItem>
                 <SelectItem value="video">Video Requests</SelectItem>
                 <SelectItem value="grooming">Grooming</SelectItem>
-                <SelectItem value="boarding-extension">Boarding Extensions</SelectItem>
+                <SelectItem value="boarding-extension">
+                  Boarding Extensions
+                </SelectItem>
                 <SelectItem value="custom">Custom Requests</SelectItem>
               </SelectContent>
             </Select>
@@ -289,13 +301,23 @@ export default function PetOwnerRequestsPage() {
         </div>
       </div>
 
-      <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid grid-cols-5 mb-4">
-          <TabsTrigger value="all">All</TabsTrigger>
-          <TabsTrigger value="pending">Pending</TabsTrigger>
-          <TabsTrigger value="in-progress">In Progress</TabsTrigger>
-          <TabsTrigger value="completed">Completed</TabsTrigger>
-          <TabsTrigger value="rejected">Rejected</TabsTrigger>
+      <Tabs defaultValue="all" className="w-full">
+        <TabsList className="flex flex-wrap gap-2 mb-4">
+          <TabsTrigger className="flex-grow sm:flex-grow-0" value="all">
+            All
+          </TabsTrigger>
+          <TabsTrigger className="flex-grow sm:flex-grow-0" value="pending">
+            Pending
+          </TabsTrigger>
+          <TabsTrigger className="flex-grow sm:flex-grow-0" value="in-progress">
+            In Progress
+          </TabsTrigger>
+          <TabsTrigger className="flex-grow sm:flex-grow-0" value="completed">
+            Completed
+          </TabsTrigger>
+          <TabsTrigger className="flex-grow sm:flex-grow-0" value="rejected">
+            Rejected
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value={activeTab} className="mt-0">
@@ -336,7 +358,10 @@ export default function PetOwnerRequestsPage() {
                 >
                   <Card className="overflow-hidden">
                     <CardContent className="p-0">
-                      <Link href={`/webapp/pet-owner/requests/${request.id}`} passHref>
+                      <Link
+                        href={`/webapp/pet-owner/requests/${request.id}`}
+                        passHref
+                      >
                         <div className="p-6 hover:bg-muted/50 transition-colors cursor-pointer">
                           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-2">
                             <div className="flex items-center gap-2">
@@ -351,36 +376,51 @@ export default function PetOwnerRequestsPage() {
                               >
                                 {getRequestTypeIcon(request.type)}
                               </div>
-                              <h3 className="font-semibold text-foreground dark:text-foreground">{request.title}</h3>
+                              <h3 className="font-semibold text-foreground dark:text-foreground">
+                                {request.title}
+                              </h3>
                             </div>
                             {getStatusBadge(request.status)}
                           </div>
 
                           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
                             <div>
-                              <p className="text-sm font-medium text-muted-foreground">Pet</p>
-                              <p className="text-sm text-foreground dark:text-foreground">{request.petName}</p>
+                              <p className="text-sm font-medium text-muted-foreground">
+                                Pet
+                              </p>
+                              <p className="text-sm text-foreground dark:text-foreground">
+                                {request.petName}
+                              </p>
                             </div>
                             <div>
-                              <p className="text-sm font-medium text-muted-foreground">Request Date</p>
+                              <p className="text-sm font-medium text-muted-foreground">
+                                Request Date
+                              </p>
                               <p className="text-sm text-foreground dark:text-foreground">
                                 {formatDate(request.createdAt)}
                               </p>
                             </div>
                             <div>
-                              <p className="text-sm font-medium text-muted-foreground">Last Updated</p>
+                              <p className="text-sm font-medium text-muted-foreground">
+                                Last Updated
+                              </p>
                               <p className="text-sm text-foreground dark:text-foreground">
                                 {formatDate(request.updatedAt)}
                               </p>
                             </div>
                           </div>
 
-                          {request.status === "rejected" && request.rejectionReason && (
-                            <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md dark:bg-red-900/20 dark:border-red-700/30">
-                              <p className="text-sm font-medium text-red-700 dark:text-red-400">Rejection Reason:</p>
-                              <p className="text-sm text-red-600 dark:text-red-300">{request.rejectionReason}</p>
-                            </div>
-                          )}
+                          {request.status === "rejected" &&
+                            request.rejectionReason && (
+                              <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md dark:bg-red-900/20 dark:border-red-700/30">
+                                <p className="text-sm font-medium text-red-700 dark:text-red-400">
+                                  Rejection Reason:
+                                </p>
+                                <p className="text-sm text-red-600 dark:text-red-300">
+                                  {request.rejectionReason}
+                                </p>
+                              </div>
+                            )}
                         </div>
                       </Link>
                     </CardContent>
@@ -393,7 +433,9 @@ export default function PetOwnerRequestsPage() {
               <CardContent className="p-6">
                 <div className="flex flex-col items-center justify-center h-40 text-center">
                   <FileText className="h-8 w-8 text-muted-foreground mb-2" />
-                  <p className="text-muted-foreground mb-4">No {activeTab !== "all" ? activeTab : ""} requests found</p>
+                  <p className="text-muted-foreground mb-4">
+                    No {activeTab !== "all" ? activeTab : ""} requests found
+                  </p>
                   <Button onClick={handleNewRequest} variant="outline">
                     <Plus className="h-4 w-4 mr-2" />
                     Create New Request
@@ -405,6 +447,5 @@ export default function PetOwnerRequestsPage() {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }
-

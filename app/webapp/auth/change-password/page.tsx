@@ -1,51 +1,108 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { ArrowLeft, Mail, Smartphone, AlertCircle, Loader2 } from "lucide-react"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  ArrowLeft,
+  Mail,
+  Smartphone,
+  AlertCircle,
+  Loader2,
+} from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { useRouter } from "next/navigation";
 
+/**
+ * Change Password Page
+ *
+ * NAVIGATION BEHAVIOR:
+ * - The back button dynamically changes based on where the user came from
+ * - If accessed from pet-owner interface: "Back to Profile" → /webapp/pet-owner/profile
+ * - If accessed from admin interface: "Back to Dashboard" → /webapp/admin/dashboard
+ * - If accessed from elsewhere: "Back to Login" → /webapp/auth/login
+ * - The origin is detected through URL parameters (?from=pet-owner) or referrer
+ * - This preserves the user's session when navigating back
+ */
 export default function ChangePasswordPage() {
-  const [contact, setContact] = useState("")
-  const [isSubmitted, setIsSubmitted] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const router = useRouter();
+  const [origin, setOrigin] = useState<string>("login");
+  const [contact, setContact] = useState("");
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Detect where the user came from
+  useEffect(() => {
+    // Check for origin in query parameters
+    const searchParams = new URLSearchParams(window.location.search);
+    const fromParam = searchParams.get("from");
+
+    if (fromParam === "pet-owner") {
+      setOrigin("pet-owner");
+    } else if (fromParam === "admin") {
+      setOrigin("admin");
+    } else {
+      // Try to detect referrer
+      const referrer = document.referrer;
+      if (referrer && referrer.includes("/webapp/pet-owner")) {
+        setOrigin("pet-owner");
+      } else if (referrer && referrer.includes("/webapp/admin")) {
+        setOrigin("admin");
+      } else {
+        setOrigin("login");
+      }
+    }
+  }, []);
+
+  // Handle back button click based on origin
+  const handleBack = () => {
+    switch (origin) {
+      case "pet-owner":
+        router.push("/webapp/pet-owner/profile");
+        break;
+      case "admin":
+        router.push("/webapp/admin/dashboard");
+        break;
+      default:
+        router.push("/webapp/auth/login");
+    }
+  };
 
   const validateForm = () => {
     if (!contact.trim()) {
-      setError("Email or phone number is required")
-      return false
+      setError("Email or phone number is required");
+      return false;
     }
 
     // Basic email validation
     if (contact.includes("@") && !contact.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-      setError("Please enter a valid email address")
-      return false
+      setError("Please enter a valid email address");
+      return false;
     }
 
     // Basic phone validation (simple check for numbers only)
     if (!contact.includes("@") && !contact.match(/^\d+$/)) {
-      setError("Please enter a valid phone number (numbers only)")
-      return false
+      setError("Please enter a valid phone number (numbers only)");
+      return false;
     }
 
-    return true
-  }
+    return true;
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    if (!validateForm()) return
+    if (!validateForm()) return;
 
-    setIsLoading(true)
-    setError(null)
+    setIsLoading(true);
+    setError(null);
 
     // BACKEND INTEGRATION POINT:
     // Replace the setTimeout with actual API call to your backend
@@ -68,18 +125,24 @@ export default function ChangePasswordPage() {
 
     // Simulate API call
     setTimeout(() => {
-      setIsSubmitted(true)
-      setIsLoading(false)
-    }, 1500)
-  }
+      setIsSubmitted(true);
+      setIsLoading(false);
+    }, 1500);
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <header className="w-full border-b py-3 sm:py-4 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <Link href="/webapp" className="text-lg sm:text-xl font-bold text-foreground">
-            Big Paws Pet Hotel
-          </Link>
+          <div className="flex items-center"></div>
+          <div className="flex items-center">
+            <Link
+              href="/webapp"
+              className="text-lg sm:text-xl font-bold text-foreground"
+            >
+              Big Paws Pet Hotel
+            </Link>
+          </div>
           <ThemeToggle />
         </div>
       </header>
@@ -101,9 +164,12 @@ export default function ChangePasswordPage() {
                 transition={{ duration: 0.3 }}
               >
                 <div className="text-center mb-6">
-                  <h1 className="text-2xl font-bold text-foreground">Change Password</h1>
+                  <h1 className="text-2xl font-bold text-foreground">
+                    Change Password
+                  </h1>
                   <p className="text-muted-foreground mt-2">
-                    Enter your email address or phone number to receive password change instructions
+                    Enter your email address or phone number to receive password
+                    change instructions
                   </p>
                 </div>
 
@@ -125,8 +191,8 @@ export default function ChangePasswordPage() {
                       placeholder="Enter your email or phone number"
                       value={contact}
                       onChange={(e) => {
-                        setContact(e.target.value)
-                        if (error) setError(null)
+                        setContact(e.target.value);
+                        if (error) setError(null);
                       }}
                       disabled={isLoading}
                       className={`bg-background ${error ? "border-red-500 focus-visible:ring-red-500" : ""}`}
@@ -142,6 +208,20 @@ export default function ChangePasswordPage() {
                     ) : (
                       "Send Reset Link"
                     )}
+                  </Button>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full mt-3"
+                    onClick={handleBack}
+                  >
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    {origin === "pet-owner"
+                      ? "Back to Profile"
+                      : origin === "admin"
+                        ? "Back to Dashboard"
+                        : "Back to Login"}
                   </Button>
                 </form>
               </motion.div>
@@ -199,29 +279,40 @@ export default function ChangePasswordPage() {
                     </motion.div>
                   )}
                   <p className="text-base sm:text-lg break-words">
-                    Password change instructions have been sent. Please check your{" "}
-                    {contact.includes("@") ? "email" : "SMS"} at:
+                    Password change instructions have been sent. Please check
+                    your {contact.includes("@") ? "email" : "SMS"} at:
                   </p>
                   <p className="font-bold mt-2 text-base sm:text-lg break-all bg-white/20 dark:bg-black/20 p-2 rounded-md">
                     {contact}
                   </p>
                 </div>
-                <Button onClick={() => setIsSubmitted(false)} variant="outline">
-                  Try Another Email or Phone
-                </Button>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <Button onClick={handleBack} variant="outline">
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    {origin === "pet-owner"
+                      ? "Back to Profile"
+                      : origin === "admin"
+                        ? "Back to Dashboard"
+                        : "Back to Login"}
+                  </Button>
+                  <Button
+                    onClick={() => setIsSubmitted(false)}
+                    variant="outline"
+                  >
+                    Try Another Email or Phone
+                  </Button>
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
 
-          <div className="mt-6 text-center">
-            <Link href="/webapp/auth/login" className="inline-flex items-center text-primary hover:underline">
-              <ArrowLeft size={16} className="mr-1" /> Back to Login
-            </Link>
-          </div>
           <div className="mt-4 text-center text-sm text-muted-foreground">
             <p>
               For testing purposes:{" "}
-              <Link href="/webapp/auth/reset-password" className="text-primary hover:underline">
+              <Link
+                href="/webapp/auth/reset-password"
+                className="text-primary hover:underline"
+              >
                 Go directly to reset password page
               </Link>
             </p>
@@ -231,10 +322,12 @@ export default function ChangePasswordPage() {
 
       <footer className="border-t py-6">
         <div className="max-w-7xl mx-auto text-center text-muted-foreground text-sm">
-          <p>&copy; {new Date().getFullYear()} Big Paws Pet Hotel. All rights reserved.</p>
+          <p>
+            &copy; {new Date().getFullYear()} Big Paws Pet Hotel. All rights
+            reserved.
+          </p>
         </div>
       </footer>
     </div>
-  )
+  );
 }
-

@@ -1,22 +1,35 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import Link from "next/link"
-import { motion } from "framer-motion"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { User, Mail, Phone, MapPin, Pencil, Plus, ArrowRight } from "lucide-react"
-import { Separator } from "@/components/ui/separator"
+import { useState } from "react";
+import { motion } from "framer-motion";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { User, Mail, Phone, MapPin, Pencil, Info } from "lucide-react";
+import Link from "next/link";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Lock, ChevronRight } from "lucide-react";
 
 export default function ProfilePage() {
-  const [activeTab, setActiveTab] = useState("profile")
-  const [isEditing, setIsEditing] = useState(false)
+  const [activeTab, setActiveTab] = useState("profile");
+  const [isEditing, setIsEditing] = useState(false);
 
   const [profile, setProfile] = useState({
     name: "Sarah Johnson",
@@ -24,8 +37,12 @@ export default function ProfilePage() {
     phone: "+1 (555) 123-4567",
     address: "123 Main St, Anytown, CA 12345",
     avatar: "/placeholder.svg?height=200&width=200",
-  })
+  });
 
+  // BACKEND INTEGRATION POINT:
+  // Fetch pet data from the API
+  // This data should be read-only for pet owners
+  // Only administrators can modify pet information
   const [pets, setPets] = useState([
     {
       id: "pet-1",
@@ -43,6 +60,20 @@ export default function ProfilePage() {
         endDate: "2025-03-15T18:00:00Z",
       },
       size: "Large",
+      medicalInfo: "Allergic to chicken. Takes thyroid medication daily.",
+      vaccinations: [
+        { name: "Rabies", date: "2024-01-15", expiry: "2025-01-15" },
+        { name: "DHPP", date: "2024-02-10", expiry: "2025-02-10" },
+        { name: "Bordetella", date: "2024-03-05", expiry: "2024-09-05" },
+      ],
+      emergencyContact: {
+        name: "John Johnson",
+        phone: "+1 (555) 987-6543",
+        relationship: "Spouse",
+      },
+      dietaryRestrictions: "Grain-free diet recommended",
+      behavioralNotes:
+        "Friendly with other dogs. Anxious during thunderstorms.",
     },
     {
       id: "pet-2",
@@ -56,30 +87,48 @@ export default function ProfilePage() {
       avatar: "/placeholder.svg?height=100&width=100",
       boarding: null,
       size: "Small",
+      medicalInfo: "No known medical issues",
+      vaccinations: [
+        { name: "Rabies", date: "2024-02-20", expiry: "2025-02-20" },
+        { name: "FVRCP", date: "2024-02-20", expiry: "2025-02-20" },
+      ],
+      emergencyContact: {
+        name: "John Johnson",
+        phone: "+1 (555) 987-6543",
+        relationship: "Spouse",
+      },
+      dietaryRestrictions: "None",
+      behavioralNotes: "Shy with strangers. Prefers quiet environments.",
     },
-  ])
+  ]);
 
   // Form state for editing
-  const [formData, setFormData] = useState({ ...profile })
+  const [formData, setFormData] = useState({ ...profile });
 
   // Handle form input change
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData({ ...formData, [name]: value })
-  }
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
 
   // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    setProfile(formData)
-    setIsEditing(false)
-  }
+    e.preventDefault();
+    setProfile(formData);
+    setIsEditing(false);
+  };
 
   return (
     <div className="space-y-6">
-      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5 }}>
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
         <h1 className="text-2xl font-bold tracking-tight">My Profile</h1>
-        <p className="text-muted-foreground">Manage your account and pets</p>
+        <p className="text-muted-foreground">
+          Manage your account and view your pets
+        </p>
       </motion.div>
 
       <motion.div
@@ -87,7 +136,11 @@ export default function ProfilePage() {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.1 }}
       >
-        <Tabs defaultValue="profile" value={activeTab} onValueChange={setActiveTab}>
+        <Tabs
+          defaultValue="profile"
+          value={activeTab}
+          onValueChange={setActiveTab}
+        >
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="profile">Profile</TabsTrigger>
             <TabsTrigger value="pets">My Pets</TabsTrigger>
@@ -99,14 +152,20 @@ export default function ProfilePage() {
                 <div className="flex justify-between items-center">
                   <CardTitle>Personal Information</CardTitle>
                   {!isEditing && (
-                    <Button variant="ghost" size="sm" onClick={() => setIsEditing(true)}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setIsEditing(true)}
+                    >
                       <Pencil className="h-4 w-4 mr-2" />
                       Edit
                     </Button>
                   )}
                 </div>
                 <CardDescription>
-                  {isEditing ? "Update your personal information" : "Your personal information"}
+                  {isEditing
+                    ? "Update your personal information"
+                    : "Your personal information"}
                 </CardDescription>
               </CardHeader>
 
@@ -116,7 +175,9 @@ export default function ProfilePage() {
                     <div className="flex justify-center mb-4">
                       <Avatar className="h-24 w-24">
                         <AvatarImage src={profile.avatar} alt={profile.name} />
-                        <AvatarFallback>{profile.name.charAt(0)}</AvatarFallback>
+                        <AvatarFallback>
+                          {profile.name.charAt(0)}
+                        </AvatarFallback>
                       </Avatar>
                     </div>
 
@@ -182,7 +243,9 @@ export default function ProfilePage() {
                     <div className="flex justify-center mb-4">
                       <Avatar className="h-24 w-24">
                         <AvatarImage src={profile.avatar} alt={profile.name} />
-                        <AvatarFallback>{profile.name.charAt(0)}</AvatarFallback>
+                        <AvatarFallback>
+                          {profile.name.charAt(0)}
+                        </AvatarFallback>
                       </Avatar>
                     </div>
 
@@ -190,7 +253,9 @@ export default function ProfilePage() {
                       <div className="flex items-center gap-3">
                         <User className="h-5 w-5 text-muted-foreground" />
                         <div>
-                          <p className="text-sm text-muted-foreground">Full Name</p>
+                          <p className="text-sm text-muted-foreground">
+                            Full Name
+                          </p>
                           <p className="font-medium">{profile.name}</p>
                         </div>
                       </div>
@@ -214,7 +279,9 @@ export default function ProfilePage() {
                       <div className="flex items-center gap-3">
                         <MapPin className="h-5 w-5 text-muted-foreground" />
                         <div>
-                          <p className="text-sm text-muted-foreground">Address</p>
+                          <p className="text-sm text-muted-foreground">
+                            Address
+                          </p>
                           <p className="font-medium">{profile.address}</p>
                         </div>
                       </div>
@@ -226,7 +293,11 @@ export default function ProfilePage() {
               {isEditing && (
                 <CardFooter>
                   <div className="flex gap-2 w-full">
-                    <Button variant="outline" className="flex-1" onClick={() => setIsEditing(false)}>
+                    <Button
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => setIsEditing(false)}
+                    >
                       Cancel
                     </Button>
                     <Button className="flex-1" onClick={handleSubmit}>
@@ -240,55 +311,78 @@ export default function ProfilePage() {
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle>Account Settings</CardTitle>
-                <CardDescription>Manage your account settings</CardDescription>
+                <CardDescription>Manage your account security</CardDescription>
               </CardHeader>
 
-              <CardContent className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h3 className="font-medium">Change Password</h3>
-                    <p className="text-sm text-muted-foreground">Update your password</p>
+              <CardContent>
+                {/* 
+                  BACKEND INTEGRATION POINT:
+                  1. When the user clicks "Change Password", they should be redirected to the change password page
+                  2. The user's email should be pre-filled in the change password form
+                  3. After successful password change, redirect back to this profile page
+                  
+                  API Integration:
+                  - GET /api/user/profile - To fetch current user data
+                  - POST /api/auth/change-password - To submit password change request
+                  
+                  Authentication:
+                  - Ensure the user is authenticated before accessing this page
+                  - Pass authentication token in API requests
+                */}
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h3 className="font-medium">Change Password</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Update your account password
+                      </p>
+                    </div>
+                    <Link
+                      href="/webapp/auth/change-password?from=pet-owner"
+                      className="flex items-center justify-between rounded-md p-3 text-sm transition-colors hover:bg-accent"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Lock className="h-5 w-5 text-muted-foreground" />
+                        <div>Change Password</div>
+                      </div>
+                      <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                    </Link>
                   </div>
-                  <Button variant="outline" size="sm">
-                    Change
-                  </Button>
-                </div>
 
-                <Separator />
-
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h3 className="font-medium">Notifications</h3>
-                    <p className="text-sm text-muted-foreground">Manage your notification preferences</p>
+                  {/* Mobile-only logout button */}
+                  <div className="block md:hidden border-t pt-4 mt-4">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <h3 className="font-medium text-red-600 dark:text-red-400">
+                          Logout
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          Sign out of your account
+                        </p>
+                      </div>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => {
+                          // BACKEND INTEGRATION POINT:
+                          // Implement actual logout functionality here
+                          // This should clear the user's session/token and redirect to login page
+                          window.location.href = "/webapp/auth/login";
+                        }}
+                      >
+                        Logout
+                      </Button>
+                    </div>
                   </div>
-                  <Button variant="outline" size="sm">
-                    Configure
-                  </Button>
-                </div>
-
-                <Separator />
-
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h3 className="font-medium text-red-600 dark:text-red-400">Delete Account</h3>
-                    <p className="text-sm text-muted-foreground">Permanently delete your account</p>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950/50"
-                  >
-                    Delete
-                  </Button>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
 
           <TabsContent value="pets" className="mt-4 space-y-4">
-            {pets.map((pet) => (
-              <Link href={`/webapp/pet-owner/pets/${pet.id}`} key={pet.id}>
-                <Card className="hover:bg-muted/50 transition-colors cursor-pointer">
+            <TooltipProvider>
+              {pets.map((pet) => (
+                <Card key={pet.id}>
                   <CardContent className="p-4">
                     <div className="flex items-start gap-4">
                       <Avatar className="h-16 w-16">
@@ -299,52 +393,128 @@ export default function ProfilePage() {
                       <div className="flex-1">
                         <div className="flex justify-between items-start">
                           <div>
-                            <h3 className="font-semibold text-lg">{pet.name}</h3>
+                            <h3 className="font-semibold text-lg">
+                              {pet.name}
+                            </h3>
                             <p className="text-sm text-muted-foreground">
                               {pet.breed} • {pet.age}
                             </p>
                           </div>
-                          <ArrowRight className="h-5 w-5 text-muted-foreground" />
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8"
+                              >
+                                <Info className="h-4 w-4" />
+                                <span className="sr-only">Pet Details</span>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent side="left" className="max-w-xs">
+                              <div className="text-xs space-y-1">
+                                <p>
+                                  <span className="font-semibold">
+                                    Medical Info:
+                                  </span>{" "}
+                                  {pet.medicalInfo}
+                                </p>
+                                <p>
+                                  <span className="font-semibold">
+                                    Dietary Restrictions:
+                                  </span>{" "}
+                                  {pet.dietaryRestrictions}
+                                </p>
+                                <p>
+                                  <span className="font-semibold">
+                                    Behavioral Notes:
+                                  </span>{" "}
+                                  {pet.behavioralNotes}
+                                </p>
+                                <p>
+                                  <span className="font-semibold">
+                                    Emergency Contact:
+                                  </span>{" "}
+                                  {pet.emergencyContact.name} (
+                                  {pet.emergencyContact.relationship}) -{" "}
+                                  {pet.emergencyContact.phone}
+                                </p>
+                              </div>
+                            </TooltipContent>
+                          </Tooltip>
                         </div>
 
                         <div className="grid grid-cols-2 gap-x-4 gap-y-2 mt-3">
                           <div>
-                            <p className="text-xs text-muted-foreground">Type</p>
+                            <p className="text-xs text-muted-foreground">
+                              Type
+                            </p>
                             <p className="text-sm">{pet.type}</p>
                           </div>
 
                           <div>
-                            <p className="text-xs text-muted-foreground">Gender</p>
+                            <p className="text-xs text-muted-foreground">
+                              Gender
+                            </p>
                             <p className="text-sm">{pet.gender}</p>
                           </div>
 
                           <div>
-                            <p className="text-xs text-muted-foreground">Weight</p>
-                            <p className="text-sm">{pet.weight}</p>
+                            <p className="text-xs text-muted-foreground">
+                              Size
+                            </p>
+                            <p className="text-sm">{pet.size}</p>
                           </div>
 
                           <div>
-                            <p className="text-xs text-muted-foreground">Microchip</p>
-                            <p className="text-sm">{pet.microchip}</p>
+                            <p className="text-xs text-muted-foreground">
+                              Status
+                            </p>
+                            <p className="text-sm">
+                              {pet.boarding ? (
+                                <span className="text-amber-600 dark:text-amber-400">
+                                  Currently Boarding
+                                </span>
+                              ) : (
+                                <span className="text-green-600 dark:text-green-400">
+                                  Available
+                                </span>
+                              )}
+                            </p>
                           </div>
                         </div>
+
+                        {pet.vaccinations && pet.vaccinations.length > 0 && (
+                          <div className="mt-4">
+                            <p className="text-xs text-muted-foreground mb-1">
+                              Vaccinations
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                              {pet.vaccinations.map((vax, index) => (
+                                <div
+                                  key={index}
+                                  className="text-xs bg-muted px-2 py-1 rounded-full"
+                                >
+                                  {vax.name} (Exp:{" "}
+                                  {new Date(vax.expiry).toLocaleDateString()})
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-              </Link>
-            ))}
+              ))}
+            </TooltipProvider>
 
-            <Link href="/webapp/pet-owner/pets/add">
-              <Button variant="outline" className="w-full">
-                <Plus className="h-4 w-4 mr-2" />
-                Add New Pet
-              </Button>
-            </Link>
+            <div className="text-center text-muted-foreground p-4 border border-dashed rounded-md">
+              Please contact the administrator to add or modify pets
+            </div>
           </TabsContent>
         </Tabs>
       </motion.div>
     </div>
-  )
+  );
 }
-
