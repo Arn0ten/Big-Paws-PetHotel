@@ -72,7 +72,9 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
   }
 
   /* Improved Typography */
@@ -105,4 +107,38 @@
     @apply border-white/10;
   }
 }
+/* Custom styles for request type cards */
+.dark .border-border {
+  border-color: rgba(255, 255, 255, 0.1);
+}
 
+.dark .bg-primary {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+.dark .hover\:bg-primary\/90:hover {
+  background-color: hsl(var(--primary) / 0.9);
+}
+
+.dark .text-primary {
+  color: hsl(var(--primary));
+}
+
+.dark .bg-primary\/5 {
+  background-color: hsl(var(--primary) / 0.05);
+}
+
+.dark .bg-primary\/10 {
+  background-color: hsl(var(--primary) / 0.1);
+}
+
+/* Add this to your globals.css file */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}

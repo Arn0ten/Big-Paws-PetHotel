@@ -365,32 +365,6 @@ export default function ProfilePage() {
                       <ChevronRight className="h-5 w-5 text-muted-foreground" />
                     </Link>
                   </div>
-
-                  {/* Mobile-only logout button */}
-                  <div className="block md:hidden border-t pt-4 mt-4">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <h3 className="font-medium text-red-600 dark:text-red-400">
-                          Logout
-                        </h3>
-                        <p className="text-sm text-muted-foreground">
-                          Sign out of your account
-                        </p>
-                      </div>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => {
-                          // BACKEND INTEGRATION POINT:
-                          // Implement actual logout functionality here
-                          // This should clear the user's session/token and redirect to login page
-                          window.location.href = "/webapp/auth/login";
-                        }}
-                      >
-                        Logout
-                      </Button>
-                    </div>
-                  </div>
                 </div>
               </CardContent>
             </Card>
