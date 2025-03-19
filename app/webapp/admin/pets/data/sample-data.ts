@@ -1,4 +1,8 @@
-import type { Pet, PetOwner } from "../utils/types"
+import {
+  DEFAULT_IMAGES,
+  getPetImageByType,
+} from "@/app/webapp/constants/image-constants";
+import type { Pet, PetOwner } from "../utils/types";
 
 /**
  * PET MANAGEMENT MODULE - SAMPLE DATA
@@ -55,7 +59,7 @@ export const DOG_BREEDS = [
   "Corgi",
   "Aspin", // Local Philippine breed
   "Mixed Breed",
-]
+];
 
 // Cat breeds
 export const CAT_BREEDS = [
@@ -80,7 +84,7 @@ export const CAT_BREEDS = [
   "Exotic Shorthair",
   "Tonkinese",
   "Mixed Breed",
-]
+];
 
 // Mock pet owners data
 export const MOCK_PET_OWNERS: PetOwner[] = [
@@ -90,6 +94,7 @@ export const MOCK_PET_OWNERS: PetOwner[] = [
     email: "john.smith@example.com",
     phone: "123-456-7890",
     address: "123 Main St, Anytown, USA",
+    avatar: DEFAULT_IMAGES.USER_AVATAR,
   },
   {
     id: "owner-2",
@@ -97,6 +102,7 @@ export const MOCK_PET_OWNERS: PetOwner[] = [
     email: "maria.garcia@example.com",
     phone: "234-567-8901",
     address: "456 Oak Ave, Somewhere, USA",
+    avatar: DEFAULT_IMAGES.USER_AVATAR,
   },
   {
     id: "owner-3",
@@ -104,6 +110,7 @@ export const MOCK_PET_OWNERS: PetOwner[] = [
     email: "david.johnson@example.com",
     phone: "345-678-9012",
     address: "789 Pine Rd, Nowhere, USA",
+    avatar: DEFAULT_IMAGES.USER_AVATAR,
   },
   {
     id: "owner-4",
@@ -111,6 +118,7 @@ export const MOCK_PET_OWNERS: PetOwner[] = [
     email: "sarah.lee@example.com",
     phone: "456-789-0123",
     address: "101 Maple Dr, Everywhere, USA",
+    avatar: DEFAULT_IMAGES.USER_AVATAR,
   },
   {
     id: "owner-5",
@@ -118,8 +126,9 @@ export const MOCK_PET_OWNERS: PetOwner[] = [
     email: "michael.chen@example.com",
     phone: "567-890-1234",
     address: "202 Cedar Ln, Anywhere, USA",
+    avatar: DEFAULT_IMAGES.USER_AVATAR,
   },
-]
+];
 
 // Mock pets data
 export const MOCK_PETS: Pet[] = [
@@ -132,8 +141,9 @@ export const MOCK_PETS: Pet[] = [
     age: 3,
     size: "Large",
     isBoarding: true,
-    notes: "Friendly and energetic. Loves to play fetch and needs daily exercise.",
-    image: "/placeholder.svg?height=200&width=200",
+    notes:
+      "Friendly and energetic. Loves to play fetch and needs daily exercise.",
+    image: getPetImageByType("Dog"),
   },
   {
     id: "pet-2",
@@ -145,7 +155,7 @@ export const MOCK_PETS: Pet[] = [
     size: "Medium",
     isBoarding: false,
     notes: "Quiet and independent. Prefers to be left alone most of the time.",
-    image: "/placeholder.svg?height=200&width=200",
+    image: getPetImageByType("Cat"),
   },
   {
     id: "pet-3",
@@ -156,8 +166,9 @@ export const MOCK_PETS: Pet[] = [
     age: 5,
     size: "Large",
     isBoarding: true,
-    notes: "Very friendly with other dogs and children. Has a special diet for allergies.",
-    image: "/placeholder.svg?height=200&width=200",
+    notes:
+      "Very friendly with other dogs and children. Has a special diet for allergies.",
+    image: getPetImageByType("Dog"),
   },
   {
     id: "pet-4",
@@ -168,8 +179,9 @@ export const MOCK_PETS: Pet[] = [
     age: 4,
     size: "Large",
     isBoarding: false,
-    notes: "Loves to be brushed and petted. Needs regular grooming due to long fur.",
-    image: "/placeholder.svg?height=200&width=200",
+    notes:
+      "Loves to be brushed and petted. Needs regular grooming due to long fur.",
+    image: getPetImageByType("Cat"),
   },
   {
     id: "pet-5",
@@ -181,7 +193,7 @@ export const MOCK_PETS: Pet[] = [
     size: "Medium",
     isBoarding: false,
     notes: "Stubborn but loving. Needs short walks multiple times a day.",
-    image: "/placeholder.svg?height=200&width=200",
+    image: getPetImageByType("Dog"),
   },
   {
     id: "pet-6",
@@ -192,8 +204,9 @@ export const MOCK_PETS: Pet[] = [
     age: 1,
     size: "Medium",
     isBoarding: true,
-    notes: "Very active and playful. Needs lots of toys and climbing opportunities.",
-    image: "/placeholder.svg?height=200&width=200",
+    notes:
+      "Very active and playful. Needs lots of toys and climbing opportunities.",
+    image: getPetImageByType("Cat"),
   },
   {
     id: "pet-7",
@@ -205,7 +218,7 @@ export const MOCK_PETS: Pet[] = [
     size: "Medium",
     isBoarding: false,
     notes: "Loves to follow scents. Can be vocal when excited or left alone.",
-    image: "/placeholder.svg?height=200&width=200",
+    image: getPetImageByType("Dog"),
   },
   {
     id: "pet-8",
@@ -217,7 +230,7 @@ export const MOCK_PETS: Pet[] = [
     size: "Small",
     isBoarding: false,
     notes: "Quiet and gentle. Enjoys sitting on laps and being petted.",
-    image: "/placeholder.svg?height=200&width=200",
+    image: getPetImageByType("Cat"),
   },
   {
     id: "pet-9",
@@ -228,8 +241,9 @@ export const MOCK_PETS: Pet[] = [
     age: 4,
     size: "Large",
     isBoarding: true,
-    notes: "High energy and needs lots of exercise. Can be escape-prone if not properly contained.",
-    image: "/placeholder.svg?height=200&width=200",
+    notes:
+      "High energy and needs lots of exercise. Can be escape-prone if not properly contained.",
+    image: getPetImageByType("Dog"),
   },
   {
     id: "pet-10",
@@ -241,7 +255,7 @@ export const MOCK_PETS: Pet[] = [
     size: "Large",
     isBoarding: false,
     notes: "Very docile and affectionate. Tends to go limp when picked up.",
-    image: "/placeholder.svg?height=200&width=200",
+    image: getPetImageByType("Cat"),
   },
   {
     id: "pet-11",
@@ -253,7 +267,7 @@ export const MOCK_PETS: Pet[] = [
     size: "Medium",
     isBoarding: false,
     notes: "Intelligent and easy to train. Requires regular grooming.",
-    image: "/placeholder.svg?height=200&width=200",
+    image: getPetImageByType("Dog"),
   },
   {
     id: "pet-12",
@@ -264,10 +278,11 @@ export const MOCK_PETS: Pet[] = [
     age: 6,
     size: "Medium",
     isBoarding: true,
-    notes: "Requires daily grooming to prevent matting. Prefers quiet environments.",
-    image: "/placeholder.svg?height=200&width=200",
+    notes:
+      "Requires daily grooming to prevent matting. Prefers quiet environments.",
+    image: getPetImageByType("Cat"),
   },
-]
+];
 
 /**
  * Generate a unique pet ID
@@ -275,6 +290,5 @@ export const MOCK_PETS: Pet[] = [
  * @returns A unique pet ID string
  */
 export const generatePetId = (): string => {
-  return `pet-${Math.floor(Math.random() * 10000)}`
-}
-
+  return `pet-${Math.floor(Math.random() * 10000)}`;
+};

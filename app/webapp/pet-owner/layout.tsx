@@ -7,7 +7,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Home, FileText, Bell, User, DollarSign, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import ThemeToggle from "./components/theme-toggle";
 import BottomNavigation from "./components/bottom-navigation";
@@ -67,7 +67,7 @@ export default function PetOwnerLayout({
           <Link href="/webapp/pet-owner" className="flex items-center gap-2">
             <div className="relative h-10 w-10 overflow-hidden rounded-full border border-border">
               <Image
-                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/BigPawsLogo-d2ofu2hZIV9GwZco2rVEbvBXHEjbGC.png"
+                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/BigPawsLogo-AkdNb3dVilOpSFaUX922eFxqhj5Dq2.png"
                 alt="Big Paws Logo"
                 fill
                 className="object-cover"
@@ -82,6 +82,10 @@ export default function PetOwnerLayout({
           <div className="flex items-center gap-2">
             {isMounted && <ThemeToggle />}
             <Avatar className="h-8 w-8 md:hidden">
+              <AvatarImage
+                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/default-pic-TTy4UvlTr4nVP0etctSbFI1CUrupvH.png"
+                alt="User"
+              />
               <AvatarFallback className="bg-primary/10 text-primary dark:bg-primary/20">
                 JD
               </AvatarFallback>
@@ -95,6 +99,10 @@ export default function PetOwnerLayout({
         <div className="flex flex-col gap-4 p-4">
           <div className="flex items-center gap-2 px-2">
             <Avatar>
+              <AvatarImage
+                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/default-pic-TTy4UvlTr4nVP0etctSbFI1CUrupvH.png"
+                alt="User"
+              />
               <AvatarFallback className="bg-primary/10 text-primary dark:bg-primary/20">
                 JD
               </AvatarFallback>

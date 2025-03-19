@@ -1,13 +1,13 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect, useRef } from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { motion } from "framer-motion"
-import { useRouter } from "next/navigation"
-import { cn } from "@/lib/utils"
+import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
   PawPrint,
@@ -22,9 +22,11 @@ import {
   ChevronRight,
   LogOut,
   CalendarClock,
-} from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { useMediaQuery } from "@/hooks/use-media-query"
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useMediaQuery } from "@/hooks/use-media-query";
+// Import Image from next/image at the top of the file
+import Image from "next/image";
 
 const menuItems = [
   {
@@ -110,122 +112,129 @@ const menuItems = [
     section: "settings",
     color: "text-gray-500",
   },
-]
+];
 
 interface AdminSidebarProps {
-  onCollapse?: (collapsed: boolean) => void
+  onCollapse?: (collapsed: boolean) => void;
 }
 
 export function AdminSidebar({ onCollapse }: AdminSidebarProps) {
-  const [isCollapsed, setIsCollapsed] = useState(false)
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Add these refs after the state declarations
-  const wasMobile = useRef(false)
-  const previousDesktopState = useRef<boolean | undefined>(undefined)
+  const wasMobile = useRef(false);
+  const previousDesktopState = useRef<boolean | undefined>(undefined);
 
-  const pathname = usePathname()
-  const isMobile = useMediaQuery("(max-width: 768px)")
+  const pathname = usePathname();
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   // Add this at the top of the component
   useEffect(() => {
     const handleError = (error: Error) => {
-      console.error("Sidebar error:", error)
+      console.error("Sidebar error:", error);
       // Prevent complete UI crash by handling errors
-    }
+    };
 
-    window.addEventListener("error", handleError as any)
+    window.addEventListener("error", handleError as any);
     return () => {
-      window.removeEventListener("error", handleError as any)
-    }
-  }, [])
+      window.removeEventListener("error", handleError as any);
+    };
+  }, []);
 
   // Update the auto-collapse on mobile useEffect
   useEffect(() => {
     if (isMobile && !wasMobile.current) {
-      setIsCollapsed(true)
-    } else if (!isMobile && wasMobile.current && previousDesktopState.current !== undefined) {
+      setIsCollapsed(true);
+    } else if (
+      !isMobile &&
+      wasMobile.current &&
+      previousDesktopState.current !== undefined
+    ) {
       // Restore previous desktop state when returning to desktop
-      setIsCollapsed(previousDesktopState.current)
+      setIsCollapsed(previousDesktopState.current);
     }
 
     // Track previous state
-    wasMobile.current = isMobile
-  }, [isMobile])
+    wasMobile.current = isMobile;
+  }, [isMobile]);
 
   // Add a useEffect to track desktop sidebar state
   useEffect(() => {
     if (!isMobile) {
-      previousDesktopState.current = isCollapsed
+      previousDesktopState.current = isCollapsed;
     }
-  }, [isCollapsed, isMobile])
+  }, [isCollapsed, isMobile]);
 
   // Close mobile menu when navigating
   useEffect(() => {
-    setIsMobileMenuOpen(false)
-  }, [pathname])
+    setIsMobileMenuOpen(false);
+  }, [pathname]);
 
   const toggleSidebar = () => {
     try {
-      const newCollapsedState = isMobile ? isCollapsed : !isCollapsed
-      setIsCollapsed(newCollapsedState)
+      const newCollapsedState = isMobile ? isCollapsed : !isCollapsed;
+      setIsCollapsed(newCollapsedState);
 
       if (isMobile) {
-        setIsMobileMenuOpen(!isMobileMenuOpen)
+        setIsMobileMenuOpen(!isMobileMenuOpen);
       }
 
       // Store desktop state for restoration
       if (!isMobile) {
-        previousDesktopState.current = newCollapsedState
+        previousDesktopState.current = newCollapsedState;
       }
 
       // Notify parent component
       if (onCollapse) {
-        onCollapse(newCollapsedState)
+        onCollapse(newCollapsedState);
       }
 
       // Dispatch custom event for other components that need to know about sidebar state
       const event = new CustomEvent("sidebarStateChange", {
         detail: { isCollapsed: newCollapsedState },
-      })
-      window.dispatchEvent(event as any)
+      });
+      window.dispatchEvent(event as any);
     } catch (error) {
-      console.error("Sidebar toggle error:", error)
+      console.error("Sidebar toggle error:", error);
       // Prevent complete UI crash by handling errors
     }
-  }
+  };
 
-  const router = useRouter()
+  const router = useRouter();
 
-  const handleNavigation = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    e.preventDefault()
+  const handleNavigation = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    href: string,
+  ) => {
+    e.preventDefault();
 
     // Check if we're already on this page to prevent unnecessary transitions
-    if (pathname === href) return
+    if (pathname === href) return;
 
     try {
       // First, dispatch a custom event to animate the current page out
       const event = new CustomEvent("pageTransitionStart", {
         detail: { href },
-      })
-      window.dispatchEvent(event)
+      });
+      window.dispatchEvent(event);
 
       // Then navigate after a short delay with error handling
       setTimeout(() => {
         try {
-          router.push(href)
+          router.push(href);
         } catch (error) {
-          console.error("Navigation error:", error)
+          console.error("Navigation error:", error);
           // Fallback to direct navigation if router.push fails
-          window.location.href = href
+          window.location.href = href;
         }
-      }, 300)
+      }, 300);
     } catch (error) {
-      console.error("Navigation error:", error)
+      console.error("Navigation error:", error);
       // Fallback to direct navigation if anything fails
-      window.location.href = href
+      window.location.href = href;
     }
-  }
+  };
 
   return (
     <>
@@ -234,8 +243,8 @@ export function AdminSidebar({ onCollapse }: AdminSidebarProps) {
         <div
           className="fixed inset-0 bg-black/50 z-40"
           onClick={() => {
-            setIsMobileMenuOpen(false)
-            if (onCollapse) onCollapse(true)
+            setIsMobileMenuOpen(false);
+            if (onCollapse) onCollapse(true);
           }}
         />
       )}
@@ -244,7 +253,13 @@ export function AdminSidebar({ onCollapse }: AdminSidebarProps) {
       <motion.div
         initial={false}
         animate={{
-          width: isMobile ? (isMobileMenuOpen ? 280 : 0) : isCollapsed ? 80 : 280,
+          width: isMobile
+            ? isMobileMenuOpen
+              ? 280
+              : 0
+            : isCollapsed
+              ? 80
+              : 280,
           x: isMobile && !isMobileMenuOpen ? -280 : 0,
         }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
@@ -255,9 +270,18 @@ export function AdminSidebar({ onCollapse }: AdminSidebarProps) {
       >
         <div className="flex h-16 items-center justify-between px-4">
           {(!isCollapsed || (isMobile && isMobileMenuOpen)) && (
-            <Link href="/webapp/admin/dashboard" className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600">
-                <PawPrint size={18} />
+            <Link
+              href="/webapp/admin/dashboard"
+              className="flex items-center gap-2"
+            >
+              <div className="h-8 w-8 relative overflow-hidden rounded-full">
+                <Image
+                  src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/BigPawsLogo-AkdNb3dVilOpSFaUX922eFxqhj5Dq2.png"
+                  alt="Big Paws Logo"
+                  width={32}
+                  height={32}
+                  className="object-cover"
+                />
               </div>
               <span className="font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
                 Big Paws
@@ -270,7 +294,11 @@ export function AdminSidebar({ onCollapse }: AdminSidebarProps) {
             className="ml-auto text-slate-400 hover:text-white hover:bg-slate-700"
             onClick={toggleSidebar}
           >
-            {isCollapsed && !isMobile ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+            {isCollapsed && !isMobile ? (
+              <ChevronRight size={20} />
+            ) : (
+              <ChevronLeft size={20} />
+            )}
           </Button>
         </div>
 
@@ -282,15 +310,21 @@ export function AdminSidebar({ onCollapse }: AdminSidebarProps) {
               try {
                 // Reset scroll position on route changes to prevent scroll position issues
                 const handleRouteChange = () => {
-                  el.scrollTop = 0
-                }
+                  el.scrollTop = 0;
+                };
 
-                window.addEventListener("routeChangeComplete", handleRouteChange)
+                window.addEventListener(
+                  "routeChangeComplete",
+                  handleRouteChange,
+                );
                 return () => {
-                  window.removeEventListener("routeChangeComplete", handleRouteChange)
-                }
+                  window.removeEventListener(
+                    "routeChangeComplete",
+                    handleRouteChange,
+                  );
+                };
               } catch (error) {
-                console.error("Sidebar scroll error:", error)
+                console.error("Sidebar scroll error:", error);
                 // Continue rendering even if scroll handling fails
               }
             }
@@ -309,29 +343,35 @@ export function AdminSidebar({ onCollapse }: AdminSidebarProps) {
                       >
                         {item.title}
                       </div>
-                    ) : null
+                    ) : null;
                   }
 
-                  if (!item.href) return null
+                  if (!item.href) return null;
 
-                  const isActive = pathname === item.href
-                  const Icon = item.icon
+                  const isActive = pathname === item.href;
+                  const Icon = item.icon;
 
                   return (
                     <Link
                       key={`item-${index}`}
                       href={item.href}
-                      onClick={(e) => item.href && handleNavigation(e, item.href)}
+                      onClick={(e) =>
+                        item.href && handleNavigation(e, item.href)
+                      }
                       className={cn(
                         "flex items-center gap-3 rounded-lg px-3 py-2 text-slate-300 transition-all",
                         "hover:bg-slate-700/50 hover:text-white",
-                        isActive ? "bg-slate-700/70 text-white font-medium" : "",
+                        isActive
+                          ? "bg-slate-700/70 text-white font-medium"
+                          : "",
                       )}
                     >
                       <div
                         className={cn(
                           "flex h-7 w-7 items-center justify-center rounded-md",
-                          isActive ? `${item.color} bg-slate-800` : "text-slate-400",
+                          isActive
+                            ? `${item.color} bg-slate-800`
+                            : "text-slate-400",
                         )}
                       >
                         <Icon size={18} />
@@ -341,18 +381,19 @@ export function AdminSidebar({ onCollapse }: AdminSidebarProps) {
                         <span className="text-sm">{item.title}</span>
                       )}
 
-                      {isActive && (!isCollapsed || (isMobile && isMobileMenuOpen)) && (
-                        <motion.div
-                          layoutId="activeIndicator"
-                          className="ml-auto h-2 w-2 rounded-full bg-blue-500"
-                          transition={{ duration: 0.2 }}
-                        />
-                      )}
+                      {isActive &&
+                        (!isCollapsed || (isMobile && isMobileMenuOpen)) && (
+                          <motion.div
+                            layoutId="activeIndicator"
+                            className="ml-auto h-2 w-2 rounded-full bg-blue-500"
+                            transition={{ duration: 0.2 }}
+                          />
+                        )}
                     </Link>
-                  )
-                })
+                  );
+                });
               } catch (error) {
-                console.error("Sidebar menu rendering error:", error)
+                console.error("Sidebar menu rendering error:", error);
                 // Fallback UI if menu rendering fails
                 return (
                   <div className="p-4 text-slate-300">
@@ -366,7 +407,7 @@ export function AdminSidebar({ onCollapse }: AdminSidebarProps) {
                       Refresh
                     </Button>
                   </div>
-                )
+                );
               }
             })()}
           </nav>
@@ -377,8 +418,20 @@ export function AdminSidebar({ onCollapse }: AdminSidebarProps) {
             variant="ghost"
             className={cn(
               "w-full justify-start text-slate-400 hover:text-white hover:bg-slate-700",
-              !isCollapsed || (isMobile && isMobileMenuOpen) ? "px-3" : "px-0 justify-center",
+              !isCollapsed || (isMobile && isMobileMenuOpen)
+                ? "px-3"
+                : "px-0 justify-center",
             )}
+            onClick={() => {
+              // BACKEND INTEGRATION POINT:
+              // Replace this with your actual logout API call
+              // Example: await authService.logout();
+
+              // For now, we'll just redirect to the login page
+              localStorage.removeItem("user");
+              localStorage.removeItem("auth_token");
+              router.push("/webapp/auth/login");
+            }}
           >
             <LogOut size={18} className="mr-2" />
             {(!isCollapsed || (isMobile && isMobileMenuOpen)) && "Log Out"}
@@ -393,14 +446,13 @@ export function AdminSidebar({ onCollapse }: AdminSidebarProps) {
           size="icon"
           className="fixed left-4 top-3 z-50 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 lg:hidden"
           onClick={() => {
-            setIsMobileMenuOpen(true)
-            if (onCollapse) onCollapse(false)
+            setIsMobileMenuOpen(true);
+            if (onCollapse) onCollapse(false);
           }}
         >
           <Menu size={24} />
         </Button>
       )}
     </>
-  )
+  );
 }
-

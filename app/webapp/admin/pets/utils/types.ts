@@ -5,6 +5,7 @@ export interface PetOwner {
   email: string
   phone: string
   address: string
+  avatar: string
 }
 
 // Pet type
