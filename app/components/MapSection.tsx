@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/card";
 import { MapPin, Navigation, Compass } from "lucide-react";
 import { motion } from "framer-motion";
-import MapComponent from "./MapComponent";
 
 interface FeatureCardProps {
   icon: React.ReactNode;
@@ -100,15 +99,6 @@ export default function MapSection() {
             </CardContent>
           </Card>
         </motion.div>
-      </div>
-      <div className="relative h-[500px] w-full">
-        <MapComponent
-          userLocation={null}
-          petHotelLocation={[14.5995, 120.9842]}
-          route={[]}
-          setUserLocation={() => {}}
-          disableLocationChange={true} // Disable location changes on the landing page
-        />
       </div>
     </section>
   );
