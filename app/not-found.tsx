@@ -186,6 +186,13 @@ export default function NotFound() {
               <ArrowLeft className="h-4 w-4" />
               Go Back
             </Button>
+
+            <Button asChild variant="outline" size="lg" className="gap-2">
+              <Link href="/">
+                <Home className="h-4 w-4" />
+                Return Home
+              </Link>
+            </Button>
           </div>
         </div>
       </div>
