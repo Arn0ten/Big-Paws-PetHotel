@@ -59,7 +59,7 @@ export async function sendEmail(to: string, subject: string, htmlContent: string
     console.log("Subject:", subject)
 
     const response = await resend.emails.send({
-      from: "Big Paws Pet Hotel <noreply@big-paws-petsupplies.tech>",
+      from: "Big Paws Pet Hotel <noreply@bigpawspethotel.me>",
       to: to,
       subject: subject,
       html: htmlContent,
