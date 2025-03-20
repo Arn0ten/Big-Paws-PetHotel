@@ -21,10 +21,13 @@ export default function PetOwnerLayout({
   const [isMounted, setIsMounted] = useState(false);
   const pathname = usePathname();
 
+  // Simple mount effect without dependencies to avoid re-renders
   useEffect(() => {
     setIsMounted(true);
+    // No cleanup needed for this simple state
   }, []);
 
+  // Get unread count only once when component mounts
   const unreadCount = getUnreadNotificationsCount();
 
   const navItems = [
@@ -174,7 +177,6 @@ export default function PetOwnerLayout({
       <main className="flex-1 md:pl-64">
         <div className="container max-w-screen-md mx-auto p-4 sm:p-6 pb-20 md:pb-6">
           {children}
-          {/* ScrollButton is intentionally not included in pet-owner interface */}
         </div>
       </main>
 

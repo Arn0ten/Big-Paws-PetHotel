@@ -35,8 +35,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -857,231 +855,141 @@ export default function AdminDashboardPage() {
         </motion.div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <motion.div variants={item}>
-          <Card className="overflow-hidden">
-            <CardHeader>
-              <CardTitle className="text-foreground">
-                Popular Requests
-              </CardTitle>
-              <CardDescription>
-                Most requested services by pet owners
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col lg:flex-row items-center justify-between space-y-6 lg:space-y-0 lg:space-x-4">
-              <div className="w-full lg:w-1/2 h-[250px] mb-6 lg:mb-0">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-                    <Pie
-                      data={dashboardData?.popularRequests}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                      label={({ name, percent }) => {
-                        // On small screens, show only percentages without labels
-                        if (window.innerWidth < 640) {
-                          return `${(percent * 100).toFixed(0)}%`;
-                        }
-                        // On medium screens, show abbreviated labels
-                        else if (window.innerWidth < 1024) {
-                          return `${name.substring(0, 1)}. ${(percent * 100).toFixed(0)}%`;
-                        }
-                        // On large screens, show full labels
-                        return `${name} ${(percent * 100).toFixed(0)}%`;
-                      }}
-                    >
-                      {dashboardData?.popularRequests.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      formatter={(value) => [value, "Requests"]}
-                      contentStyle={{
-                        backgroundColor: "rgba(255, 255, 255, 0.9)",
-                        borderRadius: "8px",
-                        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-                        border: "none",
-                      }}
-                    />
-                    <Legend />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-              <div className="w-full lg:w-1/2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div
-                  className="flex items-center gap-2 rounded-lg border p-3 cursor-pointer hover:bg-muted/50 transition-colors"
-                  onClick={() => navigateTo("/webapp/admin/request-management")}
-                >
-                  <motion.div
-                    className="rounded-full bg-blue-100 p-2 dark:bg-blue-900/30 flex-shrink-0"
-                    whileHover={{ scale: 1.1 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
+      <motion.div variants={item}>
+        <Card className="overflow-hidden">
+          <CardHeader>
+            <CardTitle className="text-foreground">Popular Requests</CardTitle>
+            <CardDescription>
+              Most requested services by pet owners
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col lg:flex-row items-center justify-between space-y-6 lg:space-y-0 lg:space-x-4">
+            <div className="w-full lg:w-1/2 h-[300px] mb-6 lg:mb-0">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+                  <Pie
+                    data={dashboardData?.popularRequests}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    outerRadius={100}
+                    fill="#8884d8"
+                    dataKey="value"
+                    label={({ name, percent }) => {
+                      // On small screens, show only percentages without labels
+                      if (window.innerWidth < 640) {
+                        return `${(percent * 100).toFixed(0)}%`;
+                      }
+                      // On medium screens, show abbreviated labels
+                      else if (window.innerWidth < 1024) {
+                        return `${name.substring(0, 1)}. ${(percent * 100).toFixed(0)}%`;
+                      }
+                      // On large screens, show full labels
+                      return `${name} ${(percent * 100).toFixed(0)}%`;
+                    }}
                   >
-                    <Camera className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                  </motion.div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">
-                      Photo Requests
-                    </p>
-                    <p className="text-xl font-bold text-foreground">
-                      {dashboardData?.popularRequests[0].value}
-                    </p>
-                  </div>
-                </div>
-                <div
-                  className="flex items-center gap-2 rounded-lg border p-3 cursor-pointer hover:bg-muted/50 transition-colors"
-                  onClick={() => navigateTo("/webapp/admin/request-management")}
+                    {dashboardData?.popularRequests.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    formatter={(value) => [value, "Requests"]}
+                    contentStyle={{
+                      backgroundColor: "rgba(255, 255, 255, 0.9)",
+                      borderRadius: "8px",
+                      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+                      border: "none",
+                    }}
+                  />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="w-full lg:w-1/2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div
+                className="flex items-center gap-2 rounded-lg border p-3 cursor-pointer hover:bg-muted/50 transition-colors"
+                onClick={() => navigateTo("/webapp/admin/request-management")}
+              >
+                <motion.div
+                  className="rounded-full bg-blue-100 p-2 dark:bg-blue-900/30 flex-shrink-0"
+                  whileHover={{ scale: 1.1 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
                 >
-                  <motion.div
-                    className="rounded-full bg-purple-100 p-2 dark:bg-purple-900/30 flex-shrink-0"
-                    whileHover={{ scale: 1.1 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                  >
-                    <Video className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                  </motion.div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">
-                      Video Requests
-                    </p>
-                    <p className="text-xl font-bold text-foreground">
-                      {dashboardData?.popularRequests[1].value}
-                    </p>
-                  </div>
-                </div>
-                <div
-                  className="flex items-center gap-2 rounded-lg border p-3 cursor-pointer hover:bg-muted/50 transition-colors"
-                  onClick={() => navigateTo("/webapp/admin/request-management")}
-                >
-                  <motion.div
-                    className="rounded-full bg-pink-100 p-2 dark:bg-pink-900/30 flex-shrink-0"
-                    whileHover={{ scale: 1.1 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                  >
-                    <Scissors className="h-4 w-4 text-pink-600 dark:text-pink-400" />
-                  </motion.div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">
-                      Grooming
-                    </p>
-                    <p className="text-xl font-bold text-foreground">
-                      {dashboardData?.popularRequests[2].value}
-                    </p>
-                  </div>
-                </div>
-                <div
-                  className="flex items-center gap-2 rounded-lg border p-3 cursor-pointer hover:bg-muted/50 transition-colors"
-                  onClick={() => navigateTo("/webapp/admin/request-management")}
-                >
-                  <motion.div
-                    className="rounded-full bg-orange-100 p-2 dark:bg-orange-900/30 flex-shrink-0"
-                    whileHover={{ scale: 1.1 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                  >
-                    <Clock className="h-4 w-4 text-orange-600 dark:text-orange-400" />
-                  </motion.div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">
-                      Extensions
-                    </p>
-                    <p className="text-xl font-bold text-foreground">
-                      {dashboardData?.popularRequests[3].value}
-                    </p>
-                  </div>
+                  <Camera className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                </motion.div>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-foreground truncate">
+                    Photo Requests
+                  </p>
+                  <p className="text-xl font-bold text-foreground">
+                    {dashboardData?.popularRequests[0].value}
+                  </p>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div variants={item}>
-          <Card className="overflow-hidden">
-            <CardHeader>
-              <CardTitle className="text-foreground">Occupancy Rate</CardTitle>
-              <CardDescription>
-                Monthly occupancy rate percentage
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart
-                    data={dashboardData?.occupancyRate}
-                    margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
-                  >
-                    <defs>
-                      <linearGradient
-                        id="colorOccupancy"
-                        x1="0"
-                        y1="0"
-                        x2="0"
-                        y2="1"
-                      >
-                        <stop
-                          offset="5%"
-                          stopColor="#10b981"
-                          stopOpacity={0.8}
-                        />
-                        <stop
-                          offset="95%"
-                          stopColor="#10b981"
-                          stopOpacity={0.2}
-                        />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      stroke="#ccc"
-                      opacity={0.3}
-                    />
-                    <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-                    <YAxis
-                      tick={{ fontSize: 12 }}
-                      domain={[0, 100]}
-                      tickFormatter={(value) => `${value}%`}
-                    />
-                    <Tooltip
-                      formatter={(value) => [`${value}%`, "Occupancy Rate"]}
-                      contentStyle={{
-                        backgroundColor: "rgba(255, 255, 255, 0.9)",
-                        borderRadius: "8px",
-                        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-                        border: "none",
-                      }}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="rate"
-                      stroke="#10b981"
-                      strokeWidth={3}
-                      dot={{
-                        r: 6,
-                        fill: "#10b981",
-                        strokeWidth: 2,
-                        stroke: "#fff",
-                      }}
-                      activeDot={{
-                        r: 8,
-                        fill: "#10b981",
-                        strokeWidth: 2,
-                        stroke: "#fff",
-                      }}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="rate"
-                      fill="url(#colorOccupancy)"
-                      fillOpacity={0.3}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
+              <div
+                className="flex items-center gap-2 rounded-lg border p-3 cursor-pointer hover:bg-muted/50 transition-colors"
+                onClick={() => navigateTo("/webapp/admin/request-management")}
+              >
+                <motion.div
+                  className="rounded-full bg-purple-100 p-2 dark:bg-purple-900/30 flex-shrink-0"
+                  whileHover={{ scale: 1.1 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                >
+                  <Video className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                </motion.div>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-foreground truncate">
+                    Video Requests
+                  </p>
+                  <p className="text-xl font-bold text-foreground">
+                    {dashboardData?.popularRequests[1].value}
+                  </p>
+                </div>
               </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </div>
+              <div
+                className="flex items-center gap-2 rounded-lg border p-3 cursor-pointer hover:bg-muted/50 transition-colors"
+                onClick={() => navigateTo("/webapp/admin/request-management")}
+              >
+                <motion.div
+                  className="rounded-full bg-pink-100 p-2 dark:bg-pink-900/30 flex-shrink-0"
+                  whileHover={{ scale: 1.1 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                >
+                  <Scissors className="h-4 w-4 text-pink-600 dark:text-pink-400" />
+                </motion.div>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-foreground truncate">
+                    Grooming
+                  </p>
+                  <p className="text-xl font-bold text-foreground">
+                    {dashboardData?.popularRequests[2].value}
+                  </p>
+                </div>
+              </div>
+              <div
+                className="flex items-center gap-2 rounded-lg border p-3 cursor-pointer hover:bg-muted/50 transition-colors"
+                onClick={() => navigateTo("/webapp/admin/request-management")}
+              >
+                <motion.div
+                  className="rounded-full bg-orange-100 p-2 dark:bg-orange-900/30 flex-shrink-0"
+                  whileHover={{ scale: 1.1 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                >
+                  <Clock className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+                </motion.div>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-foreground truncate">
+                    Extensions
+                  </p>
+                  <p className="text-xl font-bold text-foreground">
+                    {dashboardData?.popularRequests[3].value}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
 
       <motion.div variants={item}>
         <Card>

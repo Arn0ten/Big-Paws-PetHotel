@@ -8,8 +8,10 @@
 // Default images for users and pets
 export const DEFAULT_IMAGES = {
   USER_AVATAR: "/default-images/default-user.png",
-  DOG_IMAGE: "/default-images/default-dog.png",
-  CAT_IMAGE: "/default-images/default-cat.png",
+  DOG_IMAGE:
+    "https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=200&auto=format&fit=crop",
+  CAT_IMAGE:
+    "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=200&auto=format&fit=crop",
 
   // Default placeholder for when no image is available
   PLACEHOLDER: "/placeholder.svg?height=200&width=200",
