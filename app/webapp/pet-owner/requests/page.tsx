@@ -22,10 +22,12 @@ import {
   Filter,
   Calendar,
   ArrowUpDown,
+  Info,
+  Loader2,
 } from "lucide-react";
 import { getPetOwnerRequests } from "@/app/webapp/data/sample-data";
 import { formatDate } from "@/app/webapp/utils/date-utils";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -34,7 +36,24 @@ import {
   SelectTrigger,
 } from "@/components/ui/select";
 
-// Add this at the top of the file after the imports
+// Add a cancel button to each request in the list view
+// Add a confirmation dialog for cancellation
+
+// First, add the AlertDialog imports
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
+
+// Add state for the confirmation dialog
+// Add these after the existing useState declarations
 
 /**
  * Enhanced Pet Owner Requests Page
@@ -69,6 +88,11 @@ export default function PetOwnerRequestsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+
+  const { toast } = useToast();
+  const [requestToCancel, setRequestToCancel] = useState(null);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
 
   // Add this CSS class to hide scrollbars
   useEffect(() => {
@@ -347,6 +371,25 @@ export default function PetOwnerRequestsPage() {
                       </div>
                     </div>
 
+                    {(request.status === "pending" ||
+                      request.status === "new") && (
+                      <div className="mt-4 flex justify-end">
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setRequestToCancel(request);
+                            setShowCancelConfirm(true);
+                          }}
+                          className="text-xs"
+                        >
+                          Cancel Request
+                        </Button>
+                      </div>
+                    )}
+
                     {request.status === "rejected" &&
                       request.rejectionReason && (
                         <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md dark:bg-red-900/20 dark:border-red-700/30">
@@ -370,6 +413,30 @@ export default function PetOwnerRequestsPage() {
 
   const toggleSortOrder = () => {
     setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+  };
+
+  // Add the handleCancelRequest function here, outside of renderRequestsList
+  const handleCancelRequest = () => {
+    if (!requestToCancel) return;
+
+    setIsCancelling(true);
+
+    // Simulate API call
+    setTimeout(() => {
+      // In a real app, you would call an API to cancel the request
+      // For demo, we'll just update the local state
+      setRequests((prev) => prev.filter((r) => r.id !== requestToCancel.id));
+
+      setIsCancelling(false);
+      setShowCancelConfirm(false);
+      setRequestToCancel(null);
+
+      toast({
+        title: "Request Cancelled",
+        description: "Your request has been successfully cancelled.",
+        duration: 5000,
+      });
+    }, 1500);
   };
 
   return (
@@ -462,6 +529,31 @@ export default function PetOwnerRequestsPage() {
         </div>
       </div>
 
+      {/* Cancellation Policy Note */}
+      <Alert className="bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800 mb-4">
+        <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+        <AlertTitle className="text-blue-800 dark:text-blue-300">
+          Request Cancellation Policy
+        </AlertTitle>
+        <AlertDescription className="text-blue-700 dark:text-blue-400">
+          You can cancel requests that are in{" "}
+          <Badge
+            variant="outline"
+            className="bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-700/30 dark:text-yellow-400 font-normal"
+          >
+            Pending
+          </Badge>{" "}
+          status. Once a request is{" "}
+          <Badge
+            variant="outline"
+            className="bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:border-green-700/30 dark:text-green-400 font-normal"
+          >
+            In Progress
+          </Badge>
+          , it cannot be cancelled.
+        </AlertDescription>
+      </Alert>
+
       <Tabs
         defaultValue="pending"
         className="w-full"
@@ -499,6 +591,35 @@ export default function PetOwnerRequestsPage() {
           {renderRequestsList("rejected")}
         </TabsContent>
       </Tabs>
+
+      <AlertDialog open={showCancelConfirm} onOpenChange={setShowCancelConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cancel Request</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to cancel this request? This action cannot
+              be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>No, Keep Request</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleCancelRequest}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={isCancelling}
+            >
+              {isCancelling ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Cancelling...
+                </>
+              ) : (
+                "Yes, Cancel Request"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

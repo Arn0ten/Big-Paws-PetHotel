@@ -52,12 +52,17 @@ function ChangeView({
 
 function LocationMarker({
   setUserLocation,
+  disableLocationChange,
 }: {
   setUserLocation: (location: [number, number]) => void;
+  disableLocationChange: boolean;
 }) {
   useMapEvents({
     click(e) {
-      setUserLocation([e.latlng.lat, e.latlng.lng]);
+      // Only set location if location changes are not disabled
+      if (!disableLocationChange) {
+        setUserLocation([e.latlng.lat, e.latlng.lng]);
+      }
     },
   });
 
@@ -69,6 +74,7 @@ interface MapComponentProps {
   petHotelLocation: [number, number];
   route: [number, number][];
   setUserLocation: (location: [number, number]) => void;
+  disableLocationChange?: boolean; // New prop to control location change behavior
 }
 
 export default function MapComponent({
@@ -76,6 +82,7 @@ export default function MapComponent({
   petHotelLocation,
   route,
   setUserLocation,
+  disableLocationChange = true, // Default to true to disable location changes
 }: MapComponentProps) {
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -93,6 +100,14 @@ export default function MapComponent({
       center={petHotelLocation}
       zoom={13}
       style={{ height: "100%", width: "100%" }}
+      // Add options to control map interactions
+      zoomControl={true} // Keep zoom controls
+      scrollWheelZoom={true} // Allow scrolling/zooming
+      dragging={true} // Allow dragging/panning
+      doubleClickZoom={false} // Disable double-click zoom
+      touchZoom={true} // Allow pinch zoom on mobile
+      attributionControl={true} // Keep attribution
+      tap={false} // Disable tap/click events
     >
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -100,17 +115,40 @@ export default function MapComponent({
       />
       {userLocation && (
         <>
-          <Marker position={userLocation} icon={userLocationIcon}>
+          <Marker
+            position={userLocation}
+            icon={userLocationIcon}
+            // Make marker non-interactive
+            eventHandlers={{
+              click: (e) => {
+                // Prevent default click behavior
+                L.DomEvent.stopPropagation(e.originalEvent);
+              },
+            }}
+          >
             <Popup>Your Location</Popup>
           </Marker>
           <ChangeView center={userLocation} zoom={13} />
         </>
       )}
-      <Marker position={petHotelLocation} icon={petHotelIcon}>
+      <Marker
+        position={petHotelLocation}
+        icon={petHotelIcon}
+        // Make marker non-interactive
+        eventHandlers={{
+          click: (e) => {
+            // Prevent default click behavior
+            L.DomEvent.stopPropagation(e.originalEvent);
+          },
+        }}
+      >
         <Popup>Big Paws Pet Hotel</Popup>
       </Marker>
       {route.length > 0 && <Polyline positions={route} color="blue" />}
-      <LocationMarker setUserLocation={setUserLocation} />
+      <LocationMarker
+        setUserLocation={setUserLocation}
+        disableLocationChange={disableLocationChange}
+      />
     </MapContainer>
   );
 }

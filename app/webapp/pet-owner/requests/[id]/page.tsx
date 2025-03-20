@@ -18,9 +18,35 @@ import {
   CheckCircle2,
   XCircle,
   AlertCircle,
+  Info,
 } from "lucide-react";
 import { requests } from "@/app/webapp/data/sample-data";
 import { formatDate } from "@/app/webapp/utils/date-utils";
+
+// Add a cancel button to the request details page
+// Add a confirmation dialog for cancellation
+
+// First, add the necessary imports
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 /**
  * Request Detail Page
@@ -39,6 +65,13 @@ export default function RequestDetailPage() {
   const [request, setRequest] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  // Add state for the confirmation dialog
+  // Add these after the existing useState declarations
+  const { toast } = useToast();
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
+  const [showCancelSuccess, setShowCancelSuccess] = useState(false);
 
   useEffect(() => {
     const fetchRequest = async () => {
@@ -151,6 +184,38 @@ export default function RequestDetailPage() {
     }
   };
 
+  // Add a function to handle cancellation
+  const handleCancelRequest = () => {
+    setIsCancelling(true);
+
+    // Simulate API call
+    setTimeout(() => {
+      // In a real app, you would call an API to cancel the request
+      setIsCancelling(false);
+      setShowCancelConfirm(false);
+      setShowCancelSuccess(true);
+    }, 1500);
+  };
+
+  // Add a function to handle success dialog close
+  const handleSuccessClose = () => {
+    setShowCancelSuccess(false);
+
+    // Update the local request state to show it's cancelled
+    if (request) {
+      setRequest({
+        ...request,
+        status: "cancelled",
+      });
+    }
+
+    toast({
+      title: "Request Cancelled",
+      description: "Your request has been successfully cancelled.",
+      duration: 5000,
+    });
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -231,6 +296,19 @@ export default function RequestDetailPage() {
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
+            {request.status === "pending" && (
+              <Alert className="bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800 mb-4">
+                <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                <AlertTitle className="text-blue-800 dark:text-blue-300">
+                  Cancellation Policy
+                </AlertTitle>
+                <AlertDescription className="text-blue-700 dark:text-blue-400">
+                  You can cancel this request while it remains in "Pending"
+                  status. Once our staff begins processing your request, it can
+                  no longer be cancelled.
+                </AlertDescription>
+              </Alert>
+            )}
             {request.status === "rejected" && request.rejectionReason && (
               <Alert
                 variant="destructive"
@@ -442,6 +520,18 @@ export default function RequestDetailPage() {
               </Card>
             </div>
 
+            {request.status === "pending" && (
+              <div className="flex justify-end mt-6">
+                <Button
+                  variant="destructive"
+                  onClick={() => setShowCancelConfirm(true)}
+                  className="w-full sm:w-auto"
+                >
+                  Cancel Request
+                </Button>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <h3 className="text-base font-medium mb-2">Request Details</h3>
@@ -573,6 +663,53 @@ export default function RequestDetailPage() {
           </CardContent>
         </Card>
       </motion.div>
+      <AlertDialog open={showCancelConfirm} onOpenChange={setShowCancelConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cancel Request</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to cancel this request? This action cannot
+              be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>No, Keep Request</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleCancelRequest}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={isCancelling}
+            >
+              {isCancelling ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Cancelling...
+                </>
+              ) : (
+                "Yes, Cancel Request"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <Dialog open={showCancelSuccess} onOpenChange={setShowCancelSuccess}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-foreground dark:text-foreground">
+              <CheckCircle2 className="h-5 w-5 text-green-500" />
+              Request Cancelled Successfully
+            </DialogTitle>
+            <DialogDescription>
+              Your request has been successfully cancelled.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button onClick={handleSuccessClose} className="w-full">
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

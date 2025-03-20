@@ -33,6 +33,16 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface RequestCardProps {
   request: {
@@ -56,6 +66,8 @@ export default function RequestCard({ request }: RequestCardProps) {
   const [showDetails, setShowDetails] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
   const { toast } = useToast();
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [showCancelSuccess, setShowCancelSuccess] = useState(false);
 
   const getRequestTypeIcon = (type: string) => {
     switch (type) {
@@ -162,14 +174,22 @@ export default function RequestCard({ request }: RequestCardProps) {
     // Simulate API call
     setTimeout(() => {
       setIsCancelling(false);
-      setShowDetails(false);
+      setShowCancelConfirm(false);
+      setShowCancelSuccess(true);
 
-      toast({
-        title: "Request Cancelled",
-        description: "Your request has been successfully cancelled.",
-        duration: 5000,
-      });
+      // Don't close the details dialog yet, let the success dialog show first
     }, 1500);
+  };
+
+  const handleSuccessClose = () => {
+    setShowCancelSuccess(false);
+    setShowDetails(false);
+
+    toast({
+      title: "Request Cancelled",
+      description: "Your request has been successfully cancelled.",
+      duration: 5000,
+    });
   };
 
   const formatDate = (dateString: string) => {
@@ -240,13 +260,28 @@ export default function RequestCard({ request }: RequestCardProps) {
                 {getTimeAgo(request.createdAt)}
               </p>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 text-xs text-foreground dark:text-foreground"
-            >
-              View Details
-            </Button>
+            <div className="flex items-center gap-2">
+              {request.status === "pending" && (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  className="h-8 text-xs"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowCancelConfirm(true);
+                  }}
+                >
+                  Cancel
+                </Button>
+              )}
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 text-xs text-foreground dark:text-foreground"
+              >
+                View Details
+              </Button>
+            </div>
           </CardFooter>
         </Card>
       </motion.div>
@@ -343,20 +378,28 @@ export default function RequestCard({ request }: RequestCardProps) {
           </div>
 
           <DialogFooter className="sm:justify-between">
-            {(request.status === "pending" || request.status === "approved") &&
-              !request.inProgress && (
-                <Button
-                  variant="destructive"
-                  onClick={handleCancelRequest}
-                  disabled={isCancelling}
-                  className="dark:text-destructive-foreground"
-                >
-                  {isCancelling && (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  )}
-                  Cancel Request
-                </Button>
-              )}
+            {request.status === "pending" && (
+              <Button
+                variant="destructive"
+                onClick={() => setShowCancelConfirm(true)}
+                disabled={isCancelling}
+                className="dark:text-destructive-foreground"
+              >
+                {isCancelling && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                Cancel Request
+              </Button>
+            )}
+
+            {request.status === "approved" && request.inProgress && (
+              <div className="w-full mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md">
+                <p className="text-sm text-yellow-700 dark:text-yellow-400 flex items-center">
+                  <AlertCircle className="h-4 w-4 mr-2 flex-shrink-0" />
+                  This request is in progress and cannot be cancelled.
+                </p>
+              </div>
+            )}
 
             {request.status === "completed" && (
               <Button
@@ -378,16 +421,13 @@ export default function RequestCard({ request }: RequestCardProps) {
               </Button>
             )}
 
-            {(request.status === "pending" ||
-              (request.status === "approved" && !request.inProgress)) && (
-              <Button
-                variant="outline"
-                className="w-full dark:border-foreground/20 dark:text-foreground"
-                onClick={() => setShowDetails(false)}
-              >
-                Close
-              </Button>
-            )}
+            <Button
+              variant="outline"
+              className="w-full dark:border-foreground/20 dark:text-foreground"
+              onClick={() => setShowDetails(false)}
+            >
+              Close
+            </Button>
 
             <div className="w-full mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
               <h4 className="text-sm font-medium text-blue-700 dark:text-blue-300">
@@ -395,15 +435,67 @@ export default function RequestCard({ request }: RequestCardProps) {
               </h4>
               <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
                 {request.status === "pending" &&
-                  "Check back later for updates on your request or make another request for your pet."}
+                  "You can cancel this request if needed, or check back later for updates."}
                 {request.status === "approved" &&
+                  !request.inProgress &&
                   "Your request has been approved and will be processed soon."}
+                {request.status === "approved" &&
+                  request.inProgress &&
+                  "Your request is being processed. It can no longer be cancelled."}
                 {request.status === "completed" &&
                   "Consider leaving feedback about your experience or make a new request."}
                 {request.status === "rejected" &&
                   "Contact our support team if you have questions about why your request was rejected."}
               </p>
             </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={showCancelConfirm} onOpenChange={setShowCancelConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cancel Request</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to cancel this request? This action cannot
+              be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>No, Keep Request</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleCancelRequest}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={isCancelling}
+            >
+              {isCancelling ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Cancelling...
+                </>
+              ) : (
+                "Yes, Cancel Request"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <Dialog open={showCancelSuccess} onOpenChange={setShowCancelSuccess}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-foreground dark:text-foreground">
+              <CheckCircle2 className="h-5 w-5 text-green-500" />
+              Request Cancelled Successfully
+            </DialogTitle>
+            <DialogDescription>
+              Your request has been successfully cancelled.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button onClick={handleSuccessClose} className="w-full">
+              Close
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

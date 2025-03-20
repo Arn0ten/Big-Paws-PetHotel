@@ -26,7 +26,6 @@ interface ChatBubbleProps {
   avatar: string;
   isAdmin: boolean;
   type?: string;
-  isUrgent?: boolean;
   media?: {
     url: string;
     type: "image" | "video";
@@ -45,7 +44,6 @@ export function ChatBubble({
   avatar,
   isAdmin,
   type,
-  isUrgent,
   media,
 }: ChatBubbleProps) {
   const isMobile = useMediaQuery("(max-width: 640px)");
@@ -327,11 +325,6 @@ export function ChatBubble({
                   )}
                 >
                   {type.charAt(0).toUpperCase() + type.slice(1)}
-                </Badge>
-              )}
-              {isUrgent && (
-                <Badge variant="destructive" className="text-xs">
-                  Urgent
                 </Badge>
               )}
             </div>

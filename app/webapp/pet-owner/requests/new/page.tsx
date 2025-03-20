@@ -35,7 +35,6 @@ import {
   Info,
   AlertCircle,
 } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { getBoardingPets, createRequest } from "@/app/webapp/data/sample-data";
 import { REQUEST_TYPES, REQUEST_TYPE_LABELS } from "@/app/webapp/constants";
@@ -81,7 +80,6 @@ export default function EnhancedRequestCreationPage() {
   const [selectedPet, setSelectedPet] = useState<string>("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [isUrgent, setIsUrgent] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -303,7 +301,6 @@ export default function EnhancedRequestCreationPage() {
    *   petName: string,        // The name of the pet
    *   title: string,          // The request title
    *   description: string,    // The request description
-   *   isUrgent: boolean,      // Whether the request is urgent
    *
    *   // Type-specific fields
    *   groomingService?: string,       // For grooming requests
@@ -350,7 +347,6 @@ export default function EnhancedRequestCreationPage() {
       petName: petName,
       title: generatedTitle,
       description,
-      isUrgent,
       createdAt: new Date().toISOString(),
       status: "pending", // or "new" depending on your backend
     };
@@ -706,21 +702,18 @@ export default function EnhancedRequestCreationPage() {
           </p>
         </div>
 
-        {/* Urgency */}
-        <div className="flex items-center space-x-2">
-          <Checkbox
-            id="urgent"
-            checked={isUrgent}
-            onCheckedChange={(checked) => setIsUrgent(checked === true)}
-          />
-          <div className="grid gap-1.5 leading-none">
-            <Label htmlFor="urgent" className="text-base font-normal">
-              Mark as urgent
-            </Label>
-            <p className="text-sm text-muted-foreground">
-              Urgent requests will be prioritized by our staff
-            </p>
-          </div>
+        {/* Cancellation Policy */}
+        <div className="p-4 bg-blue-50 border-2 border-blue-200 rounded-md dark:bg-blue-900/20 dark:border-blue-800">
+          <h4 className="text-sm font-medium text-blue-700 dark:text-blue-300 flex items-center">
+            <Info className="h-4 w-4 mr-2" />
+            Cancellation Policy
+          </h4>
+          <p className="text-sm text-blue-600 dark:text-blue-400 mt-1">
+            <strong>Important:</strong> You can cancel your request as long as
+            it remains in "Pending" status. Once our staff begins processing
+            your request (status changes to "In Progress"), it can no longer be
+            cancelled.
+          </p>
         </div>
       </div>
     );
@@ -893,6 +886,31 @@ export default function EnhancedRequestCreationPage() {
         </div>
       </div>
 
+      <div className="flex gap-4 justify-end mb-6">
+        {activeStep > 1 ? (
+          <Button type="button" variant="outline" onClick={handlePrevStep}>
+            Previous
+          </Button>
+        ) : (
+          <Button type="button" variant="outline" asChild>
+            <Link href="/webapp/pet-owner/requests">Cancel</Link>
+          </Button>
+        )}
+
+        {activeStep < 3 ? (
+          <Button type="button" onClick={handleNextStep}>
+            Next
+          </Button>
+        ) : (
+          <Button
+            type="submit"
+            disabled={isSubmitting || boardingPets.length === 0}
+          >
+            {isSubmitting ? "Submitting..." : "Submit Request"}
+          </Button>
+        )}
+      </div>
+
       {showSuccess ? (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -937,35 +955,6 @@ export default function EnhancedRequestCreationPage() {
                 {renderCurrentStep()}
               </CardContent>
             </Card>
-
-            <div className="flex gap-4 justify-between">
-              {activeStep > 1 ? (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handlePrevStep}
-                >
-                  Previous
-                </Button>
-              ) : (
-                <Button type="button" variant="outline" asChild>
-                  <Link href="/webapp/pet-owner/requests">Cancel</Link>
-                </Button>
-              )}
-
-              {activeStep < 3 ? (
-                <Button type="button" onClick={handleNextStep}>
-                  Next
-                </Button>
-              ) : (
-                <Button
-                  type="submit"
-                  disabled={isSubmitting || boardingPets.length === 0}
-                >
-                  {isSubmitting ? "Submitting..." : "Submit Request"}
-                </Button>
-              )}
-            </div>
           </form>
         </motion.div>
       )}
