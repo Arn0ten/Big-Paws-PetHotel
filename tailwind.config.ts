@@ -77,16 +77,53 @@ const config: Config = {
           "75%": { transform: "translateX(75%) translateY(-5px)" },
           "100%": { transform: "translateX(100%) translateY(0px)" },
         },
+        "sign-wave": {
+          "0%": { transform: "translateX(-50%) rotate(12deg)" },
+          "25%": { transform: "translateX(-50%) rotate(8deg)" },
+          "50%": { transform: "translateX(-50%) rotate(12deg)" },
+          "75%": { transform: "translateX(-50%) rotate(16deg)" },
+          "100%": { transform: "translateX(-50%) rotate(12deg)" },
+        },
+        "sign-stick": {
+          "0%": { transform: "translateX(-50%) rotate(12deg)" },
+          "25%": { transform: "translateX(-50%) rotate(8deg)" },
+          "50%": { transform: "translateX(-50%) rotate(12deg)" },
+          "75%": { transform: "translateX(-50%) rotate(16deg)" },
+          "100%": { transform: "translateX(-50%) rotate(12deg)" },
+        },
+        "cat-breathe": {
+          "0%": { transform: "translateX(-50%) scale(1)" },
+          "50%": { transform: "translateX(-50%) scale(1.02)" },
+          "100%": { transform: "translateX(-50%) scale(1)" },
+        },
+        "cat-blink": {
+          "0%": { height: "6px" },
+          "2%": { height: "1px" },
+          "4%": { height: "6px" },
+          "100%": { height: "6px" },
+        },
+        "cat-blink-delayed": {
+          "0%": { height: "6px" },
+          "1%": { height: "6px" },
+          "3%": { height: "1px" },
+          "5%": { height: "6px" },
+          "100%": { height: "6px" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "spin-slow": "spin-slow 10s linear infinite",
         "pet-walk": "pet-walk 10s linear infinite",
+        "sign-wave": "sign-wave 3s ease-in-out infinite",
+        "sign-stick": "sign-stick 3s ease-in-out infinite",
+        "cat-breathe": "cat-breathe 4s ease-in-out infinite",
+        "cat-blink": "cat-blink 5s ease-in-out infinite",
+        "cat-blink-delayed": "cat-blink-delayed 5s ease-in-out infinite",
       },
     },
   },
   plugins: [require("tailwindcss-animate")],
-};
+} satisfies Config;
 
 export default config;
