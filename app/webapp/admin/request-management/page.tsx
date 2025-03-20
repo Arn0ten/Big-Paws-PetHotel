@@ -1,14 +1,21 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect, useRef } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
+import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 // Import the necessary icons
 import {
   CheckCircle,
@@ -23,8 +30,8 @@ import {
   ArrowUpDown,
   ArrowLeft,
   AlertTriangle,
-} from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
+} from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
   DialogContent,
@@ -32,106 +39,125 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
-import { Skeleton } from "@/components/ui/skeleton"
-import { SuccessDialog } from "./components/success-dialog"
-import { formatCurrency, formatDate } from "./utils/helpers"
-import { EnhancedRequestDialog } from "./components/enhanced-request-dialog"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
-import { useMediaQuery } from "@/hooks/use-media-query"
-import { ChatBubble } from "./components/chat-bubble"
-import { sampleRequests, sampleBoardingData } from "./data/sample-data"
-import { PRICING, calculateExtensionCost } from "./data/pricing-data"
-import { getRequestTypeIcon, getRequestTypeLabel, getCardBorderColor, getCardBgColor } from "./utils/ui-helpers"
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import { SuccessDialog } from "./components/success-dialog";
+import { formatCurrency, formatDate } from "./utils/helpers";
+import { EnhancedRequestDialog } from "./components/enhanced-request-dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { useMediaQuery } from "@/hooks/use-media-query";
+import { ChatBubble } from "./components/chat-bubble";
+import { sampleRequests, sampleBoardingData } from "./data/sample-data";
+import { PRICING, calculateExtensionCost } from "./data/pricing-data";
+import {
+  getRequestTypeIcon,
+  getRequestTypeLabel,
+  getCardBorderColor,
+  getCardBgColor,
+} from "./utils/ui-helpers";
 
 interface InProgressRequestCardProps {
-  request: any
-  onProcess: () => void
-  onUndoAccept: () => void
-  onViewDetails: () => void
+  request: any;
+  onProcess: () => void;
+  onUndoAccept: () => void;
+  onViewDetails: () => void;
 }
 
 interface CompletedRequestCardProps {
-  request: any
+  request: any;
 }
 
 // Enhance the tab interface in the main component
 export default function RequestManagementPage() {
-  const [requests, setRequests] = useState(sampleRequests)
-  const [boardingData, setBoardingData = useState(sampleBoardingData)\
-  const [activeTab, setActiveTab] = useState("in-progress")
-  const [searchQuery, setSearchQuery] = useState("")
-  const [filterType, setFilterType] = useState("all")
-  const [sortOrder, setSortOrder<"asc" | "desc">("desc"
-  )
-  const [selectedRequest, setSelectedRequest] = useState<any>(null)
-  const [showProcessDialog, setShowProcessDialog] = useState(false)
-  const [processingNotes, setProcessingNotes] = useState("")
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
-  const [extensionDate, setExtensionDate] = useState<Date | undefined>(undefined)
-  const [isProcessing, setIsProcessing] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [selectedGroomingService, setSelectedGroomingService] = useState("premium-wash-and-cut")
-  const [calculatedPrice, setCalculatedPrice] = useState<number | null>(null)
+  const [requests, setRequests] = useState(sampleRequests);
+  const [boardingData, setBoardingData] = useState(sampleBoardingData);
+  const [activeTab, setActiveTab] = useState("in-progress");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterType, setFilterType] = useState("all");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [selectedRequest, setSelectedRequest] = useState<any>(null);
+  const [showProcessDialog, setShowProcessDialog] = useState(false);
+  const [processingNotes, setProcessingNotes] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [extensionDate, setExtensionDate] = useState<Date | undefined>(
+    undefined,
+  );
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedGroomingService, setSelectedGroomingService] = useState(
+    "premium-wash-and-cut",
+  );
+  const [calculatedPrice, setCalculatedPrice] = useState<number | null>(null);
   const [successDialog, setSuccessDialog] = useState({
     open: false,
     title: "",
     message: "",
     type: "",
-  })
-  const [hasNewCompletedRequests, setHasNewCompletedRequests] = useState(false)
-  const [showBoardingDetailsDialog, setShowBoardingDetailsDialog] = useState(false)
-  const [selectedBoardingDetails, setSelectedBoardingDetails] = useState<any>(null)
-  const [showUndoAcceptDialog, setShowUndoAcceptDialog] = useState(false)
-  const [undoAcceptMessage, setUndoAcceptMessage] = useState("")
-  const [requestToUndo, setRequestToUndo] = useState<any>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const { toast } = useToast()
-  const isMobile = useMediaQuery("(max-width: 640px)")
-  const isSmallCard = useMediaQuery("(max-width: 400px)")
-  const isTablet = useMediaQuery("(max-width: 1024px)")
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
-  const [previewUrls, setPreviewUrls] = useState<string[]>([])
+  });
+  const [hasNewCompletedRequests, setHasNewCompletedRequests] = useState(false);
+  const [showBoardingDetailsDialog, setShowBoardingDetailsDialog] =
+    useState(false);
+  const [selectedBoardingDetails, setSelectedBoardingDetails] =
+    useState<any>(null);
+  const [showUndoAcceptDialog, setShowUndoAcceptDialog] = useState(false);
+  const [undoAcceptMessage, setUndoAcceptMessage] = useState("");
+  const [requestToUndo, setRequestToUndo] = useState<any>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
+  const isMobile = useMediaQuery("(max-width: 640px)");
+  const isSmallCard = useMediaQuery("(max-width: 400px)");
+  const isTablet = useMediaQuery("(max-width: 1024px)");
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
 
   // Calculate price based on request type and details
   // NOTE FOR BACKEND: Implement proper price calculation on actual service rates
   useEffect(() => {
-    if (!selectedRequest) return
+    if (!selectedRequest) return;
 
     if (selectedRequest.type === "grooming") {
-      const petSize = selectedRequest.petSize || "Medium"
-      const serviceType = selectedGroomingService
+      const petSize = selectedRequest.petSize || "Medium";
+      const serviceType = selectedGroomingService;
 
       // Check if the pet is a cat
-      const isCat = selectedRequest.petName?.toLowerCase().includes("cat") || false
-      const priceKey = isCat ? `cat-${serviceType}` : serviceType
+      const isCat =
+        selectedRequest.petName?.toLowerCase().includes("cat") || false;
+      const priceKey = isCat ? `cat-${serviceType}` : serviceType;
 
       if (PRICING.grooming[priceKey] && PRICING.grooming[priceKey][petSize]) {
-        setCalculatedPrice(PRICING.grooming[priceKey][petSize])
+        setCalculatedPrice(PRICING.grooming[priceKey][petSize]);
       } else {
         // Fallback to default pricing
-        setCalculatedPrice(PRICING.grooming["premium-wash-and-cut"][petSize])
+        setCalculatedPrice(PRICING.grooming["premium-wash-and-cut"][petSize]);
       }
-    } else if (selectedRequest.type === "boarding-extension" && selectedRequest.extensionDetails) {
+    } else if (
+      selectedRequest.type === "boarding-extension" &&
+      selectedRequest.extensionDetails
+    ) {
       const cost = calculateExtensionCost(
         selectedRequest.extensionDetails.duration,
         selectedRequest.extensionDetails.unit,
         selectedRequest.petSize || "Medium",
-      )
-      setCalculatedPrice(cost)
+      );
+      setCalculatedPrice(cost);
     } else {
-      setCalculatedPrice(null)
+      setCalculatedPrice(null);
     }
-  }, [selectedRequest, selectedGroomingService])
+  }, [selectedRequest, selectedGroomingService]);
 
   // Update handleCompleteRequest to properly incorporate audio with video
   // Update the handleCompleteRequest function to handle merged videos
   const handleCompleteRequest = () => {
-    if (!selectedRequest) return
+    if (!selectedRequest) return;
 
-    setIsProcessing(true)
+    setIsProcessing(true);
 
     // BACKEND INTEGRATION:
     // Replace this setTimeout with an actual API call
@@ -206,17 +232,25 @@ export default function RequestManagementPage() {
                       urls: previewUrls,
                       count: selectedFiles.length,
                       // Include audio information if this is a video with audio
-                      audioUrl: selectedRequest.type === "video" ? selectedRequest.selectedAudioUrl : undefined,
+                      audioUrl:
+                        selectedRequest.type === "video"
+                          ? selectedRequest.selectedAudioUrl
+                          : undefined,
                       audioName:
-                        selectedRequest.type === "video" && selectedRequest.selectedAudioUrl
+                        selectedRequest.type === "video" &&
+                        selectedRequest.selectedAudioUrl
                           ? selectedRequest.selectedAudioUrl
                               .split("/")
                               .pop()
                               ?.replace(/\.[^/.]+$/, "")
                           : undefined,
                       // Include information about merged audio/video if available
-                      audioMerged: selectedRequest.type === "video" && selectedRequest.audioMerged,
-                      mergedVideoUrl: selectedRequest.type === "video" && selectedRequest.mergedVideoUrl,
+                      audioMerged:
+                        selectedRequest.type === "video" &&
+                        selectedRequest.audioMerged,
+                      mergedVideoUrl:
+                        selectedRequest.type === "video" &&
+                        selectedRequest.mergedVideoUrl,
                     }
                   : undefined,
               ...(extensionDate && {
@@ -233,12 +267,15 @@ export default function RequestManagementPage() {
               isNewlyCompleted: true, // Mark as newly completed for highlighting
             }
           : req,
-      )
+      );
 
-      setRequests(updatedRequests)
+      setRequests(updatedRequests);
 
       // Update the boarding data if needed
-      if (selectedRequest.type === "boarding-extension" || selectedRequest.type === "grooming") {
+      if (
+        selectedRequest.type === "boarding-extension" ||
+        selectedRequest.type === "grooming"
+      ) {
         const updatedBoardingData = boardingData.map((boarding) => {
           if (boarding.id === selectedRequest.boardingId) {
             // Create a transaction record for financial tracking
@@ -255,10 +292,13 @@ export default function RequestManagementPage() {
               ownerName: boarding.owner.name,
               description: "",
               processedBy: "Admin",
-            }
+            };
 
             // For boarding extension
-            if (selectedRequest.type === "boarding-extension" && extensionDate) {
+            if (
+              selectedRequest.type === "boarding-extension" &&
+              extensionDate
+            ) {
               // Create a record of the additional charge
               const additionalService = {
                 id: `svc-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
@@ -267,16 +307,17 @@ export default function RequestManagementPage() {
                 requestId: selectedRequest.id,
                 timestamp: new Date().toISOString(),
                 appliedDate: new Date().toISOString(),
-              }
+              };
 
               // Get existing additional services or initialize empty array
-              const existingServices = boarding.additionalServices || []
+              const existingServices = boarding.additionalServices || [];
 
               // Update transaction record description
-              transactionRecord.description = `Boarding extension: ${selectedRequest.extensionDetails.duration} ${selectedRequest.extensionDetails.unit}`
+              transactionRecord.description = `Boarding extension: ${selectedRequest.extensionDetails.duration} ${selectedRequest.extensionDetails.unit}`;
 
               // Calculate the new total with all charges
-              const newTotalPrice = boarding.totalPrice + (calculatedPrice || 0)
+              const newTotalPrice =
+                boarding.totalPrice + (calculatedPrice || 0);
 
               // Update the boarding record
               return {
@@ -285,8 +326,12 @@ export default function RequestManagementPage() {
                 paymentStatus: "Pending", // Change to pending regardless of previous status
                 totalPrice: newTotalPrice,
                 additionalServices: [...existingServices, additionalService],
-                transactions: [...(boarding.transactions || []), transactionRecord],
-                outstandingBalance: (boarding.outstandingBalance || 0) + (calculatedPrice || 0),
+                transactions: [
+                  ...(boarding.transactions || []),
+                  transactionRecord,
+                ],
+                outstandingBalance:
+                  (boarding.outstandingBalance || 0) + (calculatedPrice || 0),
                 updatedAt: new Date().toISOString(),
                 lastModifiedBy: "Admin",
                 lastModificationReason: "Boarding extension approved",
@@ -301,7 +346,7 @@ export default function RequestManagementPage() {
                     status: "pending",
                   },
                 ],
-              }
+              };
             }
 
             // For grooming service
@@ -314,16 +359,17 @@ export default function RequestManagementPage() {
                 requestId: selectedRequest.id,
                 timestamp: new Date().toISOString(),
                 appliedDate: new Date().toISOString(),
-              }
+              };
 
               // Get existing additional services or initialize empty array
-              const existingServices = boarding.additionalServices || []
+              const existingServices = boarding.additionalServices || [];
 
               // Update transaction record description
-              transactionRecord.description = `Grooming service: ${selectedGroomingService.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}`
+              transactionRecord.description = `Grooming service: ${selectedGroomingService.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}`;
 
               // Calculate the new total with all charges
-              const newTotalPrice = boarding.totalPrice + (calculatedPrice || 0)
+              const newTotalPrice =
+                boarding.totalPrice + (calculatedPrice || 0);
 
               // Update the boarding record
               return {
@@ -331,8 +377,12 @@ export default function RequestManagementPage() {
                 paymentStatus: "Pending", // Change to pending regardless of previous status
                 totalPrice: newTotalPrice,
                 additionalServices: [...existingServices, groomingService],
-                transactions: [...(boarding.transactions || []), transactionRecord],
-                outstandingBalance: (boarding.outstandingBalance || 0) + (calculatedPrice || 0),
+                transactions: [
+                  ...(boarding.transactions || []),
+                  transactionRecord,
+                ],
+                outstandingBalance:
+                  (boarding.outstandingBalance || 0) + (calculatedPrice || 0),
                 updatedAt: new Date().toISOString(),
                 lastModifiedBy: "Admin",
                 lastModificationReason: "Grooming service added",
@@ -347,23 +397,25 @@ export default function RequestManagementPage() {
                     status: "pending",
                   },
                 ],
-              }
+              };
             }
           }
-          return boarding
-        })
+          return boarding;
+        });
 
-        setBoardingData(updatedBoardingData)
+        setBoardingData(updatedBoardingData);
 
         // Find the updated boarding details to show in the dialog
-        const updatedBoarding = updatedBoardingData.find((b) => b.id === selectedRequest.boardingId)
+        const updatedBoarding = updatedBoardingData.find(
+          (b) => b.id === selectedRequest.boardingId,
+        );
         if (updatedBoarding) {
-          setSelectedBoardingDetails(updatedBoarding)
+          setSelectedBoardingDetails(updatedBoarding);
         }
       }
 
-      setIsProcessing(false)
-      setShowProcessDialog(false)
+      setIsProcessing(false);
+      setShowProcessDialog(false);
 
       // Show success dialog
       setSuccessDialog({
@@ -371,23 +423,23 @@ export default function RequestManagementPage() {
         title: "Request Completed Successfully",
         message: `The ${getRequestTypeLabel(selectedRequest.type).toLowerCase()} for ${selectedRequest.petName} has been completed.`,
         type: selectedRequest.type,
-      })
+      });
 
       // Set new completed requests flag
-      setHasNewCompletedRequests(true)
+      setHasNewCompletedRequests(true);
 
       // Immediately switch to the completed tab to show the user where the request went
-      setActiveTab("completed")
+      setActiveTab("completed");
 
       // Reset form state
-      setSelectedRequest(null)
-      setProcessingNotes("")
-      setSelectedFiles([])
-      setPreviewUrls([])
-      setExtensionDate(undefined)
-      setSelectedGroomingService("premium-wash-and-cut")
-    }, 1500)
-  }
+      setSelectedRequest(null);
+      setProcessingNotes("");
+      setSelectedFiles([]);
+      setPreviewUrls([]);
+      setExtensionDate(undefined);
+      setSelectedGroomingService("premium-wash-and-cut");
+    }, 1500);
+  };
 
   // Add a useEffect to handle dialog sequencing
   useEffect(() => {
@@ -395,26 +447,26 @@ export default function RequestManagementPage() {
     if (!successDialog.open && selectedBoardingDetails) {
       // Small delay to prevent dialog overlap
       const timer = setTimeout(() => {
-        setShowBoardingDetailsDialog(true)
+        setShowBoardingDetailsDialog(true);
         // Clear the selected boarding details after showing the dialog
         // to prevent it from showing again if success dialog opens for another reason
-        setSelectedBoardingDetails(null)
-      }, 300)
+        setSelectedBoardingDetails(null);
+      }, 300);
 
-      return () => clearTimeout(timer)
+      return () => clearTimeout(timer);
     }
-  }, [successDialog.open, selectedBoardingDetails])
+  }, [successDialog.open, selectedBoardingDetails]);
 
   const handleUndoAccept = (request: any) => {
-    setRequestToUndo(request)
-    setUndoAcceptMessage("")
-    setShowUndoAcceptDialog(true)
-  }
+    setRequestToUndo(request);
+    setUndoAcceptMessage("");
+    setShowUndoAcceptDialog(true);
+  };
 
   const confirmUndoAccept = () => {
-    if (!requestToUndo) return
+    if (!requestToUndo) return;
 
-    setIsProcessing(true)
+    setIsProcessing(true);
 
     // BACKEND INTEGRATION:
     // Replace this setTimeout with an actual API call
@@ -475,29 +527,29 @@ export default function RequestManagementPage() {
               },
             }
           : req,
-      )
+      );
 
-      setRequests(updatedRequests)
-      setIsProcessing(false)
-      setShowUndoAcceptDialog(false)
+      setRequests(updatedRequests);
+      setIsProcessing(false);
+      setShowUndoAcceptDialog(false);
 
       // Show success toast
       toast({
         title: "Request Returned to New Requests",
         description: `The ${getRequestTypeLabel(requestToUndo.type).toLowerCase()} for ${requestToUndo.petName} has been returned to the New Requests tab.`,
         duration: 5000,
-      })
+      });
 
       // Reset state
-      setRequestToUndo(null)
-      setUndoAcceptMessage("")
-    }, 1500)
-  }
+      setRequestToUndo(null);
+      setUndoAcceptMessage("");
+    }, 1500);
+  };
 
   const handleRefresh = () => {
-    setIsLoading(true)
-    setSearchQuery("")
-    setFilterType("all")
+    setIsLoading(true);
+    setSearchQuery("");
+    setFilterType("all");
 
     // BACKEND INTEGRATION:
     // Replace this setTimeout with an actual API call
@@ -521,14 +573,14 @@ export default function RequestManagementPage() {
     // NOTE FOR BACKEND: Replace with actual API call to refresh data
     setTimeout(() => {
       // Simulate refreshing data
-      setRequests([...sampleRequests])
-      setIsLoading(false)
-    }, 1500)
-  }
+      setRequests([...sampleRequests]);
+      setIsLoading(false);
+    }, 1500);
+  };
 
   const handleSearch = (query: string) => {
-    setSearchQuery(query)
-    setIsLoading(true)
+    setSearchQuery(query);
+    setIsLoading(true);
 
     // BACKEND INTEGRATION:
     // Replace this setTimeout with an actual API call
@@ -551,32 +603,32 @@ export default function RequestManagementPage() {
 
     // NOTE FOR BACKEND: Replace with actual API call to search requests
     setTimeout(() => {
-      setIsLoading(false)
-    }, 800)
-  }
+      setIsLoading(false);
+    }, 800);
+  };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setSelectedFile(e.target.files[0])
+      setSelectedFile(e.target.files[0]);
     }
-  }
+  };
 
   const handleRemoveFile = () => {
-    setSelectedFile(null)
+    setSelectedFile(null);
     if (fileInputRef.current) {
-      fileInputRef.current.value = ""
+      fileInputRef.current.value = "";
     }
-  }
+  };
 
   const handleReplaceFile = () => {
     if (fileInputRef.current) {
-      fileInputRef.current.click()
+      fileInputRef.current.click();
     }
-  }
+  };
 
   const toggleSortOrder = () => {
-    setSortOrder(sortOrder === "asc" ? "desc" : "asc")
-  }
+    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+  };
 
   // Modify the filteredAndSortedRequests to highlight newly completed requests
   // Update the filteredAndSortedRequests function to properly filter requests based on the active tab
@@ -584,84 +636,87 @@ export default function RequestManagementPage() {
   const filteredAndSortedRequests = requests
     .filter((request) => {
       // Filter by tab - this ensures requests are only shown in their appropriate tabs
-      if (activeTab === "in-progress" && request.status !== "in-progress") return false
-      if (activeTab === "completed" && request.status !== "completed") return false
+      if (activeTab === "in-progress" && request.status !== "in-progress")
+        return false;
+      if (activeTab === "completed" && request.status !== "completed")
+        return false;
 
       // Filter by search query
-      const searchLower = searchQuery.toLowerCase()
+      const searchLower = searchQuery.toLowerCase();
       if (
         searchQuery &&
         !request.petName.toLowerCase().includes(searchLower) &&
         !request.petOwnerName.toLowerCase().includes(searchLower) &&
         !request.description.toLowerCase().includes(searchLower)
       ) {
-        return false
+        return false;
       }
 
       // Filter by request type
       if (filterType !== "all" && request.type !== filterType) {
-        return false
+        return false;
       }
 
-      return true
+      return true;
     })
     .sort((a, b) => {
       if (activeTab === "completed") {
         // Sort completed requests by completion date - newest first
-        const dateA = new Date(a.completedAt || a.createdAt).getTime()
-        const dateB = new Date(b.completedAt || b.createdAt).getTime()
-        return sortOrder === "desc" ? dateB - dateA : dateA - dateB
+        const dateA = new Date(a.completedAt || a.createdAt).getTime();
+        const dateB = new Date(b.completedAt || b.createdAt).getTime();
+        return sortOrder === "desc" ? dateB - dateA : dateA - dateB;
       } else {
         // Sort in-progress requests by creation date
-        const dateA = new Date(a.createdAt).getTime()
-        const dateB = new Date(b.createdAt).getTime()
-        return sortOrder === "desc" ? dateB - dateA : dateA - dateB
+        const dateA = new Date(a.createdAt).getTime();
+        const dateB = new Date(b.createdAt).getTime();
+        return sortOrder === "desc" ? dateB - dateA : dateA - dateB;
       }
     })
     // Add a property to identify newly completed requests (completed in the last hour)
     .map((request) => {
       if (request.status === "completed" && request.completedAt) {
-        const completedTime = new Date(request.completedAt).getTime()
-        const oneHourAgo = Date.now() - 60 * 60 * 1000
-        const isNew = completedTime > oneHourAgo || request.isNewlyCompleted === true
+        const completedTime = new Date(request.completedAt).getTime();
+        const oneHourAgo = Date.now() - 60 * 60 * 1000;
+        const isNew =
+          completedTime > oneHourAgo || request.isNewlyCompleted === true;
         return {
           ...request,
           isNewlyCompleted: isNew,
-        }
+        };
       }
-      return request
-    })
+      return request;
+    });
 
   // Reset new completed requests flag when switching to completed tab
   useEffect(() => {
     if (activeTab === "completed") {
-      setHasNewCompletedRequests(false)
+      setHasNewCompletedRequests(false);
     }
-  }, [activeTab])
+  }, [activeTab]);
 
   // Handle file selection for multiple files
   const handleMultipleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || [])
-    setSelectedFiles(files)
+    const files = Array.from(e.target.files || []);
+    setSelectedFiles(files);
 
     // Generate preview URLs for the selected files
-    const newPreviewUrls: string[] = []
+    const newPreviewUrls: string[] = [];
     files.forEach((file) => {
-      newPreviewUrls.push(URL.createObjectURL(file))
-    })
-    setPreviewUrls(newPreviewUrls)
-  }
+      newPreviewUrls.push(URL.createObjectURL(file));
+    });
+    setPreviewUrls(newPreviewUrls);
+  };
 
   // Remove a specific file from the selected files
   const handleRemoveSelectedFile = (index: number) => {
-    const updatedFiles = [...selectedFiles]
-    updatedFiles.splice(index, 1)
-    setSelectedFiles(updatedFiles)
+    const updatedFiles = [...selectedFiles];
+    updatedFiles.splice(index, 1);
+    setSelectedFiles(updatedFiles);
 
-    const updatedPreviewUrls = [...previewUrls]
-    updatedPreviewUrls.splice(index, 1)
-    setPreviewUrls(updatedPreviewUrls)
-  }
+    const updatedPreviewUrls = [...previewUrls];
+    updatedPreviewUrls.splice(index, 1);
+    setPreviewUrls(updatedPreviewUrls);
+  };
 
   return (
     <div className="space-y-6">
@@ -674,8 +729,12 @@ export default function RequestManagementPage() {
           stiffness: 300,
         }}
       >
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">Request Management</h1>
-        <p className="text-muted-foreground">Process and complete approved requests from pet owners.</p>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">
+          Request Management
+        </h1>
+        <p className="text-muted-foreground">
+          Process and complete approved requests from pet owners.
+        </p>
       </motion.div>
 
       {/* Update the search bar, filter, date filter and refresh section to be more responsive
@@ -720,7 +779,9 @@ export default function RequestManagementPage() {
                 <SelectItem value="photo">Photo Updates</SelectItem>
                 <SelectItem value="video">Video Requests</SelectItem>
                 <SelectItem value="grooming">Grooming</SelectItem>
-                <SelectItem value="boarding-extension">Boarding Extensions</SelectItem>
+                <SelectItem value="boarding-extension">
+                  Boarding Extensions
+                </SelectItem>
                 <SelectItem value="custom">Custom Requests</SelectItem>
               </SelectContent>
             </Select>
@@ -746,7 +807,9 @@ export default function RequestManagementPage() {
               className="h-10 w-10 flex-shrink-0"
               title="Refresh data"
             >
-              <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
+              <RefreshCw
+                className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
+              />
             </Button>
           </div>
         </div>
@@ -754,7 +817,11 @@ export default function RequestManagementPage() {
 
       {/* Enhanced Tab Interface */}
       <div className="bg-card rounded-lg shadow-sm border">
-        <Tabs defaultValue="in-progress" className="w-full" onValueChange={setActiveTab}>
+        <Tabs
+          defaultValue="in-progress"
+          className="w-full"
+          onValueChange={setActiveTab}
+        >
           <div className="px-4 pt-4">
             <TabsList className="w-full grid grid-cols-2 h-14 p-1 bg-muted/30 dark:bg-muted/20 rounded-lg">
               <TabsTrigger
@@ -769,7 +836,9 @@ export default function RequestManagementPage() {
                 <span className="hidden sm:inline">In Progress</span>
                 <span className="sm:hidden">In Progress</span>
                 <Badge
-                  variant={activeTab === "in-progress" ? "default" : "secondary"}
+                  variant={
+                    activeTab === "in-progress" ? "default" : "secondary"
+                  }
                   className="ml-1 text-xs px-2 py-0 h-5"
                 >
                   {requests.filter((r) => r.status === "in-progress").length}
@@ -800,7 +869,10 @@ export default function RequestManagementPage() {
                     transition={{ type: "spring", stiffness: 500, damping: 10 }}
                     className="absolute -top-2 -right-2"
                   >
-                    <Badge variant="destructive" className="h-5 w-5 p-0 flex items-center justify-center animate-pulse">
+                    <Badge
+                      variant="destructive"
+                      className="h-5 w-5 p-0 flex items-center justify-center animate-pulse"
+                    >
                       <span className="sr-only">New</span>
                       <span aria-hidden="true">!</span>
                     </Badge>
@@ -814,7 +886,9 @@ export default function RequestManagementPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 min-h-[600px]">
               {isLoading ? (
                 // Skeleton loading for cards
-                Array.from({ length: 6 }).map((_, index) => <RequestCardSkeleton key={index} />)
+                Array.from({ length: 6 }).map((_, index) => (
+                  <RequestCardSkeleton key={index} />
+                ))
               ) : filteredAndSortedRequests.length === 0 ? (
                 <div className="col-span-full">
                   <EmptyState message="No requests in progress" />
@@ -827,20 +901,26 @@ export default function RequestManagementPage() {
                         key={request.id}
                         request={request}
                         onProcess={() => {
-                          setSelectedRequest(request)
-                          if (request.type === "grooming" && request.groomingService) {
-                            setSelectedGroomingService(request.groomingService)
+                          setSelectedRequest(request);
+                          if (
+                            request.type === "grooming" &&
+                            request.groomingService
+                          ) {
+                            setSelectedGroomingService(request.groomingService);
                           }
-                          setActiveTab("process")
-                          setShowProcessDialog(true)
+                          setActiveTab("process");
+                          setShowProcessDialog(true);
                         }}
                         onViewDetails={() => {
-                          setSelectedRequest(request)
-                          if (request.type === "grooming" && request.groomingService) {
-                            setSelectedGroomingService(request.groomingService)
+                          setSelectedRequest(request);
+                          if (
+                            request.type === "grooming" &&
+                            request.groomingService
+                          ) {
+                            setSelectedGroomingService(request.groomingService);
                           }
-                          setActiveTab("info")
-                          setShowProcessDialog(true)
+                          setActiveTab("info");
+                          setShowProcessDialog(true);
                         }}
                         onUndoAccept={() => handleUndoAccept(request)}
                       />
@@ -855,7 +935,9 @@ export default function RequestManagementPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 min-h-[600px]">
               {isLoading ? (
                 // Skeleton loading for cards
-                Array.from({ length: 6 }).map((_, index) => <RequestCardSkeleton key={index} />)
+                Array.from({ length: 6 }).map((_, index) => (
+                  <RequestCardSkeleton key={index} />
+                ))
               ) : filteredAndSortedRequests.length === 0 ? (
                 <div className="col-span-full">
                   <EmptyState message="No completed requests found" />
@@ -864,7 +946,10 @@ export default function RequestManagementPage() {
                 <>
                   <AnimatePresence>
                     {filteredAndSortedRequests.map((request) => (
-                      <CompletedRequestCard key={request.id} request={request} />
+                      <CompletedRequestCard
+                        key={request.id}
+                        request={request}
+                      />
                     ))}
                   </AnimatePresence>
                 </>
@@ -899,11 +984,20 @@ export default function RequestManagementPage() {
       />
 
       {/* Boarding Details Dialog */}
-      <Dialog open={showBoardingDetailsDialog} onOpenChange={setShowBoardingDetailsDialog}>
-        <DialogContent className={`${isMobile ? "max-w-[95%]" : "sm:max-w-md"} max-h-[90vh] overflow-y-auto`}>
+      <Dialog
+        open={showBoardingDetailsDialog}
+        onOpenChange={setShowBoardingDetailsDialog}
+      >
+        <DialogContent
+          className={`${isMobile ? "max-w-[95%]" : "sm:max-w-md"} max-h-[90vh] overflow-y-auto`}
+        >
           <DialogHeader>
-            <DialogTitle className="text-xl">Boarding Payment Updated</DialogTitle>
-            <DialogDescription>The boarding record has been updated with additional charges.</DialogDescription>
+            <DialogTitle className="text-xl">
+              Boarding Payment Updated
+            </DialogTitle>
+            <DialogDescription>
+              The boarding record has been updated with additional charges.
+            </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-5 py-4">
@@ -923,20 +1017,32 @@ export default function RequestManagementPage() {
                   {selectedBoardingDetails.outstandingBalance > 0 && (
                     <div className="mt-2 text-sm text-amber-800 dark:text-amber-300">
                       <span className="font-medium">Outstanding Balance:</span>{" "}
-                      <span className="font-bold">{formatCurrency(selectedBoardingDetails.outstandingBalance)}</span>
+                      <span className="font-bold">
+                        {formatCurrency(
+                          selectedBoardingDetails.outstandingBalance,
+                        )}
+                      </span>
                     </div>
                   )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Pet</span>
-                    <div className="text-base font-medium mt-1">{selectedBoardingDetails.pet.name}</div>
+                    <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+                      Pet
+                    </span>
+                    <div className="text-base font-medium mt-1">
+                      {selectedBoardingDetails.pet.name}
+                    </div>
                   </div>
 
                   <div>
-                    <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Owner</span>
-                    <div className="text-base font-medium mt-1">{selectedBoardingDetails.owner.name}</div>
+                    <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+                      Owner
+                    </span>
+                    <div className="text-base font-medium mt-1">
+                      {selectedBoardingDetails.owner.name}
+                    </div>
                   </div>
                 </div>
 
@@ -946,7 +1052,8 @@ export default function RequestManagementPage() {
                   </span>
                   <div className="text-base font-medium mt-1">
                     {formatCurrency(
-                      selectedBoardingDetails.totalPrice - (selectedBoardingDetails.additionalCharges || 0),
+                      selectedBoardingDetails.totalPrice -
+                        (selectedBoardingDetails.additionalCharges || 0),
                     )}
                   </div>
                 </div>
@@ -958,7 +1065,9 @@ export default function RequestManagementPage() {
                   <div className="mt-1 p-3 bg-green-50 border border-green-100 rounded-md text-green-700 dark:bg-green-950/20 dark:border-green-800 dark:text-green-300 flex items-center">
                     <DollarSign className="h-4 w-4 mr-1" />
                     <span className="text-lg font-medium">
-                      {formatCurrency(selectedBoardingDetails.additionalCharges || 0)}
+                      {formatCurrency(
+                        selectedBoardingDetails.additionalCharges || 0,
+                      )}
                     </span>
                     <span className="ml-2 text-xs text-muted-foreground">
                       ({selectedBoardingDetails.additionalChargesReason})
@@ -967,58 +1076,72 @@ export default function RequestManagementPage() {
                 </div>
 
                 <div>
-                  <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">New Total</span>
+                  <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+                    New Total
+                  </span>
                   <div className="text-xl font-bold mt-1 text-green-700 dark:text-green-400">
                     {formatCurrency(selectedBoardingDetails.totalPrice)}
                   </div>
                 </div>
 
                 {/* New section: Recent Transaction */}
-                {selectedBoardingDetails.transactions && selectedBoardingDetails.transactions.length > 0 && (
-                  <div>
-                    <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-                      Recent Transaction
-                    </span>
-                    <div className="mt-1 p-3 bg-blue-50 border border-blue-100 rounded-md text-blue-700 dark:bg-blue-950/20 dark:border-blue-800 dark:text-blue-300">
-                      <div className="flex justify-between items-center">
-                        <span className="font-medium">ID:</span>
-                        <span className="text-sm">
-                          {selectedBoardingDetails.transactions[selectedBoardingDetails.transactions.length - 1].id}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center mt-1">
-                        <span className="font-medium">Type:</span>
-                        <span className="text-sm capitalize">
-                          {
-                            selectedBoardingDetails.transactions[selectedBoardingDetails.transactions.length - 1]
-                              .requestType
-                          }
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center mt-1">
-                        <span className="font-medium">Amount:</span>
-                        <span className="text-sm text-green-600 dark:text-green-400 font-bold">
-                          {formatCurrency(
-                            selectedBoardingDetails.transactions[selectedBoardingDetails.transactions.length - 1]
-                              .amount,
-                          )}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center mt-1">
-                        <span className="font-medium">Status:</span>
-                        <Badge variant="outline" className="capitalize">
-                          {selectedBoardingDetails.transactions[selectedBoardingDetails.transactions.length - 1].status}
-                        </Badge>
-                      </div>
-                      <div className="mt-2 text-xs text-muted-foreground">
-                        {new Date(
-                          selectedBoardingDetails.transactions[selectedBoardingDetails.transactions.length - 1]
-                            .timestamp,
-                        ).toLocaleString()}
+                {selectedBoardingDetails.transactions &&
+                  selectedBoardingDetails.transactions.length > 0 && (
+                    <div>
+                      <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+                        Recent Transaction
+                      </span>
+                      <div className="mt-1 p-3 bg-blue-50 border border-blue-100 rounded-md text-blue-700 dark:bg-blue-950/20 dark:border-blue-800 dark:text-blue-300">
+                        <div className="flex justify-between items-center">
+                          <span className="font-medium">ID:</span>
+                          <span className="text-sm">
+                            {
+                              selectedBoardingDetails.transactions[
+                                selectedBoardingDetails.transactions.length - 1
+                              ].id
+                            }
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center mt-1">
+                          <span className="font-medium">Type:</span>
+                          <span className="text-sm capitalize">
+                            {
+                              selectedBoardingDetails.transactions[
+                                selectedBoardingDetails.transactions.length - 1
+                              ].requestType
+                            }
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center mt-1">
+                          <span className="font-medium">Amount:</span>
+                          <span className="text-sm text-green-600 dark:text-green-400 font-bold">
+                            {formatCurrency(
+                              selectedBoardingDetails.transactions[
+                                selectedBoardingDetails.transactions.length - 1
+                              ].amount,
+                            )}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center mt-1">
+                          <span className="font-medium">Status:</span>
+                          <Badge variant="outline" className="capitalize">
+                            {
+                              selectedBoardingDetails.transactions[
+                                selectedBoardingDetails.transactions.length - 1
+                              ].status
+                            }
+                          </Badge>
+                        </div>
+                        <div className="mt-2 text-xs text-muted-foreground">
+                          {new Date(
+                            selectedBoardingDetails.transactions[
+                              selectedBoardingDetails.transactions.length - 1
+                            ].timestamp,
+                          ).toLocaleString()}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
                 <div className="p-4 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-md">
                   <div className="text-sm text-blue-800 dark:text-blue-300">
@@ -1035,7 +1158,10 @@ export default function RequestManagementPage() {
           </div>
 
           <DialogFooter>
-            <Button onClick={() => setShowBoardingDetailsDialog(false)} className="w-full">
+            <Button
+              onClick={() => setShowBoardingDetailsDialog(false)}
+              className="w-full"
+            >
               Close
             </Button>
           </DialogFooter>
@@ -1043,16 +1169,22 @@ export default function RequestManagementPage() {
       </Dialog>
 
       {/* Undo Accept Dialog - Update the title and description */}
-      <Dialog open={showUndoAcceptDialog} onOpenChange={setShowUndoAcceptDialog}>
-        <DialogContent className={`${isMobile ? "max-w-[95%]" : "sm:max-w-md"}`}>
+      <Dialog
+        open={showUndoAcceptDialog}
+        onOpenChange={setShowUndoAcceptDialog}
+      >
+        <DialogContent
+          className={`${isMobile ? "max-w-[95%]" : "sm:max-w-md"}`}
+        >
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-amber-500" />
               Return Request to New
             </DialogTitle>
             <DialogDescription>
-              This will move the request back to the "New Requests" tab. Please provide a reason for this change that
-              will be visible to the pet owner.
+              This will move the request back to the "New Requests" tab. Please
+              provide a reason for this change that will be visible to the pet
+              owner.
             </DialogDescription>
           </DialogHeader>
 
@@ -1070,14 +1202,19 @@ export default function RequestManagementPage() {
                 className="resize-none"
               />
               <p className="text-xs text-muted-foreground">
-                This message will be sent to the pet owner to explain why their request is being returned to the New
-                Requests tab for reassignment or further evaluation.
+                This message will be sent to the pet owner to explain why their
+                request is being returned to the New Requests tab for
+                reassignment or further evaluation.
               </p>
             </div>
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowUndoAcceptDialog(false)} disabled={isProcessing}>
+            <Button
+              variant="outline"
+              onClick={() => setShowUndoAcceptDialog(false)}
+              disabled={isProcessing}
+            >
               Cancel
             </Button>
             <Button
@@ -1099,13 +1236,18 @@ export default function RequestManagementPage() {
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }
 
 // Update the InProgressRequestCard component to enhance labels and values
-function InProgressRequestCard({ request, onProcess, onUndoAccept, onViewDetails }: InProgressRequestCardProps) {
-  const isMobile = useMediaQuery("(max-width: 640px)")
-  const isSmallCard = useMediaQuery("(max-width: 400px)")
+function InProgressRequestCard({
+  request,
+  onProcess,
+  onUndoAccept,
+  onViewDetails,
+}: InProgressRequestCardProps) {
+  const isMobile = useMediaQuery("(max-width: 640px)");
+  const isSmallCard = useMediaQuery("(max-width: 400px)");
 
   return (
     <motion.div
@@ -1142,37 +1284,50 @@ function InProgressRequestCard({ request, onProcess, onUndoAccept, onViewDetails
                   {getRequestTypeLabel(request.type)}
                 </CardTitle>
                 <CardDescription className="text-foreground/70 dark:text-foreground/60 font-medium">
-                  {request.petName} <span className="text-muted-foreground">({request.petOwnerName})</span>
+                  {request.petName}{" "}
+                  <span className="text-muted-foreground">
+                    ({request.petOwnerName})
+                  </span>
                 </CardDescription>
               </div>
             </div>
           </div>
         </CardHeader>
         <CardContent className="p-4 pt-2 flex-grow">
-          <p className="text-sm line-clamp-3 text-foreground/90 dark:text-foreground/80">{request.description}</p>
+          <p className="text-sm line-clamp-3 text-foreground/90 dark:text-foreground/80">
+            {request.description}
+          </p>
 
-          {request.type === "boarding-extension" && request.extensionDetails && (
-            <div className="mt-3 flex flex-col gap-1">
-              <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Extension</span>
-              <div className="flex items-center justify-between">
-                <span className="text-base font-medium text-amber-700 dark:text-amber-400">
-                  {request.extensionDetails.duration} {request.extensionDetails.unit}
+          {request.type === "boarding-extension" &&
+            request.extensionDetails && (
+              <div className="mt-3 flex flex-col gap-1">
+                <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+                  Extension
                 </span>
-                {request.price && (
-                  <span className="text-base font-medium text-green-600 dark:text-green-400">
-                    {formatCurrency(request.price)}
+                <div className="flex items-center justify-between">
+                  <span className="text-base font-medium text-amber-700 dark:text-amber-400">
+                    {request.extensionDetails.duration}{" "}
+                    {request.extensionDetails.unit}
                   </span>
-                )}
+                  {request.price && (
+                    <span className="text-base font-medium text-green-600 dark:text-green-400">
+                      {formatCurrency(request.price)}
+                    </span>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
           {request.type === "grooming" && request.groomingService && (
             <div className="mt-3 flex flex-col gap-1">
-              <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Service</span>
+              <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+                Service
+              </span>
               <div className="flex items-center justify-between">
                 <span className="text-base font-medium text-green-700 dark:text-green-400">
-                  {request.groomingService.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+                  {request.groomingService
+                    .replace(/-/g, " ")
+                    .replace(/\b\w/g, (l) => l.toUpperCase())}
                 </span>
                 {request.price && (
                   <span className="text-base font-medium text-green-600 dark:text-green-400">
@@ -1184,8 +1339,12 @@ function InProgressRequestCard({ request, onProcess, onUndoAccept, onViewDetails
           )}
 
           <div className="mt-3">
-            <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Submitted</span>
-            <div className="text-sm font-medium mt-0.5">{formatDate(request.createdAt)}</div>
+            <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+              Submitted
+            </span>
+            <div className="text-sm font-medium mt-0.5">
+              {formatDate(request.createdAt)}
+            </div>
           </div>
 
           {/* Show undo reason if this was previously completed and undone */}
@@ -1194,7 +1353,9 @@ function InProgressRequestCard({ request, onProcess, onUndoAccept, onViewDetails
               <p className="text-xs uppercase tracking-wide text-amber-700 dark:text-amber-300 font-medium">
                 Returned to In-Progress
               </p>
-              <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">{request.undoReason}</p>
+              <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
+                {request.undoReason}
+              </p>
               <p className="text-xs text-amber-600/70 dark:text-amber-400/70 mt-1">
                 {request.undoTimestamp ? formatDate(request.undoTimestamp) : ""}
               </p>
@@ -1205,8 +1366,8 @@ function InProgressRequestCard({ request, onProcess, onUndoAccept, onViewDetails
           <Button
             className="w-full"
             onClick={(e) => {
-              e.stopPropagation() // Prevent card click event
-              onProcess() // Use the passed prop instead of direct state manipulation
+              e.stopPropagation(); // Prevent card click event
+              onProcess(); // Use the passed prop instead of direct state manipulation
             }}
             size={isSmallCard ? "sm" : "default"}
           >
@@ -1216,8 +1377,8 @@ function InProgressRequestCard({ request, onProcess, onUndoAccept, onViewDetails
             variant="outline"
             className="w-full text-amber-600 border-amber-200 hover:bg-amber-50 hover:text-amber-700 dark:border-amber-800 dark:text-amber-400 dark:hover:bg-amber-950/50"
             onClick={(e) => {
-              e.stopPropagation() // Prevent card click event
-              onUndoAccept && onUndoAccept()
+              e.stopPropagation(); // Prevent card click event
+              onUndoAccept && onUndoAccept();
             }}
             size={isSmallCard ? "sm" : "default"}
           >
@@ -1227,20 +1388,22 @@ function InProgressRequestCard({ request, onProcess, onUndoAccept, onViewDetails
         </CardFooter>
       </Card>
     </motion.div>
-  )
+  );
 }
 
 // Update CompletedRequestCard to remove 'new' badge when viewed
 function CompletedRequestCard({ request }: CompletedRequestCardProps) {
-  const [showDetails, setShowDetails] = useState(false)
-  const [isNewlyCompleted, setIsNewlyCompleted] = useState(request.isNewlyCompleted)
-  const isMobile = useMediaQuery("(max-width: 640px)")
+  const [showDetails, setShowDetails] = useState(false);
+  const [isNewlyCompleted, setIsNewlyCompleted] = useState(
+    request.isNewlyCompleted,
+  );
+  const isMobile = useMediaQuery("(max-width: 640px)");
 
   // Remove the 'new' badge when the details dialog is opened
   const handleViewDetails = () => {
-    setIsNewlyCompleted(false)
-    setShowDetails(true)
-  }
+    setIsNewlyCompleted(false);
+    setShowDetails(true);
+  };
 
   return (
     <>
@@ -1254,7 +1417,9 @@ function CompletedRequestCard({ request }: CompletedRequestCardProps) {
       >
         <Card
           className={`border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950/20 w-full h-full flex flex-col ${
-            isNewlyCompleted ? "ring-2 ring-green-400 dark:ring-green-600 shadow-md" : ""
+            isNewlyCompleted
+              ? "ring-2 ring-green-400 dark:ring-green-600 shadow-md"
+              : ""
           }`}
           onClick={handleViewDetails}
         >
@@ -1278,7 +1443,10 @@ function CompletedRequestCard({ request }: CompletedRequestCardProps) {
                     {getRequestTypeLabel(request.type)}
                   </CardTitle>
                   <CardDescription className="text-foreground/70 dark:text-foreground/60 font-medium">
-                    {request.petName} <span className="text-muted-foreground">({request.petOwnerName})</span>
+                    {request.petName}{" "}
+                    <span className="text-muted-foreground">
+                      ({request.petOwnerName})
+                    </span>
                   </CardDescription>
                 </div>
               </div>
@@ -1301,59 +1469,78 @@ function CompletedRequestCard({ request }: CompletedRequestCardProps) {
             </div>
           </CardHeader>
           <CardContent className="p-4 pt-2 flex-grow">
-            <p className="text-sm line-clamp-2 text-foreground/90 dark:text-foreground/80">{request.description}</p>
+            <p className="text-sm line-clamp-2 text-foreground/90 dark:text-foreground/80">
+              {request.description}
+            </p>
 
-            {(request.type === "grooming" || request.type === "boarding-extension") && request.price && (
-              <div className="mt-3 flex flex-col gap-1">
-                <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Price</span>
-                <span className="text-base font-medium text-green-600 dark:text-green-400">
-                  {formatCurrency(request.price)}
-                </span>
-              </div>
-            )}
+            {(request.type === "grooming" ||
+              request.type === "boarding-extension") &&
+              request.price && (
+                <div className="mt-3 flex flex-col gap-1">
+                  <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+                    Price
+                  </span>
+                  <span className="text-base font-medium text-green-600 dark:text-green-400">
+                    {formatCurrency(request.price)}
+                  </span>
+                </div>
+              )}
 
             <div className="mt-3 grid grid-cols-2 gap-x-2 gap-y-3">
               <div>
-                <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Submitted</span>
-                <div className="text-sm font-medium mt-0.5">{formatDate(request.createdAt)}</div>
+                <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+                  Submitted
+                </span>
+                <div className="text-sm font-medium mt-0.5">
+                  {formatDate(request.createdAt)}
+                </div>
               </div>
 
               <div>
-                <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Completed</span>
-                <div className="text-sm font-medium mt-0.5">{formatDate(request.completedAt)}</div>
+                <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+                  Completed
+                </span>
+                <div className="text-sm font-medium mt-0.5">
+                  {formatDate(request.completedAt)}
+                </div>
               </div>
 
               <div className="col-span-2">
-                <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Completed by</span>
-                <div className="text-sm font-medium mt-0.5">{request.completedBy}</div>
+                <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+                  Completed by
+                </span>
+                <div className="text-sm font-medium mt-0.5">
+                  {request.completedBy}
+                </div>
               </div>
             </div>
 
             {/* Show media thumbnail if available */}
-            {request.mediaFiles && (request.type === "photo" || request.type === "video") && (
-              <div className="mt-3">
-                <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-                  {request.type === "photo" ? "Photos" : "Video"}
-                </span>
-                <div className="mt-1 bg-muted/30 rounded-md p-2 flex items-center justify-between">
-                  <span className="text-sm">
-                    {request.mediaFiles.count || 1} {request.type}
-                    {request.mediaFiles.count > 1 ? "s" : ""} uploaded
+            {request.mediaFiles &&
+              (request.type === "photo" || request.type === "video") && (
+                <div className="mt-3">
+                  <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+                    {request.type === "photo" ? "Photos" : "Video"}
                   </span>
-                  <Badge variant="outline" className="text-xs">
-                    View in details
-                  </Badge>
+                  <div className="mt-1 bg-muted/30 rounded-md p-2 flex items-center justify-between">
+                    <span className="text-sm">
+                      {request.mediaFiles.count || 1} {request.type}
+                      {request.mediaFiles.count > 1 ? "s" : ""} uploaded
+                    </span>
+                    <Badge variant="outline" className="text-xs">
+                      View in details
+                    </Badge>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
           </CardContent>
           <CardFooter className="p-4 pt-0 mt-auto">
             <Button
               variant="outline"
               className="w-full"
               onClick={(e) => {
-                e.stopPropagation()
-                handleViewDetails()
+                e.stopPropagation();
+                handleViewDetails();
               }}
             >
               View Details
@@ -1366,7 +1553,7 @@ function CompletedRequestCard({ request }: CompletedRequestCardProps) {
         open={showDetails}
         onOpenChange={(open) => {
           if (!open) {
-            setShowDetails(false)
+            setShowDetails(false);
           }
         }}
       >
@@ -1390,7 +1577,8 @@ function CompletedRequestCard({ request }: CompletedRequestCardProps) {
               {getRequestTypeLabel(request.type)} Request
             </DialogTitle>
             <DialogDescription>
-              Completed on {formatDate(request.completedAt)} by {request.completedBy}
+              Completed on {formatDate(request.completedAt)} by{" "}
+              {request.completedBy}
             </DialogDescription>
           </DialogHeader>
 
@@ -1404,39 +1592,44 @@ function CompletedRequestCard({ request }: CompletedRequestCardProps) {
                   </h3>
                   <p className="text-lg font-semibold">{request.petName}</p>
                   <p className="text-sm">
-                    Owner: <span className="font-medium">{request.petOwnerName}</span>
+                    Owner:{" "}
+                    <span className="font-medium">{request.petOwnerName}</span>
                   </p>
                 </div>
 
-                {request.type === "boarding-extension" && request.extensionDetails && (
-                  <div className="bg-white dark:bg-slate-800 p-3 rounded-lg shadow-sm">
-                    <h3 className="text-xs uppercase tracking-wide text-muted-foreground font-medium mb-2">
-                      Extension Details
-                    </h3>
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm">Duration:</span>
-                        <span className="text-base font-medium text-amber-700 dark:text-amber-400">
-                          {request.extensionDetails.duration} {request.extensionDetails.unit}
-                        </span>
-                      </div>
-                      {request.price && (
+                {request.type === "boarding-extension" &&
+                  request.extensionDetails && (
+                    <div className="bg-white dark:bg-slate-800 p-3 rounded-lg shadow-sm">
+                      <h3 className="text-xs uppercase tracking-wide text-muted-foreground font-medium mb-2">
+                        Extension Details
+                      </h3>
+                      <div className="space-y-2">
                         <div className="flex justify-between items-center">
-                          <span className="text-sm">Price:</span>
-                          <span className="text-base font-medium text-green-600 dark:text-green-400">
-                            {formatCurrency(request.price)}
+                          <span className="text-sm">Duration:</span>
+                          <span className="text-base font-medium text-amber-700 dark:text-amber-400">
+                            {request.extensionDetails.duration}{" "}
+                            {request.extensionDetails.unit}
                           </span>
                         </div>
-                      )}
-                      {request.newEndDate && (
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm">New End Date:</span>
-                          <span className="text-base font-medium">{formatDate(request.newEndDate)}</span>
-                        </div>
-                      )}
+                        {request.price && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm">Price:</span>
+                            <span className="text-base font-medium text-green-600 dark:text-green-400">
+                              {formatCurrency(request.price)}
+                            </span>
+                          </div>
+                        )}
+                        {request.newEndDate && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm">New End Date:</span>
+                            <span className="text-base font-medium">
+                              {formatDate(request.newEndDate)}
+                            </span>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
                 {request.type === "grooming" && request.groomingService && (
                   <div className="bg-white dark:bg-slate-800 p-3 rounded-lg shadow-sm">
@@ -1447,7 +1640,9 @@ function CompletedRequestCard({ request }: CompletedRequestCardProps) {
                       <div className="flex justify-between items-center">
                         <span className="text-sm">Service:</span>
                         <span className="text-base font-medium text-green-700 dark:text-green-400">
-                          {request.groomingService.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+                          {request.groomingService
+                            .replace(/-/g, " ")
+                            .replace(/\b\w/g, (l) => l.toUpperCase())}
                         </span>
                       </div>
                       {request.price && (
@@ -1463,22 +1658,30 @@ function CompletedRequestCard({ request }: CompletedRequestCardProps) {
                 )}
 
                 <div className="bg-white dark:bg-slate-800 p-3 rounded-lg shadow-sm">
-                  <h3 className="text-xs uppercase tracking-wide text-muted-foreground font-medium mb-2">Timeline</h3>
+                  <h3 className="text-xs uppercase tracking-wide text-muted-foreground font-medium mb-2">
+                    Timeline
+                  </h3>
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
                       <span className="text-sm">Submitted:</span>
-                      <span className="text-base font-medium">{formatDate(request.createdAt)}</span>
+                      <span className="text-base font-medium">
+                        {formatDate(request.createdAt)}
+                      </span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm">Completed:</span>
-                      <span className="text-base font-medium">{formatDate(request.completedAt)}</span>
+                      <span className="text-base font-medium">
+                        {formatDate(request.completedAt)}
+                      </span>
                     </div>
                   </div>
                 </div>
 
                 {request.mediaFiles && (
                   <div className="bg-white dark:bg-slate-800 p-3 rounded-lg shadow-sm">
-                    <h3 className="text-xs uppercase tracking-wide text-muted-foreground font-medium mb-2">Media</h3>
+                    <h3 className="text-xs uppercase tracking-wide text-muted-foreground font-medium mb-2">
+                      Media
+                    </h3>
                     <div className="p-3 bg-muted/50 rounded-md text-center">
                       <span className="font-medium">
                         {request.mediaFiles.count || 1} {request.type}
@@ -1506,7 +1709,9 @@ function CompletedRequestCard({ request }: CompletedRequestCardProps) {
                 {/* Admin response message */}
                 <ChatBubble
                   sender={request.completedBy || "Admin"}
-                  message={request.processingNotes || "Request completed successfully."}
+                  message={
+                    request.processingNotes || "Request completed successfully."
+                  }
                   timestamp={request.completedAt}
                   avatar="A"
                   isAdmin={true}
@@ -1517,7 +1722,11 @@ function CompletedRequestCard({ request }: CompletedRequestCardProps) {
                   <ChatBubble
                     sender={request.completedBy || "Admin"}
                     message={`Here's the ${
-                      request.type === "photo" ? (request.mediaFiles.count > 1 ? "photos" : "photo") : "video"
+                      request.type === "photo"
+                        ? request.mediaFiles.count > 1
+                          ? "photos"
+                          : "photo"
+                        : "video"
                     } of ${request.petName} as requested.`}
                     timestamp={request.completedAt}
                     avatar="A"
@@ -1535,15 +1744,16 @@ function CompletedRequestCard({ request }: CompletedRequestCardProps) {
                 )}
 
                 {/* Conditional confirmation message for boarding extension */}
-                {request.type === "boarding-extension" && request.newEndDate && (
-                  <ChatBubble
-                    sender={request.completedBy || "Admin"}
-                    message={`The boarding extension has been approved. The new end date is ${formatDate(request.newEndDate)}.`}
-                    timestamp={request.completedAt}
-                    avatar="A"
-                    isAdmin={true}
-                  />
-                )}
+                {request.type === "boarding-extension" &&
+                  request.newEndDate && (
+                    <ChatBubble
+                      sender={request.completedBy || "Admin"}
+                      message={`The boarding extension has been approved. The new end date is ${formatDate(request.newEndDate)}.`}
+                      timestamp={request.completedAt}
+                      avatar="A"
+                      isAdmin={true}
+                    />
+                  )}
 
                 {/* Conditional confirmation message for grooming */}
                 {request.type === "grooming" && (
@@ -1559,14 +1769,16 @@ function CompletedRequestCard({ request }: CompletedRequestCardProps) {
 
               {/* Removed chat input area - no longer needed */}
               <div className="p-4 border-t">
-                <div className="text-center text-sm text-muted-foreground">This conversation is completed</div>
+                <div className="text-center text-sm text-muted-foreground">
+                  This conversation is completed
+                </div>
               </div>
             </div>
           </div>
         </DialogContent>
       </Dialog>
     </>
-  )
+  );
 }
 
 // Enhance the RequestCardSkeleton component with better animation
@@ -1597,7 +1809,7 @@ function RequestCardSkeleton() {
         </CardFooter>
       </Card>
     </div>
-  )
+  );
 }
 
 function EmptyState({ message = "No requests found" }: { message?: string }) {
@@ -1611,6 +1823,5 @@ function EmptyState({ message = "No requests found" }: { message?: string }) {
         </p>
       </CardContent>
     </Card>
-  )
+  );
 }
-
