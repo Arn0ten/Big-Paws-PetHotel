@@ -9,6 +9,13 @@ const config: Config = {
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
+    container: {
+      center: true,
+      padding: "2rem",
+      screens: {
+        "2xl": "1400px",
+      },
+    },
     extend: {
       colors: {
         border: "hsl(var(--border))",
@@ -52,17 +59,30 @@ const config: Config = {
       },
       keyframes: {
         "accordion-down": {
-          from: { height: "0" },
+          from: { height: 0 },
           to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
           from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: "0" },
+          to: { height: 0 },
+        },
+        "spin-slow": {
+          "0%": { transform: "rotate(0deg)" },
+          "100%": { transform: "rotate(360deg)" },
+        },
+        "pet-walk": {
+          "0%": { transform: "translateX(0%) translateY(0px)" },
+          "25%": { transform: "translateX(25%) translateY(-5px)" },
+          "50%": { transform: "translateX(50%) translateY(0px)" },
+          "75%": { transform: "translateX(75%) translateY(-5px)" },
+          "100%": { transform: "translateX(100%) translateY(0px)" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "spin-slow": "spin-slow 10s linear infinite",
+        "pet-walk": "pet-walk 10s linear infinite",
       },
     },
   },
