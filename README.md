@@ -35,7 +35,6 @@ We utilize **Mailgun** and optionally **Resend** for email services, and **Leafl
 ✅ **React components** for a modular structure  
 ✅ **Server-side rendering (SSR) and static generation (SSG)** for fast loading  
 ✅ Fully **responsive** design for all devices  
-✅ **Pure HTML, CSS, and JavaScript** for the web app  
 ✅ **Node.js** and **NoSQL MongoDB** for the backend  
-✅ **APIs** integrated with **Mailgun** and optionally **Resend**  
+✅ **APIs** integrated with **Resen**. 
 ✅ **Maps** integration with **Leaflet** and **OpenStreetMap**  
