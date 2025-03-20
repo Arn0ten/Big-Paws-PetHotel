@@ -349,6 +349,43 @@ export default function RequestDetailPage() {
                         </div>
                       )}
 
+                      {/* Add conditional for displaying grooming photos */}
+                      {request.type === "grooming" &&
+                        request.mediaFiles &&
+                        request.mediaFiles.urls &&
+                        request.mediaFiles.urls.length > 0 && (
+                          <div className="flex gap-3">
+                            <div className="flex-shrink-0 h-8 w-8 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 flex items-center justify-center">
+                              A
+                            </div>
+                            <div className="max-w-[80%] rounded-lg p-3 bg-gray-100 dark:bg-gray-800 text-foreground dark:text-foreground">
+                              <p className="text-sm whitespace-pre-wrap">
+                                Here are photos of {request.petName} after the
+                                grooming service.
+                              </p>
+
+                              <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                {request.mediaFiles.urls.map((url, index) => (
+                                  <div
+                                    key={index}
+                                    className="rounded-md overflow-hidden border"
+                                  >
+                                    <img
+                                      src={url || "/placeholder.svg"}
+                                      alt={`${request.petName} after grooming ${index + 1}`}
+                                      className="object-cover w-full h-32"
+                                    />
+                                  </div>
+                                ))}
+                              </div>
+
+                              <p className="text-xs opacity-70 mt-1 text-right">
+                                {formatDate(request.completedAt)}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+
                       {/* Specific response for boarding extension */}
                       {request.type === "boarding-extension" &&
                         request.newEndDate && (

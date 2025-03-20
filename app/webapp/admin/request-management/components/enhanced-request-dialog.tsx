@@ -338,6 +338,8 @@ export function EnhancedRequestDialog({
       return false;
     }
 
+    // Photos for grooming are optional, so we don't need to validate them here
+
     // Processing notes are optional but recommended
     return true;
   };
@@ -793,6 +795,25 @@ export function EnhancedRequestDialog({
                         </div>
                       </CardContent>
                     </Card>
+                  </div>
+
+                  {/* Add photo upload section for grooming service */}
+                  <div>
+                    <Label className="text-base font-medium">
+                      Upload Grooming Photos
+                    </Label>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Upload up to 2 photos of {request.petName} after grooming
+                      to share with the pet owner.
+                    </p>
+                    <PhotoUpload
+                      selectedFiles={selectedFiles}
+                      previewUrls={previewUrls}
+                      onFileSelect={handlePhotoSelect}
+                      onRemoveFile={handleRemoveSelectedFile}
+                      onRemoveAllFiles={handleRemoveAllPhotos}
+                      maxFiles={2}
+                    />
                   </div>
 
                   <div>

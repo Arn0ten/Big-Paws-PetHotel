@@ -1,53 +1,62 @@
 // Types for request management module
-export type RequestType = "photo" | "video" | "grooming" | "boarding-extension" | "custom"
+export type RequestType =
+  | "photo"
+  | "video"
+  | "grooming"
+  | "boarding-extension"
+  | "custom";
 
-export type RequestStatus = "in-progress" | "completed"
+export type RequestStatus = "in-progress" | "completed";
 
-export type PaymentStatus = "Paid" | "Not Paid" | "Pending"
+export type PaymentStatus = "Paid" | "Not Paid" | "Pending";
 
-export type PetSize = "Small" | "Medium" | "Large" | "XLarge"
+export type PetSize = "Small" | "Medium" | "Large" | "XLarge";
 
 export interface MediaPreview {
-  file: File
-  url: string
-  type: "image" | "video"
+  file: File;
+  url: string;
+  type: "image" | "video";
 }
 
 export interface BoardingExtension {
-  duration: string
-  unit: "hours" | "days"
-  currentEndDate: string
-  newEndDate?: string
+  duration: string;
+  unit: "hours" | "days";
+  currentEndDate: string;
+  newEndDate?: string;
 }
 
 export interface GroomingService {
-  type: string
-  price: number
+  type: string;
+  price: number;
 }
 
 export interface Request {
-  id: string
-  type: RequestType
-  petName: string
-  petSize: PetSize
-  petOwnerId: string
-  petOwnerName: string
-  status: RequestStatus
-  createdAt: string
-  description: string
-  isUrgent: boolean
-  completedAt?: string
-  completedBy?: string
-  processingNotes?: string
-  mediaUrl?: string
-  mediaType?: "image" | "video"
-  groomingService?: string
-  extensionDetails?: BoardingExtension
-  price?: number
-  fileUploaded?: boolean
-  extensionApproved?: boolean
-  newEndDate?: string
-  isNew?: boolean
+  id: string;
+  type: RequestType;
+  petName: string;
+  petSize: PetSize;
+  petOwnerId: string;
+  petOwnerName: string;
+  status: RequestStatus;
+  createdAt: string;
+  description: string;
+  isUrgent: boolean;
+  completedAt?: string;
+  completedBy?: string;
+  processingNotes?: string;
+  mediaUrl?: string;
+  mediaType?: "image" | "video";
+  groomingService?: string;
+  extensionDetails?: BoardingExtension;
+  price?: number;
+  fileUploaded?: boolean;
+  extensionApproved?: boolean;
+  newEndDate?: string;
+  isNew?: boolean;
+  mediaFiles?: {
+    urls: string[];
+    types: ("image" | "video")[];
+  };
 }
 
 // Pricing constants based on uploaded images
@@ -64,7 +73,7 @@ export const BOARDING_RATES = {
     Large: 480,
     XLarge: 550,
   },
-}
+};
 
 export const GROOMING_RATES = {
   "basic-wash": {
@@ -91,5 +100,4 @@ export const GROOMING_RATES = {
     Large: 700,
     XLarge: 800,
   },
-}
-
+};

@@ -568,3 +568,7 @@ export function ChatBubble({
     </>
   );
 }
+
+// Note: The ChatBubble component should be updated to handle multiple images in the media prop
+// The media prop should be updated to accept an array of URLs and types
+// If the component doesn't exist, it should be created with this functionality

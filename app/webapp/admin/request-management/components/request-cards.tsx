@@ -1,31 +1,54 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { motion } from "framer-motion"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { ArrowLeft, CheckCircle, AlertCircle } from "lucide-react"
-import { useMediaQuery } from "@/hooks/use-media-query"
-import { formatDate } from "../utils/helpers"
-import { formatCurrency } from "../../boarding/utils/helpers"
-import { getRequestTypeIcon, getRequestTypeLabel, getCardBorderColor, getCardBgColor } from "../utils/ui-helpers"
-import { ChatBubble } from "./chat-bubble"
-import { Input } from "@/components/ui/input"
+import { useState } from "react";
+import { motion } from "framer-motion";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { ArrowLeft, CheckCircle, AlertCircle } from "lucide-react";
+import { useMediaQuery } from "@/hooks/use-media-query";
+import { formatDate } from "../utils/helpers";
+import { formatCurrency } from "../../boarding/utils/helpers";
+import {
+  getRequestTypeIcon,
+  getRequestTypeLabel,
+  getCardBorderColor,
+  getCardBgColor,
+} from "../utils/ui-helpers";
+import { ChatBubble } from "./chat-bubble";
+import { Input } from "@/components/ui/input";
 
 // In Progress Request Card
 export interface InProgressRequestCardProps {
-  request: any
-  onProcess: () => void
-  onUndoAccept?: () => void
-  onViewDetails: () => void
+  request: any;
+  onProcess: () => void;
+  onUndoAccept?: () => void;
+  onViewDetails: () => void;
 }
 
-export function InProgressRequestCard({ request, onProcess, onUndoAccept, onViewDetails }: InProgressRequestCardProps) {
-  const isMobile = useMediaQuery("(max-width: 640px)")
-  const isSmallCard = useMediaQuery("(max-width: 400px)")
+export function InProgressRequestCard({
+  request,
+  onProcess,
+  onUndoAccept,
+  onViewDetails,
+}: InProgressRequestCardProps) {
+  const isMobile = useMediaQuery("(max-width: 640px)");
+  const isSmallCard = useMediaQuery("(max-width: 400px)");
 
   return (
     <motion.div
@@ -62,7 +85,10 @@ export function InProgressRequestCard({ request, onProcess, onUndoAccept, onView
                   {getRequestTypeLabel(request.type)}
                 </CardTitle>
                 <CardDescription className="text-foreground/70 dark:text-foreground/60 font-medium">
-                  {request.petName} <span className="text-muted-foreground">({request.petOwnerName})</span>
+                  {request.petName}{" "}
+                  <span className="text-muted-foreground">
+                    ({request.petOwnerName})
+                  </span>
                 </CardDescription>
               </div>
             </div>
@@ -74,30 +100,40 @@ export function InProgressRequestCard({ request, onProcess, onUndoAccept, onView
           </div>
         </CardHeader>
         <CardContent className="p-4 pt-2 flex-grow">
-          <p className="text-sm line-clamp-3 text-foreground/90 dark:text-foreground/80">{request.description}</p>
+          <p className="text-sm line-clamp-3 text-foreground/90 dark:text-foreground/80">
+            {request.description}
+          </p>
 
-          {request.type === "boarding-extension" && request.extensionDetails && (
-            <div className="mt-3 flex flex-col gap-1">
-              <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Extension</span>
-              <div className="flex items-center justify-between">
-                <span className="text-base font-medium text-amber-700 dark:text-amber-400">
-                  {request.extensionDetails.duration} {request.extensionDetails.unit}
+          {request.type === "boarding-extension" &&
+            request.extensionDetails && (
+              <div className="mt-3 flex flex-col gap-1">
+                <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+                  Extension
                 </span>
-                {request.price && (
-                  <span className="text-base font-medium text-green-600 dark:text-green-400">
-                    {formatCurrency(request.price)}
+                <div className="flex items-center justify-between">
+                  <span className="text-base font-medium text-amber-700 dark:text-amber-400">
+                    {request.extensionDetails.duration}{" "}
+                    {request.extensionDetails.unit}
                   </span>
-                )}
+                  {request.price && (
+                    <span className="text-base font-medium text-green-600 dark:text-green-400">
+                      {formatCurrency(request.price)}
+                    </span>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
           {request.type === "grooming" && request.groomingService && (
             <div className="mt-3 flex flex-col gap-1">
-              <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Service</span>
+              <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+                Service
+              </span>
               <div className="flex items-center justify-between">
                 <span className="text-base font-medium text-green-700 dark:text-green-400">
-                  {request.groomingService.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+                  {request.groomingService
+                    .replace(/-/g, " ")
+                    .replace(/\b\w/g, (l) => l.toUpperCase())}
                 </span>
                 {request.price && (
                   <span className="text-base font-medium text-green-600 dark:text-green-400">
@@ -109,8 +145,12 @@ export function InProgressRequestCard({ request, onProcess, onUndoAccept, onView
           )}
 
           <div className="mt-3">
-            <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Submitted</span>
-            <div className="text-sm font-medium mt-0.5">{formatDate(request.createdAt)}</div>
+            <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+              Submitted
+            </span>
+            <div className="text-sm font-medium mt-0.5">
+              {formatDate(request.createdAt)}
+            </div>
           </div>
 
           {/* Show undo reason if this was previously completed and undone */}
@@ -119,7 +159,9 @@ export function InProgressRequestCard({ request, onProcess, onUndoAccept, onView
               <p className="text-xs uppercase tracking-wide text-amber-700 dark:text-amber-300 font-medium">
                 Returned to In-Progress
               </p>
-              <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">{request.undoReason}</p>
+              <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
+                {request.undoReason}
+              </p>
               <p className="text-xs text-amber-600/70 dark:text-amber-400/70 mt-1">
                 {request.undoTimestamp ? formatDate(request.undoTimestamp) : ""}
               </p>
@@ -130,8 +172,8 @@ export function InProgressRequestCard({ request, onProcess, onUndoAccept, onView
           <Button
             className="w-full"
             onClick={(e) => {
-              e.stopPropagation() // Prevent card click event
-              onProcess() // Use the passed prop instead of direct state manipulation
+              e.stopPropagation(); // Prevent card click event
+              onProcess(); // Use the passed prop instead of direct state manipulation
             }}
             size={isSmallCard ? "sm" : "default"}
           >
@@ -141,8 +183,8 @@ export function InProgressRequestCard({ request, onProcess, onUndoAccept, onView
             variant="outline"
             className="w-full text-amber-600 border-amber-200 hover:bg-amber-50 hover:text-amber-700 dark:border-amber-800 dark:text-amber-400 dark:hover:bg-amber-950/50"
             onClick={(e) => {
-              e.stopPropagation() // Prevent card click event
-              onUndoAccept && onUndoAccept()
+              e.stopPropagation(); // Prevent card click event
+              onUndoAccept && onUndoAccept();
             }}
             size={isSmallCard ? "sm" : "default"}
           >
@@ -152,20 +194,20 @@ export function InProgressRequestCard({ request, onProcess, onUndoAccept, onView
         </CardFooter>
       </Card>
     </motion.div>
-  )
+  );
 }
 
 // Completed Request Card
 export interface CompletedRequestCardProps {
-  request: any
+  request: any;
 }
 
 export function CompletedRequestCard({ request }: CompletedRequestCardProps) {
-  const [showDetails, setShowDetails] = useState(false)
-  const isMobile = useMediaQuery("(max-width: 640px)")
+  const [showDetails, setShowDetails] = useState(false);
+  const isMobile = useMediaQuery("(max-width: 640px)");
 
   // Check if this is a newly completed request
-  const isNewlyCompleted = request.isNewlyCompleted
+  const isNewlyCompleted = request.isNewlyCompleted;
 
   return (
     <>
@@ -179,7 +221,9 @@ export function CompletedRequestCard({ request }: CompletedRequestCardProps) {
       >
         <Card
           className={`border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950/20 w-full h-full flex flex-col ${
-            isNewlyCompleted ? "ring-2 ring-green-400 dark:ring-green-600 shadow-md" : ""
+            isNewlyCompleted
+              ? "ring-2 ring-green-400 dark:ring-green-600 shadow-md"
+              : ""
           }`}
         >
           <CardHeader className="p-4 pb-2">
@@ -202,7 +246,10 @@ export function CompletedRequestCard({ request }: CompletedRequestCardProps) {
                     {getRequestTypeLabel(request.type)}
                   </CardTitle>
                   <CardDescription className="text-foreground/70 dark:text-foreground/60 font-medium">
-                    {request.petName} <span className="text-muted-foreground">({request.petOwnerName})</span>
+                    {request.petName}{" "}
+                    <span className="text-muted-foreground">
+                      ({request.petOwnerName})
+                    </span>
                   </CardDescription>
                 </div>
               </div>
@@ -225,36 +272,58 @@ export function CompletedRequestCard({ request }: CompletedRequestCardProps) {
             </div>
           </CardHeader>
           <CardContent className="p-4 pt-2 flex-grow">
-            <p className="text-sm line-clamp-2 text-foreground/90 dark:text-foreground/80">{request.description}</p>
+            <p className="text-sm line-clamp-2 text-foreground/90 dark:text-foreground/80">
+              {request.description}
+            </p>
 
-            {(request.type === "grooming" || request.type === "boarding-extension") && request.price && (
-              <div className="mt-3 flex flex-col gap-1">
-                <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Price</span>
-                <span className="text-base font-medium text-green-600 dark:text-green-400">
-                  {formatCurrency(request.price)}
-                </span>
-              </div>
-            )}
+            {(request.type === "grooming" ||
+              request.type === "boarding-extension") &&
+              request.price && (
+                <div className="mt-3 flex flex-col gap-1">
+                  <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+                    Price
+                  </span>
+                  <span className="text-base font-medium text-green-600 dark:text-green-400">
+                    {formatCurrency(request.price)}
+                  </span>
+                </div>
+              )}
 
             <div className="mt-3 grid grid-cols-2 gap-x-2 gap-y-3">
               <div>
-                <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Submitted</span>
-                <div className="text-sm font-medium mt-0.5">{formatDate(request.createdAt)}</div>
+                <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+                  Submitted
+                </span>
+                <div className="text-sm font-medium mt-0.5">
+                  {formatDate(request.createdAt)}
+                </div>
               </div>
 
               <div>
-                <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Completed</span>
-                <div className="text-sm font-medium mt-0.5">{formatDate(request.completedAt)}</div>
+                <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+                  Completed
+                </span>
+                <div className="text-sm font-medium mt-0.5">
+                  {formatDate(request.completedAt)}
+                </div>
               </div>
 
               <div className="col-span-2">
-                <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Completed by</span>
-                <div className="text-sm font-medium mt-0.5">{request.completedBy}</div>
+                <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+                  Completed by
+                </span>
+                <div className="text-sm font-medium mt-0.5">
+                  {request.completedBy}
+                </div>
               </div>
             </div>
           </CardContent>
           <CardFooter className="p-4 pt-0 mt-auto">
-            <Button variant="outline" className="w-full" onClick={() => setShowDetails(true)}>
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => setShowDetails(true)}
+            >
               View Details
             </Button>
           </CardFooter>
@@ -262,7 +331,9 @@ export function CompletedRequestCard({ request }: CompletedRequestCardProps) {
       </motion.div>
 
       <Dialog open={showDetails} onOpenChange={setShowDetails}>
-        <DialogContent className={`${isMobile ? "w-[95vw] max-w-lg" : "max-w-4xl"} h-[80vh] p-0 flex flex-col`}>
+        <DialogContent
+          className={`${isMobile ? "w-[95vw] max-w-lg" : "max-w-4xl"} h-[80vh] p-0 flex flex-col`}
+        >
           <DialogHeader className="px-6 py-4 border-b">
             <DialogTitle className="text-xl flex items-center gap-2">
               <div
@@ -280,7 +351,8 @@ export function CompletedRequestCard({ request }: CompletedRequestCardProps) {
               {getRequestTypeLabel(request.type)} Request
             </DialogTitle>
             <DialogDescription>
-              Completed on {formatDate(request.completedAt)} by {request.completedBy}
+              Completed on {formatDate(request.completedAt)} by{" "}
+              {request.completedBy}
             </DialogDescription>
           </DialogHeader>
 
@@ -289,40 +361,55 @@ export function CompletedRequestCard({ request }: CompletedRequestCardProps) {
             <div className="w-full md:w-1/2 border-r overflow-y-auto p-4">
               <div className="space-y-4">
                 <div>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-1">Pet Information</h3>
+                  <h3 className="text-sm font-medium text-muted-foreground mb-1">
+                    Pet Information
+                  </h3>
                   <p className="text-base font-medium">{request.petName}</p>
-                  <p className="text-sm text-muted-foreground">Owner: {request.petOwnerName}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Owner: {request.petOwnerName}
+                  </p>
                 </div>
 
-                {request.type === "boarding-extension" && request.extensionDetails && (
-                  <div>
-                    <h3 className="text-sm font-medium text-muted-foreground mb-1">Extension Details</h3>
-                    <p className="text-base">
-                      <span className="font-medium">Duration:</span> {request.extensionDetails.duration}{" "}
-                      {request.extensionDetails.unit}
-                    </p>
-                    {request.price && (
+                {request.type === "boarding-extension" &&
+                  request.extensionDetails && (
+                    <div>
+                      <h3 className="text-sm font-medium text-muted-foreground mb-1">
+                        Extension Details
+                      </h3>
                       <p className="text-base">
-                        <span className="font-medium">Price:</span> {formatCurrency(request.price)}
+                        <span className="font-medium">Duration:</span>{" "}
+                        {request.extensionDetails.duration}{" "}
+                        {request.extensionDetails.unit}
                       </p>
-                    )}
-                    {request.newEndDate && (
-                      <p className="text-base">
-                        <span className="font-medium">New End Date:</span> {formatDate(request.newEndDate)}
-                      </p>
-                    )}
-                  </div>
-                )}
+                      {request.price && (
+                        <p className="text-base">
+                          <span className="font-medium">Price:</span>{" "}
+                          {formatCurrency(request.price)}
+                        </p>
+                      )}
+                      {request.newEndDate && (
+                        <p className="text-base">
+                          <span className="font-medium">New End Date:</span>{" "}
+                          {formatDate(request.newEndDate)}
+                        </p>
+                      )}
+                    </div>
+                  )}
 
                 {request.type === "grooming" && request.groomingService && (
                   <div>
-                    <h3 className="text-sm font-medium text-muted-foreground mb-1">Grooming Service</h3>
+                    <h3 className="text-sm font-medium text-muted-foreground mb-1">
+                      Grooming Service
+                    </h3>
                     <p className="text-base">
-                      {request.groomingService.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+                      {request.groomingService
+                        .replace(/-/g, " ")
+                        .replace(/\b\w/g, (l) => l.toUpperCase())}
                     </p>
                     {request.price && (
                       <p className="text-base">
-                        <span className="font-medium">Price:</span> {formatCurrency(request.price)}
+                        <span className="font-medium">Price:</span>{" "}
+                        {formatCurrency(request.price)}
                       </p>
                     )}
                   </div>
@@ -330,20 +417,30 @@ export function CompletedRequestCard({ request }: CompletedRequestCardProps) {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <h3 className="text-sm font-medium text-muted-foreground mb-1">Submitted</h3>
+                    <h3 className="text-sm font-medium text-muted-foreground mb-1">
+                      Submitted
+                    </h3>
                     <p className="text-base">{formatDate(request.createdAt)}</p>
                   </div>
                   <div>
-                    <h3 className="text-sm font-medium text-muted-foreground mb-1">Completed</h3>
-                    <p className="text-base">{formatDate(request.completedAt)}</p>
+                    <h3 className="text-sm font-medium text-muted-foreground mb-1">
+                      Completed
+                    </h3>
+                    <p className="text-base">
+                      {formatDate(request.completedAt)}
+                    </p>
                   </div>
                 </div>
 
                 {request.fileUploaded && (
                   <div>
-                    <h3 className="text-sm font-medium text-muted-foreground mb-1">Media</h3>
+                    <h3 className="text-sm font-medium text-muted-foreground mb-1">
+                      Media
+                    </h3>
                     <div className="mt-2 p-3 bg-muted rounded-md text-center text-muted-foreground">
-                      {request.type === "photo" ? "Photo uploaded" : "Video uploaded"}
+                      {request.type === "photo"
+                        ? "Photo uploaded"
+                        : "Video uploaded"}
                     </div>
                   </div>
                 )}
@@ -367,7 +464,9 @@ export function CompletedRequestCard({ request }: CompletedRequestCardProps) {
                 {/* Admin response message */}
                 <ChatBubble
                   sender={request.completedBy || "Admin"}
-                  message={request.processingNotes || "Request completed successfully."}
+                  message={
+                    request.processingNotes || "Request completed successfully."
+                  }
                   timestamp={request.completedAt}
                   avatar="A"
                   isAdmin={true}
@@ -389,15 +488,16 @@ export function CompletedRequestCard({ request }: CompletedRequestCardProps) {
                 )}
 
                 {/* Conditional confirmation message for boarding extension */}
-                {request.type === "boarding-extension" && request.newEndDate && (
-                  <ChatBubble
-                    sender={request.completedBy || "Admin"}
-                    message={`The boarding extension has been approved. The new end date is ${formatDate(request.newEndDate)}.`}
-                    timestamp={request.completedAt}
-                    avatar="A"
-                    isAdmin={true}
-                  />
-                )}
+                {request.type === "boarding-extension" &&
+                  request.newEndDate && (
+                    <ChatBubble
+                      sender={request.completedBy || "Admin"}
+                      message={`The boarding extension has been approved. The new end date is ${formatDate(request.newEndDate)}.`}
+                      timestamp={request.completedAt}
+                      avatar="A"
+                      isAdmin={true}
+                    />
+                  )}
 
                 {/* Conditional confirmation message for grooming */}
                 {request.type === "grooming" && (
@@ -409,11 +509,32 @@ export function CompletedRequestCard({ request }: CompletedRequestCardProps) {
                     isAdmin={true}
                   />
                 )}
+
+                {/* Add conditional media message for grooming service with photos */}
+                {request.type === "grooming" && request.fileUploaded && (
+                  <ChatBubble
+                    sender={request.completedBy || "Admin"}
+                    message={`Here are photos of ${request.petName} after the grooming service.`}
+                    timestamp={request.completedAt}
+                    avatar="A"
+                    isAdmin={true}
+                    media={{
+                      url:
+                        request.mediaUrl ||
+                        "/placeholder.svg?height=300&width=400",
+                      type: "image",
+                    }}
+                  />
+                )}
               </div>
 
               {/* Disabled input area to simulate messenger interface */}
               <div className="p-4 border-t flex items-center gap-2">
-                <Input className="flex-1" placeholder="This conversation is completed" disabled />
+                <Input
+                  className="flex-1"
+                  placeholder="This conversation is completed"
+                  disabled
+                />
                 <Button size="icon" variant="ghost" disabled>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -437,7 +558,7 @@ export function CompletedRequestCard({ request }: CompletedRequestCardProps) {
         </DialogContent>
       </Dialog>
     </>
-  )
+  );
 }
 
 // Skeleton and Empty State components
@@ -468,10 +589,14 @@ export function RequestCardSkeleton() {
         </CardFooter>
       </Card>
     </div>
-  )
+  );
 }
 
-export function EmptyState({ message = "No requests found" }: { message?: string }) {
+export function EmptyState({
+  message = "No requests found",
+}: {
+  message?: string;
+}) {
   return (
     <Card className="w-full">
       <CardContent className="flex flex-col items-center justify-center py-10">
@@ -482,6 +607,5 @@ export function EmptyState({ message = "No requests found" }: { message?: string
         </p>
       </CardContent>
     </Card>
-  )
+  );
 }
-
