@@ -164,7 +164,7 @@ export default function WelcomePage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t py-6">
+      {/* <footer className="border-t py-6">
         <div className="max-w-7xl mx-auto text-center text-muted-foreground text-sm px-6">
           <p>
             &copy; {new Date().getFullYear()} Big Paws Pet Hotel. All rights
@@ -176,7 +176,7 @@ export default function WelcomePage() {
             </Link>
           </p>
         </div>
-      </footer>
+      </footer> */}
     </div>
   );
 }
