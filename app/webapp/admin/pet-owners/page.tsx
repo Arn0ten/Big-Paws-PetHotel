@@ -1,26 +1,82 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect, useCallback } from "react"
-import { motion } from "framer-motion"
-import { useRouter } from "next/navigation"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Users, UserPlus, Filter, X, RefreshCw, Search, Loader2 } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
+import { useState, useEffect, useCallback } from "react";
+import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  Users,
+  UserPlus,
+  Filter,
+  X,
+  RefreshCw,
+  Search,
+  Loader2,
+} from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 
 // Import types and components from consolidated files
-import type { Pet, BoardingDetails } from "./utils/types"
-import { ITEMS_PER_PAGE } from "./utils/constants"
-import { usePetOwners, usePagination } from "./hooks"
-import { PetOwnerTable, PaginationControls } from "./components/table-components"
-import { PetDetailsDialog, AddPetDialog, DeleteConfirmDialog, SuccessDialog } from "./components/dialogs"
-import { BoardPetDialog } from "./components/board-pet-dialog"
-import { SuccessDialog as ActionSuccessDialog } from "../pets/components/confirmation-dialog"
+import type { Pet, BoardingDetails } from "./utils/types";
+import { ITEMS_PER_PAGE } from "./utils/constants";
+import { usePetOwners, usePagination } from "./hooks";
+import {
+  PetOwnerTable,
+  PaginationControls,
+} from "./components/table-components";
+import {
+  PetDetailsDialog,
+  AddPetDialog,
+  DeleteConfirmDialog,
+  SuccessDialog,
+} from "./components/dialogs";
+import { BoardPetDialog } from "./components/board-pet-dialog";
+import { SuccessDialog as ActionSuccessDialog } from "../pets/components/confirmation-dialog";
+
+/**
+ * BACKEND INTEGRATION NOTES:
+ *
+ * This page manages pet owners and their associated pets.
+ *
+ * Integration points:
+ * 1. Replace the SAMPLE_PET_OWNERS constant with data from your API
+ * 2. Replace the usePetOwners hook with actual API calls:
+ *    - fetchPetOwners(): GET /api/pet-owners
+ *    - removePetOwner(): DELETE /api/pet-owners/{id}
+ *    - updatePetOwner(): PUT /api/pet-owners/{id}
+ *
+ * 3. Replace handleSubmitNewPet with actual API call:
+ *    - POST /api/pet-owners/{ownerId}/pets
+ *
+ * 4. Replace handleSubmitBoarding with actual API call:
+ *    - POST /api/boarding
+ *
+ * 5. Replace handleEndBoarding with actual API call:
+ *    - PUT /api/boarding/{boardingId}/end
+ *
+ * 6. Implement handleEditPetOwner to either:
+ *    - Navigate to a dedicated edit page
+ *    - Open an edit dialog with form fields
+ *    - Connect to PUT /api/pet-owners/{id}
+ *
+ * Expected data formats are documented in the corresponding API utility files.
+ */
 
 // BACKEND INTEGRATION: Sample data for demonstration purposes
 // This should be replaced with actual API calls in production
@@ -279,29 +335,29 @@ const SAMPLE_PET_OWNERS = [
       },
     ],
   },
-]
+];
 
 export default function PetOwnersPage() {
-  const router = useRouter()
-  const { toast } = useToast()
+  const router = useRouter();
+  const { toast } = useToast();
 
   // State
-  const [searchQuery, setSearchQuery] = useState("")
-  const [searchInputValue, setSearchInputValue] = useState("")
-  const [filterCity, setFilterCity] = useState<string>("all")
-  const [filterHasPets, setFilterHasPets] = useState<string>("all")
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
-  const [selectedOwnerId, setSelectedOwnerId] = useState<string | null>(null)
-  const [selectedPet, setSelectedPet] = useState<Pet | null>(null)
-  const [showPetDetailsDialog, setShowPetDetailsDialog] = useState(false)
-  const [expandedPetsList, setExpandedPetsList] = useState<string[]>([])
-  const [formErrors, setFormErrors] = useState<Record<string, boolean>>({})
-  const [showAddPetDialog, setShowAddPetDialog] = useState(false)
-  const [showSuccessDialog, setShowSuccessDialog] = useState(false)
-  const [isAddingPet, setIsAddingPet] = useState(false)
-  const [showBoardPetDialog, setShowBoardPetDialog] = useState(false)
-  const [isBoardingPet, setIsBoardingPet] = useState(false)
-  const [isSearching, setIsSearching] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchInputValue, setSearchInputValue] = useState("");
+  const [filterCity, setFilterCity] = useState<string>("all");
+  const [filterHasPets, setFilterHasPets] = useState<string>("all");
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [selectedOwnerId, setSelectedOwnerId] = useState<string | null>(null);
+  const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
+  const [showPetDetailsDialog, setShowPetDetailsDialog] = useState(false);
+  const [expandedPetsList, setExpandedPetsList] = useState<string[]>([]);
+  const [formErrors, setFormErrors] = useState<Record<string, boolean>>({});
+  const [showAddPetDialog, setShowAddPetDialog] = useState(false);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [isAddingPet, setIsAddingPet] = useState(false);
+  const [showBoardPetDialog, setShowBoardPetDialog] = useState(false);
+  const [isBoardingPet, setIsBoardingPet] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
 
   // Success dialog state
   const [successDialog, setSuccessDialog] = useState({
@@ -310,22 +366,28 @@ export default function PetOwnersPage() {
     description: "",
     actionLabel: "",
     onAction: () => {},
-  })
+  });
 
   // BACKEND INTEGRATION: Replace this hook with actual API calls
   // This is a mock implementation for demonstration purposes
-  const { petOwners, setPetOwners, isLoading, isRefreshing, refreshPetOwners, removePetOwner } =
-    usePetOwners(SAMPLE_PET_OWNERS)
+  const {
+    petOwners,
+    setPetOwners,
+    isLoading,
+    isRefreshing,
+    refreshPetOwners,
+    removePetOwner,
+  } = usePetOwners(SAMPLE_PET_OWNERS);
 
   // Get unique cities for filter
   const uniqueCities = Array.from(
     new Set(
       petOwners.map((owner) => {
-        const cityMatch = owner.address.match(/([^,]+),\s*([^,]+)$/)
-        return cityMatch ? cityMatch[1].trim() : "Unknown"
+        const cityMatch = owner.address.match(/([^,]+),\s*([^,]+)$/);
+        return cityMatch ? cityMatch[1].trim() : "Unknown";
       }),
     ),
-  ).sort()
+  ).sort();
 
   // Filter owners based on search query and filters
   const filteredOwners = petOwners.filter((owner) => {
@@ -334,138 +396,158 @@ export default function PetOwnersPage() {
       !searchQuery ||
       owner.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       owner.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      owner.phone.includes(searchQuery)
+      owner.phone.includes(searchQuery);
 
     // City filter
-    const cityMatch = owner.address.match(/([^,]+),\s*([^,]+)$/)
-    const ownerCity = cityMatch ? cityMatch[1].trim() : "Unknown"
-    const matchesCity = filterCity === "all" || ownerCity === filterCity
+    const cityMatch = owner.address.match(/([^,]+),\s*([^,]+)$/);
+    const ownerCity = cityMatch ? cityMatch[1].trim() : "Unknown";
+    const matchesCity = filterCity === "all" || ownerCity === filterCity;
 
     // Has pets filter
     const matchesHasPets =
       filterHasPets === "all" ||
       (filterHasPets === "with-pets" && owner.pets.length > 0) ||
-      (filterHasPets === "no-pets" && owner.pets.length === 0)
+      (filterHasPets === "no-pets" && owner.pets.length === 0);
 
-    return matchesSearch && matchesCity && matchesHasPets
-  })
+    return matchesSearch && matchesCity && matchesHasPets;
+  });
 
   // Pagination
   const { currentPage, totalPages, goToPage, resetPage } = usePagination({
     totalItems: filteredOwners.length,
     itemsPerPage: ITEMS_PER_PAGE,
-  })
+  });
 
   // Reset pagination when filters change
   useEffect(() => {
-    resetPage()
-  }, [searchQuery, filterCity, filterHasPets, resetPage])
+    resetPage();
+  }, [searchQuery, filterCity, filterHasPets, resetPage]);
 
   // Get current page data
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
-  const endIndex = startIndex + ITEMS_PER_PAGE
-  const currentOwners = filteredOwners.slice(startIndex, endIndex)
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const currentOwners = filteredOwners.slice(startIndex, endIndex);
 
   // Get selected owner
-  const selectedOwner = petOwners.find((owner) => owner.id === selectedOwnerId) || null
+  const selectedOwner =
+    petOwners.find((owner) => owner.id === selectedOwnerId) || null;
 
   // Handle search
   const handleSearch = useCallback(() => {
-    setIsSearching(true)
+    setIsSearching(true);
     // Simulate search delay
     setTimeout(() => {
-      setSearchQuery(searchInputValue)
-      setIsSearching(false)
-    }, 800)
-  }, [searchInputValue])
+      setSearchQuery(searchInputValue);
+      setIsSearching(false);
+    }, 800);
+  }, [searchInputValue]);
 
   // Handle search input keydown
   const handleSearchKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === "Enter") {
-        handleSearch()
+        handleSearch();
       }
     },
     [handleSearch],
-  )
+  );
 
   // Clear filters
   const clearFilters = useCallback(() => {
-    setSearchQuery("")
-    setSearchInputValue("")
-    setFilterCity("all")
-    setFilterHasPets("all")
-  }, [])
+    setSearchQuery("");
+    setSearchInputValue("");
+    setFilterCity("all");
+    setFilterHasPets("all");
+  }, []);
 
   // Handle delete confirmation
   const confirmDelete = () => {
-    if (!selectedOwnerId) return
+    if (!selectedOwnerId) return;
 
     // BACKEND INTEGRATION: Replace with actual API call to delete pet owner
     removePetOwner(selectedOwnerId).then(() => {
-      setShowDeleteDialog(false)
-      setSelectedOwnerId(null)
+      setShowDeleteDialog(false);
+      setSelectedOwnerId(null);
 
       // Show success dialog after deletion
       setSuccessDialog({
         isOpen: true,
         title: "Pet Owner Deleted",
-        description: "The pet owner has been successfully removed from the system.",
+        description:
+          "The pet owner has been successfully removed from the system.",
         actionLabel: "",
         onAction: () => {},
-      })
-    })
-  }
+      });
+    });
+  };
 
   // Handle add pet owner button click
   const handleAddPetOwner = () => {
     // BACKEND INTEGRATION: Navigate to registration page
-    router.push("/webapp/admin/registration")
-  }
+    router.push("/webapp/admin/registration");
+  };
 
-  // Handle edit pet owner
+  // Add this function to handle editing pet owners:
+
+  // Add this after the handleEditPetOwner function declaration:
   const handleEditPetOwner = (id: string) => {
-    // BACKEND INTEGRATION: Navigate to edit page with owner ID
+    // Find the pet owner to edit
+    const ownerToEdit = petOwners.find((owner) => owner.id === id);
+
+    if (!ownerToEdit) {
+      toast({
+        title: "Error",
+        description: "Pet owner not found",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // In a real implementation, you would navigate to an edit page or open an edit dialog
+    // For now, we'll just show a toast message
     toast({
       title: "Edit Pet Owner",
-      description: `Navigating to edit page for owner ID: ${id}`,
-    })
-  }
+      description: `Editing ${ownerToEdit.name} (ID: ${id})`,
+    });
+
+    // BACKEND INTEGRATION: Replace this with actual navigation or dialog
+    // router.push(`/webapp/admin/pet-owners/edit/${id}`);
+  };
 
   // Handle add pet to owner
   const handleAddPet = (id: string) => {
     // Reset new pet form and errors
-    setFormErrors({})
-    setSelectedOwnerId(id)
-    setShowAddPetDialog(true)
-  }
+    setFormErrors({});
+    setSelectedOwnerId(id);
+    setShowAddPetDialog(true);
+  };
 
   // Handle board pet
   const handleBoardPet = (id: string) => {
-    setSelectedOwnerId(id)
-    setShowBoardPetDialog(true)
-  }
+    setSelectedOwnerId(id);
+    setShowBoardPetDialog(true);
+  };
 
   // Handle pet badge click
   const handlePetBadgeClick = (pet: Pet) => {
-    setSelectedPet(pet)
-    setShowPetDetailsDialog(true)
-  }
+    setSelectedPet(pet);
+    setShowPetDetailsDialog(true);
+  };
 
   // Toggle expanded pets list
   const toggleExpandedPetsList = (ownerId: string) => {
     if (expandedPetsList.includes(ownerId)) {
-      setExpandedPetsList(expandedPetsList.filter((id) => id !== ownerId))
+      setExpandedPetsList(expandedPetsList.filter((id) => id !== ownerId));
     } else {
-      setExpandedPetsList([...expandedPetsList, ownerId])
+      setExpandedPetsList([...expandedPetsList, ownerId]);
     }
-  }
+  };
 
   // Handle add pet form submission
   const handleSubmitNewPet = async (petData: Partial<Pet>) => {
-    if (!selectedOwnerId) return { success: false }
+    if (!selectedOwnerId) return { success: false };
 
-    setIsAddingPet(true)
+    setIsAddingPet(true);
 
     // BACKEND INTEGRATION: Replace with actual API call to add a new pet
     return new Promise<{ success: boolean }>((resolve) => {
@@ -481,7 +563,7 @@ export default function PetOwnersPage() {
           notes: petData.notes,
           image: "/placeholder.svg?height=200&width=200",
           ownerId: selectedOwnerId,
-        }
+        };
 
         // Update pet owners state with new pet
         setPetOwners(
@@ -490,14 +572,14 @@ export default function PetOwnersPage() {
               return {
                 ...owner,
                 pets: [...owner.pets, newPetWithId],
-              }
+              };
             }
-            return owner
+            return owner;
           }),
-        )
+        );
 
-        setIsAddingPet(false)
-        setShowAddPetDialog(false)
+        setIsAddingPet(false);
+        setShowAddPetDialog(false);
 
         // Show success dialog
         setSuccessDialog({
@@ -506,20 +588,20 @@ export default function PetOwnersPage() {
           description: `${petData.name} has been added to ${selectedOwner?.name}'s profile.`,
           actionLabel: "Board Pet",
           onAction: () => {
-            setShowBoardPetDialog(true)
+            setShowBoardPetDialog(true);
           },
-        })
+        });
 
-        resolve({ success: true })
-      }, 1500)
-    })
-  }
+        resolve({ success: true });
+      }, 1500);
+    });
+  };
 
   // Handle board pet form submission
   const handleSubmitBoarding = async (details: BoardingDetails) => {
-    if (!selectedOwnerId) return false
+    if (!selectedOwnerId) return false;
 
-    setIsBoardingPet(true)
+    setIsBoardingPet(true);
 
     // BACKEND INTEGRATION: Replace with actual API call to board pets
     return new Promise<boolean>((resolve) => {
@@ -535,18 +617,18 @@ export default function PetOwnersPage() {
                     return {
                       ...pet,
                       isBoarding: true,
-                    }
+                    };
                   }
-                  return pet
+                  return pet;
                 }),
-              }
+              };
             }
-            return owner
+            return owner;
           }),
-        )
+        );
 
-        setIsBoardingPet(false)
-        setShowBoardPetDialog(false)
+        setIsBoardingPet(false);
+        setShowBoardPetDialog(false);
 
         // Show success dialog after boarding
         setSuccessDialog({
@@ -555,12 +637,12 @@ export default function PetOwnersPage() {
           description: `Boarding created successfully for ${details.petIds.length} pet(s)`,
           actionLabel: "",
           onAction: () => {},
-        })
+        });
 
-        resolve(true)
-      }, 1500)
-    })
-  }
+        resolve(true);
+      }, 1500);
+    });
+  };
 
   // Handle end boarding
   const handleEndBoarding = (pet: Pet) => {
@@ -576,15 +658,15 @@ export default function PetOwnersPage() {
                 return {
                   ...p,
                   isBoarding: false,
-                }
+                };
               }
-              return p
+              return p;
             }),
-          }
+          };
         }),
-      )
+      );
 
-      setShowPetDetailsDialog(false)
+      setShowPetDetailsDialog(false);
 
       // Show success dialog after ending boarding
       setSuccessDialog({
@@ -593,15 +675,20 @@ export default function PetOwnersPage() {
         description: `Boarding has been ended for ${pet.name}`,
         actionLabel: "",
         onAction: () => {},
-      })
-    }, 1000)
-  }
+      });
+    }, 1000);
+  };
 
   // Determine if we should show the skeleton loader
-  const showSkeletonLoader = isLoading || isRefreshing || isSearching
+  const showSkeletonLoader = isLoading || isRefreshing || isSearching;
 
   return (
-    <motion.div className="space-y-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+    <motion.div
+      className="space-y-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
       <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -611,8 +698,12 @@ export default function PetOwnersPage() {
           stiffness: 300,
         }}
       >
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">Pet Owner Management</h1>
-        <p className="text-muted-foreground">Manage all pet owners registered in the system.</p>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">
+          Pet Owner Management
+        </h1>
+        <p className="text-muted-foreground">
+          Manage all pet owners registered in the system.
+        </p>
       </motion.div>
 
       <motion.div
@@ -636,7 +727,9 @@ export default function PetOwnersPage() {
                 <CardTitle>Pet Owner Registry</CardTitle>
               </div>
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <CardDescription className="mt-0">View and manage all registered pet owners.</CardDescription>
+                <CardDescription className="mt-0">
+                  View and manage all registered pet owners.
+                </CardDescription>
                 <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-2">
                   <div className="relative flex-1 sm:w-[300px]">
                     <Input
@@ -669,9 +762,14 @@ export default function PetOwnersPage() {
                       disabled={isRefreshing}
                       title="Refresh data"
                     >
-                      <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
+                      <RefreshCw
+                        className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
+                      />
                     </Button>
-                    <Button onClick={handleAddPetOwner} className="bg-green-600 hover:bg-green-700 text-white">
+                    <Button
+                      onClick={handleAddPetOwner}
+                      className="bg-green-600 hover:bg-green-700 text-white"
+                    >
                       <UserPlus className="mr-2 h-4 w-4" />
                       Add New Owner
                     </Button>
@@ -715,38 +813,63 @@ export default function PetOwnersPage() {
                   </SelectContent>
                 </Select>
 
-                {(searchQuery || filterCity !== "all" || filterHasPets !== "all") && (
-                  <Button variant="outline" size="icon" onClick={clearFilters} title="Clear filters">
+                {(searchQuery ||
+                  filterCity !== "all" ||
+                  filterHasPets !== "all") && (
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={clearFilters}
+                    title="Clear filters"
+                  >
                     <X className="h-4 w-4" />
                   </Button>
                 )}
               </div>
 
               {/* Active filters display */}
-              {(searchQuery || filterCity !== "all" || filterHasPets !== "all") && (
+              {(searchQuery ||
+                filterCity !== "all" ||
+                filterHasPets !== "all") && (
                 <div className="flex flex-wrap gap-2">
                   {searchQuery && (
-                    <Badge variant="secondary" className="flex items-center gap-1">
+                    <Badge
+                      variant="secondary"
+                      className="flex items-center gap-1"
+                    >
                       Search: {searchQuery}
                       <X
                         className="h-3 w-3 cursor-pointer"
                         onClick={() => {
-                          setSearchQuery("")
-                          setSearchInputValue("")
+                          setSearchQuery("");
+                          setSearchInputValue("");
                         }}
                       />
                     </Badge>
                   )}
                   {filterCity !== "all" && (
-                    <Badge variant="secondary" className="flex items-center gap-1">
+                    <Badge
+                      variant="secondary"
+                      className="flex items-center gap-1"
+                    >
                       City: {filterCity}
-                      <X className="h-3 w-3 cursor-pointer" onClick={() => setFilterCity("all")} />
+                      <X
+                        className="h-3 w-3 cursor-pointer"
+                        onClick={() => setFilterCity("all")}
+                      />
                     </Badge>
                   )}
                   {filterHasPets !== "all" && (
-                    <Badge variant="secondary" className="flex items-center gap-1">
-                      Pets: {filterHasPets === "with-pets" ? "With Pets" : "No Pets"}
-                      <X className="h-3 w-3 cursor-pointer" onClick={() => setFilterHasPets("all")} />
+                    <Badge
+                      variant="secondary"
+                      className="flex items-center gap-1"
+                    >
+                      Pets:{" "}
+                      {filterHasPets === "with-pets" ? "With Pets" : "No Pets"}
+                      <X
+                        className="h-3 w-3 cursor-pointer"
+                        onClick={() => setFilterHasPets("all")}
+                      />
                     </Badge>
                   )}
                 </div>
@@ -764,8 +887,8 @@ export default function PetOwnersPage() {
                   onBoardPet={handleBoardPet}
                   onEditOwner={handleEditPetOwner}
                   onDeleteOwner={(id) => {
-                    setSelectedOwnerId(id)
-                    setShowDeleteDialog(true)
+                    setSelectedOwnerId(id);
+                    setShowDeleteDialog(true);
                   }}
                   itemsPerPage={ITEMS_PER_PAGE}
                   searchQuery={searchQuery}
@@ -773,14 +896,22 @@ export default function PetOwnersPage() {
               </div>
 
               {/* Pagination */}
-              <PaginationControls currentPage={currentPage} totalPages={totalPages} onPageChange={goToPage} />
+              <PaginationControls
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={goToPage}
+              />
             </div>
           </CardContent>
         </Card>
       </motion.div>
 
       {/* Dialogs */}
-      <DeleteConfirmDialog isOpen={showDeleteDialog} onOpenChange={setShowDeleteDialog} onConfirm={confirmDelete} />
+      <DeleteConfirmDialog
+        isOpen={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        onConfirm={confirmDelete}
+      />
 
       <PetDetailsDialog
         pet={selectedPet}
@@ -788,13 +919,13 @@ export default function PetOwnersPage() {
         onOpenChange={setShowPetDetailsDialog}
         onEditPet={(pet) => {
           // BACKEND INTEGRATION: Navigate to edit pet page or show edit dialog
-          setShowPetDetailsDialog(false)
+          setShowPetDetailsDialog(false);
         }}
         onBoardPet={(pet) => {
           // Handle board pet
-          setShowPetDetailsDialog(false)
-          setSelectedOwnerId(pet.ownerId)
-          setShowBoardPetDialog(true)
+          setShowPetDetailsDialog(false);
+          setSelectedOwnerId(pet.ownerId);
+          setShowBoardPetDialog(true);
         }}
         onEndBoarding={handleEndBoarding}
       />
@@ -813,7 +944,7 @@ export default function PetOwnersPage() {
         ownerName={selectedOwner?.name || ""}
         onBoardPet={() => {
           if (selectedOwnerId) {
-            handleBoardPet(selectedOwnerId)
+            handleBoardPet(selectedOwnerId);
           }
         }}
       />
@@ -835,6 +966,5 @@ export default function PetOwnersPage() {
         onAction={successDialog.onAction}
       />
     </motion.div>
-  )
+  );
 }
-

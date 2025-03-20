@@ -9,8 +9,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { AlertCircle, CheckCircle, Loader2 } from "lucide-react";
+import { AlertCircle, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
+import { CheckCircle } from "lucide-react";
 
 interface ConfirmationDialogProps {
   isOpen: boolean;
@@ -59,7 +60,7 @@ export function ConfirmationDialog({
           <Button
             variant="outline"
             onClick={onClose}
-            className="bg-white hover:bg-white text-black"
+            className="bg-red-600 hover:bg-red-700 text-white"
             disabled={isLoading}
           >
             Cancel
@@ -90,15 +91,6 @@ export function ConfirmationDialog({
   );
 }
 
-interface SuccessDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-  title: string;
-  description: string;
-  actionLabel?: string;
-  onAction?: () => void;
-}
-
 export function SuccessDialog({
   isOpen,
   onClose,
@@ -106,43 +98,51 @@ export function SuccessDialog({
   description,
   actionLabel,
   onAction,
-}: SuccessDialogProps) {
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  description: string;
+  actionLabel?: string;
+  onAction?: () => void;
+}) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
-        <motion.div
-          className="flex items-center justify-center flex-col text-center py-6"
-          initial={{ scale: 0.8 }}
-          animate={{ scale: 1 }}
-          transition={{ type: "spring", stiffness: 300, damping: 15 }}
-        >
-          <div className="rounded-full bg-green-100 dark:bg-green-900/50 p-3 mb-4">
-            <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400" />
-          </div>
-          <h3 className="text-xl font-bold text-green-700 dark:text-green-300 mb-2">
-            {title}
-          </h3>
-          <p className="text-green-600 dark:text-green-400 mb-6">
-            {description}
-          </p>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              onClick={onClose}
-              className="bg-red-600 hover:bg-red-700 text-white"
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <div className="mx-auto my-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{
+                type: "spring",
+                stiffness: 300,
+                damping: 20,
+                delay: 0.1,
+              }}
             >
-              Close
-            </Button>
-            {actionLabel && onAction && (
-              <Button
-                className="bg-green-600 hover:bg-green-700 text-white"
-                onClick={onAction}
-              >
-                {actionLabel}
-              </Button>
-            )}
+              <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
+            </motion.div>
           </div>
-        </motion.div>
+          <DialogTitle className="text-center text-xl">{title}</DialogTitle>
+          <DialogDescription className="text-center">
+            {description}
+          </DialogDescription>
+        </DialogHeader>
+
+        <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-0 mt-4">
+          <Button onClick={onClose} className="w-full sm:w-auto">
+            Close
+          </Button>
+          {actionLabel && (
+            <Button
+              onClick={onAction}
+              className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground"
+            >
+              {actionLabel}
+            </Button>
+          )}
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
