@@ -1,41 +1,18 @@
-"use client";
+"use client"
 
-import { Home, FileText, Bell, User, LogOut } from "lucide-react";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
-import { Menu } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
-import Link from "next/link";
+import { Home, FileText, Bell, User, LogOut } from "lucide-react"
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { Button } from "@/components/ui/button"
+import { Menu } from "lucide-react"
+import { Separator } from "@/components/ui/separator"
+import Link from "next/link"
 
 const navItems = [
-  {
-    label: "Home",
-    icon: <Home className="h-5 w-5" />,
-    href: "/webapp/pet-owner/dashboard",
-  },
-  {
-    label: "Requests",
-    icon: <FileText className="h-5 w-5" />,
-    href: "/webapp/pet-owner/requests",
-  },
-  {
-    label: "Notifications",
-    icon: <Bell className="h-5 w-5" />,
-    href: "/webapp/pet-owner/notifications",
-  },
-  {
-    label: "Profile",
-    icon: <User className="h-5 w-5" />,
-    href: "/webapp/pet-owner/profile",
-  },
-];
+  { label: "Home", icon: <Home className="h-5 w-5" />, href: "/webapp/pet-owner/dashboard" },
+  { label: "Requests", icon: <FileText className="h-5 w-5" />, href: "/webapp/pet-owner/requests" },
+  { label: "Notifications", icon: <Bell className="h-5 w-5" />, href: "/webapp/pet-owner/notifications" },
+  { label: "Profile", icon: <User className="h-5 w-5" />, href: "/webapp/pet-owner/profile" },
+]
 
 const MobileNavbar = () => {
   // BACKEND INTEGRATION POINT:
@@ -46,8 +23,8 @@ const MobileNavbar = () => {
     // 1. Clear local storage/cookies
     // localStorage.removeItem('authToken');
     // 2. Redirect to login page
-    window.location.href = "/webapp/auth/login";
-  };
+    window.location.href = "/webapp/auth/login"
+  }
 
   return (
     <Sheet>
@@ -64,11 +41,7 @@ const MobileNavbar = () => {
         <Separator className="my-2" />
         <div className="grid gap-4 py-4">
           {navItems.map((item) => (
-            <Link
-              href={item.href}
-              key={item.label}
-              className="flex items-center space-x-2"
-            >
+            <Link href={item.href} key={item.label} className="flex items-center space-x-2">
               {item.icon}
               <span>{item.label}</span>
             </Link>
@@ -86,7 +59,8 @@ const MobileNavbar = () => {
         </div>
       </SheetContent>
     </Sheet>
-  );
-};
+  )
+}
 
-export default MobileNavbar;
+export default MobileNavbar
+

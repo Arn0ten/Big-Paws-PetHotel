@@ -1,13 +1,13 @@
-"use client";
+"use client"
 
-import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
-import Link from "next/link";
-import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useState, useEffect } from "react"
+import { useParams, useRouter } from "next/navigation"
+import Link from "next/link"
+import { motion } from "framer-motion"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import {
   ArrowLeft,
   Calendar,
@@ -19,9 +19,9 @@ import {
   XCircle,
   AlertCircle,
   Info,
-} from "lucide-react";
-import { requests } from "@/app/webapp/data/sample-data";
-import { formatDate } from "@/app/webapp/utils/date-utils";
+} from "lucide-react"
+import { requests } from "@/app/webapp/data/sample-data"
+import { formatDate } from "@/app/webapp/utils/date-utils"
 
 // Add a cancel button to the request details page
 // Add a confirmation dialog for cancellation
@@ -36,9 +36,9 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Loader2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+} from "@/components/ui/alert-dialog"
+import { Loader2 } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
 import {
   Dialog,
   DialogContent,
@@ -46,7 +46,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/ui/dialog"
 
 /**
  * Request Detail Page
@@ -58,20 +58,20 @@ import {
  * 2. Add proper error handling and loading states
  */
 export default function RequestDetailPage() {
-  const params = useParams();
-  const router = useRouter();
-  const requestId = params.id as string;
+  const params = useParams()
+  const router = useRouter()
+  const requestId = params.id as string
 
-  const [request, setRequest] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [request, setRequest] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
 
   // Add state for the confirmation dialog
   // Add these after the existing useState declarations
-  const { toast } = useToast();
-  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
-  const [isCancelling, setIsCancelling] = useState(false);
-  const [showCancelSuccess, setShowCancelSuccess] = useState(false);
+  const { toast } = useToast()
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false)
+  const [isCancelling, setIsCancelling] = useState(false)
+  const [showCancelSuccess, setShowCancelSuccess] = useState(false)
 
   useEffect(() => {
     const fetchRequest = async () => {
@@ -82,41 +82,41 @@ export default function RequestDetailPage() {
         // const data = await response.json()
 
         // For demo, we'll use the local data
-        const foundRequest = requests.find((r) => r.id === requestId);
+        const foundRequest = requests.find((r) => r.id === requestId)
         if (!foundRequest) {
-          console.log("Request not found for id:", requestId); // Log the request ID for debugging
-          setError("Request not found");
-          setLoading(false);
-          return;
+          console.log("Request not found for id:", requestId) // Log the request ID for debugging
+          setError("Request not found")
+          setLoading(false)
+          return
         }
 
-        setRequest(foundRequest);
+        setRequest(foundRequest)
       } catch (error) {
-        console.error("Error fetching request:", error);
-        setError("Request not found or could not be loaded");
+        console.error("Error fetching request:", error)
+        setError("Request not found or could not be loaded")
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    fetchRequest();
-  }, [requestId]);
+    fetchRequest()
+  }, [requestId])
 
   // Get request type icon
   const getRequestTypeIcon = (type) => {
     switch (type) {
       case "photo":
-        return <Camera className="h-5 w-5" />;
+        return <Camera className="h-5 w-5" />
       case "video":
-        return <Video className="h-5 w-5" />;
+        return <Video className="h-5 w-5" />
       case "grooming":
-        return <Scissors className="h-5 w-5" />;
+        return <Scissors className="h-5 w-5" />
       case "boarding-extension":
-        return <Clock className="h-5 w-5" />;
+        return <Clock className="h-5 w-5" />
       default:
-        return <Calendar className="h-5 w-5" />;
+        return <Calendar className="h-5 w-5" />
     }
-  };
+  }
 
   // Get status badge
   const getStatusBadge = (status) => {
@@ -130,7 +130,7 @@ export default function RequestDetailPage() {
           >
             <Clock className="h-3 w-3 mr-1" /> Pending
           </Badge>
-        );
+        )
       case "approved":
       case "in-progress":
         return (
@@ -140,7 +140,7 @@ export default function RequestDetailPage() {
           >
             <CheckCircle2 className="h-3 w-3 mr-1" /> In Progress
           </Badge>
-        );
+        )
       case "completed":
         return (
           <Badge
@@ -149,7 +149,7 @@ export default function RequestDetailPage() {
           >
             <CheckCircle2 className="h-3 w-3 mr-1" /> Completed
           </Badge>
-        );
+        )
       case "rejected":
         return (
           <Badge
@@ -158,70 +158,70 @@ export default function RequestDetailPage() {
           >
             <XCircle className="h-3 w-3 mr-1" /> Rejected
           </Badge>
-        );
+        )
       default:
         return (
           <Badge variant="outline">
             <AlertCircle className="h-3 w-3 mr-1" /> {status}
           </Badge>
-        );
+        )
     }
-  };
+  }
 
   // Get request type title
   const getRequestTypeTitle = (type) => {
     switch (type) {
       case "photo":
-        return "Photo Update";
+        return "Photo Update"
       case "video":
-        return "Video Request";
+        return "Video Request"
       case "grooming":
-        return "Grooming Service";
+        return "Grooming Service"
       case "boarding-extension":
-        return "Boarding Extension";
+        return "Boarding Extension"
       default:
-        return "Service Request";
+        return "Service Request"
     }
-  };
+  }
 
   // Add a function to handle cancellation
   const handleCancelRequest = () => {
-    setIsCancelling(true);
+    setIsCancelling(true)
 
     // Simulate API call
     setTimeout(() => {
       // In a real app, you would call an API to cancel the request
-      setIsCancelling(false);
-      setShowCancelConfirm(false);
-      setShowCancelSuccess(true);
-    }, 1500);
-  };
+      setIsCancelling(false)
+      setShowCancelConfirm(false)
+      setShowCancelSuccess(true)
+    }, 1500)
+  }
 
   // Add a function to handle success dialog close
   const handleSuccessClose = () => {
-    setShowCancelSuccess(false);
+    setShowCancelSuccess(false)
 
     // Update the local request state to show it's cancelled
     if (request) {
       setRequest({
         ...request,
         status: "cancelled",
-      });
+      })
     }
 
     toast({
       title: "Request Cancelled",
       description: "Your request has been successfully cancelled.",
       duration: 5000,
-    });
-  };
+    })
+  }
 
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
         <p className="text-muted-foreground">Loading request details...</p>
       </div>
-    );
+    )
   }
 
   if (error || !request) {
@@ -245,7 +245,7 @@ export default function RequestDetailPage() {
           </Button>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -257,20 +257,14 @@ export default function RequestDetailPage() {
           </Link>
         </Button>
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground dark:text-foreground">
-            Request Details
-          </h1>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground dark:text-foreground">Request Details</h1>
           <p className="text-base text-muted-foreground dark:text-muted-foreground/90">
             View details of your service request
           </p>
         </div>
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
         <Card>
           <CardHeader className="pb-3">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -299,13 +293,10 @@ export default function RequestDetailPage() {
             {request.status === "pending" && (
               <Alert className="bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800 mb-4">
                 <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                <AlertTitle className="text-blue-800 dark:text-blue-300">
-                  Cancellation Policy
-                </AlertTitle>
+                <AlertTitle className="text-blue-800 dark:text-blue-300">Cancellation Policy</AlertTitle>
                 <AlertDescription className="text-blue-700 dark:text-blue-400">
-                  You can cancel this request while it remains in "Pending"
-                  status. Once our staff begins processing your request, it can
-                  no longer be cancelled.
+                  You can cancel this request while it remains in "Pending" status. Once our staff begins processing
+                  your request, it can no longer be cancelled.
                 </AlertDescription>
               </Alert>
             )}
@@ -328,12 +319,8 @@ export default function RequestDetailPage() {
                   {/* Initial request message */}
                   <div className="flex gap-3 justify-end">
                     <div className="max-w-[80%] rounded-lg p-3 bg-primary text-primary-foreground ml-auto">
-                      <p className="text-sm whitespace-pre-wrap">
-                        {request.description}
-                      </p>
-                      <p className="text-xs opacity-70 mt-1 text-right">
-                        {formatDate(request.createdAt)}
-                      </p>
+                      <p className="text-sm whitespace-pre-wrap">{request.description}</p>
+                      <p className="text-xs opacity-70 mt-1 text-right">{formatDate(request.createdAt)}</p>
                     </div>
                   </div>
 
@@ -347,12 +334,9 @@ export default function RequestDetailPage() {
                         </div>
                         <div className="max-w-[80%] rounded-lg p-3 bg-gray-100 dark:bg-gray-800 text-foreground dark:text-foreground">
                           <p className="text-sm whitespace-pre-wrap">
-                            {request.processingNotes ||
-                              "Your request has been completed."}
+                            {request.processingNotes || "Your request has been completed."}
                           </p>
-                          <p className="text-xs opacity-70 mt-1 text-right">
-                            {formatDate(request.completedAt)}
-                          </p>
+                          <p className="text-xs opacity-70 mt-1 text-right">{formatDate(request.completedAt)}</p>
                         </div>
                       </div>
 
@@ -378,10 +362,7 @@ export default function RequestDetailPage() {
 
                               <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
                                 {request.mediaFiles.urls.map((url, index) => (
-                                  <div
-                                    key={index}
-                                    className="rounded-md overflow-hidden border"
-                                  >
+                                  <div key={index} className="rounded-md overflow-hidden border">
                                     {request.type === "photo" ? (
                                       <img
                                         src={url || "/placeholder.svg"}
@@ -389,19 +370,13 @@ export default function RequestDetailPage() {
                                         className="object-cover w-full h-32"
                                       />
                                     ) : (
-                                      <video
-                                        src={url}
-                                        controls
-                                        className="w-full h-32"
-                                      />
+                                      <video src={url} controls className="w-full h-32" />
                                     )}
                                   </div>
                                 ))}
                               </div>
 
-                              <p className="text-xs opacity-70 mt-1 text-right">
-                                {formatDate(request.completedAt)}
-                              </p>
+                              <p className="text-xs opacity-70 mt-1 text-right">{formatDate(request.completedAt)}</p>
                             </div>
                           </div>
                         )}
@@ -415,14 +390,10 @@ export default function RequestDetailPage() {
                           <div className="max-w-[80%] rounded-lg p-3 bg-gray-100 dark:bg-gray-800 text-foreground dark:text-foreground">
                             <p className="text-sm whitespace-pre-wrap">
                               The grooming service (
-                              {request.groomingService
-                                ?.replace(/-/g, " ")
-                                .replace(/\b\w/g, (l) => l.toUpperCase())}
-                              ) has been completed for {request.petName}.
+                              {request.groomingService?.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())})
+                              has been completed for {request.petName}.
                             </p>
-                            <p className="text-xs opacity-70 mt-1 text-right">
-                              {formatDate(request.completedAt)}
-                            </p>
+                            <p className="text-xs opacity-70 mt-1 text-right">{formatDate(request.completedAt)}</p>
                           </div>
                         </div>
                       )}
@@ -438,16 +409,12 @@ export default function RequestDetailPage() {
                             </div>
                             <div className="max-w-[80%] rounded-lg p-3 bg-gray-100 dark:bg-gray-800 text-foreground dark:text-foreground">
                               <p className="text-sm whitespace-pre-wrap">
-                                Here are photos of {request.petName} after the
-                                grooming service.
+                                Here are photos of {request.petName} after the grooming service.
                               </p>
 
                               <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
                                 {request.mediaFiles.urls.map((url, index) => (
-                                  <div
-                                    key={index}
-                                    className="rounded-md overflow-hidden border"
-                                  >
+                                  <div key={index} className="rounded-md overflow-hidden border">
                                     <img
                                       src={url || "/placeholder.svg"}
                                       alt={`${request.petName} after grooming ${index + 1}`}
@@ -457,32 +424,26 @@ export default function RequestDetailPage() {
                                 ))}
                               </div>
 
-                              <p className="text-xs opacity-70 mt-1 text-right">
-                                {formatDate(request.completedAt)}
-                              </p>
+                              <p className="text-xs opacity-70 mt-1 text-right">{formatDate(request.completedAt)}</p>
                             </div>
                           </div>
                         )}
 
                       {/* Specific response for boarding extension */}
-                      {request.type === "boarding-extension" &&
-                        request.newEndDate && (
-                          <div className="flex gap-3">
-                            <div className="flex-shrink-0 h-8 w-8 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 flex items-center justify-center">
-                              A
-                            </div>
-                            <div className="max-w-[80%] rounded-lg p-3 bg-gray-100 dark:bg-gray-800 text-foreground dark:text-foreground">
-                              <p className="text-sm whitespace-pre-wrap">
-                                The boarding extension has been approved. The
-                                new end date is {formatDate(request.newEndDate)}
-                                .
-                              </p>
-                              <p className="text-xs opacity-70 mt-1 text-right">
-                                {formatDate(request.completedAt)}
-                              </p>
-                            </div>
+                      {request.type === "boarding-extension" && request.newEndDate && (
+                        <div className="flex gap-3">
+                          <div className="flex-shrink-0 h-8 w-8 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 flex items-center justify-center">
+                            A
                           </div>
-                        )}
+                          <div className="max-w-[80%] rounded-lg p-3 bg-gray-100 dark:bg-gray-800 text-foreground dark:text-foreground">
+                            <p className="text-sm whitespace-pre-wrap">
+                              The boarding extension has been approved. The new end date is{" "}
+                              {formatDate(request.newEndDate)}.
+                            </p>
+                            <p className="text-xs opacity-70 mt-1 text-right">{formatDate(request.completedAt)}</p>
+                          </div>
+                        </div>
+                      )}
                     </>
                   )}
 
@@ -490,10 +451,7 @@ export default function RequestDetailPage() {
                   {request.conversation &&
                     request.conversation.length > 0 &&
                     request.conversation.map((message, index) => (
-                      <div
-                        key={message.id}
-                        className={`flex gap-3 ${message.sender === "owner" ? "justify-end" : ""}`}
-                      >
+                      <div key={message.id} className={`flex gap-3 ${message.sender === "owner" ? "justify-end" : ""}`}>
                         {message.sender !== "owner" && (
                           <div className="flex-shrink-0 h-8 w-8 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 flex items-center justify-center">
                             A
@@ -507,12 +465,8 @@ export default function RequestDetailPage() {
                                 : "bg-gray-100 dark:bg-gray-800 text-foreground dark:text-foreground"
                             }`}
                         >
-                          <p className="text-sm whitespace-pre-wrap">
-                            {message.content}
-                          </p>
-                          <p className="text-xs opacity-70 mt-1 text-right">
-                            {formatDate(message.timestamp)}
-                          </p>
+                          <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                          <p className="text-xs opacity-70 mt-1 text-right">{formatDate(message.timestamp)}</p>
                         </div>
                       </div>
                     ))}
@@ -522,11 +476,7 @@ export default function RequestDetailPage() {
 
             {request.status === "pending" && (
               <div className="flex justify-end mt-6">
-                <Button
-                  variant="destructive"
-                  onClick={() => setShowCancelConfirm(true)}
-                  className="w-full sm:w-auto"
-                >
+                <Button variant="destructive" onClick={() => setShowCancelConfirm(true)} className="w-full sm:w-auto">
                   Cancel Request
                 </Button>
               </div>
@@ -538,53 +488,35 @@ export default function RequestDetailPage() {
                 <Card className="bg-muted/50 dark:bg-muted/20">
                   <CardContent className="p-4 space-y-3">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">
-                        Request Type
-                      </p>
+                      <p className="text-sm font-medium text-muted-foreground">Request Type</p>
                       <p className="text-sm text-foreground dark:text-foreground">
                         {getRequestTypeTitle(request.type)}
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">
-                        Pet
-                      </p>
-                      <p className="text-sm text-foreground dark:text-foreground">
-                        {request.petName}
-                      </p>
+                      <p className="text-sm font-medium text-muted-foreground">Pet</p>
+                      <p className="text-sm text-foreground dark:text-foreground">{request.petName}</p>
                     </div>
                     {request.type === "grooming" && request.groomingService && (
                       <div>
-                        <p className="text-sm font-medium text-muted-foreground">
-                          Grooming Service
-                        </p>
+                        <p className="text-sm font-medium text-muted-foreground">Grooming Service</p>
                         <p className="text-sm text-foreground dark:text-foreground">
-                          {request.groomingService
-                            .replace(/-/g, " ")
-                            .replace(/\b\w/g, (l) => l.toUpperCase())}
+                          {request.groomingService.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
                         </p>
                       </div>
                     )}
-                    {request.type === "boarding-extension" &&
-                      request.extensionDetails && (
-                        <div>
-                          <p className="text-sm font-medium text-muted-foreground">
-                            Extension Details
-                          </p>
-                          <p className="text-sm text-foreground dark:text-foreground">
-                            {request.extensionDetails.duration}{" "}
-                            {request.extensionDetails.unit}
-                          </p>
-                        </div>
-                      )}
+                    {request.type === "boarding-extension" && request.extensionDetails && (
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Extension Details</p>
+                        <p className="text-sm text-foreground dark:text-foreground">
+                          {request.extensionDetails.duration} {request.extensionDetails.unit}
+                        </p>
+                      </div>
+                    )}
                     {request.price && (
                       <div>
-                        <p className="text-sm font-medium text-muted-foreground">
-                          Price
-                        </p>
-                        <p className="text-sm text-foreground dark:text-foreground">
-                          ₱{request.price}
-                        </p>
+                        <p className="text-sm font-medium text-muted-foreground">Price</p>
+                        <p className="text-sm text-foreground dark:text-foreground">₱{request.price}</p>
                       </div>
                     )}
                   </CardContent>
@@ -600,9 +532,7 @@ export default function RequestDetailPage() {
                         <Calendar className="h-3 w-3" />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-foreground dark:text-foreground">
-                          Request Submitted
-                        </p>
+                        <p className="text-sm font-medium text-foreground dark:text-foreground">Request Submitted</p>
                         <p className="text-xs text-muted-foreground dark:text-muted-foreground/90">
                           {formatDate(request.createdAt)}
                         </p>
@@ -615,9 +545,7 @@ export default function RequestDetailPage() {
                           <CheckCircle2 className="h-3 w-3" />
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-foreground dark:text-foreground">
-                            In Progress
-                          </p>
+                          <p className="text-sm font-medium text-foreground dark:text-foreground">In Progress</p>
                           <p className="text-xs text-muted-foreground dark:text-muted-foreground/90">
                             Your request is being processed
                           </p>
@@ -631,9 +559,7 @@ export default function RequestDetailPage() {
                           <CheckCircle2 className="h-3 w-3" />
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-foreground dark:text-foreground">
-                            Completed
-                          </p>
+                          <p className="text-sm font-medium text-foreground dark:text-foreground">Completed</p>
                           <p className="text-xs text-muted-foreground dark:text-muted-foreground/90">
                             {formatDate(request.completedAt)}
                           </p>
@@ -647,9 +573,7 @@ export default function RequestDetailPage() {
                           <XCircle className="h-3 w-3" />
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-foreground dark:text-foreground">
-                            Rejected
-                          </p>
+                          <p className="text-sm font-medium text-foreground dark:text-foreground">Rejected</p>
                           <p className="text-xs text-muted-foreground dark:text-muted-foreground/90">
                             {formatDate(request.updatedAt || request.createdAt)}
                           </p>
@@ -668,8 +592,7 @@ export default function RequestDetailPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Cancel Request</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to cancel this request? This action cannot
-              be undone.
+              Are you sure you want to cancel this request? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -699,9 +622,7 @@ export default function RequestDetailPage() {
               <CheckCircle2 className="h-5 w-5 text-green-500" />
               Request Cancelled Successfully
             </DialogTitle>
-            <DialogDescription>
-              Your request has been successfully cancelled.
-            </DialogDescription>
+            <DialogDescription>Your request has been successfully cancelled.</DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button onClick={handleSuccessClose} className="w-full">
@@ -711,5 +632,6 @@ export default function RequestDetailPage() {
         </DialogContent>
       </Dialog>
     </div>
-  );
+  )
 }
+

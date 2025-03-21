@@ -1,44 +1,42 @@
-import Link from "next/link";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ArrowRight } from "lucide-react";
+import Link from "next/link"
+import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { ArrowRight } from "lucide-react"
 
 // Update the default pet avatars to use the correct paths
 // Default pet avatars
-const DEFAULT_DOG_AVATAR =
-  "https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=200&auto=format&fit=crop";
-const DEFAULT_CAT_AVATAR =
-  "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=200&auto=format&fit=crop";
+const DEFAULT_DOG_AVATAR = "/default-images/dog.png"
+const DEFAULT_CAT_AVATAR = "/default-images/cat.png"
 
 interface PetCardProps {
   pet: {
-    id: string;
-    name: string;
-    breed: string;
-    age: number;
-    size: string;
-    avatar?: string;
-    type: "dog" | "cat" | string;
+    id: string
+    name: string
+    breed: string
+    age: number
+    size: string
+    avatar?: string
+    type: "dog" | "cat" | string
     boarding?: {
-      status: string;
-      startDate: string;
-      endDate: string;
-      package: string;
-      totalPrice: number;
-      remainingAmount?: number;
-    };
-  };
+      status: string
+      startDate: string
+      endDate: string
+      package: string
+      totalPrice: number
+      remainingAmount?: number
+    }
+  }
 }
 
 export function PetCard({ pet }: PetCardProps) {
   // Determine which default avatar to use based on pet type
   const getDefaultAvatar = () => {
-    if (pet.type?.toLowerCase() === "cat") return DEFAULT_CAT_AVATAR;
-    return DEFAULT_DOG_AVATAR; // Default to dog if type is unknown
-  };
+    if (pet.type?.toLowerCase() === "cat") return DEFAULT_CAT_AVATAR
+    return DEFAULT_DOG_AVATAR // Default to dog if type is unknown
+  }
 
-  const avatarSrc = pet.avatar || getDefaultAvatar();
+  const avatarSrc = pet.avatar || getDefaultAvatar()
 
   return (
     <Link href={`/webapp/pet-owner/pets/${pet.id}`}>
@@ -50,12 +48,9 @@ export function PetCard({ pet }: PetCardProps) {
               <AvatarFallback>{pet.name.charAt(0)}</AvatarFallback>
             </Avatar>
             <div className="flex-1">
-              <h3 className="font-semibold text-lg text-foreground">
-                {pet.name}
-              </h3>
+              <h3 className="font-semibold text-lg text-foreground">{pet.name}</h3>
               <p className="text-sm text-muted-foreground dark:text-muted-foreground/90">
-                {pet.breed} • {pet.size} size • {pet.age}{" "}
-                {pet.age === 1 ? "year" : "years"} old
+                {pet.breed} • {pet.size} size • {pet.age} {pet.age === 1 ? "year" : "years"} old
               </p>
 
               {pet.boarding ? (
@@ -79,5 +74,6 @@ export function PetCard({ pet }: PetCardProps) {
         </CardContent>
       </Card>
     </Link>
-  );
+  )
 }
+

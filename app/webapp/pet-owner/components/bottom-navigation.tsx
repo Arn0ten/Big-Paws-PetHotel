@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, FileText, Bell, User, DollarSign } from "lucide-react"
+import { Home, FileText, Bell, User, Image } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { getUnreadNotificationsCount } from "@/app/webapp/data/sample-data"
 
@@ -23,17 +23,16 @@ export default function BottomNavigation() {
       icon: FileText,
     },
     {
+      name: "Media",
+      href: "/webapp/pet-owner/media-archive",
+      icon: Image,
+    },
+    {
       name: "Notifications",
       href: "/webapp/pet-owner/notifications",
       icon: Bell,
       badge: unreadCount > 0 ? unreadCount : null,
       badgeColor: "bg-emerald-500 text-white",
-    },
-    {
-      name: "Pricing",
-      href: "/webapp/pet-owner/pricing",
-      icon: DollarSign,
-      iconColor: "text-emerald-600 dark:text-emerald-500",
     },
     {
       name: "Profile",

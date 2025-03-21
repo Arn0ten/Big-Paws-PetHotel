@@ -1,43 +1,22 @@
-"use client";
+"use client"
 
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/components/ui/badge"
 
-import type React from "react";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  ArrowLeft,
-  Camera,
-  Video,
-  Scissors,
-  Clock,
-  HelpCircle,
-  Info,
-  AlertCircle,
-} from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { getBoardingPets, createRequest } from "@/app/webapp/data/sample-data";
-import { REQUEST_TYPES, REQUEST_TYPE_LABELS } from "@/app/webapp/constants";
+import type React from "react"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
+import Link from "next/link"
+import { motion } from "framer-motion"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { ArrowLeft, Camera, Video, Scissors, Clock, HelpCircle, Info, AlertCircle } from "lucide-react"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { getBoardingPets, createRequest } from "@/app/webapp/data/sample-data"
+import { REQUEST_TYPES, REQUEST_TYPE_LABELS } from "@/app/webapp/constants"
 
 /**
  * Enhanced Request Creation Page
@@ -71,30 +50,28 @@ import { REQUEST_TYPES, REQUEST_TYPE_LABELS } from "@/app/webapp/constants";
  *    - Monitor completion rates for the form
  */
 export default function EnhancedRequestCreationPage() {
-  const router = useRouter();
-  const [activeStep, setActiveStep] = useState(1);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedRequestType, setSelectedRequestType] = useState<string | null>(
-    null,
-  );
-  const [selectedPet, setSelectedPet] = useState<string>("");
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter()
+  const [activeStep, setActiveStep] = useState(1)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [selectedRequestType, setSelectedRequestType] = useState<string | null>(null)
+  const [selectedPet, setSelectedPet] = useState<string>("")
+  const [title, setTitle] = useState("")
+  const [description, setDescription] = useState("")
+  const [showSuccess, setShowSuccess] = useState(false)
+  const [errorMessage, setErrorMessage] = useState("")
+  const [isLoading, setIsLoading] = useState(true)
 
   // Additional state for specific request types
-  const [groomingService, setGroomingService] = useState("");
-  const [extensionDuration, setExtensionDuration] = useState("");
-  const [extensionUnit, setExtensionUnit] = useState("days");
-  const [photoCount, setPhotoCount] = useState("3"); // Photos limited to 5 for admins
-  const [photoType, setPhotoType] = useState("general");
-  const [customRequestCategory, setCustomRequestCategory] = useState("other");
+  const [groomingService, setGroomingService] = useState("")
+  const [extensionDuration, setExtensionDuration] = useState("")
+  const [extensionUnit, setExtensionUnit] = useState("days")
+  const [photoCount, setPhotoCount] = useState("3") // Photos limited to 5 for admins
+  const [photoType, setPhotoType] = useState("general")
+  const [customRequestCategory, setCustomRequestCategory] = useState("other")
 
   // Boarding pets state
-  const [boardingPets, setBoardingPets] = useState<any[]>([]);
-  const [selectedPetDetails, setSelectedPetDetails] = useState<any>(null);
+  const [boardingPets, setBoardingPets] = useState<any[]>([])
+  const [selectedPetDetails, setSelectedPetDetails] = useState<any>(null)
 
   // Form validation state
   const [formErrors, setFormErrors] = useState({
@@ -103,13 +80,13 @@ export default function EnhancedRequestCreationPage() {
     description: false,
     groomingService: false,
     extensionDuration: false,
-  });
+  })
 
   // Fetch boarding pets
   useEffect(() => {
     const fetchPets = async () => {
       try {
-        setIsLoading(true);
+        setIsLoading(true)
 
         // BACKEND INTEGRATION:
         // Replace this with an actual API call to fetch boarding pets
@@ -119,28 +96,28 @@ export default function EnhancedRequestCreationPage() {
         // const petsData = await response.json();
 
         // For demo, we'll use the sample data
-        const petsData = getBoardingPets();
-        setBoardingPets(petsData);
+        const petsData = getBoardingPets()
+        setBoardingPets(petsData)
       } catch (error) {
-        console.error("Error fetching pets:", error);
-        setErrorMessage("Failed to load your pets. Please try again later.");
+        console.error("Error fetching pets:", error)
+        setErrorMessage("Failed to load your pets. Please try again later.")
       } finally {
-        setIsLoading(false);
+        setIsLoading(false)
       }
-    };
+    }
 
-    fetchPets();
-  }, []);
+    fetchPets()
+  }, [])
 
   // Update selected pet details when pet changes
   useEffect(() => {
     if (selectedPet) {
-      const petDetails = boardingPets.find((pet) => pet.id === selectedPet);
-      setSelectedPetDetails(petDetails);
+      const petDetails = boardingPets.find((pet) => pet.id === selectedPet)
+      setSelectedPetDetails(petDetails)
     } else {
-      setSelectedPetDetails(null);
+      setSelectedPetDetails(null)
     }
-  }, [selectedPet, boardingPets]);
+  }, [selectedPet, boardingPets])
 
   // Request type options with icons and descriptions
   const requestTypes = [
@@ -179,114 +156,79 @@ export default function EnhancedRequestCreationPage() {
       description: "Make a special request not covered by other options",
       color: "gray",
     },
-  ];
+  ]
 
   // Photo type options
   const photoTypeOptions = [
-    {
-      value: "general",
-      label: "General Photos",
-      description: "Regular photos of your pet",
-    },
-    {
-      value: "playing",
-      label: "Playing",
-      description: "Photos of your pet playing",
-    },
-    {
-      value: "sleeping",
-      label: "Sleeping/Resting",
-      description: "Photos of your pet resting",
-    },
-    {
-      value: "eating",
-      label: "Eating/Drinking",
-      description: "Photos of your pet during meal time",
-    },
-    {
-      value: "groomed",
-      label: "After Grooming",
-      description: "Photos after grooming session",
-    },
-  ];
+    { value: "general", label: "General Photos", description: "Regular photos of your pet" },
+    { value: "playing", label: "Playing", description: "Photos of your pet playing" },
+    { value: "sleeping", label: "Sleeping/Resting", description: "Photos of your pet resting" },
+    { value: "eating", label: "Eating/Drinking", description: "Photos of your pet during meal time" },
+    { value: "groomed", label: "After Grooming", description: "Photos after grooming session" },
+  ]
 
   // Custom request categories
   const customRequestCategories = [
-    {
-      value: "feeding",
-      label: "Special Feeding",
-      description: "Special feeding instructions",
-    },
-    {
-      value: "medication",
-      label: "Medication",
-      description: "Medication administration",
-    },
-    {
-      value: "exercise",
-      label: "Exercise",
-      description: "Special exercise requests",
-    },
+    { value: "feeding", label: "Special Feeding", description: "Special feeding instructions" },
+    { value: "medication", label: "Medication", description: "Medication administration" },
+    { value: "exercise", label: "Exercise", description: "Special exercise requests" },
     { value: "other", label: "Other", description: "Other special requests" },
-  ];
+  ]
 
   // Validate form based on current step
   const validateCurrentStep = () => {
-    let isValid = true;
-    const newErrors = { ...formErrors };
+    let isValid = true
+    const newErrors = { ...formErrors }
 
     if (activeStep === 1) {
       if (!selectedRequestType) {
-        newErrors.requestType = true;
-        isValid = false;
+        newErrors.requestType = true
+        isValid = false
       } else {
-        newErrors.requestType = false;
+        newErrors.requestType = false
       }
     } else if (activeStep === 2) {
       if (!selectedPet) {
-        newErrors.pet = true;
-        isValid = false;
+        newErrors.pet = true
+        isValid = false
       } else {
-        newErrors.pet = false;
+        newErrors.pet = false
       }
     } else if (activeStep === 3) {
       if (!description.trim()) {
-        newErrors.description = true;
-        isValid = false;
+        newErrors.description = true
+        isValid = false
       } else {
-        newErrors.description = false;
+        newErrors.description = false
       }
 
       // Validate type-specific fields
       if (selectedRequestType === REQUEST_TYPES.GROOMING && !groomingService) {
-        newErrors.groomingService = true;
-        isValid = false;
+        newErrors.groomingService = true
+        isValid = false
       }
 
-      if (
-        selectedRequestType === REQUEST_TYPES.BOARDING_EXTENSION &&
-        !extensionDuration
-      ) {
-        newErrors.extensionDuration = true;
-        isValid = false;
+      if (selectedRequestType === REQUEST_TYPES.BOARDING_EXTENSION && !extensionDuration) {
+        newErrors.extensionDuration = true
+        isValid = false
       }
     }
 
-    setFormErrors(newErrors);
-    return isValid;
-  };
+    setFormErrors(newErrors)
+    return isValid
+  }
 
   // Handle next step
   const handleNextStep = () => {
     if (validateCurrentStep()) {
-      setActiveStep((prev) => prev + 1);
+      setActiveStep((prev) => prev + 1)
     }
-  };
+  }
 
   // Handle previous step
   const handlePrevStep = () => {
-    setActiveStep((prev) => prev - 1);
-  };
+    setActiveStep((prev) => prev - 1)
+  }
 
   /**
    * Handle form submission
@@ -321,24 +263,22 @@ export default function EnhancedRequestCreationPage() {
    * }
    */
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
 
     // Final validation
     if (!validateCurrentStep()) {
-      return;
+      return
     }
 
-    setIsSubmitting(true);
-    setErrorMessage("");
+    setIsSubmitting(true)
+    setErrorMessage("")
 
     // Get pet name for the request
-    const pet = boardingPets.find((p) => p.id === selectedPet);
-    const petName = pet ? pet.name : "Unknown Pet";
+    const pet = boardingPets.find((p) => p.id === selectedPet)
+    const petName = pet ? pet.name : "Unknown Pet"
 
     // Generate a title if not provided
-    const generatedTitle =
-      title ||
-      `${petName} - ${requestTypes.find((type) => type.id === selectedRequestType)?.name}`;
+    const generatedTitle = title || `${petName} - ${requestTypes.find((type) => type.id === selectedRequestType)?.name}`
 
     // Prepare request data based on type
     const requestData: any = {
@@ -349,31 +289,28 @@ export default function EnhancedRequestCreationPage() {
       description,
       createdAt: new Date().toISOString(),
       status: "pending", // or "new" depending on your backend
-    };
+    }
 
     // Add type-specific data
     if (selectedRequestType === REQUEST_TYPES.GROOMING && groomingService) {
-      requestData.groomingService = groomingService;
-    } else if (
-      selectedRequestType === REQUEST_TYPES.BOARDING_EXTENSION &&
-      extensionDuration
-    ) {
+      requestData.groomingService = groomingService
+    } else if (selectedRequestType === REQUEST_TYPES.BOARDING_EXTENSION && extensionDuration) {
       requestData.extensionDetails = {
         duration: extensionDuration,
         unit: extensionUnit,
-      };
+      }
 
       // Add current end date from pet boarding data
       if (pet?.boarding) {
-        requestData.currentEndDate = pet.boarding.endDate;
+        requestData.currentEndDate = pet.boarding.endDate
       }
     } else if (selectedRequestType === REQUEST_TYPES.PHOTO) {
-      requestData.photoCount = Number.parseInt(photoCount);
-      requestData.photoType = photoType;
+      requestData.photoCount = Number.parseInt(photoCount)
+      requestData.photoType = photoType
     } else if (selectedRequestType === REQUEST_TYPES.VIDEO) {
       // No video duration or type needed
     } else if (selectedRequestType === REQUEST_TYPES.CUSTOM) {
-      requestData.customRequestCategory = customRequestCategory;
+      requestData.customRequestCategory = customRequestCategory
     }
 
     try {
@@ -394,29 +331,25 @@ export default function EnhancedRequestCreationPage() {
       // const createdRequest = await response.json();
 
       // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000))
 
       // For demo, we'll use the local helper function
-      createRequest(requestData);
+      createRequest(requestData)
 
       // Show success message
-      setShowSuccess(true);
+      setShowSuccess(true)
 
       // Redirect after a short delay
       setTimeout(() => {
-        router.push("/webapp/pet-owner/requests");
-      }, 2000);
+        router.push("/webapp/pet-owner/requests")
+      }, 2000)
     } catch (error) {
-      console.error("Error creating request:", error);
-      setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : "Failed to create your request. Please try again.",
-      );
+      console.error("Error creating request:", error)
+      setErrorMessage(error instanceof Error ? error.message : "Failed to create your request. Please try again.")
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
   // Render the step indicator
   const renderStepIndicator = () => {
@@ -442,8 +375,8 @@ export default function EnhancedRequestCreationPage() {
           </div>
         ))}
       </div>
-    );
-  };
+    )
+  }
 
   // Render step 3: Request Details
   const renderStep3 = () => {
@@ -472,9 +405,8 @@ export default function EnhancedRequestCreationPage() {
             <div className="bg-muted/50 p-4 rounded-lg">
               <p className="text-sm text-muted-foreground">
                 <Info className="inline-block w-4 h-4 mr-1" />
-                Photo type and quantity will be determined by the admin during
-                processing. Admins can select 1-5 photos per request based on
-                availability and quality.
+                Photo type and quantity will be determined by the admin during processing. Admins can select 1-5 photos
+                per request based on availability and quality.
               </p>
             </div>
           </div>
@@ -484,12 +416,10 @@ export default function EnhancedRequestCreationPage() {
           <div className="space-y-4">
             <Alert className="bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800">
               <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-              <AlertTitle className="text-blue-800 dark:text-blue-300">
-                Video Request Information
-              </AlertTitle>
+              <AlertTitle className="text-blue-800 dark:text-blue-300">Video Request Information</AlertTitle>
               <AlertDescription className="text-blue-700 dark:text-blue-400">
-                Videos will be up to 1 minute in length. Our staff will capture
-                the best moments of your pet during their stay.
+                Videos will be up to 1 minute in length. Our staff will capture the best moments of your pet during
+                their stay.
               </AlertDescription>
             </Alert>
           </div>
@@ -498,10 +428,7 @@ export default function EnhancedRequestCreationPage() {
         {selectedRequestType === REQUEST_TYPES.GROOMING && (
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label
-                htmlFor="groomingService"
-                className="text-base font-medium"
-              >
+              <Label htmlFor="groomingService" className="text-base font-medium">
                 Grooming Service <span className="text-destructive">*</span>
               </Label>
               {formErrors.groomingService && (
@@ -514,37 +441,24 @@ export default function EnhancedRequestCreationPage() {
             <Select
               value={groomingService}
               onValueChange={(value) => {
-                setGroomingService(value);
-                setFormErrors({ ...formErrors, groomingService: false });
+                setGroomingService(value)
+                setFormErrors({ ...formErrors, groomingService: false })
               }}
             >
               <SelectTrigger id="groomingService" className="text-base">
                 <SelectValue placeholder="Select grooming service" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="basic-wash">
-                  Basic Wash (₱180-₱320)
-                </SelectItem>
-                <SelectItem value="premium-wash">
-                  Premium Wash (₱300-₱850)
-                </SelectItem>
-                <SelectItem value="premium-wash-and-cut">
-                  Premium Wash & Cut (₱450-₱850)
-                </SelectItem>
-                <SelectItem value="full-grooming">
-                  Full Grooming (₱500-₱800)
-                </SelectItem>
-                <SelectItem value="nail-trim">
-                  Nail Trim Only (₱150-₱200)
-                </SelectItem>
+                <SelectItem value="basic-wash">Basic Wash (₱180-₱320)</SelectItem>
+                <SelectItem value="premium-wash">Premium Wash (₱300-₱850)</SelectItem>
+                <SelectItem value="premium-wash-and-cut">Premium Wash & Cut (₱450-₱850)</SelectItem>
+                <SelectItem value="full-grooming">Full Grooming (₱500-₱800)</SelectItem>
+                <SelectItem value="nail-trim">Nail Trim Only (₱150-₱200)</SelectItem>
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground">
               Prices vary based on pet size. See our{" "}
-              <Link
-                href="/webapp/pet-owner/pricing"
-                className="text-primary hover:underline"
-              >
+              <Link href="/webapp/pet-owner/pricing" className="text-primary hover:underline">
                 pricing page
               </Link>{" "}
               for details.
@@ -556,18 +470,12 @@ export default function EnhancedRequestCreationPage() {
           <div className="space-y-4">
             <Alert className="bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800">
               <Info className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-              <AlertTitle className="text-amber-800 dark:text-amber-300">
-                Boarding Extension
-              </AlertTitle>
+              <AlertTitle className="text-amber-800 dark:text-amber-300">Boarding Extension</AlertTitle>
               <AlertDescription className="text-amber-700 dark:text-amber-400">
                 {selectedPetDetails && selectedPetDetails.boarding ? (
                   <>
                     Current checkout date:{" "}
-                    <strong>
-                      {new Date(
-                        selectedPetDetails.boarding.endDate,
-                      ).toLocaleDateString()}
-                    </strong>
+                    <strong>{new Date(selectedPetDetails.boarding.endDate).toLocaleDateString()}</strong>
                   </>
                 ) : (
                   "Please specify how long you'd like to extend your pet's stay."
@@ -578,12 +486,8 @@ export default function EnhancedRequestCreationPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label
-                    htmlFor="extensionDuration"
-                    className="text-base font-medium"
-                  >
-                    Extension Duration{" "}
-                    <span className="text-destructive">*</span>
+                  <Label htmlFor="extensionDuration" className="text-base font-medium">
+                    Extension Duration <span className="text-destructive">*</span>
                   </Label>
                   {formErrors.extensionDuration && (
                     <span className="text-sm text-destructive flex items-center">
@@ -600,17 +504,14 @@ export default function EnhancedRequestCreationPage() {
                   className="text-base"
                   value={extensionDuration}
                   onChange={(e) => {
-                    setExtensionDuration(e.target.value);
-                    setFormErrors({ ...formErrors, extensionDuration: false });
+                    setExtensionDuration(e.target.value)
+                    setFormErrors({ ...formErrors, extensionDuration: false })
                   }}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label
-                  htmlFor="extensionUnit"
-                  className="text-base font-medium"
-                >
+                <Label htmlFor="extensionUnit" className="text-base font-medium">
                   Unit <span className="text-destructive">*</span>
                 </Label>
                 <Select value={extensionUnit} onValueChange={setExtensionUnit}>
@@ -627,9 +528,8 @@ export default function EnhancedRequestCreationPage() {
 
             <div className="p-3 bg-blue-50 border border-blue-200 rounded-md dark:bg-blue-900/20 dark:border-blue-800">
               <p className="text-sm text-blue-700 dark:text-blue-300">
-                <span className="font-medium">Pricing:</span> Hourly extensions
-                cost ₱50-75/hour and daily extensions cost ₱500-750/day
-                depending on pet size.
+                <span className="font-medium">Pricing:</span> Hourly extensions cost ₱50-75/hour and daily extensions
+                cost ₱500-750/day depending on pet size.
               </p>
             </div>
           </div>
@@ -637,16 +537,10 @@ export default function EnhancedRequestCreationPage() {
 
         {selectedRequestType === REQUEST_TYPES.CUSTOM && (
           <div className="space-y-2">
-            <Label
-              htmlFor="customRequestCategory"
-              className="text-base font-medium"
-            >
+            <Label htmlFor="customRequestCategory" className="text-base font-medium">
               Request Category
             </Label>
-            <Select
-              value={customRequestCategory}
-              onValueChange={setCustomRequestCategory}
-            >
+            <Select value={customRequestCategory} onValueChange={setCustomRequestCategory}>
               <SelectTrigger id="customRequestCategory" className="text-base">
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
@@ -658,9 +552,7 @@ export default function EnhancedRequestCreationPage() {
                 ))}
               </SelectContent>
             </Select>
-            <p className="text-xs text-muted-foreground">
-              Select a category that best describes your request
-            </p>
+            <p className="text-xs text-muted-foreground">Select a category that best describes your request</p>
           </div>
         )}
 
@@ -683,21 +575,18 @@ export default function EnhancedRequestCreationPage() {
             className="min-h-[120px] text-base resize-none"
             value={description}
             onChange={(e) => {
-              setDescription(e.target.value);
-              setFormErrors({ ...formErrors, description: false });
+              setDescription(e.target.value)
+              setFormErrors({ ...formErrors, description: false })
             }}
           />
           <p className="text-xs text-muted-foreground">
-            {selectedRequestType === REQUEST_TYPES.PHOTO &&
-              "Describe what kind of photos you'd like of your pet."}
-            {selectedRequestType === REQUEST_TYPES.VIDEO &&
-              "Describe what kind of video you'd like of your pet."}
+            {selectedRequestType === REQUEST_TYPES.PHOTO && "Describe what kind of photos you'd like of your pet."}
+            {selectedRequestType === REQUEST_TYPES.VIDEO && "Describe what kind of video you'd like of your pet."}
             {selectedRequestType === REQUEST_TYPES.GROOMING &&
               "Provide any specific instructions or preferences for the grooming service."}
             {selectedRequestType === REQUEST_TYPES.BOARDING_EXTENSION &&
               "Please explain why you need to extend your pet's stay."}
-            {selectedRequestType === REQUEST_TYPES.CUSTOM &&
-              "Describe your request in detail."}
+            {selectedRequestType === REQUEST_TYPES.CUSTOM && "Describe your request in detail."}
             {!selectedRequestType && "Provide details about your request."}
           </p>
         </div>
@@ -709,15 +598,13 @@ export default function EnhancedRequestCreationPage() {
             Cancellation Policy
           </h4>
           <p className="text-sm text-blue-600 dark:text-blue-400 mt-1">
-            <strong>Important:</strong> You can cancel your request as long as
-            it remains in "Pending" status. Once our staff begins processing
-            your request (status changes to "In Progress"), it can no longer be
-            cancelled.
+            <strong>Important:</strong> You can cancel your request as long as it remains in "Pending" status. Once our
+            staff begins processing your request (status changes to "In Progress"), it can no longer be cancelled.
           </p>
         </div>
       </div>
-    );
-  };
+    )
+  }
 
   // Render step 1: Request Type Selection
   const renderStep1 = () => {
@@ -729,16 +616,14 @@ export default function EnhancedRequestCreationPage() {
             className={`relative rounded-lg border shadow-md transition-colors hover:shadow-lg
               ${selectedRequestType === type.id ? "border-primary" : "border-muted"}`}
             onClick={() => {
-              setSelectedRequestType(type.id);
-              setFormErrors({ ...formErrors, requestType: false });
+              setSelectedRequestType(type.id)
+              setFormErrors({ ...formErrors, requestType: false })
             }}
             style={{ cursor: "pointer" }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            {selectedRequestType === type.id && (
-              <Badge className="absolute top-2 right-2 z-10">Selected</Badge>
-            )}
+            {selectedRequestType === type.id && <Badge className="absolute top-2 right-2 z-10">Selected</Badge>}
             <Card className="h-full">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg font-semibold">
@@ -749,16 +634,11 @@ export default function EnhancedRequestCreationPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  {type.id === REQUEST_TYPES.PHOTO &&
-                    "Request photos of your pet during their stay."}
-                  {type.id === REQUEST_TYPES.VIDEO &&
-                    "Request a short video of your pet's activities."}
-                  {type.id === REQUEST_TYPES.GROOMING &&
-                    "Schedule a grooming service for your pet."}
-                  {type.id === REQUEST_TYPES.BOARDING_EXTENSION &&
-                    "Request to extend your pet's current stay."}
-                  {type.id === REQUEST_TYPES.CUSTOM &&
-                    "Make a special request not covered by other options."}
+                  {type.id === REQUEST_TYPES.PHOTO && "Request photos of your pet during their stay."}
+                  {type.id === REQUEST_TYPES.VIDEO && "Request a short video of your pet's activities."}
+                  {type.id === REQUEST_TYPES.GROOMING && "Schedule a grooming service for your pet."}
+                  {type.id === REQUEST_TYPES.BOARDING_EXTENSION && "Request to extend your pet's current stay."}
+                  {type.id === REQUEST_TYPES.CUSTOM && "Make a special request not covered by other options."}
                 </p>
               </CardContent>
             </Card>
@@ -771,8 +651,8 @@ export default function EnhancedRequestCreationPage() {
           </Alert>
         )}
       </div>
-    );
-  };
+    )
+  }
 
   // Render step 2: Pet Selection
   const renderStep2 = () => {
@@ -783,12 +663,9 @@ export default function EnhancedRequestCreationPage() {
         ) : boardingPets.length === 0 ? (
           <Alert className="bg-yellow-50 border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-800">
             <Info className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
-            <AlertTitle className="text-yellow-800 dark:text-yellow-300">
-              No Boarding Pets Found
-            </AlertTitle>
+            <AlertTitle className="text-yellow-800 dark:text-yellow-300">No Boarding Pets Found</AlertTitle>
             <AlertDescription className="text-yellow-700 dark:text-yellow-400">
-              You don't have any pets currently boarding with us. Please contact
-              support if this is incorrect.
+              You don't have any pets currently boarding with us. Please contact support if this is incorrect.
             </AlertDescription>
           </Alert>
         ) : (
@@ -799,41 +676,28 @@ export default function EnhancedRequestCreationPage() {
                 className={`relative rounded-lg border shadow-md transition-colors hover:shadow-lg
                   ${selectedPet === pet.id ? "border-primary" : "border-muted"}`}
                 onClick={() => {
-                  setSelectedPet(pet.id);
-                  setFormErrors({ ...formErrors, pet: false });
+                  setSelectedPet(pet.id)
+                  setFormErrors({ ...formErrors, pet: false })
                 }}
                 style={{ cursor: "pointer" }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                {selectedPet === pet.id && (
-                  <Badge className="absolute top-2 right-2 z-10">
-                    Selected
-                  </Badge>
-                )}
+                {selectedPet === pet.id && <Badge className="absolute top-2 right-2 z-10">Selected</Badge>}
                 <Card className="h-full">
                   <CardHeader>
-                    <CardTitle className="text-lg font-semibold">
-                      {pet.name}
-                    </CardTitle>
+                    <CardTitle className="text-lg font-semibold">{pet.name}</CardTitle>
                     <CardDescription>
                       {pet.breed} - {pet.age} years old
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-2">
-                      <p className="text-sm text-muted-foreground">
-                        {pet.notes || "No additional notes provided."}
-                      </p>
+                      <p className="text-sm text-muted-foreground">{pet.notes || "No additional notes provided."}</p>
                       {pet.boarding && (
                         <div className="p-3 bg-blue-50 border border-blue-200 rounded-md dark:bg-blue-900/20 dark:border-blue-800">
                           <p className="text-sm text-blue-700 dark:text-blue-300">
-                            Checkout Date:{" "}
-                            <strong>
-                              {new Date(
-                                pet.boarding.endDate,
-                              ).toLocaleDateString()}
-                            </strong>
+                            Checkout Date: <strong>{new Date(pet.boarding.endDate).toLocaleDateString()}</strong>
                           </p>
                         </div>
                       )}
@@ -851,22 +715,22 @@ export default function EnhancedRequestCreationPage() {
           </Alert>
         )}
       </div>
-    );
-  };
+    )
+  }
 
   // Render the current step
   const renderCurrentStep = () => {
     switch (activeStep) {
       case 1:
-        return renderStep1();
+        return renderStep1()
       case 2:
-        return renderStep2();
+        return renderStep2()
       case 3:
-        return renderStep3();
+        return renderStep3()
       default:
-        return null;
+        return null
     }
-  };
+  }
 
   return (
     <div className="space-y-6">
@@ -877,12 +741,8 @@ export default function EnhancedRequestCreationPage() {
           </Link>
         </Button>
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">
-            New Request
-          </h1>
-          <p className="text-base text-muted-foreground">
-            Submit a new service request for your pet
-          </p>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">New Request</h1>
+          <p className="text-base text-muted-foreground">Submit a new service request for your pet</p>
         </div>
       </div>
 
@@ -902,37 +762,23 @@ export default function EnhancedRequestCreationPage() {
             Next
           </Button>
         ) : (
-          <Button
-            type="submit"
-            disabled={isSubmitting || boardingPets.length === 0}
-          >
+          <Button type="submit" disabled={isSubmitting || boardingPets.length === 0}>
             {isSubmitting ? "Submitting..." : "Submit Request"}
           </Button>
         )}
       </div>
 
       {showSuccess ? (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
           <Alert className="bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-700/30">
-            <AlertTitle className="text-green-800 dark:text-green-300">
-              Request Submitted Successfully
-            </AlertTitle>
+            <AlertTitle className="text-green-800 dark:text-green-300">Request Submitted Successfully</AlertTitle>
             <AlertDescription className="text-green-700 dark:text-green-400">
-              Your request has been submitted and is now pending approval. You
-              will be redirected to the requests page.
+              Your request has been submitted and is now pending approval. You will be redirected to the requests page.
             </AlertDescription>
           </Alert>
         </motion.div>
       ) : (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
           <form onSubmit={handleSubmit} className="space-y-6">
             {errorMessage && (
               <Alert variant="destructive">
@@ -943,12 +789,8 @@ export default function EnhancedRequestCreationPage() {
 
             <Card>
               <CardHeader className="pb-0">
-                <CardTitle className="text-lg font-semibold">
-                  Create New Request
-                </CardTitle>
-                <CardDescription>
-                  Follow the steps below to create a new service request
-                </CardDescription>
+                <CardTitle className="text-lg font-semibold">Create New Request</CardTitle>
+                <CardDescription>Follow the steps below to create a new service request</CardDescription>
               </CardHeader>
               <CardContent className="pt-6">
                 {renderStepIndicator()}
@@ -959,5 +801,6 @@ export default function EnhancedRequestCreationPage() {
         </motion.div>
       )}
     </div>
-  );
+  )
 }
+
