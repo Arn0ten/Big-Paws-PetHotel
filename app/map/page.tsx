@@ -136,13 +136,14 @@ export default function MapPage() {
                 access from major roads.
               </p>
               <p className="text-sm text-muted-foreground mt-2">
-                <strong>Opening Hours:</strong> Monday-Sunday, 7:00 AM - 7:00 PM
+                <strong>Opening Hours:</strong> Monday-Sunday, 8:00 AM - 7:00 PM
               </p>
               <p className="text-sm text-muted-foreground mt-1">
-                <strong>Address:</strong> 123 Pet Haven Road, Davao City
+                <strong>Address:</strong> Bonifacio St., in front of Philhealth,
+                Tagum City, Philippines, 8100
               </p>
               <p className="text-sm text-muted-foreground mt-1">
-                <strong>Contact:</strong> (123) 456-7890
+                <strong>Contact:</strong> +63 950 189 0933
               </p>
             </div>
 
@@ -156,37 +157,16 @@ export default function MapPage() {
                   animation: "runRight 15s linear infinite",
                 }}
               >
-                🐕
+                <img src="/running.gif" alt="Running Dog" />
               </div>
               <div
-                className="cat-run absolute h-8 w-8 animate-run-left"
+                className="cat-run absolute h-8 w-8 animate-run-alternate"
                 style={{
                   bottom: "0px",
                   right: "-30px",
-                  animation: "runLeft 20s linear infinite 2s",
                 }}
               >
-                🐈
-              </div>
-              <div
-                className="dog-run absolute h-8 w-8 animate-run-right"
-                style={{
-                  bottom: "0px",
-                  left: "-30px",
-                  animation: "runRight 12s linear infinite 5s",
-                }}
-              >
-                🐩
-              </div>
-              <div
-                className="cat-run absolute h-8 w-8 animate-run-left"
-                style={{
-                  bottom: "0px",
-                  right: "-30px",
-                  animation: "runLeft 18s linear infinite 7s",
-                }}
-              >
-                🐈‍⬛
+                <img src="/running-cat.gif" alt="Running Cat" />
               </div>
             </div>
 
@@ -264,6 +244,21 @@ export default function MapPage() {
           }
         }
 
+        @keyframes runAlternate {
+          0% {
+            transform: translateX(0) scaleX(-1);
+          }
+          50% {
+            transform: translateX(calc(-100vw - 30px)) scaleX(-1);
+          }
+          50.1% {
+            transform: translateX(calc(-100vw - 30px)) scaleX(1);
+          }
+          100% {
+            transform: translateX(calc(100vw + 30px)) scaleX(1);
+          }
+        }
+
         .animate-run-right {
           animation: runRight 15s linear infinite;
         }
@@ -271,6 +266,10 @@ export default function MapPage() {
         .animate-run-left {
           animation: runLeft 20s linear infinite;
           transform: scaleX(-1);
+        }
+
+        .animate-run-alternate {
+          animation: runAlternate 30s linear infinite;
         }
       `}</style>
     </div>
