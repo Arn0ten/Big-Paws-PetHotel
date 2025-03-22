@@ -1,6 +1,6 @@
-import { Skeleton } from "@/components/ui/skeleton"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function BoardingManagementLoading() {
   return (
@@ -51,7 +51,10 @@ export default function BoardingManagementLoading() {
                 {Array(7)
                   .fill(0)
                   .map((_, i) => (
-                    <Skeleton key={i} className="h-4 w-full max-w-[100px] mx-2" />
+                    <Skeleton
+                      key={i}
+                      className="h-4 w-full max-w-[100px] mx-2"
+                    />
                   ))}
               </div>
               {Array(5)
@@ -61,7 +64,10 @@ export default function BoardingManagementLoading() {
                     {Array(7)
                       .fill(0)
                       .map((_, j) => (
-                        <Skeleton key={j} className="h-4 w-full max-w-[100px] mx-2" />
+                        <Skeleton
+                          key={j}
+                          className="h-4 w-full max-w-[100px] mx-2"
+                        />
                       ))}
                   </div>
                 ))}
@@ -70,6 +76,5 @@ export default function BoardingManagementLoading() {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }
-
