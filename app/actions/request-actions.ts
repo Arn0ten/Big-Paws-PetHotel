@@ -4,6 +4,36 @@ import { revalidatePath } from "next/cache"
 import { getEmailTemplate, sendEmail } from "@/lib/email"
 import type { RequestType, RequestStatus } from "@/types"
 
+/**
+ * Request Server Actions
+ *
+ * This file contains server actions for handling pet owner requests.
+ *
+ * =====================================================================
+ * BACKEND INTEGRATION GUIDE:
+ * =====================================================================
+ *
+ * 1. Database Operations:
+ *    - Replace mock functions with actual database operations
+ *    - Implement proper error handling and transaction management
+ *    - Add logging for debugging and monitoring
+ *
+ * 2. Email Integration:
+ *    - Ensure email templates are properly configured
+ *    - Add retry logic for failed email sending
+ *    - Implement email queue for better reliability
+ *
+ * 3. Security Considerations:
+ *    - Add authentication and authorization checks
+ *    - Validate input data before processing
+ *    - Sanitize data to prevent injection attacks
+ *
+ * 4. Performance Optimization:
+ *    - Consider caching frequently accessed data
+ *    - Use database indexes for faster queries
+ *    - Implement rate limiting to prevent abuse
+ */
+
 // Types definition (assumed to be in your types folder)
 interface Request {
   id: string
@@ -23,8 +53,58 @@ interface Request {
   isNewlyCompleted?: boolean
 }
 
-// This is a mock function that simulates DB operation
-// Replace with your actual database operations
+/**
+ * Update a request in the database
+ *
+ * BACKEND INTEGRATION:
+ * Replace this mock function with actual database operations.
+ *
+ * Implementation Example:
+ * \`\`\`
+ * async function updateRequestInDatabase(requestId: string, data: Partial<Request>): Promise<Request> {
+ *   try {
+ *     // Start a database transaction
+ *     const transaction = await db.transaction();
+ *
+ *     try {
+ *       // Update the request
+ *       await db.requests.update({
+ *         where: { id: requestId },
+ *         data: {
+ *           ...data,
+ *           updatedAt: new Date()
+ *         }
+ *       });
+ *
+ *       // Fetch the updated request
+ *       const updatedRequest = await db.requests.findUnique({
+ *         where: { id: requestId },
+ *         include: {
+ *           pet: true,
+ *           petOwner: true
+ *         }
+ *       });
+ *
+ *       if (!updatedRequest) {
+ *         throw new Error(`Request with ID ${requestId} not found`);
+ *       }
+ *
+ *       // Commit the transaction
+ *       await transaction.commit();
+ *
+ *       return updatedRequest;
+ *     } catch (error) {
+ *       // Rollback the transaction on error
+ *       await transaction.rollback();
+ *       throw error;
+ *     }
+ *   } catch (error) {
+ *     console.error(`Error updating request ${requestId}:`, error);
+ *     throw new Error(`Failed to update request: ${error.message}`);
+ *   }
+ * }
+ * \`\`\`
+ */
 async function updateRequestInDatabase(requestId: string, data: Partial<Request>): Promise<Request> {
   // Simulate database update
   console.log(`Updating request ${requestId} with data:`, data)
@@ -49,6 +129,26 @@ async function updateRequestInDatabase(requestId: string, data: Partial<Request>
   return updatedRequest
 }
 
+/**
+ * Complete a request and notify the pet owner
+ *
+ * BACKEND INTEGRATION:
+ * This function should:
+ * 1. Update the request status in the database
+ * 2. Send an email notification to the pet owner
+ * 3. Create a notification in the system
+ * 4. Revalidate the page to show updated data
+ *
+ * Security Considerations:
+ * - Verify that the user has permission to complete the request
+ * - Validate input data before processing
+ * - Log the action for audit purposes
+ *
+ * Error Handling:
+ * - Handle database errors
+ * - Handle email sending errors
+ * - Implement retry logic for critical operations
+ */
 export async function completeRequest(
   requestId: string,
   completionData: {

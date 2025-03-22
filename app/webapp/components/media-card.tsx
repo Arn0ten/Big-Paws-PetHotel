@@ -7,7 +7,7 @@ import { format } from "date-fns";
 
 interface MediaCardProps {
   id: string;
-  timestamp: string;
+  timestamp: string | Date;
   petName: string;
   requestType: "photo" | "video";
   description?: string;
@@ -51,21 +51,22 @@ export function MediaCard({
   };
 
   // Format date for display
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | Date) => {
     try {
-      const date = new Date(dateString);
+      const date =
+        typeof dateString === "string" ? new Date(dateString) : dateString;
       return format(date, "MMM d, yyyy 'at' h:mm a");
     } catch (error) {
-      return dateString;
+      return String(dateString);
     }
   };
 
   return (
     <Card
-      className="overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+      className="overflow-hidden cursor-pointer hover:shadow-md transition-shadow h-full"
       onClick={onClick}
     >
-      <div className="relative aspect-video bg-muted">
+      <div className="relative aspect-square bg-muted">
         {requestType === "photo" && mediaUrls.length > 0 && (
           <>
             {/* Main image */}
@@ -75,16 +76,17 @@ export function MediaCard({
               className="w-full h-full object-cover"
             />
 
-            {/* If there are multiple images, show thumbnails or +X indicator */}
+            {/* Enhanced '+X' notation for multiple images */}
             {mediaUrls.length > 1 && (
               <>
-                {/* Thumbnail grid for 2-3 images */}
+                {/* For 2-3 images, show small thumbnails */}
                 {mediaUrls.length <= 3 ? (
                   <div className="absolute bottom-2 right-2 flex gap-1">
                     {mediaUrls.slice(1, 3).map((url, idx) => (
                       <div
                         key={idx}
-                        className="h-10 w-10 rounded-md overflow-hidden border border-white/70 shadow-sm"
+                        className="h-8 w-8 rounded-md overflow-hidden border border-white/70 shadow-sm"
+                        aria-label={`Additional photo ${idx + 2} of ${petName}`}
                       >
                         <img
                           src={url || "/placeholder.svg"}
@@ -95,8 +97,11 @@ export function MediaCard({
                     ))}
                   </div>
                 ) : (
-                  // +X indicator for 4+ images
-                  <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-md flex items-center gap-1">
+                  // Enhanced '+X' indicator for 4+ images
+                  <div
+                    className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-md flex items-center gap-1"
+                    aria-label={`${mediaUrls.length - 1} more photos available`}
+                  >
                     <Image className="h-3 w-3" />+{mediaUrls.length - 1}
                   </div>
                 )}
@@ -108,12 +113,12 @@ export function MediaCard({
           <div className="relative w-full h-full bg-black flex items-center justify-center">
             <video
               src={mediaUrls[0]}
-              className="w-full h-full object-contain"
+              className="w-full h-full object-cover"
               controls={false}
             />
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="rounded-full bg-black/50 p-3">
-                <Video className="h-8 w-8 text-white" />
+              <div className="rounded-full bg-black/50 p-2">
+                <Video className="h-6 w-6 text-white" />
               </div>
             </div>
           </div>
@@ -122,10 +127,10 @@ export function MediaCard({
           {getMediaTypeBadge(requestType)}
         </div>
       </div>
-      <CardContent className="p-3">
-        <div className="font-medium truncate">{petName}</div>
+      <CardContent className="p-2">
+        <div className="font-medium text-sm truncate">{petName}</div>
         {description && (
-          <div className="text-sm text-muted-foreground truncate">
+          <div className="text-xs text-muted-foreground truncate">
             {description}
           </div>
         )}
