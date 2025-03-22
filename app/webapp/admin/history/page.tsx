@@ -1251,10 +1251,7 @@ export default function HistoryPage() {
                             {selectedMedia.mediaUrls.map((_, idx) => (
                               <button
                                 key={idx}
-                                className={`h-1.5  => (
-                              <button
-                                key={idx}
-                                className={\`h-1.5 rounded-full ${
+                                className={`h-1.5 rounded-full ${
                                   idx === currentImageIndex
                                     ? "w-4 bg-primary"
                                     : "w-1.5 bg-gray-300 dark:bg-gray-600"

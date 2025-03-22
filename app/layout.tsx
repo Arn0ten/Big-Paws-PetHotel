@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://big-paws-petsupplies.tech",
+    url: "https://bigpawspethotel.me",
     title: "Big Paws Pet Hotel - Premium Pet Care Services in Tagum City",
     description:
       "Professional pet grooming, boarding, and home services in Tagum City. Luxury accommodation for your beloved pets.",

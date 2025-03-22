@@ -1,51 +1,57 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { ArrowLeft, Mail, Smartphone, AlertCircle, Loader2 } from "lucide-react"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  ArrowLeft,
+  Mail,
+  Smartphone,
+  AlertCircle,
+  Loader2,
+} from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function ForgotPasswordPage() {
-  const [contact, setContact] = useState("")
-  const [isSubmitted, setIsSubmitted] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [contact, setContact] = useState("");
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const validateForm = () => {
     if (!contact.trim()) {
-      setError("Email or phone number is required")
-      return false
+      setError("Email or phone number is required");
+      return false;
     }
 
     // Basic email validation
     if (contact.includes("@") && !contact.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-      setError("Please enter a valid email address")
-      return false
+      setError("Please enter a valid email address");
+      return false;
     }
 
     // Basic phone validation (simple check for numbers only)
     if (!contact.includes("@") && !contact.match(/^\d+$/)) {
-      setError("Please enter a valid phone number (numbers only)")
-      return false
+      setError("Please enter a valid phone number (numbers only)");
+      return false;
     }
 
-    return true
-  }
+    return true;
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    if (!validateForm()) return
+    if (!validateForm()) return;
 
-    setIsLoading(true)
-    setError(null)
+    setIsLoading(true);
+    setError(null);
 
     // BACKEND INTEGRATION POINT:
     // Replace the setTimeout with actual API call to your backend
@@ -68,16 +74,19 @@ export default function ForgotPasswordPage() {
 
     // Simulate API call
     setTimeout(() => {
-      setIsSubmitted(true)
-      setIsLoading(false)
-    }, 1500)
-  }
+      setIsSubmitted(true);
+      setIsLoading(false);
+    }, 1500);
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <header className="w-full border-b py-3 sm:py-4 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <Link href="/webapp" className="text-lg sm:text-xl font-bold text-foreground">
+          <Link
+            href="/webapp"
+            className="text-lg sm:text-xl font-bold text-foreground"
+          >
             Big Paws Pet Hotel
           </Link>
           <ThemeToggle />
@@ -101,9 +110,12 @@ export default function ForgotPasswordPage() {
                 transition={{ duration: 0.3 }}
               >
                 <div className="text-center mb-6">
-                  <h1 className="text-2xl font-bold text-foreground">Forgot Password</h1>
+                  <h1 className="text-2xl font-bold text-foreground">
+                    Forgot Password
+                  </h1>
                   <p className="text-muted-foreground mt-2">
-                    Enter your email address or phone number to receive password reset instructions
+                    Enter your email address or phone number to receive password
+                    reset instructions
                   </p>
                 </div>
 
@@ -125,8 +137,8 @@ export default function ForgotPasswordPage() {
                       placeholder="Enter your email or phone number"
                       value={contact}
                       onChange={(e) => {
-                        setContact(e.target.value)
-                        if (error) setError(null)
+                        setContact(e.target.value);
+                        if (error) setError(null);
                       }}
                       disabled={isLoading}
                       className={`bg-background ${error ? "border-red-500 focus-visible:ring-red-500" : ""}`}
@@ -199,8 +211,8 @@ export default function ForgotPasswordPage() {
                     </motion.div>
                   )}
                   <p className="text-lg break-words text-sm sm:text-lg">
-                    Password reset instructions have been sent. Please check your{" "}
-                    {contact.includes("@") ? "email" : "SMS"} at:
+                    Password reset instructions have been sent. Please check
+                    your {contact.includes("@") ? "email" : "SMS"} at:
                   </p>
                   <p className="font-bold mt-2 text-base sm:text-lg break-all bg-white/20 dark:bg-black/20 p-2 rounded-md">
                     {contact}
@@ -214,7 +226,10 @@ export default function ForgotPasswordPage() {
           </AnimatePresence>
 
           <div className="mt-6 text-center">
-            <Link href="/webapp/auth/login" className="inline-flex items-center text-primary hover:underline">
+            <Link
+              href="/webapp/auth/login"
+              className="inline-flex items-center text-primary hover:underline"
+            >
               <ArrowLeft size={16} className="mr-1" /> Back to Login
             </Link>
           </div>
@@ -223,10 +238,12 @@ export default function ForgotPasswordPage() {
 
       <footer className="border-t py-6">
         <div className="max-w-7xl mx-auto text-center text-muted-foreground text-sm">
-          <p>&copy; {new Date().getFullYear()} Big Paws Pet Hotel. All rights reserved.</p>
+          <p>
+            &copy; {new Date().getFullYear()} Big Paws Pet Hotel. All rights
+            reserved.
+          </p>
         </div>
       </footer>
     </div>
-  )
+  );
 }
-

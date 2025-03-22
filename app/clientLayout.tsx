@@ -20,7 +20,7 @@ export default function ClientLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" type="image/x-icon" />
-        <link rel="canonical" href="https://big-paws-petsupplies.tech" />
+        <link rel="canonical" href="https://bigpawspethotel.me" />
         {/* Schema.org markup for Google */}
         <script
           type="application/ld+json"
@@ -31,8 +31,8 @@ export default function ClientLayout({
               name: "Big Paws Pet Hotel",
               image:
                 "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/BigPawsLogoBig-QEuBX7LEMcYoQTMrjMOPnGFkVuwmrA.png",
-              "@id": "https://big-paws-petsupplies.tech",
-              url: "https://big-paws-petsupplies.tech",
+              "@id": "https://bigpawspethotel.me",
+              url: "https://bigpawspethotel.me",
               telephone: "+639501890933",
               address: {
                 "@type": "PostalAddress",

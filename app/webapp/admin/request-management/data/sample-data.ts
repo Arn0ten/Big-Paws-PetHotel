@@ -42,7 +42,8 @@ export const sampleRequests = [
     petOwnerName: "John Smith",
     status: "in-progress",
     createdAt: "2025-03-10T10:30:00Z",
-    description: "Would love to see how Max is doing today! Can you send a photo of him playing in the yard?",
+    description:
+      "Would love to see how Max is doing today! Can you send a photo of him playing in the yard?",
     isUrgent: false,
     petSize: "Medium",
     boardingId: "board-001",
@@ -56,7 +57,8 @@ export const sampleRequests = [
     petOwnerName: "Emily Johnson",
     status: "in-progress",
     createdAt: "2025-03-11T09:15:00Z",
-    description: "I miss Bella so much! Could you send a short video of her today?",
+    description:
+      "I miss Bella so much! Could you send a short video of her today?",
     isUrgent: true,
     petSize: "Small",
     boardingId: "board-002",
@@ -70,7 +72,8 @@ export const sampleRequests = [
     petOwnerName: "Michael Brown",
     status: "in-progress",
     createdAt: "2025-03-09T14:45:00Z",
-    description: "Charlie needs a bath and nail trim. His fur is getting quite long too.",
+    description:
+      "Charlie needs a bath and nail trim. His fur is getting quite long too.",
     isUrgent: false,
     petSize: "Large",
     boardingId: "board-003",
@@ -85,7 +88,8 @@ export const sampleRequests = [
     petOwnerName: "Sophia Martinez",
     status: "in-progress",
     createdAt: "2025-03-12T11:20:00Z",
-    description: "My flight got delayed. Can I extend Luna's stay by 2 more days?",
+    description:
+      "My flight got delayed. Can I extend Luna's stay by 2 more days?",
     isUrgent: true,
     petSize: "Medium",
     boardingId: "board-004",
@@ -121,11 +125,13 @@ export const sampleRequests = [
     createdAt: "2025-03-07T13:10:00Z",
     completedAt: "2025-03-07T15:45:00Z",
     completedBy: "Sarah Admin",
-    description: "Could I get a photo update of Daisy? Just want to see how she's settling in.",
+    description:
+      "Could I get a photo update of Daisy? Just want to see how she's settling in.",
     isUrgent: false,
     petSize: "Small",
     boardingId: "board-006",
-    processingNotes: "Sent 3 photos of Daisy playing with toys and resting in her bed.",
+    processingNotes:
+      "Sent 3 photos of Daisy playing with toys and resting in her bed.",
     mediaFiles: {
       type: "photo",
       urls: [
@@ -147,13 +153,15 @@ export const sampleRequests = [
     createdAt: "2025-03-06T10:00:00Z",
     completedAt: "2025-03-06T14:30:00Z",
     completedBy: "Mark Groomer",
-    description: "Rocky needs a full grooming session with special attention to his matted fur.",
+    description:
+      "Rocky needs a full grooming session with special attention to his matted fur.",
     isUrgent: false,
     petSize: "Medium",
     boardingId: "board-007",
     groomingService: "full-grooming",
     price: 650,
-    processingNotes: "Completed full grooming with dematting. Rocky was very cooperative.",
+    processingNotes:
+      "Completed full grooming with dematting. Rocky was very cooperative.",
   },
   {
     id: "req-008",
@@ -166,7 +174,8 @@ export const sampleRequests = [
     createdAt: "2025-03-05T09:30:00Z",
     completedAt: "2025-03-05T11:15:00Z",
     completedBy: "John Manager",
-    description: "Need to extend Milo's stay by 3 more days due to work emergency.",
+    description:
+      "Need to extend Milo's stay by 3 more days due to work emergency.",
     isUrgent: true,
     petSize: "Small",
     boardingId: "board-008",
@@ -177,7 +186,8 @@ export const sampleRequests = [
     currentEndDate: "2025-03-10T12:00:00Z",
     newEndDate: "2025-03-13T12:00:00Z",
     price: 960,
-    processingNotes: "Extended stay approved. Updated boarding record and notified staff.",
+    processingNotes:
+      "Extended stay approved. Updated boarding record and notified staff.",
   },
   {
     id: "req-009",
@@ -188,7 +198,8 @@ export const sampleRequests = [
     petOwnerName: "James Harris",
     status: "in-progress",
     createdAt: "2025-03-13T08:45:00Z",
-    description: "Could you send a video of Zoe during playtime? My kids really miss her.",
+    description:
+      "Could you send a video of Zoe during playtime? My kids really miss her.",
     isUrgent: false,
     petSize: "Medium",
     boardingId: "board-009",
@@ -235,7 +246,8 @@ export const sampleRequests = [
     petOwnerName: "Isabella Rodriguez",
     status: "in-progress",
     createdAt: "2025-03-11T11:30:00Z",
-    description: "Molly needs a basic wash and brush. Nothing fancy, just to keep her clean.",
+    description:
+      "Molly needs a basic wash and brush. Nothing fancy, just to keep her clean.",
     isUrgent: false,
     petSize: "Medium",
     boardingId: "board-012",
@@ -265,7 +277,7 @@ export const sampleRequests = [
     audioUrl:
       "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/funny-pets-262921-3XpmWTqoYttdWiqsAmWVf5Iq5gzyke.mp3",
   },
-]
+];
 
 // Sample boarding data that matches with the requests
 export const sampleBoardingData = [
@@ -415,7 +427,7 @@ export const sampleBoardingData = [
     paymentStatus: "Paid",
     totalPrice: 2800,
   },
-]
+];
 
 /**
  * Helper functions for working with the sample data
@@ -430,8 +442,8 @@ export const sampleBoardingData = [
  * @returns The request object or undefined if not found
  */
 export const getRequestById = (id: string) => {
-  return sampleRequests.find((req) => req.id === id)
-}
+  return sampleRequests.find((req) => req.id === id);
+};
 
 /**
  * Get boarding details for a request
@@ -439,8 +451,8 @@ export const getRequestById = (id: string) => {
  * @returns The boarding details or undefined if not found
  */
 export const getBoardingDetails = (boardingId: string) => {
-  return sampleBoardingData.find((boarding) => boarding.id === boardingId)
-}
+  return sampleBoardingData.find((boarding) => boarding.id === boardingId);
+};
 
 /**
  * Filter requests by status
@@ -449,9 +461,9 @@ export const getBoardingDetails = (boardingId: string) => {
  * @returns Filtered requests
  */
 export const filterRequestsByStatus = (requests, status) => {
-  if (!status || status === "all") return requests
-  return requests.filter((req) => req.status === status)
-}
+  if (!status || status === "all") return requests;
+  return requests.filter((req) => req.status === status);
+};
 
 /**
  * Search requests by query
@@ -460,14 +472,13 @@ export const filterRequestsByStatus = (requests, status) => {
  * @returns Matching requests
  */
 export const searchRequests = (requests, query) => {
-  if (!query) return requests
+  if (!query) return requests;
 
-  const lowerQuery = query.toLowerCase()
+  const lowerQuery = query.toLowerCase();
   return requests.filter(
     (req) =>
       req.petName.toLowerCase().includes(lowerQuery) ||
       req.petOwnerName.toLowerCase().includes(lowerQuery) ||
       req.description.toLowerCase().includes(lowerQuery),
-  )
-}
-
+  );
+};

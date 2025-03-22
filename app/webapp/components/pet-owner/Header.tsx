@@ -1,26 +1,26 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { ThemeToggle } from "@/components/theme-toggle"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
-import { Loader2, LogOut, Menu } from "lucide-react"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import Link from "next/link";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Loader2, LogOut, Menu } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 export function PetOwnerHeader() {
-  const router = useRouter()
-  const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const router = useRouter();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = () => {
-    setIsLoggingOut(true)
+    setIsLoggingOut(true);
     // Simulate logout process
     setTimeout(() => {
-      router.push("/webapp/auth/login")
-      setIsLoggingOut(false)
-    }, 1000)
-  }
+      router.push("/webapp/auth/login");
+      setIsLoggingOut(false);
+    }, 1000);
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -34,7 +34,9 @@ export function PetOwnerHeader() {
               height={40}
               className="h-8 w-auto"
             />
-            <span className="font-bold text-lg hidden sm:inline-block text-foreground">Big Paws Pet Hotel</span>
+            <span className="font-bold text-lg hidden sm:inline-block text-foreground">
+              Big Paws Pet Hotel
+            </span>
           </Link>
         </div>
 
@@ -91,7 +93,11 @@ export function PetOwnerHeader() {
           {/* Mobile Navigation */}
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden text-foreground hover:bg-foreground/10">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden text-foreground hover:bg-foreground/10"
+              >
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">Toggle menu</span>
               </Button>
@@ -123,7 +129,12 @@ export function PetOwnerHeader() {
                   Profile
                 </Link>
                 <div className="pt-4 mt-4 border-t">
-                  <Button variant="outline" onClick={handleLogout} disabled={isLoggingOut} className="w-full">
+                  <Button
+                    variant="outline"
+                    onClick={handleLogout}
+                    disabled={isLoggingOut}
+                    className="w-full"
+                  >
                     {isLoggingOut ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -143,6 +154,5 @@ export function PetOwnerHeader() {
         </div>
       </div>
     </header>
-  )
+  );
 }
-

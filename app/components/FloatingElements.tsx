@@ -1,17 +1,17 @@
-"use client"
+"use client";
 
-import { useCallback, useEffect, useState } from "react"
-import { motion } from "framer-motion"
-import { PawPrint, Cat } from "lucide-react"
+import { useCallback, useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { PawPrint, Cat } from "lucide-react";
 
 interface FloatingElement {
-  id: number
-  x: number
-  y: number
-  scale: number
-  rotation: number
-  type: "paw" | "cat"
-  color: string
+  id: number;
+  x: number;
+  y: number;
+  scale: number;
+  rotation: number;
+  type: "paw" | "cat";
+  color: string;
 }
 
 const colors = [
@@ -20,17 +20,18 @@ const colors = [
   "#CD853F", // Peru
   "#DEB887", // Burlywood
   "#A0522D", // Sienna
-]
+];
 
 export default function FloatingElements() {
-  const [elements, setElements] = useState<FloatingElement[]>([])
-  const [windowHeight, setWindowHeight] = useState(0)
+  const [elements, setElements] = useState<FloatingElement[]>([]);
+  const [windowHeight, setWindowHeight] = useState(0);
+  const [isMounted, setIsMounted] = useState(false);
 
   const createElements = useCallback(() => {
-    if (typeof window === "undefined") return // Prevent SSR errors
+    if (typeof window === "undefined") return;
 
-    const newElements: FloatingElement[] = []
-    const count = Math.floor(window.innerWidth / 200)
+    const newElements: FloatingElement[] = [];
+    const count = Math.floor(window.innerWidth / 200);
 
     for (let i = 0; i < count; i++) {
       newElements.push({
@@ -41,23 +42,30 @@ export default function FloatingElements() {
         rotation: Math.random() * 360,
         type: Math.random() > 0.5 ? "paw" : "cat",
         color: colors[Math.floor(Math.random() * colors.length)],
-      })
+      });
     }
-    setElements(newElements)
-    setWindowHeight(window.innerHeight) // Store window height
-  }, [])
+    setElements(newElements);
+    setWindowHeight(window.innerHeight);
+  }, []);
 
   useEffect(() => {
+    // Set mounted state to true
+    setIsMounted(true);
+
+    // Only run on client-side
     if (typeof window !== "undefined") {
-      createElements()
+      createElements();
       const handleResize = () => {
-        createElements()
-        setWindowHeight(window.innerHeight) // Update window height on resize
-      }
-      window.addEventListener("resize", handleResize)
-      return () => window.removeEventListener("resize", handleResize)
+        createElements();
+        setWindowHeight(window.innerHeight);
+      };
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
     }
-  }, [createElements])
+  }, [createElements]);
+
+  // Don't render anything during SSR or initial client render
+  if (!isMounted) return null;
 
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden">
@@ -73,7 +81,7 @@ export default function FloatingElements() {
             opacity: 0,
           }}
           animate={{
-            y: windowHeight + 100, // Use state instead of window.innerHeight
+            y: windowHeight + 100,
             opacity: [0, 0.2, 0.2, 0],
             rotate: element.rotation + 360,
           }}
@@ -93,6 +101,5 @@ export default function FloatingElements() {
         </motion.div>
       ))}
     </div>
-  )
+  );
 }
-
