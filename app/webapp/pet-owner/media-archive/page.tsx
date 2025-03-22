@@ -5,7 +5,6 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
@@ -24,13 +23,14 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import {
   CalendarIcon,
   ChevronLeft,
   ChevronRight,
   Download,
+  Filter,
+  Search,
 } from "lucide-react";
 import type { DateRange } from "react-day-picker";
 import { motion } from "framer-motion";
@@ -217,92 +217,87 @@ export default function MediaArchivePage() {
   });
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="px-3 sm:px-4 md:container mx-auto py-4 sm:py-6 space-y-4 sm:space-y-6">
       <div className="flex flex-col gap-4">
         <div className="flex justify-between items-center">
           <h1 className="font-semibold text-lg">Media Archive</h1>
         </div>
 
-        <div className="flex flex-row flex-wrap gap-2">
-          <div className="flex-1 min-w-[180px]">
+        <div className="flex flex-row items-center gap-2 overflow-x-auto hide-scrollbar pb-1">
+          <div className="relative flex-1 min-w-[140px]">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               type="text"
-              placeholder="Search by pet name or description..."
+              placeholder="Search..."
+              className="pl-8 h-9"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
 
-          <div className="w-auto min-w-[140px]">
-            <Select value={selectedType} onValueChange={setSelectedType}>
-              <SelectTrigger>
-                <SelectValue placeholder="All Media Types" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Media Types</SelectItem>
-                <SelectItem value="photo">Photo</SelectItem>
-                <SelectItem value="video">Video</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <Select value={selectedType} onValueChange={setSelectedType}>
+            <SelectTrigger className="h-9 w-[110px]">
+              <div className="flex items-center gap-1.5 text-sm">
+                <Filter className="h-3.5 w-3.5" />
+                <span className="truncate">
+                  {selectedType === "all"
+                    ? "All"
+                    : selectedType === "photo"
+                      ? "Photos"
+                      : "Videos"}
+                </span>
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Types</SelectItem>
+              <SelectItem value="photo">Photos</SelectItem>
+              <SelectItem value="video">Videos</SelectItem>
+            </SelectContent>
+          </Select>
 
-          <div className="w-auto min-w-[180px]">
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant={"outline"}
-                  className={cn(
-                    "w-full justify-start text-left font-normal",
-                    !dateRange?.from && "text-muted-foreground",
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {dateRange?.from ? (
-                    dateRange.to ? (
-                      <>
-                        {format(dateRange.from, "LLL dd, y")} -{" "}
-                        {format(dateRange.to, "LLL dd, y")}
-                      </>
-                    ) : (
-                      format(dateRange.from, "LLL dd, y")
-                    )
-                  ) : (
-                    <span>Pick a date</span>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="end">
-                <div className="flex flex-col">
-                  <Calendar
-                    mode="range"
-                    defaultMonth={dateRange?.from}
-                    selected={dateRange}
-                    onSelect={setDateRange}
-                    disabled={{ after: new Date() }}
-                    numberOfMonths={1}
-                    pagedNavigation
-                  />
-                  {dateRange?.from && (
-                    <div className="p-2 border-t border-border">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="w-full"
-                        onClick={() => setDateRange(undefined)}
-                      >
-                        Clear Date Filter
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              </PopoverContent>
-            </Popover>
-          </div>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" className="h-9 px-2.5">
+                <CalendarIcon className="h-4 w-4" />
+                {dateRange?.from && (
+                  <span className="ml-2 text-xs hidden sm:inline">
+                    {format(dateRange.from, "MMM d")}
+                    {dateRange.to && ` - ${format(dateRange.to, "MMM d")}`}
+                  </span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="end">
+              <div className="flex flex-col">
+                <Calendar
+                  mode="range"
+                  defaultMonth={dateRange?.from}
+                  selected={dateRange}
+                  onSelect={setDateRange}
+                  disabled={{ after: new Date() }}
+                  numberOfMonths={1}
+                  pagedNavigation
+                />
+                {dateRange?.from && (
+                  <div className="p-2 border-t border-border">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full"
+                      onClick={() => setDateRange(undefined)}
+                    >
+                      Clear Date Filter
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
 
         {isLoading ? (
           // Loading skeleton
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-4">
+          <div className="grid grid-cols-2 gap-2 md:gap-4">
             {Array.from({ length: 6 }).map((_, index) => (
               <div key={index} className="rounded-md overflow-hidden">
                 <div className="aspect-square bg-muted animate-pulse" />
@@ -326,7 +321,7 @@ export default function MediaArchivePage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
-            className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-4"
+            className="grid grid-cols-2 gap-2 md:gap-4"
           >
             {filteredItems.map((item, index) => (
               <motion.div
@@ -351,7 +346,7 @@ export default function MediaArchivePage() {
 
         {selectedMedia && (
           <Drawer open={!!selectedMedia} onOpenChange={handleCloseMedia}>
-            <DrawerContent className="max-h-[80vh] sm:max-h-[85vh]">
+            <DrawerContent className="max-h-[90vh] sm:max-h-[85vh]">
               <DrawerHeader className="py-2">
                 <DrawerTitle>{selectedMedia.petName}</DrawerTitle>
                 <DrawerDescription className="text-xs">
@@ -473,18 +468,18 @@ function Carousel({
 
       <button
         onClick={goToPrevious}
-        className="absolute left-1 top-1/2 -translate-y-1/2 bg-black/30 dark:bg-white/20 rounded-full p-1"
+        className="absolute left-1 top-1/2 -translate-y-1/2 bg-black/40 dark:bg-white/30 rounded-full p-1.5 touch-manipulation"
         aria-label="Previous image"
       >
-        <ChevronLeft className="h-5 w-5 text-white" />
+        <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5 text-white dark:text-gray-900" />
       </button>
 
       <button
         onClick={goToNext}
-        className="absolute right-1 top-1/2 -translate-y-1/2 bg-black/30 dark:bg-white/20 rounded-full p-1"
+        className="absolute right-1 top-1/2 -translate-y-1/2 bg-black/40 dark:bg-white/30 rounded-full p-1.5 touch-manipulation"
         aria-label="Next image"
       >
-        <ChevronRight className="h-5 w-5 text-white" />
+        <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 text-white dark:text-gray-900" />
       </button>
     </div>
   );

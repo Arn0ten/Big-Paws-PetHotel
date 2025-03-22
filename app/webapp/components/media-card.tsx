@@ -31,7 +31,7 @@ export function MediaCard({
         return (
           <Badge
             variant="outline"
-            className="bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-700/50"
+            className="bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-700/70 font-medium"
           >
             <Image className="h-3 w-3 mr-1" /> Photo
           </Badge>
@@ -40,7 +40,7 @@ export function MediaCard({
         return (
           <Badge
             variant="outline"
-            className="bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-700/50"
+            className="bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/50 dark:text-purple-300 dark:border-purple-700/70 font-medium"
           >
             <Video className="h-3 w-3 mr-1" /> Video
           </Badge>
@@ -63,7 +63,7 @@ export function MediaCard({
 
   return (
     <Card
-      className="overflow-hidden cursor-pointer hover:shadow-md transition-shadow h-full"
+      className="overflow-hidden cursor-pointer hover:shadow-md transition-shadow h-full border border-border/60"
       onClick={onClick}
     >
       <div className="relative aspect-square bg-muted">

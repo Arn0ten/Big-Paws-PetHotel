@@ -142,3 +142,19 @@
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
 }
+/* Improve badge visibility in dark mode */
+.dark .bg-blue-900\/50 {
+  background-color: rgba(30, 58, 138, 0.5);
+}
+
+.dark .bg-purple-900\/50 {
+  background-color: rgba(76, 29, 149, 0.5);
+}
+
+.dark .text-blue-300 {
+  color: rgb(147, 197, 253);
+}
+
+.dark .text-purple-300 {
+  color: rgb(216, 180, 254);
+}
