@@ -220,7 +220,14 @@ export default function MediaArchivePage() {
     <div className="px-3 sm:px-4 md:container mx-auto py-4 sm:py-6 space-y-4 sm:space-y-6">
       <div className="flex flex-col gap-4">
         <div className="flex justify-between items-center">
-          <h1 className="font-semibold text-lg">Media Archive</h1>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-foreground dark:text-foreground">
+              Media Archive
+            </h1>
+            <p className="text-base text-muted-foreground dark:text-muted-foreground/90">
+              View and see your media requests archive
+            </p>
+          </div>
         </div>
 
         <div className="flex flex-row items-center gap-2 overflow-x-auto hide-scrollbar pb-1">
