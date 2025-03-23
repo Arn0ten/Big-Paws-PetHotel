@@ -38,12 +38,13 @@ export default function PetOwnerLayout({
   // Get unread count only once when component mounts
   const unreadCount = getUnreadNotificationsCount();
 
+  //Nav items ni pag desktop view
   const navItems = [
     {
       name: "Home",
       href: "/webapp/pet-owner",
       icon: Home,
-      exact: true, // Only active when path exactly matches
+      exact: true,
     },
     {
       name: "Requests",

@@ -1,107 +1,150 @@
-"use client";
+"use client"
 
-import type React from "react";
+import type React from "react"
 
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Eye, EyeOff, AlertCircle, Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ThemeToggle } from "@/components/theme-toggle";
-import LoginSlideshow from "@/app/webapp/components/LoginSlideshow";
+/**
+ * Login Page Component
+ *
+ * This component handles user authentication by collecting and validating
+ * login credentials, then sending them to the backend for verification.
+ *
+ * Features:
+ * - Email/phone and password validation
+ * - Remember me functionality
+ * - Password visibility toggle
+ * - Error handling and loading states
+ * - Links to forgot password and other pages
+ */
+
+import { useState, useEffect } from "react"
+import { motion } from "framer-motion"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Eye, EyeOff, AlertCircle, Loader2 } from "lucide-react"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import LoginSlideshow from "@/app/webapp/components/LoginSlideshow"
+import { login } from "../services/authService"
+import type { LoginFormData } from "../types"
+import { validateContact } from "../utils/validation"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 export default function LoginPage() {
-  const [mounted, setMounted] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [formData, setFormData] = useState({
+  // State management
+  const [mounted, setMounted] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [formData, setFormData] = useState<LoginFormData>({
     username: "",
     password: "",
     rememberMe: false,
-  });
+  })
 
-  const router = useRouter();
+  const router = useRouter()
 
+  // Handle client-side mounting
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    setMounted(true)
+  }, [])
 
+  /**
+   * Handle input field changes
+   *
+   * @param {React.ChangeEvent<HTMLInputElement>} e - Input change event
+   */
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
     // Clear error when user starts typing
-    if (error) setError(null);
-  };
+    if (error) setError(null)
+  }
 
+  /**
+   * Handle checkbox state changes
+   *
+   * @param {boolean} checked - New checkbox state
+   */
   const handleCheckboxChange = (checked: boolean) => {
-    setFormData((prev) => ({ ...prev, rememberMe: checked }));
-  };
+    setFormData((prev) => ({ ...prev, rememberMe: checked }))
+  }
 
-  const validateForm = () => {
-    if (!formData.username.trim()) {
-      setError("Email or phone number is required");
-      return false;
+  /**
+   * Validate form inputs before submission
+   *
+   * @returns {boolean} - Whether the form is valid
+   */
+  const validateForm = (): boolean => {
+    // Validate username (email or phone)
+    const contactValidation = validateContact(formData.username)
+    if (!contactValidation.isValid) {
+      setError(contactValidation.error || "Invalid email or phone number")
+      return false
     }
+
+    // Validate password
     if (!formData.password) {
-      setError("Password is required");
-      return false;
+      setError("Password is required")
+      return false
     }
-    return true;
-  };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+    return true
+  }
 
-    if (!validateForm()) return;
+  /**
+   * Handle form submission
+   *
+   * @param {React.FormEvent} e - Form submission event
+   */
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
 
-    setIsLoading(true);
-    setError(null);
+    if (!validateForm()) return
 
-    // BACKEND INTEGRATION POINT:
-    // Replace the setTimeout with actual API call to your backend
-    // Example:
-    // const response = await fetch('/api/auth/login', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({
-    //     username: formData.username,
-    //     password: formData.password,
-    //     rememberMe: formData.rememberMe
-    //   })
-    // });
-    //
-    // if (response.ok) {
-    //   const data = await response.json();
-    //   // Store auth token if needed
-    //   // localStorage.setItem('token', data.token);
-    //   router.push("/webapp/pet-owner/dashboard");
-    // } else {
-    //   const data = await response.json();
-    //   setError(data.message || 'Invalid credentials');
-    // }
+    setIsLoading(true)
+    setError(null)
 
-    // Simulate API call
-    setTimeout(() => {
-      // For demo purposes, redirect to pet owner interface
-      // In a real app, you would check user role and redirect accordingly
-      router.push("/webapp/pet-owner/requests"); // Changed from dashboard to requests
-      setIsLoading(false);
-    }, 1500);
-  };
+    try {
+      // Call the authentication service
+      const response = await login(formData)
 
+      if (response.success) {
+        // BACKEND INTEGRATION POINT:
+        // Store authentication token and user data
+        // Example:
+        // if (response.token) {
+        //   localStorage.setItem('token', response.token)
+        //   sessionStorage.setItem('user', JSON.stringify(response.user))
+        // }
+
+        // Redirect based on user role
+        if (response.user?.role === "admin") {
+          router.push("/webapp/admin/dashboard")
+        } else {
+          router.push("/webapp/pet-owner/requests")
+        }
+      } else {
+        setError(response.error || "Invalid credentials")
+      }
+    } catch (err) {
+      setError("An unexpected error occurred. Please try again.")
+      console.error("Login error:", err)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Don't render anything until client-side hydration is complete
   if (!mounted) {
-    return null;
+    return null
   }
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
-      {/* Left Panel - Image */}
+      {/* Left Panel - Image Slideshow */}
       <div className="w-full md:w-1/2 relative h-64 md:h-screen overflow-hidden">
         <LoginSlideshow />
       </div>
@@ -120,11 +163,10 @@ export default function LoginPage() {
         >
           <div className="text-center mb-8">
             <h2 className="text-2xl font-bold text-foreground mb-2">Login</h2>
-            <p className="text-muted-foreground">
-              Access your pet management account
-            </p>
+            <p className="text-muted-foreground">Access your pet management account</p>
           </div>
 
+          {/* Error Alert */}
           {error && (
             <Alert variant="destructive" className="mb-6">
               <AlertCircle className="h-4 w-4" />
@@ -133,6 +175,7 @@ export default function LoginPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Username Field */}
             <div className="space-y-2">
               <Label htmlFor="username" className="text-foreground">
                 Email or Phone Number
@@ -149,15 +192,13 @@ export default function LoginPage() {
               />
             </div>
 
+            {/* Password Field */}
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <Label htmlFor="password" className="text-foreground">
                   Password
                 </Label>
-                <Link
-                  href="/webapp/auth/forgot-password"
-                  className="text-sm text-primary hover:underline"
-                >
+                <Link href="/webapp/auth/forgot-password" className="text-sm text-primary hover:underline">
                   Forgot Password?
                 </Link>
               </div>
@@ -183,6 +224,7 @@ export default function LoginPage() {
               </div>
             </div>
 
+            {/* Remember Me Checkbox */}
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="rememberMe"
@@ -198,6 +240,7 @@ export default function LoginPage() {
               </label>
             </div>
 
+            {/* Submit Button */}
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? (
                 <>
@@ -209,36 +252,29 @@ export default function LoginPage() {
               )}
             </Button>
 
+            {/* Change Password Link */}
             <div className="text-center">
-              <Link
-                href="/webapp/auth/change-password"
-                className="text-sm text-primary hover:underline"
-              >
+              <Link href="/webapp/auth/change-password" className="text-sm text-primary hover:underline">
                 Change Password
               </Link>
             </div>
 
+            {/* Registration Info */}
             <div className="mt-8 p-4 bg-primary/5 rounded-lg border border-primary/10">
               <p className="text-center text-sm text-foreground">
-                If you don't have an account, please visit Big Paws Pet Hotel
-                for your credentials.
+                If you don't have an account, please visit Big Paws Pet Hotel for your credentials.
               </p>
             </div>
 
+            {/* Terms and Privacy */}
             <div className="text-center text-xs text-muted-foreground mt-6">
               <p>
                 By logging in, you agree to our{" "}
-                <Link
-                  href="/terms-privacy"
-                  className="text-primary hover:underline"
-                >
+                <Link href="/terms-privacy" className="text-primary hover:underline">
                   Terms of Service
                 </Link>{" "}
                 and{" "}
-                <Link
-                  href="/terms-privacy"
-                  className="text-primary hover:underline"
-                >
+                <Link href="/terms-privacy" className="text-primary hover:underline">
                   Privacy Policy
                 </Link>
                 .
@@ -258,5 +294,6 @@ export default function LoginPage() {
         </motion.div>
       </div>
     </div>
-  );
+  )
 }
+

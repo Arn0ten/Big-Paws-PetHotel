@@ -377,7 +377,7 @@ export default function PetOwnersPage() {
     isRefreshing,
     refreshPetOwners,
     removePetOwner,
-  } = usePetOwners(SAMPLE_PET_OWNERS);
+  } = usePetOwners();
 
   // Get unique cities for filter
   const uniqueCities = Array.from(
