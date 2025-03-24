@@ -43,7 +43,7 @@ export const pets: Pet[] = [
     type: "Dog",
     breed: "Shih Tzu",
     age: "3 years",
-    avatar: "/placeholder.svg?height=100&width=100",
+    avatar: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=200&auto=format&fit=crop",
     boarding: {
       status: "active",
       startDate: "2025-03-05T10:00:00Z",
@@ -60,7 +60,7 @@ export const pets: Pet[] = [
     type: "Cat",
     breed: "Siamese",
     age: "2 years",
-    avatar: "/placeholder.svg?height=100&width=100",
+    avatar: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=200&auto=format&fit=crop",
     boarding: null,
   },
 ]

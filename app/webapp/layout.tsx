@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import type React from "react";
-import ClientWebAppLayout from "./ClientWebAppLayout";
+import { ThemeProvider } from "@/components/theme-provider";
 
 export const metadata: Metadata = {
   title: "Big Paws Pet Hotel - Web App",
@@ -21,9 +21,16 @@ export default function WebAppLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body>
-        <ClientWebAppLayout>{children}</ClientWebAppLayout>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );
