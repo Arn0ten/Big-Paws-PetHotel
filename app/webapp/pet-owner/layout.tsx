@@ -131,10 +131,10 @@ export default function PetOwnerLayout({
             </Avatar>
             <div>
               <p className="text-sm font-medium text-foreground dark:text-foreground">
-                John Doe
+              Sarah Johnson
               </p>
               <p className="text-sm text-muted-foreground dark:text-muted-foreground/90">
-                john.doe@example.com
+              sarah.j@example.com
               </p>
             </div>
           </div>
