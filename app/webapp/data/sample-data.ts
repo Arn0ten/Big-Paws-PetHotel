@@ -26,7 +26,7 @@
  * };
  */
 
-import type { Pet, Request, Notification, Pricing, MediaItem } from "./types"
+import type { Pet, Request, Notification, Pricing, MediaItem } from "./types";
 
 /**
  * SAMPLE PETS DATA
@@ -46,7 +46,8 @@ export const pets: Pet[] = [
     weight: "65 lbs",
     gender: "Male",
     microchip: "123456789012345",
-    avatar: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=200&auto=format&fit=crop",
+    avatar:
+      "https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=200&auto=format&fit=crop",
     boarding: {
       status: "active",
       startDate: "2025-03-05T10:00:00Z",
@@ -80,7 +81,8 @@ export const pets: Pet[] = [
     weight: "8 lbs",
     gender: "Female",
     microchip: "987654321098765",
-    avatar: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=200&auto=format&fit=crop",
+    avatar:
+      "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=200&auto=format&fit=crop",
     boarding: null,
     size: "Small",
     medicalInfo: "No known medical issues",
@@ -96,7 +98,7 @@ export const pets: Pet[] = [
     dietaryRestrictions: "None",
     behavioralNotes: "Shy with strangers. Prefers quiet environments.",
   },
-]
+];
 
 /**
  * SAMPLE REQUESTS DATA
@@ -145,7 +147,8 @@ export const requests: Request[] = [
         id: "msg-002",
         sender: "admin",
         timestamp: "2025-03-10T14:45:00Z",
-        content: "Here are some photos of Max! He's been having a great time and is very well-behaved.",
+        content:
+          "Here are some photos of Max! He's been having a great time and is very well-behaved.",
       },
     ],
   },
@@ -170,7 +173,8 @@ export const requests: Request[] = [
         id: "msg-002",
         sender: "admin",
         timestamp: "2025-03-11T09:30:00Z",
-        content: "We've scheduled Max's grooming for this afternoon. We'll update you once it's completed.",
+        content:
+          "We've scheduled Max's grooming for this afternoon. We'll update you once it's completed.",
       },
     ],
   },
@@ -223,7 +227,8 @@ export const requests: Request[] = [
         id: "msg-002",
         sender: "admin",
         timestamp: "2025-03-09T18:45:00Z",
-        content: "Here's a video of Max playing with his favorite toy! He's been very active today.",
+        content:
+          "Here's a video of Max playing with his favorite toy! He's been very active today.",
       },
     ],
   },
@@ -257,7 +262,8 @@ export const requests: Request[] = [
         id: "msg-002",
         sender: "admin",
         timestamp: "2025-03-08T14:30:00Z",
-        content: "We'll take care of Max's grooming. We'll send you photos once it's done.",
+        content:
+          "We'll take care of Max's grooming. We'll send you photos once it's done.",
       },
       {
         id: "msg-003",
@@ -276,7 +282,8 @@ export const requests: Request[] = [
     status: "rejected",
     createdAt: "2025-03-07T08:15:00Z",
     updatedAt: "2025-03-07T10:30:00Z",
-    description: "Would love to get some photos of Max playing with other dogs.",
+    description:
+      "Would love to get some photos of Max playing with other dogs.",
     rejectionReason:
       "We're unable to fulfill this request as Max prefers to play alone and gets anxious around other dogs.",
     conversation: [
@@ -284,7 +291,8 @@ export const requests: Request[] = [
         id: "msg-001",
         sender: "owner",
         timestamp: "2025-03-07T08:15:00Z",
-        content: "Would love to get some photos of Max playing with other dogs.",
+        content:
+          "Would love to get some photos of Max playing with other dogs.",
       },
       {
         id: "msg-002",
@@ -295,7 +303,7 @@ export const requests: Request[] = [
       },
     ],
   },
-]
+];
 
 /**
  * SAMPLE PET OWNER REQUESTS DATA
@@ -369,7 +377,7 @@ export const petOwnerRequests = [
     rejectionReason:
       "We're unable to fulfill this request as Max prefers to play alone and gets anxious around other dogs.",
   },
-]
+];
 
 /**
  * SAMPLE NOTIFICATIONS DATA
@@ -385,7 +393,8 @@ export const notifications: Notification[] = [
     id: "notif-001",
     type: "request-completed",
     title: "Photo Request Completed",
-    message: "Your photo request for Max has been completed. You can view the photos now.",
+    message:
+      "Your photo request for Max has been completed. You can view the photos now.",
     timestamp: "2025-03-10T14:45:00Z",
     isRead: false,
     requestId: "req-001",
@@ -394,7 +403,8 @@ export const notifications: Notification[] = [
     id: "notif-002",
     type: "request-in-progress",
     title: "Grooming Request In Progress",
-    message: "Your grooming request for Max is now being processed. You'll be notified when it's completed.",
+    message:
+      "Your grooming request for Max is now being processed. You'll be notified when it's completed.",
     timestamp: "2025-03-11T09:30:00Z",
     isRead: false,
     requestId: "req-002",
@@ -412,7 +422,8 @@ export const notifications: Notification[] = [
     id: "notif-004",
     type: "request-rejected",
     title: "Video Request Rejected",
-    message: "Your video request for Max has been rejected. Please check the details for more information.",
+    message:
+      "Your video request for Max has been rejected. Please check the details for more information.",
     timestamp: "2025-03-07T18:45:00Z",
     isRead: true,
     requestId: "req-004",
@@ -421,7 +432,8 @@ export const notifications: Notification[] = [
     id: "notif-005",
     type: "boarding-update",
     title: "Boarding Pickup Reminder",
-    message: "Max's boarding period ends tomorrow. Please prepare for pickup between 8:00 AM and 6:00 PM.",
+    message:
+      "Max's boarding period ends tomorrow. Please prepare for pickup between 8:00 AM and 6:00 PM.",
     timestamp: "2025-03-05T10:30:00Z",
     isRead: true,
   },
@@ -434,7 +446,7 @@ export const notifications: Notification[] = [
     isRead: false,
     requestId: "req-006",
   },
-]
+];
 
 /**
  * SAMPLE PRICING DATA
@@ -497,7 +509,7 @@ export const pricing: Pricing = {
     blowDry: 10,
     woundTreatment: 20,
   },
-}
+};
 
 /**
  * SAMPLE USER PROFILE DATA
@@ -513,7 +525,7 @@ export const userProfile = {
   address: "123 Main St, Anytown, CA 12345",
   avatar:
     "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/default-pic-TTy4UvlTr4nVP0etctSbFI1CUrupvH.png?height=200&width=200",
-}
+};
 
 /**
  * SAMPLE MEDIA ARCHIVE DATA
@@ -594,7 +606,7 @@ export const mediaItems: MediaItem[] = [
       "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/476423370_1180780884058793_1895486931922885045_n.jpg-qRHW956GdINyfw6VoD6nITBdYG4QrV.jpeg",
     ],
   },
-]
+];
 
 /**
  * PRICING CONSTANTS
@@ -604,7 +616,7 @@ export const petSizes = {
   medium: "Medium (Beagle, Cocker Spaniel)",
   large: "Large (Labrador, Golden Retriever)",
   xlarge: "Extra Large (Great Dane, St. Bernard)",
-}
+};
 
 /**
  * HELPER FUNCTIONS
@@ -622,8 +634,8 @@ export const petSizes = {
  * - Replace with a fetch call to GET /api/pets/:id
  */
 export const getPetById = (id: string): Pet | undefined => {
-  return pets.find((pet) => pet.id === id)
-}
+  return pets.find((pet) => pet.id === id);
+};
 
 /**
  * Get all boarding pets
@@ -633,8 +645,8 @@ export const getPetById = (id: string): Pet | undefined => {
  * - Replace with a fetch call to GET /api/pets?boarding=true
  */
 export const getBoardingPets = (): Pet[] => {
-  return pets.filter((pet) => pet.boarding !== null)
-}
+  return pets.filter((pet) => pet.boarding !== null);
+};
 
 /**
  * Get all pets for a pet owner
@@ -644,8 +656,8 @@ export const getBoardingPets = (): Pet[] => {
  * - Replace with a fetch call to GET /api/pet-owner/pets
  */
 export const getPetOwnerPets = (): Pet[] => {
-  return pets
-}
+  return pets;
+};
 
 /**
  * Get requests for a specific pet
@@ -656,8 +668,8 @@ export const getPetOwnerPets = (): Pet[] => {
  * - Replace with a fetch call to GET /api/requests?petId=:petId
  */
 export const getRequestsByPetId = (petId: string): Request[] => {
-  return requests.filter((request) => request.petId === petId)
-}
+  return requests.filter((request) => request.petId === petId);
+};
 
 /**
  * Get pet owner requests
@@ -667,8 +679,8 @@ export const getRequestsByPetId = (petId: string): Request[] => {
  * - Replace with a fetch call to GET /api/pet-owner/requests
  */
 export const getPetOwnerRequests = () => {
-  return petOwnerRequests
-}
+  return petOwnerRequests;
+};
 
 /**
  * Get unread notifications count
@@ -678,8 +690,8 @@ export const getPetOwnerRequests = () => {
  * - Replace with a fetch call to GET /api/notifications/unread/count
  */
 export const getUnreadNotificationsCount = (): number => {
-  return notifications.filter((notification) => !notification.isRead).length
-}
+  return notifications.filter((notification) => !notification.isRead).length;
+};
 
 /**
  * Mark a notification as read
@@ -691,11 +703,11 @@ export const getUnreadNotificationsCount = (): number => {
 export const markNotificationAsRead = (id: string): void => {
   // In a real implementation, this would update the server
   // For now, we just update the local data
-  const notification = notifications.find((n) => n.id === id)
+  const notification = notifications.find((n) => n.id === id);
   if (notification) {
-    notification.isRead = true
+    notification.isRead = true;
   }
-}
+};
 
 /**
  * Create a new request
@@ -705,17 +717,19 @@ export const markNotificationAsRead = (id: string): void => {
  * API Integration:
  * - Replace with a fetch call to POST /api/requests
  */
-export const createRequest = (requestData: Omit<Request, "id" | "createdAt">): Request => {
+export const createRequest = (
+  requestData: Omit<Request, "id" | "createdAt">,
+): Request => {
   // In a real implementation, this would send data to the server
   // and return the created request with an ID
   const newRequest: Request = {
     id: `req-${requests.length + 1}`,
     createdAt: new Date().toISOString(),
     ...requestData,
-  }
+  };
 
   // Add to sample data (in a real implementation, this would be handled by the server)
-  requests.push(newRequest)
+  requests.push(newRequest);
 
   // Also add to pet owner requests list
   petOwnerRequests.push({
@@ -727,10 +741,10 @@ export const createRequest = (requestData: Omit<Request, "id" | "createdAt">): R
     status: newRequest.status,
     createdAt: newRequest.createdAt,
     updatedAt: newRequest.createdAt,
-  })
+  });
 
-  return newRequest
-}
+  return newRequest;
+};
 
 /**
  * Format a date string
@@ -738,16 +752,16 @@ export const createRequest = (requestData: Omit<Request, "id" | "createdAt">): R
  * @returns Formatted date string
  */
 export const formatDate = (dateString: string): string => {
-  if (!dateString) return ""
-  const date = new Date(dateString)
+  if (!dateString) return "";
+  const date = new Date(dateString);
   return new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
     hour: "numeric",
     minute: "numeric",
     hour12: true,
-  }).format(date)
-}
+  }).format(date);
+};
 
 /**
  * Get request type icon name
@@ -757,19 +771,19 @@ export const formatDate = (dateString: string): string => {
 export const getRequestTypeIcon = (type: string): string => {
   switch (type) {
     case "photo":
-      return "Camera"
+      return "Camera";
     case "video":
-      return "Video"
+      return "Video";
     case "grooming":
-      return "Scissors"
+      return "Scissors";
     case "boarding-extension":
-      return "Clock"
+      return "Clock";
     case "custom":
-      return "FileText"
+      return "FileText";
     default:
-      return "FileText"
+      return "FileText";
   }
-}
+};
 
 /**
  * Get request type label
@@ -779,19 +793,19 @@ export const getRequestTypeIcon = (type: string): string => {
 export const getRequestTypeLabel = (type: string): string => {
   switch (type) {
     case "photo":
-      return "Photo Update"
+      return "Photo Update";
     case "video":
-      return "Video Request"
+      return "Video Request";
     case "grooming":
-      return "Grooming Service"
+      return "Grooming Service";
     case "boarding-extension":
-      return "Boarding Extension"
+      return "Boarding Extension";
     case "custom":
-      return "Custom Request"
+      return "Custom Request";
     default:
-      return "Request"
+      return "Request";
   }
-}
+};
 
 /**
  * Get media items
@@ -801,8 +815,8 @@ export const getRequestTypeLabel = (type: string): string => {
  * - Replace with a fetch call to GET /api/pet-owner/media
  */
 export const getMediaItems = (): MediaItem[] => {
-  return mediaItems
-}
+  return mediaItems;
+};
 
 /**
  * Get user profile
@@ -812,8 +826,8 @@ export const getMediaItems = (): MediaItem[] => {
  * - Replace with a fetch call to GET /api/user/profile
  */
 export const getUserProfile = () => {
-  return userProfile
-}
+  return userProfile;
+};
 
 /**
  * Update user profile
@@ -826,8 +840,8 @@ export const getUserProfile = () => {
 export const updateUserProfile = (profileData: typeof userProfile) => {
   // In a real implementation, this would update the server
   // For now, we just return the updated data
-  return profileData
-}
+  return profileData;
+};
 
 /**
  * Get pricing data
@@ -837,6 +851,5 @@ export const updateUserProfile = (profileData: typeof userProfile) => {
  * - Replace with a fetch call to GET /api/pricing
  */
 export const getPricingData = (): Pricing => {
-  return pricing
-}
-
+  return pricing;
+};

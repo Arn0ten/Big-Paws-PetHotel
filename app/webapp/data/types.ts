@@ -10,38 +10,38 @@
  * Represents a pet in the system
  */
 export interface Pet {
-  id: string
-  name: string
-  type: string // "Dog" | "Cat" | etc.
-  breed: string
-  age: string | number
-  weight?: string
-  gender?: string
-  microchip?: string
-  avatar: string
+  id: string;
+  name: string;
+  type: string; // "Dog" | "Cat" | etc.
+  breed: string;
+  age: string | number;
+  weight?: string;
+  gender?: string;
+  microchip?: string;
+  avatar: string;
   boarding: {
-    status: string
-    startDate: string // ISO date string
-    endDate: string // ISO date string
-    package?: string
-    totalPrice?: number
-    paidAmount?: number
-    remainingAmount?: number
-  } | null
-  size?: string
-  medicalInfo?: string
+    status: string;
+    startDate: string; // ISO date string
+    endDate: string; // ISO date string
+    package?: string;
+    totalPrice?: number;
+    paidAmount?: number;
+    remainingAmount?: number;
+  } | null;
+  size?: string;
+  medicalInfo?: string;
   vaccinations?: Array<{
-    name: string
-    date: string
-    expiry: string
-  }>
+    name: string;
+    date: string;
+    expiry: string;
+  }>;
   emergencyContact?: {
-    name: string
-    phone: string
-    relationship: string
-  }
-  dietaryRestrictions?: string
-  behavioralNotes?: string
+    name: string;
+    phone: string;
+    relationship: string;
+  };
+  dietaryRestrictions?: string;
+  behavioralNotes?: string;
 }
 
 /**
@@ -49,34 +49,34 @@ export interface Pet {
  * Represents a service request made by a pet owner
  */
 export interface Request {
-  id: string
-  title?: string
-  type: string // "photo" | "video" | "grooming" | "boarding-extension" | "custom"
-  petName: string
-  petId: string
-  status: string // "new" | "in-progress" | "completed" | "rejected"
-  createdAt: string // ISO date string
-  updatedAt?: string // ISO date string
-  completedAt?: string // ISO date string
-  rejectedAt?: string // ISO date string
-  description: string
+  id: string;
+  title?: string;
+  type: string; // "photo" | "video" | "grooming" | "boarding-extension" | "custom"
+  petName: string;
+  petId: string;
+  status: string; // "new" | "in-progress" | "completed" | "rejected"
+  createdAt: string; // ISO date string
+  updatedAt?: string; // ISO date string
+  completedAt?: string; // ISO date string
+  rejectedAt?: string; // ISO date string
+  description: string;
   mediaFiles?: {
-    type: string
-    urls: string[]
-    count: number
-  }
-  groomingService?: string
-  price?: number
+    type: string;
+    urls: string[];
+    count: number;
+  };
+  groomingService?: string;
+  price?: number;
   extensionDetails?: {
-    duration: string
-    unit: string // "hours" | "days"
-  }
-  currentEndDate?: string // ISO date string
-  rejectedBy?: string
-  rejectionReason?: string
-  conversation?: Message[]
-  newEndDate?: string // ISO date string
-  processingNotes?: string
+    duration: string;
+    unit: string; // "hours" | "days"
+  };
+  currentEndDate?: string; // ISO date string
+  rejectedBy?: string;
+  rejectionReason?: string;
+  conversation?: Message[];
+  newEndDate?: string; // ISO date string
+  processingNotes?: string;
 }
 
 /**
@@ -84,10 +84,10 @@ export interface Request {
  * Represents a message in a conversation
  */
 export interface Message {
-  id: string
-  sender: string // "owner" | "admin"
-  timestamp: string // ISO date string
-  content: string
+  id: string;
+  sender: string; // "owner" | "admin"
+  timestamp: string; // ISO date string
+  content: string;
 }
 
 /**
@@ -95,13 +95,13 @@ export interface Message {
  * Represents a notification for a pet owner
  */
 export interface Notification {
-  id: string
-  type: string // "request-completed" | "request-in-progress" | "payment-reminder" | etc.
-  title: string
-  message: string
-  timestamp: string // ISO date string
-  isRead: boolean
-  requestId?: string
+  id: string;
+  type: string; // "request-completed" | "request-in-progress" | "payment-reminder" | etc.
+  title: string;
+  message: string;
+  timestamp: string; // ISO date string
+  isRead: boolean;
+  requestId?: string;
 }
 
 /**
@@ -111,57 +111,57 @@ export interface Notification {
 export interface Pricing {
   boarding: {
     dogs: {
-      small: number
-      medium: number
-      large: number
-      xlarge: number
-    }
-    cats: number
+      small: number;
+      medium: number;
+      large: number;
+      xlarge: number;
+    };
+    cats: number;
     daycare: {
-      hourly: number
-      daily: number
-    }
-  }
+      hourly: number;
+      daily: number;
+    };
+  };
   grooming: {
     dogs: {
       basicWash: {
-        small: number
-        medium: number
-        large: number
-        xlarge: number
-      }
+        small: number;
+        medium: number;
+        large: number;
+        xlarge: number;
+      };
       premiumWash: {
-        small: number
-        medium: number
-        large: number
-        xlarge: number
-      }
+        small: number;
+        medium: number;
+        large: number;
+        xlarge: number;
+      };
       premiumWashAndCut: {
-        small: number
-        medium: number
-        large: number
-        xlarge: number
-      }
+        small: number;
+        medium: number;
+        large: number;
+        xlarge: number;
+      };
       fullGrooming: {
-        small: number
-        medium: number
-        large: number
-        xlarge: number
-      }
-    }
+        small: number;
+        medium: number;
+        large: number;
+        xlarge: number;
+      };
+    };
     cats: {
-      basicWash: number
-      premiumWash: number
-    }
-  }
+      basicWash: number;
+      premiumWash: number;
+    };
+  };
   additionalServices: {
-    tickAndFleaRemoval: number
-    nailCut: number
-    earCleaning: number
-    analSacCleaning: number
-    blowDry: number
-    woundTreatment: number
-  }
+    tickAndFleaRemoval: number;
+    nailCut: number;
+    earCleaning: number;
+    analSacCleaning: number;
+    blowDry: number;
+    woundTreatment: number;
+  };
 }
 
 /**
@@ -169,11 +169,10 @@ export interface Pricing {
  * Represents a media item in the media archive
  */
 export interface MediaItem {
-  id: string
-  timestamp: Date
-  petName: string
-  requestType: "photo" | "video"
-  description: string
-  mediaUrls: string[]
+  id: string;
+  timestamp: Date;
+  petName: string;
+  requestType: "photo" | "video";
+  description: string;
+  mediaUrls: string[];
 }
-
