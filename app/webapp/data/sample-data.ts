@@ -26,7 +26,7 @@
  * };
  */
 
-import type { Pet, Request, Notification, Pricing } from "./types"
+import type { Pet, Request, Notification, Pricing, MediaItem } from "./types"
 
 /**
  * SAMPLE PETS DATA
@@ -43,6 +43,9 @@ export const pets: Pet[] = [
     type: "Dog",
     breed: "Shih Tzu",
     age: "3 years",
+    weight: "65 lbs",
+    gender: "Male",
+    microchip: "123456789012345",
     avatar: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=200&auto=format&fit=crop",
     boarding: {
       status: "active",
@@ -53,6 +56,20 @@ export const pets: Pet[] = [
       paidAmount: 300,
       remainingAmount: 250,
     },
+    size: "Large",
+    medicalInfo: "Allergic to chicken. Takes thyroid medication daily.",
+    vaccinations: [
+      { name: "Rabies", date: "2024-01-15", expiry: "2025-01-15" },
+      { name: "DHPP", date: "2024-02-10", expiry: "2025-02-10" },
+      { name: "Bordetella", date: "2024-03-05", expiry: "2024-09-05" },
+    ],
+    emergencyContact: {
+      name: "John Johnson",
+      phone: "+1 (555) 987-6543",
+      relationship: "Spouse",
+    },
+    dietaryRestrictions: "Grain-free diet recommended",
+    behavioralNotes: "Friendly with other dogs. Anxious during thunderstorms.",
   },
   {
     id: "pet-2",
@@ -60,8 +77,24 @@ export const pets: Pet[] = [
     type: "Cat",
     breed: "Siamese",
     age: "2 years",
+    weight: "8 lbs",
+    gender: "Female",
+    microchip: "987654321098765",
     avatar: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=200&auto=format&fit=crop",
     boarding: null,
+    size: "Small",
+    medicalInfo: "No known medical issues",
+    vaccinations: [
+      { name: "Rabies", date: "2024-02-20", expiry: "2025-02-20" },
+      { name: "FVRCP", date: "2024-02-20", expiry: "2025-02-20" },
+    ],
+    emergencyContact: {
+      name: "John Johnson",
+      phone: "+1 (555) 987-6543",
+      relationship: "Spouse",
+    },
+    dietaryRestrictions: "None",
+    behavioralNotes: "Shy with strangers. Prefers quiet environments.",
   },
 ]
 
@@ -352,7 +385,7 @@ export const notifications: Notification[] = [
     id: "notif-001",
     type: "request-completed",
     title: "Photo Request Completed",
-    message: "Your photo request for Max has been completed.",
+    message: "Your photo request for Max has been completed. You can view the photos now.",
     timestamp: "2025-03-10T14:45:00Z",
     isRead: false,
     requestId: "req-001",
@@ -361,7 +394,7 @@ export const notifications: Notification[] = [
     id: "notif-002",
     type: "request-in-progress",
     title: "Grooming Request In Progress",
-    message: "Your grooming request for Max is now being processed.",
+    message: "Your grooming request for Max is now being processed. You'll be notified when it's completed.",
     timestamp: "2025-03-11T09:30:00Z",
     isRead: false,
     requestId: "req-002",
@@ -369,28 +402,28 @@ export const notifications: Notification[] = [
   {
     id: "notif-003",
     type: "payment-reminder",
-    title: "Payment Reminder",
-    message: "You have an outstanding balance of $250 for Max's boarding.",
+    title: "Additional Charges Added",
+    message:
+      "Additional charges of ₱250 have been added for Max's grooming service. Payment will be collected during pickup.",
     timestamp: "2025-03-12T08:15:00Z",
     isRead: true,
   },
   {
     id: "notif-004",
-    type: "request-completed",
-    title: "Video Request Completed",
-    message: "Your video request for Max has been completed. Check it out!",
-    timestamp: "2025-03-09T18:45:00Z",
+    type: "request-rejected",
+    title: "Video Request Rejected",
+    message: "Your video request for Max has been rejected. Please check the details for more information.",
+    timestamp: "2025-03-07T18:45:00Z",
     isRead: true,
     requestId: "req-004",
   },
   {
     id: "notif-005",
-    type: "request-completed",
-    title: "Grooming Completed",
-    message: "Max's grooming has been completed. Check out his new look!",
-    timestamp: "2025-03-08T16:40:00Z",
+    type: "boarding-update",
+    title: "Boarding Pickup Reminder",
+    message: "Max's boarding period ends tomorrow. Please prepare for pickup between 8:00 AM and 6:00 PM.",
+    timestamp: "2025-03-05T10:30:00Z",
     isRead: true,
-    requestId: "req-005",
   },
   {
     id: "notif-006",
@@ -464,6 +497,113 @@ export const pricing: Pricing = {
     blowDry: 10,
     woundTreatment: 20,
   },
+}
+
+/**
+ * SAMPLE USER PROFILE DATA
+ *
+ * API Integration:
+ * - Endpoint: GET /api/user/profile
+ * - Response should match the structure below
+ */
+export const userProfile = {
+  name: "Sarah Johnson",
+  email: "sarah.j@example.com",
+  phone: "+1 (555) 123-4567",
+  address: "123 Main St, Anytown, CA 12345",
+  avatar:
+    "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/default-pic-TTy4UvlTr4nVP0etctSbFI1CUrupvH.png?height=200&width=200",
+}
+
+/**
+ * SAMPLE MEDIA ARCHIVE DATA
+ *
+ * API Integration:
+ * - Endpoint: GET /api/pet-owner/media
+ * - Response should match the MediaItem interface in types.ts
+ */
+export const mediaItems: MediaItem[] = [
+  {
+    id: "1",
+    timestamp: new Date(),
+    petName: "Buddy",
+    requestType: "photo",
+    description: "Buddy's grooming session",
+    mediaUrls: [
+      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/480958858_1347138986475614_3113605541324887048_n.jpg-2Qs4qGN7rZSZAT5rqCQ7c2UyD2rtHY.jpeg",
+      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/476423370_1180780884058793_1895486931922885045_n.jpg-qRHW956GdINyfw6VoD6nITBdYG4QrV.jpeg",
+      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/480064874_3971175603130199_8445389685285733814_n.jpg-8H6pSDIqmQ3m9rg84YuGhB8TAiCYEv.jpeg",
+    ],
+  },
+  {
+    id: "2",
+    timestamp: new Date(Date.now() - 86400000), // 1 day ago
+    petName: "Whiskers",
+    requestType: "video",
+    description: "Whiskers playing with a toy",
+    mediaUrls: [
+      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/481817843_9277714875675610_7115125575926345799_n-lCz1vZTDTYlcmAGIgVjrqw52ElqlYm.mp4",
+    ],
+  },
+  {
+    id: "3",
+    timestamp: new Date(Date.now() - 172800000), // 2 days ago
+    petName: "Charlie",
+    requestType: "photo",
+    description: "Charlie's grooming session",
+    mediaUrls: [
+      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/475884722_1437552477217404_9052949441849644312_n.jpg-dbCP39F5PsvkEXA5fu5b3DrhSH0kRT.jpeg",
+      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/480491302_9250055781727301_8238070743716968783_n.jpg-zuHWDIFIvZYglrA4tCl9zEshPDo7E8.jpeg",
+    ],
+  },
+  {
+    id: "4",
+    timestamp: new Date(Date.now() - 259200000), // 3 days ago
+    petName: "Daisy",
+    requestType: "photo",
+    description: "Daisy's grooming session",
+    mediaUrls: [
+      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/480899995_642061011656747_972779387843409689_n.jpg-neY2SryyFSDQbBaJ9JHrZCSqyq4uKg.jpeg",
+      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/480179834_591444434054760_4947462491439067277_n.jpg-DGzfDxX7zSuLJmWJLi0kIgtf4g8rI5.jpeg",
+      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/480369671_9302515229807832_3565174851267196364_n.jpg-4Vb1Wt169NtXEbceqxxB4mSRt55chU.jpeg",
+      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/480958858_1347138986475614_3113605541324887048_n.jpg-2Qs4qGN7rZSZAT5rqCQ7c2UyD2rtHY.jpeg",
+      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/476423370_1180780884058793_1895486931922885045_n.jpg-qRHW956GdINyfw6VoD6nITBdYG4QrV.jpeg",
+      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/480064874_3971175603130199_8445389685285733814_n.jpg-8H6pSDIqmQ3m9rg84YuGhB8TAiCYEv.jpeg",
+    ],
+  },
+  {
+    id: "5",
+    timestamp: new Date(Date.now() - 345600000), // 4 days ago
+    petName: "Rocky",
+    requestType: "video",
+    description: "Rocky playing in the yard",
+    mediaUrls: [
+      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/481817843_9277714875675610_7115125575926345799_n-lCz1vZTDTYlcmAGIgVjrqw52ElqlYm.mp4",
+    ],
+  },
+  {
+    id: "6",
+    timestamp: new Date(Date.now() - 432000000), // 5 days ago
+    petName: "Bella",
+    requestType: "photo",
+    description: "Bella's grooming session",
+    mediaUrls: [
+      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/480179834_591444434054760_4947462491439067277_n.jpg-DGzfDxX7zSuLJmWJLi0kIgtf4g8rI5.jpeg",
+      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/480369671_9302515229807832_3565174851267196364_n.jpg-4Vb1Wt169NtXEbceqxxB4mSRt55chU.jpeg",
+      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/480958858_1347138986475614_3113605541324887048_n.jpg-2Qs4qGN7rZSZAT5rqCQ7c2UyD2rtHY.jpeg",
+      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/476423370_1180780884058793_1895486931922885045_n.jpg-qRHW956GdINyfw6VoD6nITBdYG4QrV.jpeg",
+    ],
+  },
+]
+
+/**
+ * PRICING CONSTANTS
+ */
+export const petSizes = {
+  small: "Small (Chihuahua, Yorkshire Terrier)",
+  medium: "Medium (Beagle, Cocker Spaniel)",
+  large: "Large (Labrador, Golden Retriever)",
+  xlarge: "Extra Large (Great Dane, St. Bernard)",
 }
 
 /**
@@ -651,5 +791,52 @@ export const getRequestTypeLabel = (type: string): string => {
     default:
       return "Request"
   }
+}
+
+/**
+ * Get media items
+ * @returns Array of media items
+ *
+ * API Integration:
+ * - Replace with a fetch call to GET /api/pet-owner/media
+ */
+export const getMediaItems = (): MediaItem[] => {
+  return mediaItems
+}
+
+/**
+ * Get user profile
+ * @returns User profile object
+ *
+ * API Integration:
+ * - Replace with a fetch call to GET /api/user/profile
+ */
+export const getUserProfile = () => {
+  return userProfile
+}
+
+/**
+ * Update user profile
+ * @param profileData Updated profile data
+ * @returns Updated profile
+ *
+ * API Integration:
+ * - Replace with a fetch call to PUT /api/user/profile
+ */
+export const updateUserProfile = (profileData: typeof userProfile) => {
+  // In a real implementation, this would update the server
+  // For now, we just return the updated data
+  return profileData
+}
+
+/**
+ * Get pricing data
+ * @returns Pricing data
+ *
+ * API Integration:
+ * - Replace with a fetch call to GET /api/pricing
+ */
+export const getPricingData = (): Pricing => {
+  return pricing
 }
 

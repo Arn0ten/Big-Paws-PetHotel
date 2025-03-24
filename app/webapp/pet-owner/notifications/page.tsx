@@ -1,14 +1,27 @@
 "use client"
 
-import { useState } from "react"
-import Link from "next/link"
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
-import { Bell, Search, CheckCircle, ArrowRight } from "lucide-react"
+import { Bell, Search, CheckCircle } from "lucide-react"
+import { notifications } from "@/app/webapp/data/sample-data"
+import { useRouter } from "next/navigation"
+import { Trash2 } from "lucide-react"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { toast } from "@/components/ui/use-toast"
 
 // Local utility function to format dates
 const formatDate = (dateString: string) => {
@@ -50,65 +63,100 @@ const formatDate = (dateString: string) => {
 export default function NotificationsPage() {
   const [activeTab, setActiveTab] = useState("all")
   const [searchQuery, setSearchQuery] = useState("")
+  const [notificationsList, setNotificationsList] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [deletedNotificationIds, setDeletedNotificationIds] = useState<string[]>([])
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [notificationToDelete, setNotificationToDelete] = useState<string | null>(null)
+  const [showDeleteAllReadConfirm, setShowDeleteAllReadConfirm] = useState(false)
 
-  // Update the notifications page to focus on request updates and boarding information
-  // Improve color contrast and simplify the UI
+  const router = useRouter()
 
-  // Update the notification types and content to be more focused:
-  const [notifications, setNotifications] = useState([
-    {
-      id: "notif-001",
-      type: "request-completed",
-      title: "Photo Request Completed",
-      message: "Your photo request for Max has been completed. You can view the photos now.",
-      timestamp: "2025-03-10T14:45:00Z",
-      isRead: false,
-      requestId: "req-001",
-    },
-    {
-      id: "notif-002",
-      type: "request-in-progress",
-      title: "Grooming Request In Progress",
-      message: "Your grooming request for Max is now being processed. You'll be notified when it's completed.",
-      timestamp: "2025-03-11T09:30:00Z",
-      isRead: false,
-      requestId: "req-002",
-    },
-    {
-      id: "notif-003",
-      type: "payment-reminder",
-      title: "Additional Charges Added",
-      message:
-        "Additional charges of ₱250 have been added for Max's grooming service. Payment will be collected during pickup.",
-      timestamp: "2025-03-12T08:15:00Z",
-      isRead: true,
-    },
-    {
-      id: "notif-004",
-      type: "request-rejected",
-      title: "Video Request Rejected",
-      message: "Your video request for Max has been rejected. Please check the details for more information.",
-      timestamp: "2025-03-07T18:45:00Z",
-      isRead: true,
-      requestId: "req-004",
-    },
-    {
-      id: "notif-005",
-      type: "boarding-update",
-      title: "Boarding Pickup Reminder",
-      message: "Max's boarding period ends tomorrow. Please prepare for pickup between 8:00 AM and 6:00 PM.",
-      timestamp: "2025-03-05T10:30:00Z",
-      isRead: true,
-    },
-  ])
+  // Fetch notifications on component mount
+  useEffect(() => {
+    // In a real app, this would be an API call
+    // const fetchNotifications = async () => {
+    //   try {
+    //     const response = await fetch('/api/notifications');
+    //     const data = await response.json();
+    //     setNotificationsList(data);
+    //   } catch (error) {
+    //     console.error('Error fetching notifications:', error);
+    //   } finally {
+    //     setIsLoading(false);
+    //   }
+    // };
+
+    // For demo, use the sample data
+    const fetchNotifications = () => {
+      setIsLoading(true)
+      // Simulate API delay
+      setTimeout(() => {
+        setNotificationsList(notifications)
+        setIsLoading(false)
+      }, 500)
+    }
+
+    fetchNotifications()
+  }, [])
 
   // Mark all as read
   const markAllAsRead = () => {
-    setNotifications(notifications.map((notif) => ({ ...notif, isRead: true })))
+    // In a real app, this would be an API call to mark all notifications as read
+    // const markAllRead = async () => {
+    //   try {
+    //     await fetch('/api/notifications/mark-all-read', { method: 'POST' });
+    //     setNotificationsList(prev => prev.map(notif => ({ ...notif, isRead: true })));
+    //   } catch (error) {
+    //     console.error('Error marking notifications as read:', error);
+    //   }
+    // };
+
+    // For demo, just update the local state
+    setNotificationsList(notificationsList.map((notif) => ({ ...notif, isRead: true })))
   }
 
+  // Mark notification as read when clicked
+  const handleNotificationClick = (notificationId: string) => {
+    setNotificationsList((prev) =>
+      prev.map((notif) => (notif.id === notificationId ? { ...notif, isRead: true } : notif)),
+    )
+  }
+
+  // Delete a notification
+  const deleteNotification = (notificationId: string) => {
+    // In a real app, this would be an API call
+    setDeletedNotificationIds((prev) => [...prev, notificationId])
+    setNotificationToDelete(null)
+
+    toast({
+      title: "Notification deleted",
+      description: "The notification has been removed.",
+      duration: 3000,
+    })
+  }
+
+  // Delete all read notifications
+  const deleteAllReadNotifications = () => {
+    const readNotificationIds = notificationsList.filter((n) => n.isRead).map((n) => n.id)
+
+    setDeletedNotificationIds((prev) => [...prev, ...readNotificationIds])
+    setShowDeleteAllReadConfirm(false)
+
+    toast({
+      title: "Notifications deleted",
+      description: `${readNotificationIds.length} read notifications have been removed.`,
+      duration: 3000,
+    })
+  }
+
+  // Filter out deleted notifications
+  const displayedNotifications = notificationsList.filter(
+    (notification) => !deletedNotificationIds.includes(notification.id),
+  )
+
   // Filter notifications based on active tab and search query
-  const filteredNotifications = notifications.filter((notification) => {
+  const filteredNotifications = displayedNotifications.filter((notification) => {
     // Filter by tab
     if (activeTab === "unread" && notification.isRead) return false
 
@@ -155,7 +203,7 @@ export default function NotificationsPage() {
             <p className="text-muted-foreground">Stay updated on your pet's care</p>
           </div>
 
-          {notifications.some((n) => !n.isRead) && (
+          {notificationsList.some((n) => !n.isRead) && (
             <Button variant="outline" size="sm" onClick={markAllAsRead}>
               Mark All Read
             </Button>
@@ -190,16 +238,34 @@ export default function NotificationsPage() {
             <TabsTrigger value="all">All</TabsTrigger>
             <TabsTrigger value="unread">
               Unread
-              {notifications.filter((n) => !n.isRead).length > 0 && (
+              {notificationsList.filter((n) => !n.isRead).length > 0 && (
                 <Badge className="ml-2 bg-primary text-primary-foreground">
-                  {notifications.filter((n) => !n.isRead).length}
+                  {notificationsList.filter((n) => !n.isRead).length}
                 </Badge>
               )}
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value={activeTab} className="mt-4 space-y-4">
-            {sortedNotifications.length === 0 ? (
+            {isLoading ? (
+              // Loading skeleton
+              <div className="space-y-4">
+                {[1, 2, 3].map((i) => (
+                  <Card key={i} className="animate-pulse">
+                    <CardContent className="p-4">
+                      <div className="flex items-start gap-3">
+                        <div className="h-5 w-5 rounded-full bg-muted"></div>
+                        <div className="flex-1 space-y-2">
+                          <div className="h-4 w-1/3 bg-muted rounded"></div>
+                          <div className="h-3 w-full bg-muted rounded"></div>
+                          <div className="h-3 w-1/4 bg-muted rounded"></div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : filteredNotifications.length === 0 ? (
               <div className="text-center py-8">
                 <Bell className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
                 <h3 className="text-lg font-medium">No notifications</h3>
@@ -210,18 +276,28 @@ export default function NotificationsPage() {
                 </p>
               </div>
             ) : (
-              sortedNotifications.map((notification) => (
-                <Link
-                  href={
-                    notification.requestId
-                      ? `/webapp/pet-owner/requests/${notification.requestId}`
-                      : `/webapp/pet-owner/notifications/${notification.id}`
-                  }
-                  key={notification.id}
-                >
-                  {/* Update the card styling for better visibility in dark mode: */}
+              <>
+                {/* Delete all read notifications button */}
+                {activeTab === "all" && displayedNotifications.some((n) => n.isRead) && (
+                  <div className="flex justify-end mb-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowDeleteAllReadConfirm(true)}
+                      className="text-xs"
+                    >
+                      <Trash2 className="h-3 w-3 mr-1" />
+                      Delete Read Notifications
+                    </Button>
+                  </div>
+                )}
+
+                {filteredNotifications.map((notification) => (
                   <Card
-                    className={`hover:bg-muted/50 dark:hover:bg-muted/20 transition-colors cursor-pointer ${!notification.isRead ? "border-l-4 border-l-primary dark:border-l-primary" : ""}`}
+                    key={notification.id}
+                    className={`hover:bg-muted/50 dark:hover:bg-muted/20 transition-colors ${
+                      !notification.isRead ? "border-l-4 border-l-primary dark:border-l-primary" : ""
+                    }`}
                   >
                     <CardContent className="p-4">
                       <div className="flex items-start gap-3">
@@ -229,33 +305,110 @@ export default function NotificationsPage() {
 
                         <div className="flex-1">
                           <div className="flex justify-between items-start">
-                            <h3 className="font-medium">{notification.title}</h3>
+                            <div
+                              className="flex-1 cursor-pointer"
+                              onClick={() => {
+                                handleNotificationClick(notification.id)
+                                if (notification.requestId) {
+                                  router.push(`/webapp/pet-owner/requests/${notification.requestId}`)
+                                } else {
+                                  router.push(`/webapp/pet-owner/notifications/${notification.id}`)
+                                }
+                              }}
+                            >
+                              <h3 className="font-medium">{notification.title}</h3>
+                            </div>
                             <div className="flex items-center gap-2">
-                              {/* Update the badge styling: */}
+                              {/* Updated badge styling for consistency */}
                               {!notification.isRead && (
                                 <Badge
                                   variant="outline"
-                                  className="bg-primary/10 text-primary border-primary/20 dark:bg-primary/20 dark:border-primary/30 dark:text-primary-foreground text-xs px-2 py-0 h-5"
+                                  className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border-blue-200 dark:border-blue-800"
                                 >
                                   New
                                 </Badge>
                               )}
-                              <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setNotificationToDelete(notification.id)
+                                  setShowDeleteConfirm(true)
+                                }}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
                             </div>
                           </div>
 
-                          <p className="text-sm mt-1">{notification.message}</p>
-                          <p className="text-xs text-muted-foreground mt-2">{formatDate(notification.timestamp)}</p>
+                          <div
+                            className="cursor-pointer"
+                            onClick={() => {
+                              handleNotificationClick(notification.id)
+                              if (notification.requestId) {
+                                router.push(`/webapp/pet-owner/requests/${notification.requestId}`)
+                              } else {
+                                router.push(`/webapp/pet-owner/notifications/${notification.id}`)
+                              }
+                            }}
+                          >
+                            <p className="text-sm mt-1">{notification.message}</p>
+                            <p className="text-xs text-muted-foreground mt-2">{formatDate(notification.timestamp)}</p>
+                          </div>
                         </div>
                       </div>
                     </CardContent>
                   </Card>
-                </Link>
-              ))
+                ))}
+              </>
             )}
           </TabsContent>
         </Tabs>
       </motion.div>
+
+      {/* Delete Notification Confirmation Dialog */}
+      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Notification</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this notification? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => notificationToDelete && deleteNotification(notificationToDelete)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete All Read Notifications Confirmation Dialog */}
+      <AlertDialog open={showDeleteAllReadConfirm} onOpenChange={setShowDeleteAllReadConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Read Notifications</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete all read notifications? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={deleteAllReadNotifications}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete All Read
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

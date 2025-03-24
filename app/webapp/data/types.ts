@@ -15,16 +15,33 @@ export interface Pet {
   type: string // "Dog" | "Cat" | etc.
   breed: string
   age: string | number
+  weight?: string
+  gender?: string
+  microchip?: string
   avatar: string
   boarding: {
     status: string
     startDate: string // ISO date string
     endDate: string // ISO date string
-    package: string
-    totalPrice: number
-    paidAmount: number
-    remainingAmount: number
+    package?: string
+    totalPrice?: number
+    paidAmount?: number
+    remainingAmount?: number
   } | null
+  size?: string
+  medicalInfo?: string
+  vaccinations?: Array<{
+    name: string
+    date: string
+    expiry: string
+  }>
+  emergencyContact?: {
+    name: string
+    phone: string
+    relationship: string
+  }
+  dietaryRestrictions?: string
+  behavioralNotes?: string
 }
 
 /**
@@ -33,11 +50,13 @@ export interface Pet {
  */
 export interface Request {
   id: string
+  title?: string
   type: string // "photo" | "video" | "grooming" | "boarding-extension" | "custom"
   petName: string
   petId: string
   status: string // "new" | "in-progress" | "completed" | "rejected"
   createdAt: string // ISO date string
+  updatedAt?: string // ISO date string
   completedAt?: string // ISO date string
   rejectedAt?: string // ISO date string
   description: string
@@ -56,6 +75,8 @@ export interface Request {
   rejectedBy?: string
   rejectionReason?: string
   conversation?: Message[]
+  newEndDate?: string // ISO date string
+  processingNotes?: string
 }
 
 /**
@@ -141,5 +162,18 @@ export interface Pricing {
     blowDry: number
     woundTreatment: number
   }
+}
+
+/**
+ * MediaItem Type
+ * Represents a media item in the media archive
+ */
+export interface MediaItem {
+  id: string
+  timestamp: Date
+  petName: string
+  requestType: "photo" | "video"
+  description: string
+  mediaUrls: string[]
 }
 

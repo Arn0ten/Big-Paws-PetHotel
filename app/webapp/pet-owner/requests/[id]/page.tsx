@@ -214,6 +214,9 @@ export default function RequestDetailPage() {
       description: "Your request has been successfully cancelled.",
       duration: 5000,
     })
+
+    // Navigate back to the requests page
+    router.push("/webapp/pet-owner/requests")
   }
 
   if (loading) {

@@ -1,13 +1,8 @@
-"use client";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-} from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
+"use client"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
+import { Button } from "@/components/ui/button"
+import { useState, useEffect } from "react"
 import {
   Drawer,
   DrawerClose,
@@ -16,113 +11,18 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-} from "@/components/ui/drawer";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { format } from "date-fns";
-import {
-  CalendarIcon,
-  ChevronLeft,
-  ChevronRight,
-  Download,
-  Filter,
-  Search,
-} from "lucide-react";
-import type { DateRange } from "react-day-picker";
-import { motion } from "framer-motion";
-import { MediaCard } from "@/app/webapp/components/media-card";
-
-interface MediaItem {
-  id: string;
-  timestamp: Date;
-  petName: string;
-  requestType: "photo" | "video";
-  description: string;
-  mediaUrls: string[];
-}
-
-// BACKEND INTEGRATION: Replace this with actual API call to fetch media data
-// Sample data for development purposes
-const mockMediaItems: MediaItem[] = [
-  {
-    id: "1",
-    timestamp: new Date(),
-    petName: "Buddy",
-    requestType: "photo",
-    description: "Buddy's grooming session",
-    mediaUrls: [
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/480958858_1347138986475614_3113605541324887048_n.jpg-2Qs4qGN7rZSZAT5rqCQ7c2UyD2rtHY.jpeg",
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/476423370_1180780884058793_1895486931922885045_n.jpg-qRHW956GdINyfw6VoD6nITBdYG4QrV.jpeg",
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/480064874_3971175603130199_8445389685285733814_n.jpg-8H6pSDIqmQ3m9rg84YuGhB8TAiCYEv.jpeg",
-    ],
-  },
-  {
-    id: "2",
-    timestamp: new Date(Date.now() - 86400000), // 1 day ago
-    petName: "Whiskers",
-    requestType: "video",
-    description: "Whiskers playing with a toy",
-    mediaUrls: [
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/481817843_9277714875675610_7115125575926345799_n-lCz1vZTDTYlcmAGIgVjrqw52ElqlYm.mp4",
-    ],
-  },
-  {
-    id: "3",
-    timestamp: new Date(Date.now() - 172800000), // 2 days ago
-    petName: "Charlie",
-    requestType: "photo",
-    description: "Charlie's grooming session",
-    mediaUrls: [
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/475884722_1437552477217404_9052949441849644312_n.jpg-dbCP39F5PsvkEXA5fu5b3DrhSH0kRT.jpeg",
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/480491302_9250055781727301_8238070743716968783_n.jpg-zuHWDIFIvZYglrA4tCl9zEshPDo7E8.jpeg",
-    ],
-  },
-  {
-    id: "4",
-    timestamp: new Date(Date.now() - 259200000), // 3 days ago
-    petName: "Daisy",
-    requestType: "photo",
-    description: "Daisy's grooming session",
-    mediaUrls: [
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/480899995_642061011656747_972779387843409689_n.jpg-neY2SryyFSDQbBaJ9JHrZCSqyq4uKg.jpeg",
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/480179834_591444434054760_4947462491439067277_n.jpg-DGzfDxX7zSuLJmWJLi0kIgtf4g8rI5.jpeg",
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/480369671_9302515229807832_3565174851267196364_n.jpg-4Vb1Wt169NtXEbceqxxB4mSRt55chU.jpeg",
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/480958858_1347138986475614_3113605541324887048_n.jpg-2Qs4qGN7rZSZAT5rqCQ7c2UyD2rtHY.jpeg",
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/476423370_1180780884058793_1895486931922885045_n.jpg-qRHW956GdINyfw6VoD6nITBdYG4QrV.jpeg",
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/480064874_3971175603130199_8445389685285733814_n.jpg-8H6pSDIqmQ3m9rg84YuGhB8TAiCYEv.jpeg",
-    ],
-  },
-  {
-    id: "5",
-    timestamp: new Date(Date.now() - 345600000), // 4 days ago
-    petName: "Rocky",
-    requestType: "video",
-    description: "Rocky playing in the yard",
-    mediaUrls: [
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/481817843_9277714875675610_7115125575926345799_n-lCz1vZTDTYlcmAGIgVjrqw52ElqlYm.mp4",
-    ],
-  },
-  {
-    id: "6",
-    timestamp: new Date(Date.now() - 432000000), // 5 days ago
-    petName: "Bella",
-    requestType: "photo",
-    description: "Bella's grooming session",
-    mediaUrls: [
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/480179834_591444434054760_4947462491439067277_n.jpg-DGzfDxX7zSuLJmWJLi0kIgtf4g8rI5.jpeg",
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/480369671_9302515229807832_3565174851267196364_n.jpg-4Vb1Wt169NtXEbceqxxB4mSRt55chU.jpeg",
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/480958858_1347138986475614_3113605541324887048_n.jpg-2Qs4qGN7rZSZAT5rqCQ7c2UyD2rtHY.jpeg",
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/476423370_1180780884058793_1895486931922885045_n.jpg-qRHW956GdINyfw6VoD6nITBdYG4QrV.jpeg",
-    ],
-  },
-];
+} from "@/components/ui/drawer"
+import { Calendar } from "@/components/ui/calendar"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { format } from "date-fns"
+import { CalendarIcon, ChevronLeft, ChevronRight, Download, Filter, Search } from "lucide-react"
+import type { DateRange } from "react-day-picker"
+import { motion } from "framer-motion"
+import { MediaCard } from "@/app/webapp/components/media-card"
+import { getMediaItems } from "@/app/webapp/data/sample-data"
 
 // BACKEND INTEGRATION: Implement this function to fetch media data from the API
-async function fetchMediaItems(): Promise<MediaItem[]> {
+async function fetchMediaItems() {
   // Example implementation:
   // try {
   //   const response = await fetch('/api/pet-owner/media');
@@ -135,58 +35,58 @@ async function fetchMediaItems(): Promise<MediaItem[]> {
 
   // For development, return mock data
   return new Promise((resolve) => {
-    setTimeout(() => resolve(mockMediaItems), 500);
-  });
+    setTimeout(() => resolve(getMediaItems()), 500)
+  })
 }
 
 export default function MediaArchivePage() {
-  const [items, setItems] = useState<MediaItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedType, setSelectedType] = useState("all");
-  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
-  const [selectedMedia, setSelectedMedia] = useState<MediaItem | null>(null);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [items, setItems] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [selectedType, setSelectedType] = useState("all")
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
+  const [selectedMedia, setSelectedMedia] = useState(null)
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
   // Fetch media items on component mount
   useEffect(() => {
     const loadMediaItems = async () => {
-      setIsLoading(true);
+      setIsLoading(true)
       try {
-        const data = await fetchMediaItems();
-        setItems(data);
+        const data = await fetchMediaItems()
+        setItems(data)
       } catch (error) {
-        console.error("Error loading media items:", error);
+        console.error("Error loading media items:", error)
       } finally {
-        setIsLoading(false);
+        setIsLoading(false)
       }
-    };
+    }
 
-    loadMediaItems();
-  }, []);
+    loadMediaItems()
+  }, [])
 
-  const handleMediaClick = (item: MediaItem) => {
-    setSelectedMedia(item);
-    setCurrentImageIndex(0); // Reset to first image when opening
-  };
+  const handleMediaClick = (item) => {
+    setSelectedMedia(item)
+    setCurrentImageIndex(0) // Reset to first image when opening
+  }
 
   const handleCloseMedia = () => {
-    setSelectedMedia(null);
-  };
+    setSelectedMedia(null)
+  }
 
   // BACKEND INTEGRATION: Implement this function to download media
   const handleDownload = (url: string, filename = "media") => {
     // For client-side download of a single file:
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const link = document.createElement("a")
+    link.href = url
+    link.download = filename
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
 
     // For server-side handling of multiple files (creating a zip):
     // window.location.href = `/api/pet-owner/media/download?ids=${selectedMedia?.id}`;
-  };
+  }
 
   // BACKEND INTEGRATION: Implement this function to download multiple media files as a zip
   const handleDownloadAll = (urls: string[], mediaId: string) => {
@@ -195,35 +95,29 @@ export default function MediaArchivePage() {
 
     // For development, just download the first file
     if (urls.length > 0) {
-      handleDownload(urls[0], `${selectedMedia?.petName}-media`);
+      handleDownload(urls[0], `${selectedMedia?.petName}-media`)
     }
-  };
+  }
 
   const filteredItems = items.filter((item) => {
     const searchMatch =
       item.petName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (item.description &&
-        item.description.toLowerCase().includes(searchQuery.toLowerCase()));
+      (item.description && item.description.toLowerCase().includes(searchQuery.toLowerCase()))
 
-    const typeMatch =
-      selectedType === "all" || item.requestType === selectedType;
+    const typeMatch = selectedType === "all" || item.requestType === selectedType
 
     const dateMatch =
-      !dateRange?.from ||
-      (item.timestamp >= dateRange.from &&
-        (!dateRange.to || item.timestamp <= dateRange.to));
+      !dateRange?.from || (item.timestamp >= dateRange.from && (!dateRange.to || item.timestamp <= dateRange.to))
 
-    return searchMatch && typeMatch && dateMatch;
-  });
+    return searchMatch && typeMatch && dateMatch
+  })
 
   return (
     <div className="px-3 sm:px-4 md:container mx-auto py-4 sm:py-6 space-y-4 sm:space-y-6">
       <div className="flex flex-col gap-4">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-foreground dark:text-foreground">
-              Media Archive
-            </h1>
+            <h1 className="text-2xl font-bold tracking-tight text-foreground dark:text-foreground">Media Archive</h1>
             <p className="text-base text-muted-foreground dark:text-muted-foreground/90">
               View and see your media requests archive
             </p>
@@ -247,11 +141,7 @@ export default function MediaArchivePage() {
               <div className="flex items-center gap-1.5 text-sm">
                 <Filter className="h-3.5 w-3.5" />
                 <span className="truncate">
-                  {selectedType === "all"
-                    ? "All"
-                    : selectedType === "photo"
-                      ? "Photos"
-                      : "Videos"}
+                  {selectedType === "all" ? "All" : selectedType === "photo" ? "Photos" : "Videos"}
                 </span>
               </div>
             </SelectTrigger>
@@ -287,12 +177,7 @@ export default function MediaArchivePage() {
                 />
                 {dateRange?.from && (
                   <div className="p-2 border-t border-border">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="w-full"
-                      onClick={() => setDateRange(undefined)}
-                    >
+                    <Button variant="ghost" size="sm" className="w-full" onClick={() => setDateRange(undefined)}>
                       Clear Date Filter
                     </Button>
                   </div>
@@ -318,9 +203,7 @@ export default function MediaArchivePage() {
         ) : filteredItems.length === 0 ? (
           // No results
           <div className="text-center py-12">
-            <div className="text-muted-foreground">
-              No media found matching your filters
-            </div>
+            <div className="text-muted-foreground">No media found matching your filters</div>
           </div>
         ) : (
           // Media grid
@@ -356,39 +239,35 @@ export default function MediaArchivePage() {
             <DrawerContent className="max-h-[90vh] sm:max-h-[85vh]">
               <DrawerHeader className="py-2">
                 <DrawerTitle>{selectedMedia.petName}</DrawerTitle>
-                <DrawerDescription className="text-xs">
-                  {selectedMedia.description}
-                </DrawerDescription>
+                <DrawerDescription className="text-xs">{selectedMedia.description}</DrawerDescription>
               </DrawerHeader>
               <div className="px-4 pb-2 relative">
-                {selectedMedia.requestType === "photo" &&
-                  selectedMedia.mediaUrls.length > 0 && (
-                    <>
-                      {selectedMedia.mediaUrls.length > 1 ? (
-                        <Carousel
-                          mediaUrls={selectedMedia.mediaUrls}
-                          petName={selectedMedia.petName}
-                          currentIndex={currentImageIndex}
-                          setCurrentIndex={setCurrentImageIndex}
-                        />
-                      ) : (
-                        <img
-                          src={selectedMedia.mediaUrls[0] || "/placeholder.svg"}
-                          alt={`Photo of ${selectedMedia.petName}`}
-                          className="w-full h-auto max-h-[50vh] sm:max-h-[60vh] object-contain rounded-md mx-auto"
-                        />
-                      )}
-                    </>
-                  )}
-                {selectedMedia.requestType === "video" &&
-                  selectedMedia.mediaUrls[0] && (
-                    <video
-                      src={selectedMedia.mediaUrls[0]}
-                      className="w-full h-auto max-h-[50vh] sm:max-h-[60vh] object-contain rounded-md mx-auto"
-                      controls
-                      autoPlay
-                    />
-                  )}
+                {selectedMedia.requestType === "photo" && selectedMedia.mediaUrls.length > 0 && (
+                  <>
+                    {selectedMedia.mediaUrls.length > 1 ? (
+                      <Carousel
+                        mediaUrls={selectedMedia.mediaUrls}
+                        petName={selectedMedia.petName}
+                        currentIndex={currentImageIndex}
+                        setCurrentIndex={setCurrentImageIndex}
+                      />
+                    ) : (
+                      <img
+                        src={selectedMedia.mediaUrls[0] || "/placeholder.svg"}
+                        alt={`Photo of ${selectedMedia.petName}`}
+                        className="w-full h-auto max-h-[50vh] sm:max-h-[60vh] object-contain rounded-md mx-auto"
+                      />
+                    )}
+                  </>
+                )}
+                {selectedMedia.requestType === "video" && selectedMedia.mediaUrls[0] && (
+                  <video
+                    src={selectedMedia.mediaUrls[0]}
+                    className="w-full h-auto max-h-[50vh] sm:max-h-[60vh] object-contain rounded-md mx-auto"
+                    controls
+                    autoPlay
+                  />
+                )}
               </div>
               <DrawerFooter className="py-2 flex flex-row justify-between">
                 <Button
@@ -396,20 +275,12 @@ export default function MediaArchivePage() {
                   size="sm"
                   onClick={() =>
                     selectedMedia.mediaUrls.length > 1
-                      ? handleDownloadAll(
-                          selectedMedia.mediaUrls,
-                          selectedMedia.id,
-                        )
-                      : handleDownload(
-                          selectedMedia.mediaUrls[0],
-                          `${selectedMedia.petName}-media`,
-                        )
+                      ? handleDownloadAll(selectedMedia.mediaUrls, selectedMedia.id)
+                      : handleDownload(selectedMedia.mediaUrls[0], `${selectedMedia.petName}-media`)
                   }
                 >
                   <Download className="h-4 w-4 mr-2" />
-                  {selectedMedia.mediaUrls.length > 1
-                    ? "Download All"
-                    : "Download"}
+                  {selectedMedia.mediaUrls.length > 1 ? "Download All" : "Download"}
                 </Button>
                 <DrawerClose asChild>
                   <Button variant="outline" size="sm">
@@ -422,33 +293,24 @@ export default function MediaArchivePage() {
         )}
       </div>
     </div>
-  );
+  )
 }
 
 interface CarouselProps {
-  mediaUrls: string[];
-  petName: string;
-  currentIndex: number;
-  setCurrentIndex: (index: number) => void;
+  mediaUrls: string[]
+  petName: string
+  currentIndex: number
+  setCurrentIndex: (index: number) => void
 }
 
-function Carousel({
-  mediaUrls,
-  petName,
-  currentIndex,
-  setCurrentIndex,
-}: CarouselProps) {
+function Carousel({ mediaUrls, petName, currentIndex, setCurrentIndex }: CarouselProps) {
   const goToPrevious = () => {
-    setCurrentIndex(
-      currentIndex === 0 ? mediaUrls.length - 1 : currentIndex - 1,
-    );
-  };
+    setCurrentIndex(currentIndex === 0 ? mediaUrls.length - 1 : currentIndex - 1)
+  }
 
   const goToNext = () => {
-    setCurrentIndex(
-      currentIndex === mediaUrls.length - 1 ? 0 : currentIndex + 1,
-    );
-  };
+    setCurrentIndex(currentIndex === mediaUrls.length - 1 ? 0 : currentIndex + 1)
+  }
 
   return (
     <div className="relative">
@@ -463,9 +325,7 @@ function Carousel({
           <button
             key={index}
             className={`h-1.5 rounded-full ${
-              index === currentIndex
-                ? "w-4 bg-primary"
-                : "w-1.5 bg-gray-300 dark:bg-gray-600"
+              index === currentIndex ? "w-4 bg-primary" : "w-1.5 bg-gray-300 dark:bg-gray-600"
             }`}
             onClick={() => setCurrentIndex(index)}
             aria-label={`Go to image ${index + 1}`}
@@ -489,5 +349,6 @@ function Carousel({
         <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 text-white dark:text-gray-900" />
       </button>
     </div>
-  );
+  )
 }
+

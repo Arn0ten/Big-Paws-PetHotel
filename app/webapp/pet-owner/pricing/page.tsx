@@ -8,16 +8,11 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Scissors, Clock, Calendar, Info, ArrowLeft } from "lucide-react"
 import Link from "next/link"
+import { getPricingData, petSizes } from "@/app/webapp/data/sample-data"
 
 export default function PricingPage() {
   const [activeTab, setActiveTab] = useState("boarding")
-
-  const petSizes = {
-    small: "Small (Chihuahua, Yorkshire Terrier)",
-    medium: "Medium (Beagle, Cocker Spaniel)",
-    large: "Large (Labrador, Golden Retriever)",
-    xlarge: "Extra Large (Great Dane, St. Bernard)",
-  }
+  const pricing = getPricingData()
 
   return (
     <div className="space-y-6 pb-20">
@@ -35,15 +30,12 @@ export default function PricingPage() {
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
         <Tabs defaultValue={activeTab} value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="boarding" className="text-foreground dark:text-foreground">
               Boarding
             </TabsTrigger>
             <TabsTrigger value="grooming" className="text-foreground dark:text-foreground">
               Grooming
-            </TabsTrigger>
-            <TabsTrigger value="additional" className="text-foreground dark:text-foreground">
-              Add-ons
             </TabsTrigger>
           </TabsList>
 
@@ -274,38 +266,6 @@ export default function PricingPage() {
                             </span>
                           </div>
                         </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="additional" className="mt-6 space-y-6">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-primary" />
-                  <CardTitle className="text-foreground dark:text-foreground">Additional Services</CardTitle>
-                </div>
-                <CardDescription>Extra services available during boarding or separately</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {[
-                    { name: "Nail Trimming", price: 150, description: "Professional nail care" },
-                    { name: "Teeth Brushing", price: 200, description: "Dental hygiene service" },
-                    { name: "Ear Cleaning", price: 180, description: "Deep ear cleaning" },
-                    { name: "Flea Treatment", price: 250, description: "Anti-flea application" },
-                  ].map((service) => (
-                    <div key={service.name} className="p-3 bg-muted/30 dark:bg-muted/10 rounded-md">
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <span className="font-medium text-foreground dark:text-foreground">{service.name}</span>
-                          <p className="text-xs text-muted-foreground">{service.description}</p>
-                        </div>
-                        <span className="font-medium text-green-600 dark:text-green-400">₱{service.price}</span>
                       </div>
                     </div>
                   ))}

@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Camera, Video, Scissors, Clock, FileText, Plus, ArrowRight, Calendar, DollarSign, Info } from "lucide-react"
 import { formatDate } from "../utils/date-helpers"
-import { pets, requests, notifications } from "../data/sample-data"
+import { requests, notifications, getPetOwnerPets } from "../data/sample-data"
 
 /**
  * Pet Owner Dashboard Page
@@ -29,6 +29,9 @@ import { pets, requests, notifications } from "../data/sample-data"
 export default function PetOwnerHomePage() {
   const [activeTab, setActiveTab] = useState("boarding")
   const [isLoading, setIsLoading] = useState(true)
+  const [petsList, setPetsList] = useState([])
+  const [requestsList, setRequestsList] = useState([])
+  const [notificationsList, setNotificationsList] = useState([])
 
   useEffect(() => {
     // BACKEND INTEGRATION:
@@ -65,21 +68,31 @@ export default function PetOwnerHomePage() {
     // fetchData();
 
     // Simulate API loading
-    const timer = setTimeout(() => {
-      setIsLoading(false)
-    }, 500)
+    const fetchData = async () => {
+      setIsLoading(true)
 
-    return () => clearTimeout(timer)
+      // Simulate API delay
+      await new Promise((resolve) => setTimeout(resolve, 500))
+
+      // For demo, use the sample data
+      setPetsList(getPetOwnerPets())
+      setRequestsList(requests.slice(0, 3))
+      setNotificationsList(notifications.filter((n) => !n.isRead).slice(0, 2))
+
+      setIsLoading(false)
+    }
+
+    fetchData()
   }, [])
 
   // Get the active boarding pet
-  const activeBoardingPet = pets.find((pet) => pet.boarding?.status === "active")
+  const activeBoardingPet = petsList.find((pet) => pet.boarding?.status === "active")
 
   // Get recent requests (limit to 3)
-  const recentRequests = requests.slice(0, 3)
+  const recentRequests = requestsList
 
   // Get unread notifications (limit to 2)
-  const unreadNotifications = notifications.filter((n) => !n.isRead).slice(0, 2)
+  const unreadNotifications = notificationsList
 
   // Get request type icon
   const getRequestTypeIcon = (type: string) => {
@@ -330,7 +343,7 @@ export default function PetOwnerHomePage() {
           </TabsList>
 
           <TabsContent value="boarding" className="mt-4 space-y-4">
-            {pets.map((pet) => (
+            {petsList.map((pet) => (
               <Link href={`/webapp/pet-owner/pets/${pet.id}`} key={pet.id}>
                 <Card className="hover:bg-muted/50 dark:hover:bg-muted/20 transition-colors cursor-pointer">
                   <CardContent className="p-4">
@@ -467,7 +480,7 @@ export default function PetOwnerHomePage() {
                       <h3 className="font-medium text-foreground dark:text-foreground">{notification.title}</h3>
                       <Badge
                         variant="outline"
-                        className="bg-primary/10 text-primary border-primary/20 dark:bg-primary/20 dark:border-primary/30 dark:text-primary-foreground text-xs"
+                        className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border-blue-200 dark:border-blue-800"
                       >
                         New
                       </Badge>
