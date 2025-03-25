@@ -53,7 +53,7 @@
     "leaflet": "^1.9.4",
     "lucide-react": "^0.454.0",
     "mailgun.js": "latest",
-    "next": ">=15.2.3",
+    "next": "15.2.3",
     "next-themes": "latest",
     "postmark": "latest",
     "react": "^19",
