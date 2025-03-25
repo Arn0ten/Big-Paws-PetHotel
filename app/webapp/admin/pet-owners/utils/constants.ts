@@ -1,4 +1,7 @@
-// Constants for the Pet Owner Management module
+import {
+  DEFAULT_IMAGES,
+  getPetImageByType,
+} from "@/app/webapp/constants/image-constants";
 
 // Dog breeds
 export const DOG_BREEDS = [
@@ -22,7 +25,7 @@ export const DOG_BREEDS = [
   "Dalmatian",
   "Pug",
   "Mixed Breed",
-]
+];
 
 // Cat breeds
 export const CAT_BREEDS = [
@@ -46,10 +49,10 @@ export const CAT_BREEDS = [
   "Exotic Shorthair",
   "Munchkin",
   "Mixed Breed",
-]
+];
 
 // Items per page for pagination
-export const ITEMS_PER_PAGE = 6
+export const ITEMS_PER_PAGE = 6;
 
 // Mock data for pet owners
 // BACKEND INTEGRATION POINT: Replace this with API call to fetch pet owners
@@ -57,7 +60,7 @@ export const MOCK_PET_OWNERS = [
   {
     id: "PO-001",
     name: "John Doe",
-    avatar: "/placeholder.svg?height=40&width=40",
+    avatar: DEFAULT_IMAGES.USER_AVATAR,
     email: "john.doe@example.com",
     phone: "09123456789",
     address: "123 Main St, Makati City, Metro Manila",
@@ -70,7 +73,7 @@ export const MOCK_PET_OWNERS = [
         age: 3,
         size: "Large",
         isBoarding: true,
-        image: "/placeholder.svg?height=200&width=200",
+        image: getPetImageByType("Dog"),
       },
       {
         id: "P-002",
@@ -80,11 +83,186 @@ export const MOCK_PET_OWNERS = [
         age: 5,
         size: "Large",
         isBoarding: false,
-        image: "/placeholder.svg?height=200&width=200",
+        image: getPetImageByType("Dog"),
       },
     ],
     createdAt: "2023-01-15",
   },
-  // ... other pet owners (truncated for brevity)
-]
-
+  {
+    id: "PO-002",
+    name: "Maria Garcia",
+    avatar: DEFAULT_IMAGES.USER_AVATAR,
+    email: "maria.garcia@example.com",
+    phone: "09234567890",
+    address: "456 Oak Ave, Quezon City, Metro Manila",
+    pets: [
+      {
+        id: "P-003",
+        name: "Luna",
+        type: "Cat",
+        breed: "Siamese",
+        age: 2,
+        size: "Medium",
+        isBoarding: true,
+        image: getPetImageByType("Cat"),
+      },
+    ],
+    createdAt: "2023-02-20",
+  },
+  {
+    id: "PO-003",
+    name: "Robert Johnson",
+    avatar: DEFAULT_IMAGES.USER_AVATAR,
+    email: "robert.johnson@example.com",
+    phone: "09345678901",
+    address: "789 Pine St, Pasig City, Metro Manila",
+    pets: [
+      {
+        id: "P-004",
+        name: "Charlie",
+        type: "Dog",
+        breed: "Beagle",
+        age: 4,
+        size: "Medium",
+        isBoarding: false,
+        image: getPetImageByType("Dog"),
+      },
+      {
+        id: "P-005",
+        name: "Milo",
+        type: "Cat",
+        breed: "Persian",
+        age: 3,
+        size: "Medium",
+        isBoarding: true,
+        image: getPetImageByType("Cat"),
+      },
+    ],
+    createdAt: "2023-03-10",
+  },
+  {
+    id: "PO-004",
+    name: "Sarah Lee",
+    avatar: DEFAULT_IMAGES.USER_AVATAR,
+    email: "sarah.lee@example.com",
+    phone: "09456789012",
+    address: "101 Maple Dr, Taguig City, Metro Manila",
+    pets: [
+      {
+        id: "P-006",
+        name: "Bella",
+        type: "Dog",
+        breed: "Poodle",
+        age: 2,
+        size: "Small",
+        isBoarding: true,
+        image: getPetImageByType("Dog"),
+      },
+    ],
+    createdAt: "2023-04-05",
+  },
+  {
+    id: "PO-005",
+    name: "Michael Chen",
+    avatar: DEFAULT_IMAGES.USER_AVATAR,
+    email: "michael.chen@example.com",
+    phone: "09567890123",
+    address: "202 Cedar Ln, Mandaluyong City, Metro Manila",
+    pets: [
+      {
+        id: "P-007",
+        name: "Oliver",
+        type: "Cat",
+        breed: "Maine Coon",
+        age: 5,
+        size: "Large",
+        isBoarding: false,
+        image: getPetImageByType("Cat"),
+      },
+      {
+        id: "P-008",
+        name: "Rocky",
+        type: "Dog",
+        breed: "Bulldog",
+        age: 3,
+        size: "Medium",
+        isBoarding: true,
+        image: getPetImageByType("Dog"),
+      },
+    ],
+    createdAt: "2023-05-15",
+  },
+  {
+    id: "PO-006",
+    name: "Emily Wilson",
+    avatar: DEFAULT_IMAGES.USER_AVATAR,
+    email: "emily.wilson@example.com",
+    phone: "09678901234",
+    address: "303 Birch Rd, Parañaque City, Metro Manila",
+    pets: [
+      {
+        id: "P-009",
+        name: "Lucy",
+        type: "Dog",
+        breed: "Shih Tzu",
+        age: 4,
+        size: "Small",
+        isBoarding: false,
+        image: getPetImageByType("Dog"),
+      },
+    ],
+    createdAt: "2023-06-20",
+  },
+  {
+    id: "PO-007",
+    name: "David Kim",
+    avatar: DEFAULT_IMAGES.USER_AVATAR,
+    email: "david.kim@example.com",
+    phone: "09789012345",
+    address: "404 Elm St, Muntinlupa City, Metro Manila",
+    pets: [
+      {
+        id: "P-010",
+        name: "Leo",
+        type: "Cat",
+        breed: "Bengal",
+        age: 2,
+        size: "Medium",
+        isBoarding: true,
+        image: getPetImageByType("Cat"),
+      },
+      {
+        id: "P-011",
+        name: "Cooper",
+        type: "Dog",
+        breed: "Labrador",
+        age: 6,
+        size: "Large",
+        isBoarding: false,
+        image: getPetImageByType("Dog"),
+      },
+    ],
+    createdAt: "2023-07-10",
+  },
+  {
+    id: "PO-008",
+    name: "Jessica Martinez",
+    avatar: DEFAULT_IMAGES.USER_AVATAR,
+    email: "jessica.martinez@example.com",
+    phone: "09890123456",
+    address: "505 Walnut Ave, Caloocan City, Metro Manila",
+    pets: [
+      {
+        id: "P-012",
+        name: "Daisy",
+        type: "Dog",
+        breed: "Corgi",
+        age: 3,
+        size: "Small",
+        isBoarding: true,
+        image: getPetImageByType("Dog"),
+      },
+    ],
+    createdAt: "2023-08-15",
+  },
+];

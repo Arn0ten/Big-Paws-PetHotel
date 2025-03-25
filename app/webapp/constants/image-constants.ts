@@ -7,7 +7,7 @@
 
 // Default images for users and pets
 export const DEFAULT_IMAGES = {
-  USER_AVATAR: "/default-images/default-user.png",
+  USER_AVATAR: "/default-images/default-pic.png",
   DOG_IMAGE:
     "https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=200&auto=format&fit=crop",
   CAT_IMAGE:
