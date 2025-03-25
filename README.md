@@ -45,25 +45,3 @@ We utilize **Mailgun** and optionally **Resend** for email services, and **Leafl
 ✅ **Maps** integration with **Leaflet** and **OpenStreetMap**
 
 Folder structure dria ra mag trace if naay pangitaon na directory
-
----------------AUTH-----------------
-app/webapp/auth/
-├── components/ # Shared UI components
-│ ├── AuthLayout.tsx
-│ └── PasswordStrengthMeter.tsx
-├── hooks/ # Custom React hooks
-│ └── usePasswordValidation.ts
-├── services/ # API service layer
-│ └── authService.ts
-├── types/ # TypeScript type definitions
-│ └── index.ts
-├── utils/ # Helper functions
-│ └── validation.ts
-├── login/ # Login page
-│ └── page.tsx
-├── forgot-password/ # Forgot password page
-│ └── page.tsx
-├── change-password/ # Change password page
-│ └── page.tsx
-└── reset-password/ # Reset password page
-└── page.tsx
