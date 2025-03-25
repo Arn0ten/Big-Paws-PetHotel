@@ -9,11 +9,11 @@ const FALLBACK_IMAGE = "/images/default-pic.png";
 
 // Use images we know exist in the project or use placeholders
 const images = [
-  "/images/default-pic.png",
-  "/images/default-pic.png",
-  "/images/default-pic.png",
-  "/images/default-pic.png",
-  "/images/default-pic.png",
+  "/pet-hotel-1.jpg",
+  "/pet-hotel-2.jpg",
+  "/pet-hotel-3.jpg",
+  "/pet-hotel-4.jpg",
+  "/pet-hotel-5.jpg",
 ];
 
 export default function LoginSlideshow() {

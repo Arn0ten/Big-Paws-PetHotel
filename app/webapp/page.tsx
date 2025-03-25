@@ -1,26 +1,28 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useRef } from "react"
-import { motion, useAnimation, AnimatePresence } from "framer-motion"
-import Link from "next/link"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { PawPrint, Loader2, ChevronRight, Info, Calendar, MessageSquare } from "lucide-react"
-import { useRouter } from "next/navigation"
-import { ThemeToggle } from "@/components/theme-toggle"
-
-// Define fallback images to prevent 404 errors
-const LOGO_URL = "/images/default-pic.png" // Fallback to a known image
-const BANNER_URL = "/images/default-pic.png" // Fallback to a known image
+import { useState, useEffect, useRef } from "react";
+import { motion, useAnimation, AnimatePresence } from "framer-motion";
+import Link from "next/link";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import {
+  PawPrint,
+  Loader2,
+  ChevronRight,
+  Info,
+  Calendar,
+  MessageSquare,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function WelcomePage() {
-  const [mounted, setMounted] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [activeFeature, setActiveFeature] = useState(0)
-  const [imageError, setImageError] = useState(false)
-  const router = useRouter()
-  const controls = useAnimation()
-  const headerRef = useRef<HTMLDivElement>(null)
+  const [mounted, setMounted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [activeFeature, setActiveFeature] = useState(0);
+  const router = useRouter();
+  const controls = useAnimation();
+  const headerRef = useRef<HTMLDivElement>(null);
 
   // Features for the rotating highlight
   const features = [
@@ -39,71 +41,58 @@ export default function WelcomePage() {
       title: "Pet Updates",
       description: "Receive photos and updates during your pet's stay",
     },
-  ]
+  ];
 
-  // Safe useEffect to prevent hydration mismatches
   useEffect(() => {
-    // Set mounted state to true after component mounts
-    setMounted(true)
+    setMounted(true);
 
-    // Animate the header on scroll - with error handling
+    // Animate the header on scroll
     const handleScroll = () => {
-      try {
-        if (headerRef.current) {
-          if (window.scrollY > 10) {
-            headerRef.current.classList.add("shadow-md", "bg-background/95", "backdrop-blur-sm")
-            headerRef.current.classList.remove("bg-transparent")
-          } else {
-            headerRef.current.classList.remove("shadow-md", "bg-background/95", "backdrop-blur-sm")
-            headerRef.current.classList.add("bg-transparent")
-          }
-        }
-      } catch (error) {
-        console.error("Scroll handler error:", error)
+      if (window.scrollY > 10) {
+        headerRef.current?.classList.add(
+          "shadow-md",
+          "bg-background/95",
+          "backdrop-blur-sm",
+        );
+        headerRef.current?.classList.remove("bg-transparent");
+      } else {
+        headerRef.current?.classList.remove(
+          "shadow-md",
+          "bg-background/95",
+          "backdrop-blur-sm",
+        );
+        headerRef.current?.classList.add("bg-transparent");
       }
-    }
+    };
 
-    window.addEventListener("scroll", handleScroll)
+    window.addEventListener("scroll", handleScroll);
 
-    // Rotate through features - with error handling
-    let featureInterval: NodeJS.Timeout | null = null
-    try {
-      featureInterval = setInterval(() => {
-        setActiveFeature((prev) => (prev + 1) % features.length)
-      }, 4000)
-    } catch (error) {
-      console.error("Feature interval error:", error)
-    }
+    // Rotate through features
+    const featureInterval = setInterval(() => {
+      setActiveFeature((prev) => (prev + 1) % features.length);
+    }, 4000);
 
     return () => {
-      window.removeEventListener("scroll", handleScroll)
-      if (featureInterval) clearInterval(featureInterval)
-    }
-  }, [features.length])
+      window.removeEventListener("scroll", handleScroll);
+      clearInterval(featureInterval);
+    };
+  }, [features.length]);
 
   const handleLogin = () => {
-    try {
-      setIsLoading(true)
-      controls.start({
-        scale: [1, 0.95, 1],
-        transition: { duration: 0.3 },
-      })
+    setIsLoading(true);
+    controls.start({
+      scale: [1, 0.95, 1],
+      transition: { duration: 0.3 },
+    });
 
-      setTimeout(() => {
-        router.push("/webapp/auth/login")
-        setIsLoading(false)
-      }, 300)
-    } catch (error) {
-      console.error("Login error:", error)
-      setIsLoading(false)
-      // Fallback direct navigation if animation fails
-      window.location.href = "/webapp/auth/login"
-    }
-  }
+    setTimeout(() => {
+      router.push("/webapp/auth/login");
+      setIsLoading(false);
+    }, 300);
+  };
 
-  // Don't render anything during SSR to prevent hydration mismatches
   if (!mounted) {
-    return <div className="min-h-screen bg-background"></div>
+    return null;
   }
 
   return (
@@ -136,18 +125,16 @@ export default function WelcomePage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
           >
-            {/* Use onError handler for the logo image */}
-            <div className="h-10 w-10 relative">
-              <Image
-                src={LOGO_URL || "/placeholder.svg"}
-                alt="Big Paws Pet Hotel Logo"
-                width={50}
-                height={50}
-                className="h-10 w-auto"
-                onError={() => setImageError(true)}
-              />
-            </div>
-            <span className="font-bold text-xl text-foreground">Big Paws Pet Hotel</span>
+            <Image
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/BigPawsLogoBig-QEuBX7LEMcYoQTMrjMOPnGFkVuwmrA.png"
+              alt="Big Paws Pet Hotel Logo"
+              width={50}
+              height={50}
+              className="h-10 w-auto"
+            />
+            <span className="font-bold text-xl text-foreground">
+              Big Paws Pet Hotel
+            </span>
           </motion.div>
           <motion.div
             className="flex items-center gap-4"
@@ -176,26 +163,29 @@ export default function WelcomePage() {
           transition={{ duration: 0.8 }}
           className="max-w-md w-full"
         >
-          {/* Welcome Banner with error handling */}
+          {/* Welcome Banner */}
           <div className="relative h-56 w-full rounded-t-2xl overflow-hidden mb-6 shadow-lg group">
-            <div className="absolute inset-0 bg-gradient-to-b from-black/70 to-black/40 flex items-center justify-center z-10">
+            <Image
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/480571878_548286108271303_2393865756725072190_n.jpg-XId4dxCDSDXyIRptjCYGKbbW1cpkmp.jpeg"
+              alt="Pet Hotel"
+              fill
+              className="object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/70 to-black/40 flex items-center justify-center">
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.3, duration: 0.5 }}
                 className="text-center px-4"
               >
-                <h1 className="text-white text-3xl sm:text-4xl font-bold">Pet Owner Portal</h1>
-                <p className="text-white/90 mt-2 max-w-2xl mx-auto">Your gateway to premium pet care services</p>
+                <h1 className="text-white text-3xl sm:text-4xl font-bold">
+                  Pet Owner Portal
+                </h1>
+                <p className="text-white/90 mt-2 max-w-2xl mx-auto">
+                  Your gateway to premium pet care services
+                </p>
               </motion.div>
             </div>
-            <Image
-              src={BANNER_URL || "/placeholder.svg"}
-              alt="Pet Hotel"
-              fill
-              className="object-cover transition-transform duration-700 group-hover:scale-105"
-              onError={() => setImageError(true)}
-            />
           </div>
 
           {/* Content */}
@@ -208,9 +198,12 @@ export default function WelcomePage() {
             {/* Decorative corner accent */}
             <div className="absolute -top-10 -right-10 w-20 h-20 bg-primary/10 transform rotate-45"></div>
 
-            <h2 className="text-2xl font-bold text-foreground mb-3">Welcome to Your Portal</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-3">
+              Welcome to Your Portal
+            </h2>
             <p className="text-muted-foreground mb-6">
-              Access your pet's information, manage bookings, and request special services all in one place.
+              Access your pet's information, manage bookings, and request
+              special services all in one place.
             </p>
 
             {/* Feature Highlight */}
@@ -224,17 +217,27 @@ export default function WelcomePage() {
                   transition={{ duration: 0.3 }}
                   className="flex items-start gap-3"
                 >
-                  <div className="bg-primary/10 p-2 rounded-full text-primary">{features[activeFeature].icon}</div>
+                  <div className="bg-primary/10 p-2 rounded-full text-primary">
+                    {features[activeFeature].icon}
+                  </div>
                   <div>
-                    <h3 className="font-medium text-foreground">{features[activeFeature].title}</h3>
-                    <p className="text-sm text-muted-foreground">{features[activeFeature].description}</p>
+                    <h3 className="font-medium text-foreground">
+                      {features[activeFeature].title}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      {features[activeFeature].description}
+                    </p>
                   </div>
                 </motion.div>
               </AnimatePresence>
             </div>
 
             <div className="space-y-4">
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} animate={controls}>
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                animate={controls}
+              >
                 <Button
                   size="lg"
                   className="w-full flex items-center justify-center gap-2 h-12 relative overflow-hidden group"
@@ -272,17 +275,34 @@ export default function WelcomePage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
           >
-            <Link href="/support" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+            <Link
+              href="/support"
+              className="text-sm text-muted-foreground hover:text-primary transition-colors"
+            >
               Help & Support
             </Link>
             <span className="text-muted-foreground">•</span>
-            <Link href="/terms-privacy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+            <Link
+              href="/terms-privacy"
+              className="text-sm text-muted-foreground hover:text-primary transition-colors"
+            >
               Terms & Privacy
             </Link>
           </motion.div>
         </motion.div>
       </main>
-    </div>
-  )
-}
 
+      {/* Footer
+      <footer className="border-t py-6 relative z-10">
+        <div className="max-w-7xl mx-auto text-center text-muted-foreground text-sm px-6">
+          <p>&copy; {new Date().getFullYear()} Big Paws Pet Hotel. All rights reserved.</p>
+          <p className="mt-2">
+            <Link href="/terms-privacy" className="hover:underline">
+              Terms & Privacy
+            </Link>
+          </p>
+        </div>
+      </footer> */}
+    </div>
+  );
+}
