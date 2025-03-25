@@ -31,6 +31,7 @@ import { formatCurrency, formatDate } from "../utils/helpers";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { PhotoUpload } from "./media-upload/photo-upload";
 import { VideoUpload } from "./media-upload/video-upload";
+import { BOARDING_RATES, GROOMING_RATES } from "../types";
 
 interface EnhancedRequestDialogProps {
   open: boolean;
@@ -427,7 +428,22 @@ export function EnhancedRequestDialog({
     : "Not specified";
 
   // Calculate additional cost
-  const additionalCost = request.price || calculatedPrice || 0;
+  const calculateAdditionalCost = () => {
+    if (request.type === "boarding-extension" && request.extensionDetails) {
+      const { duration, unit } = request.extensionDetails;
+      const rate =
+        unit === "hours"
+          ? BOARDING_RATES.hourly[request.petSize]
+          : BOARDING_RATES.daily[request.petSize];
+      return rate * Number(duration);
+    } else if (request.type === "grooming" && request.groomingService) {
+      return GROOMING_RATES[request.groomingService][request.petSize];
+    }
+    return request.price || 0;
+  };
+
+  const additionalCost =
+    request.price || calculatedPrice || calculateAdditionalCost();
 
   // Format the extension requested
   const formattedExtensionRequested = request.extensionDetails
@@ -517,6 +533,17 @@ export function EnhancedRequestDialog({
                   </Label>
                   <div className="mt-1 text-base font-medium">
                     {request.petName}
+                  </div>
+                </div>
+
+                <div>
+                  <Label className="text-xs text-muted-foreground uppercase tracking-wider">
+                    Pet Size
+                  </Label>
+                  <div className="mt-1 text-base font-medium">
+                    <Badge variant="outline" className="font-normal">
+                      {request.petSize}
+                    </Badge>
                   </div>
                 </div>
 
