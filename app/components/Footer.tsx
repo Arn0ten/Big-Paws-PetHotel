@@ -353,7 +353,7 @@ export default function Footer() {
             </p>
             <div className="flex space-x-6">
               <a
-                href="https://www.facebook.com/bigpawspethotel"
+                href="https://www.facebook.com/p/Big-Paws-Petsupplies-100092201454911/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-foreground"
@@ -371,7 +371,7 @@ export default function Footer() {
                 <Instagram className="h-6 w-6" />
               </a>
               <a
-                href="https://github.com/bigpawspethotel"
+                href="https://github.com/Arn0ten"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-foreground"
@@ -384,7 +384,7 @@ export default function Footer() {
                 <Mail className="h-6 w-6" />
               </a>
               <a
-                href="https://m.me/bigpawspethotel"
+                href="https://www.facebook.com/p/Big-Paws-Petsupplies-100092201454911/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-foreground"
