@@ -91,9 +91,9 @@ export function BoardingTable({
   const getPetTypeColor = (type: string) => {
     switch (type.toLowerCase()) {
       case "dog":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300"
+        return "bg-blue-600 text-white dark:bg-blue-700 dark:text-white"
       case "cat":
-        return "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300"
+        return "bg-purple-600 text-white dark:bg-purple-700 dark:text-white"
       default:
         return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
     }

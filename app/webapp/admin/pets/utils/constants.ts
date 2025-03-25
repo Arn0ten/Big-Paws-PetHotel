@@ -114,7 +114,7 @@ export const MOCK_PETS: Pet[] = [
     isBoarding: true,
     notes:
       "Friendly and energetic. Loves to play fetch and needs daily exercise.",
-    image: "/placeholder.svg?height=200&width=200",
+    image: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=200&auto=format&fit=crop",
   },
   {
     id: "pet-2",
@@ -126,7 +126,7 @@ export const MOCK_PETS: Pet[] = [
     size: "Medium",
     isBoarding: false,
     notes: "Quiet and independent. Prefers to be left alone most of the time.",
-    image: "/placeholder.svg?height=200&width=200",
+    image: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=200&auto=format&fit=crop",
   },
   {
     id: "pet-3",
@@ -139,7 +139,7 @@ export const MOCK_PETS: Pet[] = [
     isBoarding: true,
     notes:
       "Very friendly with other dogs and children. Has a special diet for allergies.",
-    image: "/placeholder.svg?height=200&width=200",
+    image: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=200&auto=format&fit=crop",
   },
   {
     id: "pet-4",
@@ -152,7 +152,7 @@ export const MOCK_PETS: Pet[] = [
     isBoarding: false,
     notes:
       "Loves to be brushed and petted. Needs regular grooming due to long fur.",
-    image: "/placeholder.svg?height=200&width=200",
+    image: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=200&auto=format&fit=crop",
   },
   {
     id: "pet-5",
@@ -164,7 +164,7 @@ export const MOCK_PETS: Pet[] = [
     size: "Medium",
     isBoarding: false,
     notes: "Stubborn but loving. Needs short walks multiple times a day.",
-    image: "/placeholder.svg?height=200&width=200",
+    image: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=200&auto=format&fit=crop",
   },
   {
     id: "pet-6",
@@ -177,7 +177,7 @@ export const MOCK_PETS: Pet[] = [
     isBoarding: true,
     notes:
       "Very active and playful. Needs lots of toys and climbing opportunities.",
-    image: "/placeholder.svg?height=200&width=200",
+    image: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=200&auto=format&fit=crop",
   },
   {
     id: "pet-7",
@@ -189,7 +189,7 @@ export const MOCK_PETS: Pet[] = [
     size: "Medium",
     isBoarding: false,
     notes: "Loves to follow scents. Can be vocal when excited or left alone.",
-    image: "/placeholder.svg?height=200&width=200",
+    image: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=200&auto=format&fit=crop",
   },
   {
     id: "pet-8",
@@ -201,7 +201,7 @@ export const MOCK_PETS: Pet[] = [
     size: "Small",
     isBoarding: false,
     notes: "Quiet and gentle. Enjoys sitting on laps and being petted.",
-    image: "/placeholder.svg?height=200&width=200",
+    image: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=200&auto=format&fit=crop",
   },
   {
     id: "pet-9",
@@ -214,7 +214,7 @@ export const MOCK_PETS: Pet[] = [
     isBoarding: true,
     notes:
       "High energy and needs lots of exercise. Can be escape-prone if not properly contained.",
-    image: "/placeholder.svg?height=200&width=200",
+    image: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=200&auto=format&fit=crop",
   },
   {
     id: "pet-10",
@@ -226,7 +226,7 @@ export const MOCK_PETS: Pet[] = [
     size: "Large",
     isBoarding: false,
     notes: "Very docile and affectionate. Tends to go limp when picked up.",
-    image: "/placeholder.svg?height=200&width=200",
+    image: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=200&auto=format&fit=crop",
   },
   {
     id: "pet-11",
@@ -238,7 +238,7 @@ export const MOCK_PETS: Pet[] = [
     size: "Medium",
     isBoarding: false,
     notes: "Intelligent and easy to train. Requires regular grooming.",
-    image: "/placeholder.svg?height=200&width=200",
+    image: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=200&auto=format&fit=crop",
   },
   {
     id: "pet-12",
@@ -251,6 +251,6 @@ export const MOCK_PETS: Pet[] = [
     isBoarding: true,
     notes:
       "Requires daily grooming to prevent matting. Prefers quiet environments.",
-    image: "/placeholder.svg?height=200&width=200",
+    image: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=200&auto=format&fit=crop",
   },
 ];

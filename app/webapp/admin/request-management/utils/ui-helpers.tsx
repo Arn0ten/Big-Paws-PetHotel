@@ -1,4 +1,4 @@
-import { Camera, Video, Scissors, Clock, FileText } from "lucide-react";
+import { Camera, Video, Scissors, Clock, FileText } from "lucide-react"
 
 /**
  * UI Helper Functions for Request Management
@@ -19,19 +19,19 @@ import { Camera, Video, Scissors, Clock, FileText } from "lucide-react";
 export const getRequestTypeIcon = (type: string) => {
   switch (type) {
     case "photo":
-      return <Camera className="h-5 w-5" />;
+      return <Camera className="h-5 w-5" />
     case "video":
-      return <Video className="h-5 w-5" />;
+      return <Video className="h-5 w-5" />
     case "grooming":
-      return <Scissors className="h-5 w-5" />;
+      return <Scissors className="h-5 w-5" />
     case "boarding-extension":
-      return <Clock className="h-5 w-5" />;
+      return <Clock className="h-5 w-5" />
     case "custom":
-      return <FileText className="h-5 w-5" />;
+      return <FileText className="h-5 w-5" />
     default:
-      return <FileText className="h-5 w-5" />;
+      return <FileText className="h-5 w-5" />
   }
-};
+}
 
 /**
  * Get the display label for a request type
@@ -41,63 +41,75 @@ export const getRequestTypeIcon = (type: string) => {
 export const getRequestTypeLabel = (type: string) => {
   switch (type) {
     case "photo":
-      return "Photo Update";
+      return "Photo Update"
     case "video":
-      return "Video Request";
+      return "Video Request"
     case "grooming":
-      return "Grooming Service";
+      return "Grooming Service"
     case "boarding-extension":
-      return "Boarding Extension";
+      return "Boarding Extension"
     case "custom":
-      return "Custom Request";
+      return "Custom Request"
     default:
-      return "Request";
+      return "Request"
   }
-};
+}
 
 /**
  * Get the border color class for a request card
  * @param type The request type
  * @returns The Tailwind CSS class for the border color
  */
-export const getCardBorderColor = (type: string) => {
+export const getCardBorderColor = (type: string, isUrgent: boolean) => {
+  if (isUrgent) return "border-red-300 dark:border-red-800"
+
   switch (type) {
     case "photo":
-      return "border-blue-200 dark:border-blue-800";
+      return "border-blue-200 dark:border-blue-800"
     case "video":
-      return "border-purple-200 dark:border-purple-800";
+      return "border-purple-200 dark:border-purple-800"
     case "grooming":
-      return "border-green-200 dark:border-green-800";
+      return "border-green-200 dark:border-green-800"
     case "boarding-extension":
-      return "border-amber-200 dark:border-amber-800";
+      return "border-amber-200 dark:border-amber-800"
     case "custom":
-      return "border-gray-200 dark:border-gray-700";
+      return "border-gray-200 dark:border-gray-700"
+    case "dog":
+      return "border-blue-200 dark:border-blue-800"
+    case "cat":
+      return "border-purple-200 dark:border-purple-800"
     default:
-      return "";
+      return ""
   }
-};
+}
 
 /**
  * Get the background color class for a request card
  * @param type The request type
  * @returns The Tailwind CSS class for the background color
  */
-export const getCardBgColor = (type: string) => {
+export const getCardBgColor = (type: string, isUrgent: boolean) => {
+  if (isUrgent) return "bg-red-50 dark:bg-red-950/20"
+
   switch (type) {
     case "photo":
-      return "bg-blue-50 dark:bg-blue-950/20";
+      return "bg-blue-50 dark:bg-blue-950/20"
     case "video":
-      return "bg-purple-50 dark:bg-purple-950/20";
+      return "bg-purple-50 dark:bg-purple-950/20"
     case "grooming":
-      return "bg-green-50 dark:bg-green-950/20";
+      return "bg-green-50 dark:bg-green-950/20"
     case "boarding-extension":
-      return "bg-amber-50 dark:bg-amber-950/20";
+      return "bg-amber-50 dark:bg-amber-950/20"
     case "custom":
-      return "bg-gray-50 dark:bg-gray-950/20";
+      return "bg-gray-50 dark:bg-gray-950/20"
+    case "dog":
+      return "bg-blue-50 dark:bg-blue-950/20"
+    case "cat":
+      return "bg-purple-50 dark:bg-purple-950/20"
     default:
-      return "";
+      return ""
   }
-};
+}
 
 /**
  * Get the icon background color class for a request type
@@ -107,19 +119,19 @@ export const getCardBgColor = (type: string) => {
 export const getIconBgColorClass = (type: string) => {
   switch (type) {
     case "photo":
-      return "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300";
+      return "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300"
     case "video":
-      return "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300";
+      return "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300"
     case "grooming":
-      return "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300";
+      return "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
     case "boarding-extension":
-      return "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300";
+      return "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300"
     case "custom":
-      return "bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300";
+      return "bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300"
     default:
-      return "bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300";
+      return "bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300"
   }
-};
+}
 
 /**
  * Format a date string for display
@@ -127,10 +139,10 @@ export const getIconBgColorClass = (type: string) => {
  * @returns Formatted date string
  */
 export const formatDate = (dateString: string): string => {
-  if (!dateString) return "N/A";
+  if (!dateString) return "N/A"
 
   try {
-    const date = new Date(dateString);
+    const date = new Date(dateString)
     return new Intl.DateTimeFormat("en-US", {
       year: "numeric",
       month: "short",
@@ -138,12 +150,12 @@ export const formatDate = (dateString: string): string => {
       hour: "numeric",
       minute: "numeric",
       hour12: true,
-    }).format(date);
+    }).format(date)
   } catch (error) {
-    console.error("Error formatting date:", error);
-    return "Invalid Date";
+    console.error("Error formatting date:", error)
+    return "Invalid Date"
   }
-};
+}
 
 /**
  * Format a currency value for display
@@ -155,8 +167,8 @@ export const formatCurrency = (amount: number): string => {
     style: "currency",
     currency: "PHP",
     minimumFractionDigits: 2,
-  }).format(amount);
-};
+  }).format(amount)
+}
 
 /**
  * Get time ago in words
@@ -165,40 +177,39 @@ export const formatCurrency = (amount: number): string => {
  */
 export const getTimeAgo = (date: string) => {
   try {
-    const now = new Date();
-    const pastDate = new Date(date);
-    const diffInSeconds = Math.floor(
-      (now.getTime() - pastDate.getTime()) / 1000,
-    );
+    const now = new Date()
+    const pastDate = new Date(date)
+    const diffInSeconds = Math.floor((now.getTime() - pastDate.getTime()) / 1000)
 
     if (diffInSeconds < 60) {
-      return "just now";
+      return "just now"
     }
 
-    const diffInMinutes = Math.floor(diffInSeconds / 60);
+    const diffInMinutes = Math.floor(diffInSeconds / 60)
     if (diffInMinutes < 60) {
-      return `${diffInMinutes} minute${diffInMinutes !== 1 ? "s" : ""} ago`;
+      return `${diffInMinutes} minute${diffInMinutes !== 1 ? "s" : ""} ago`
     }
 
-    const diffInHours = Math.floor(diffInMinutes / 60);
+    const diffInHours = Math.floor(diffInMinutes / 60)
     if (diffInHours < 24) {
-      return `${diffInHours} hour${diffInHours !== 1 ? "s" : ""} ago`;
+      return `${diffInHours} hour${diffInHours !== 1 ? "s" : ""} ago`
     }
 
-    const diffInDays = Math.floor(diffInHours / 24);
+    const diffInDays = Math.floor(diffInHours / 24)
     if (diffInDays < 30) {
-      return `${diffInDays} day${diffInDays !== 1 ? "s" : ""} ago`;
+      return `${diffInDays} day${diffInDays !== 1 ? "s" : ""} ago`
     }
 
-    const diffInMonths = Math.floor(diffInDays / 30);
+    const diffInMonths = Math.floor(diffInDays / 30)
     if (diffInMonths < 12) {
-      return `${diffInMonths} month${diffInMonths !== 1 ? "s" : ""} ago`;
+      return `${diffInMonths} month${diffInMonths !== 1 ? "s" : ""} ago`
     }
 
-    const diffInYears = Math.floor(diffInMonths / 12);
-    return `${diffInYears} year${diffInYears !== 1 ? "s" : ""} ago`;
+    const diffInYears = Math.floor(diffInMonths / 12)
+    return `${diffInYears} year${diffInYears !== 1 ? "s" : ""} ago`
   } catch (error) {
-    console.error("Error calculating time ago:", error);
-    return "N/A";
+    console.error("Error calculating time ago:", error)
+    return "N/A"
   }
-};
+}
+

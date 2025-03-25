@@ -410,21 +410,18 @@ export default function RegistrationPage() {
       id: "personal",
       title: "Personal Info",
       icon: <User className="h-5 w-5" />,
-      description: "Basic contact information",
       progress: 33,
     },
     {
       id: "address",
       title: "Address",
       icon: <Home className="h-5 w-5" />,
-      description: "Residential address",
       progress: 66,
     },
     {
       id: "summary",
       title: "Summary",
       icon: <ClipboardList className="h-5 w-5" />,
-      description: "Review information",
       progress: 100,
     },
   ]

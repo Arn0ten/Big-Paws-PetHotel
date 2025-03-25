@@ -1,19 +1,12 @@
-"use client";
+"use client"
 
-import { useState, useEffect } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { useState, useEffect } from "react"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,7 +14,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu"
 import {
   Dialog,
   DialogContent,
@@ -29,13 +22,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-} from "@/components/ui/select";
+} from "@/components/ui/dialog"
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -45,17 +33,13 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
-import { useToast } from "@/hooks/use-toast";
-import { useMediaQuery } from "@/hooks/use-media-query";
+} from "@/components/ui/alert-dialog"
+import { Calendar } from "@/components/ui/calendar"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { format } from "date-fns"
+import { cn } from "@/lib/utils"
+import { useToast } from "@/hooks/use-toast"
+import { useMediaQuery } from "@/hooks/use-media-query"
 import {
   Activity,
   CalendarIcon,
@@ -75,55 +59,57 @@ import {
   CheckSquare,
   ChevronLeft,
   ChevronRight,
-} from "lucide-react";
-import { formatCurrency, formatDate } from "./utils/helpers";
-import { HistoryTableSkeleton } from "./components/history-table-skeleton";
-import { MediaCardSkeleton } from "./components/media-card-skeleton";
-import { MediaCard } from "./components/media-card";
+  Dog,
+  Cat,
+} from "lucide-react"
+import { formatCurrency, formatDate } from "./utils/helpers"
+import { HistoryTableSkeleton } from "./components/history-table-skeleton"
+import { MediaCardSkeleton } from "./components/media-card-skeleton"
+import { MediaCard } from "./components/media-card"
 import {
   type HistoryEntry,
   type MediaEntry,
   generateSampleHistoryData,
   generateSampleMediaData,
-} from "./data/sample-data";
+} from "./data/sample-data"
 // Add import for PaginationControls at the top with other imports
-import { PaginationControls } from "@/app/webapp/admin/components/pagination-controls";
+import { PaginationControls } from "@/app/webapp/admin/components/pagination-controls"
 
 // Update module names and icons
 const getModuleIcon = (module: string) => {
   switch (module) {
     case "pet-owner":
-      return <User className="h-4 w-4 text-blue-500" />;
+      return <User className="h-4 w-4 text-blue-500" />
     case "pet":
-      return <PawPrint className="h-4 w-4 text-green-500" />;
+      return <PawPrint className="h-4 w-4 text-green-500" />
     case "boarding":
-      return <Home className="h-4 w-4 text-orange-500" />;
+      return <Home className="h-4 w-4 text-orange-500" />
     case "request":
-      return <FileText className="h-4 w-4 text-purple-500" />;
+      return <FileText className="h-4 w-4 text-purple-500" />
     case "request-management":
-      return <CheckSquare className="h-4 w-4 text-indigo-500" />;
+      return <CheckSquare className="h-4 w-4 text-indigo-500" />
     default:
-      return <Activity className="h-4 w-4 text-gray-500" />;
+      return <Activity className="h-4 w-4 text-gray-500" />
   }
-};
+}
 
 // Update module labels
 const getModuleLabel = (module: string) => {
   switch (module) {
     case "pet-owner":
-      return "Pet Owner Management";
+      return "Pet Owner Management"
     case "pet":
-      return "Pet Management";
+      return "Pet Management"
     case "boarding":
-      return "Boarding Management";
+      return "Boarding Management"
     case "request":
-      return "Requests";
+      return "Requests"
     case "request-management":
-      return "Request Management";
+      return "Request Management"
     default:
-      return module;
+      return module
   }
-};
+}
 
 // Helper function to render status badge
 const getStatusBadge = (status: string | undefined) => {
@@ -136,7 +122,7 @@ const getStatusBadge = (status: string | undefined) => {
         >
           Completed
         </Badge>
-      );
+      )
     case "pending":
       return (
         <Badge
@@ -145,7 +131,7 @@ const getStatusBadge = (status: string | undefined) => {
         >
           Pending
         </Badge>
-      );
+      )
     case "active":
       return (
         <Badge
@@ -154,7 +140,7 @@ const getStatusBadge = (status: string | undefined) => {
         >
           Active
         </Badge>
-      );
+      )
     case "deleted":
       return (
         <Badge
@@ -163,7 +149,7 @@ const getStatusBadge = (status: string | undefined) => {
         >
           Deleted
         </Badge>
-      );
+      )
     case "updated":
       return (
         <Badge
@@ -172,7 +158,7 @@ const getStatusBadge = (status: string | undefined) => {
         >
           Updated
         </Badge>
-      );
+      )
     default:
       return (
         <Badge
@@ -181,9 +167,9 @@ const getStatusBadge = (status: string | undefined) => {
         >
           Unknown
         </Badge>
-      );
+      )
   }
-};
+}
 
 // Helper function to render media type badge
 const getMediaTypeBadge = (mediaType: string) => {
@@ -197,7 +183,7 @@ const getMediaTypeBadge = (mediaType: string) => {
           <Image className="h-3 w-3 mr-1" />
           Photo
         </Badge>
-      );
+      )
     case "video":
       return (
         <Badge
@@ -207,41 +193,61 @@ const getMediaTypeBadge = (mediaType: string) => {
           <Video className="h-3 w-3 mr-1" />
           Video
         </Badge>
-      );
+      )
+    case "dog":
+      return (
+        <Badge
+          variant="outline"
+          className="bg-blue-600 text-white border-blue-700 dark:bg-blue-700 dark:text-white dark:border-blue-800"
+        >
+          <Dog className="h-3 w-3 mr-1" />
+          Dog
+        </Badge>
+      )
+    case "cat":
+      return (
+        <Badge
+          variant="outline"
+          className="bg-purple-600 text-white border-purple-700 dark:bg-purple-700 dark:text-white dark:border-purple-800"
+        >
+          <Cat className="h-3 w-3 mr-1" />
+          Cat
+        </Badge>
+      )
     default:
-      return <Badge variant="outline">Unknown</Badge>;
+      return <Badge variant="outline">Unknown</Badge>
   }
-};
+}
 
 export default function HistoryPage() {
-  const [activeTab, setActiveTab] = useState("activity");
-  const [historyData, setHistoryData] = useState<HistoryEntry[]>([]);
-  const [mediaData, setMediaData] = useState<MediaEntry[]>([]);
-  const [filteredHistory, setFilteredHistory] = useState<HistoryEntry[]>([]);
-  const [filteredMedia, setFilteredMedia] = useState<MediaEntry[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [moduleFilter, setModuleFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [dateFilter, setDateFilter] = useState<Date | undefined>(undefined);
-  const [mediaTypeFilter, setMediaTypeFilter] = useState("all");
-  const [petOwnerFilter, setPetOwnerFilter] = useState("all");
-  const [isLoading, setIsLoading] = useState(true);
-  const [selectedEntry, setSelectedEntry] = useState<HistoryEntry | null>(null);
-  const [selectedMedia, setSelectedMedia] = useState<MediaEntry | null>(null);
-  const [showDetailsDialog, setShowDetailsDialog] = useState(false);
-  const [showMediaDetailsDialog, setShowMediaDetailsDialog] = useState(false);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [entryToDelete, setEntryToDelete] = useState<string | null>(null);
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [activeTab, setActiveTab] = useState("activity")
+  const [historyData, setHistoryData] = useState<HistoryEntry[]>([])
+  const [mediaData, setMediaData] = useState<MediaEntry[]>([])
+  const [filteredHistory, setFilteredHistory] = useState<HistoryEntry[]>([])
+  const [filteredMedia, setFilteredMedia] = useState<MediaEntry[]>([])
+  const [searchQuery, setSearchQuery] = useState("")
+  const [moduleFilter, setModuleFilter] = useState("all")
+  const [statusFilter, setStatusFilter] = useState("all")
+  const [dateFilter, setDateFilter] = useState<Date | undefined>(undefined)
+  const [mediaTypeFilter, setMediaTypeFilter] = useState("all")
+  const [petOwnerFilter, setPetOwnerFilter] = useState("all")
+  const [isLoading, setIsLoading] = useState(true)
+  const [selectedEntry, setSelectedEntry] = useState<HistoryEntry | null>(null)
+  const [selectedMedia, setSelectedMedia] = useState<MediaEntry | null>(null)
+  const [showDetailsDialog, setShowDetailsDialog] = useState(false)
+  const [showMediaDetailsDialog, setShowMediaDetailsDialog] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [entryToDelete, setEntryToDelete] = useState<string | null>(null)
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc")
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
   // Add these state variables for pagination
   // Add after the other state declarations in the HistoryPage component
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10; // Standardized to 10 items per page
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 10 // Standardized to 10 items per page
 
-  const { toast } = useToast();
-  const isMobile = useMediaQuery("(max-width: 640px)");
-  const isTablet = useMediaQuery("(max-width: 1024px)");
+  const { toast } = useToast()
+  const isMobile = useMediaQuery("(max-width: 640px)")
+  const isTablet = useMediaQuery("(max-width: 1024px)")
 
   // Fetch history data on component mount
   useEffect(() => {
@@ -270,189 +276,153 @@ export default function HistoryPage() {
 
     // Simulate API call with sample data
     setTimeout(() => {
-      const sampleHistoryData = generateSampleHistoryData();
-      setHistoryData(sampleHistoryData);
-      setFilteredHistory(sampleHistoryData);
+      const sampleHistoryData = generateSampleHistoryData()
+      setHistoryData(sampleHistoryData)
+      setFilteredHistory(sampleHistoryData)
 
-      const sampleMediaData = generateSampleMediaData(sampleHistoryData);
-      setMediaData(sampleMediaData);
-      setFilteredMedia(sampleMediaData);
+      const sampleMediaData = generateSampleMediaData(sampleHistoryData)
+      setMediaData(sampleMediaData)
+      setFilteredMedia(sampleMediaData)
 
-      setIsLoading(false);
-    }, 1000);
-  }, []);
+      setIsLoading(false)
+    }, 1000)
+  }, [])
 
   // Apply filters to history data
   useEffect(() => {
-    if (historyData.length === 0) return;
+    if (historyData.length === 0) return
 
-    let filtered = [...historyData];
+    let filtered = [...historyData]
 
     // Apply search filter
     if (searchQuery) {
-      const query = searchQuery.toLowerCase();
+      const query = searchQuery.toLowerCase()
       filtered = filtered.filter(
         (entry) =>
-          (entry.description &&
-            entry.description.toLowerCase().includes(query)) ||
+          (entry.description && entry.description.toLowerCase().includes(query)) ||
           (entry.petName && entry.petName.toLowerCase().includes(query)) ||
           (entry.ownerName && entry.ownerName.toLowerCase().includes(query)) ||
-          (entry.performedBy &&
-            entry.performedBy.toLowerCase().includes(query)),
-      );
+          (entry.performedBy && entry.performedBy.toLowerCase().includes(query)),
+      )
     }
 
     // Apply module filter
     if (moduleFilter !== "all") {
-      filtered = filtered.filter((entry) => entry.module === moduleFilter);
+      filtered = filtered.filter((entry) => entry.module === moduleFilter)
     }
 
     // Apply status filter
     if (statusFilter !== "all") {
-      filtered = filtered.filter((entry) => entry.status === statusFilter);
+      filtered = filtered.filter((entry) => entry.status === statusFilter)
     }
 
     // Apply date filter
     if (dateFilter) {
-      const filterDate = new Date(dateFilter);
-      filterDate.setHours(0, 0, 0, 0);
+      const filterDate = new Date(dateFilter)
+      filterDate.setHours(0, 0, 0, 0)
 
       filtered = filtered.filter((entry) => {
-        const entryDate = new Date(entry.timestamp);
-        entryDate.setHours(0, 0, 0, 0);
-        return entryDate.getTime() === filterDate.getTime();
-      });
+        const entryDate = new Date(entry.timestamp)
+        entryDate.setHours(0, 0, 0, 0)
+        return entryDate.getTime() === filterDate.getTime()
+      })
     }
 
     // Apply sort order
     filtered = filtered.sort((a, b) => {
-      const dateA = new Date(a.timestamp).getTime();
-      const dateB = new Date(b.timestamp).getTime();
-      return sortOrder === "desc" ? dateB - dateA : dateA - dateB;
-    });
+      const dateA = new Date(a.timestamp).getTime()
+      const dateB = new Date(b.timestamp).getTime()
+      return sortOrder === "desc" ? dateB - dateA : dateA - dateB
+    })
 
-    setFilteredHistory(filtered);
-  }, [
-    historyData,
-    searchQuery,
-    moduleFilter,
-    statusFilter,
-    dateFilter,
-    sortOrder,
-  ]);
+    setFilteredHistory(filtered)
+  }, [historyData, searchQuery, moduleFilter, statusFilter, dateFilter, sortOrder])
 
   // Apply filters to media data
   useEffect(() => {
-    if (mediaData.length === 0) return;
+    if (mediaData.length === 0) return
 
-    let filtered = [...mediaData];
+    let filtered = [...mediaData]
 
     // Apply search filter
     if (searchQuery) {
-      const query = searchQuery.toLowerCase();
+      const query = searchQuery.toLowerCase()
       filtered = filtered.filter(
         (entry) =>
-          (entry.description &&
-            entry.description.toLowerCase().includes(query)) ||
+          (entry.description && entry.description.toLowerCase().includes(query)) ||
           (entry.petName && entry.petName.toLowerCase().includes(query)) ||
           (entry.ownerName && entry.ownerName.toLowerCase().includes(query)) ||
-          (entry.completedBy &&
-            entry.completedBy.toLowerCase().includes(query)),
-      );
+          (entry.completedBy && entry.completedBy.toLowerCase().includes(query)),
+      )
     }
 
     // Apply media type filter
     if (mediaTypeFilter !== "all") {
-      filtered = filtered.filter(
-        (entry) => entry.requestType === mediaTypeFilter,
-      );
+      filtered = filtered.filter((entry) => entry.requestType === mediaTypeFilter)
     }
 
     // Apply pet owner filter
     if (petOwnerFilter !== "all") {
-      filtered = filtered.filter((entry) => entry.ownerName === petOwnerFilter);
+      filtered = filtered.filter((entry) => entry.ownerName === petOwnerFilter)
     }
 
     // Apply date filter
     if (dateFilter) {
-      const filterDate = new Date(dateFilter);
-      filterDate.setHours(0, 0, 0, 0);
+      const filterDate = new Date(dateFilter)
+      filterDate.setHours(0, 0, 0, 0)
 
       filtered = filtered.filter((entry) => {
-        const entryDate = new Date(entry.timestamp);
-        entryDate.setHours(0, 0, 0, 0);
-        return entryDate.getTime() === filterDate.getTime();
-      });
+        const entryDate = new Date(entry.timestamp)
+        entryDate.setHours(0, 0, 0, 0)
+        return entryDate.getTime() === filterDate.getTime()
+      })
     }
 
     // Apply sort order
     filtered = filtered.sort((a, b) => {
-      const dateA = new Date(a.timestamp).getTime();
-      const dateB = new Date(b.timestamp).getTime();
-      return sortOrder === "desc" ? dateB - dateA : dateA - dateB;
-    });
+      const dateA = new Date(a.timestamp).getTime()
+      const dateB = new Date(b.timestamp).getTime()
+      return sortOrder === "desc" ? dateB - dateA : dateA - dateB
+    })
 
-    setFilteredMedia(filtered);
-  }, [
-    mediaData,
-    searchQuery,
-    mediaTypeFilter,
-    petOwnerFilter,
-    dateFilter,
-    sortOrder,
-  ]);
+    setFilteredMedia(filtered)
+  }, [mediaData, searchQuery, mediaTypeFilter, petOwnerFilter, dateFilter, sortOrder])
 
   // Add this useEffect to handle pagination reset
   // Add after the other useEffect hooks
   useEffect(() => {
     // Reset to page 1 when filters change
-    setCurrentPage(1);
-  }, [
-    searchQuery,
-    moduleFilter,
-    statusFilter,
-    dateFilter,
-    mediaTypeFilter,
-    petOwnerFilter,
-  ]);
+    setCurrentPage(1)
+  }, [searchQuery, moduleFilter, statusFilter, dateFilter, mediaTypeFilter, petOwnerFilter])
 
   // Calculate pagination values for history data
-  const totalHistoryItems = filteredHistory.length;
-  const totalHistoryPages = Math.ceil(totalHistoryItems / itemsPerPage);
-  const historyStartIndex = (currentPage - 1) * itemsPerPage;
-  const historyEndIndex = Math.min(
-    historyStartIndex + itemsPerPage,
-    totalHistoryItems,
-  );
-  const currentHistoryItems = filteredHistory.slice(
-    historyStartIndex,
-    historyEndIndex,
-  );
+  const totalHistoryItems = filteredHistory.length
+  const totalHistoryPages = Math.ceil(totalHistoryItems / itemsPerPage)
+  const historyStartIndex = (currentPage - 1) * itemsPerPage
+  const historyEndIndex = Math.min(historyStartIndex + itemsPerPage, totalHistoryItems)
+  const currentHistoryItems = filteredHistory.slice(historyStartIndex, historyEndIndex)
 
   // Calculate pagination values for media data
-  const totalMediaItems = filteredMedia.length;
-  const totalMediaPages = Math.ceil(totalMediaItems / itemsPerPage);
-  const mediaStartIndex = (currentPage - 1) * itemsPerPage;
-  const mediaEndIndex = Math.min(
-    mediaStartIndex + itemsPerPage,
-    totalMediaItems,
-  );
-  const currentMediaItems = filteredMedia.slice(mediaStartIndex, mediaEndIndex);
+  const totalMediaItems = filteredMedia.length
+  const totalMediaPages = Math.ceil(totalMediaItems / itemsPerPage)
+  const mediaStartIndex = (currentPage - 1) * itemsPerPage
+  const mediaEndIndex = Math.min(mediaStartIndex + itemsPerPage, totalMediaItems)
+  const currentMediaItems = filteredMedia.slice(mediaStartIndex, mediaEndIndex)
 
   // Handle page change
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
+    setCurrentPage(page)
+  }
 
   // Handle refresh button click
   const handleRefresh = () => {
-    setIsLoading(true);
-    setSearchQuery("");
-    setModuleFilter("all");
-    setStatusFilter("all");
-    setDateFilter(undefined);
-    setMediaTypeFilter("all");
-    setPetOwnerFilter("all");
+    setIsLoading(true)
+    setSearchQuery("")
+    setModuleFilter("all")
+    setStatusFilter("all")
+    setDateFilter(undefined)
+    setMediaTypeFilter("all")
+    setPetOwnerFilter("all")
 
     // BACKEND INTEGRATION: Replace with actual API call
     // Example:
@@ -489,46 +459,46 @@ export default function HistoryPage() {
 
     // Simulate API call with sample data
     setTimeout(() => {
-      const sampleHistoryData = generateSampleHistoryData();
-      setHistoryData(sampleHistoryData);
-      setFilteredHistory(sampleHistoryData);
+      const sampleHistoryData = generateSampleHistoryData()
+      setHistoryData(sampleHistoryData)
+      setFilteredHistory(sampleHistoryData)
 
-      const sampleMediaData = generateSampleMediaData(sampleHistoryData);
-      setMediaData(sampleMediaData);
-      setFilteredMedia(sampleMediaData);
+      const sampleMediaData = generateSampleMediaData(sampleHistoryData)
+      setMediaData(sampleMediaData)
+      setFilteredMedia(sampleMediaData)
 
-      setIsLoading(false);
+      setIsLoading(false)
       toast({
         title: "Success",
         description: "Data refreshed successfully",
-      });
-    }, 1000);
-  };
+      })
+    }, 1000)
+  }
 
   // Handle view details button click
   const handleViewDetails = (entry: HistoryEntry) => {
-    setSelectedEntry(entry);
-    setShowDetailsDialog(true);
-  };
+    setSelectedEntry(entry)
+    setShowDetailsDialog(true)
+  }
 
   // Handle view media details button click
   const handleViewMediaDetails = (entry: MediaEntry) => {
-    setSelectedMedia(entry);
-    setCurrentImageIndex(0); // Reset to first image when opening
-    setShowMediaDetailsDialog(true);
-  };
+    setSelectedMedia(entry)
+    setCurrentImageIndex(0) // Reset to first image when opening
+    setShowMediaDetailsDialog(true)
+  }
 
   // Handle delete button click
   const handleDelete = (id: string) => {
-    setEntryToDelete(id);
-    setShowDeleteDialog(true);
-  };
+    setEntryToDelete(id)
+    setShowDeleteDialog(true)
+  }
 
   // Handle confirm delete
   const handleConfirmDelete = () => {
-    if (!entryToDelete) return;
+    if (!entryToDelete) return
 
-    setIsLoading(true);
+    setIsLoading(true)
 
     // BACKEND INTEGRATION: Replace with actual API call
     // Example:
@@ -567,40 +537,32 @@ export default function HistoryPage() {
     // Simulate API call
     setTimeout(() => {
       // Update local state
-      setHistoryData((prev) =>
-        prev.filter((entry) => entry.id !== entryToDelete),
-      );
-      setFilteredHistory((prev) =>
-        prev.filter((entry) => entry.id !== entryToDelete),
-      );
+      setHistoryData((prev) => prev.filter((entry) => entry.id !== entryToDelete))
+      setFilteredHistory((prev) => prev.filter((entry) => entry.id !== entryToDelete))
 
       // Also remove from media data if it exists there
-      setMediaData((prev) =>
-        prev.filter((entry) => entry.id !== entryToDelete),
-      );
-      setFilteredMedia((prev) =>
-        prev.filter((entry) => entry.id !== entryToDelete),
-      );
+      setMediaData((prev) => prev.filter((entry) => entry.id !== entryToDelete))
+      setFilteredMedia((prev) => prev.filter((entry) => entry.id !== entryToDelete))
 
-      setIsLoading(false);
-      setShowDeleteDialog(false);
-      setEntryToDelete(null);
+      setIsLoading(false)
+      setShowDeleteDialog(false)
+      setEntryToDelete(null)
 
       toast({
         title: "Success",
         description: "Entry deleted successfully",
-      });
-    }, 1000);
-  };
+      })
+    }, 1000)
+  }
 
   // BACKEND INTEGRATION: Implement this function to download media
   const handleDownload = (url: string, filename = "media") => {
     // For client-side download of a single file:
-    window.open(url, "_blank");
+    window.open(url, "_blank")
 
     // For server-side handling with proper filename:
     // window.location.href = `/api/admin/media/download?url=${encodeURIComponent(url)}&filename=${encodeURIComponent(filename)}`;
-  };
+  }
 
   // BACKEND INTEGRATION: Implement this function to download multiple media files as a zip
   const handleDownloadAll = (urls: string[], mediaId: string) => {
@@ -609,46 +571,32 @@ export default function HistoryPage() {
 
     // For development, just download the first file
     if (urls.length > 0) {
-      handleDownload(urls[0], `media-${mediaId}`);
+      handleDownload(urls[0], `media-${mediaId}`)
     }
-  };
+  }
 
   // Get unique pet owners for filter
-  const uniquePetOwners = Array.from(
-    new Set(mediaData.map((entry) => entry.ownerName)),
-  );
+  const uniquePetOwners = Array.from(new Set(mediaData.map((entry) => entry.ownerName)))
 
   // Navigation for media carousel
   const goToPreviousImage = () => {
-    if (!selectedMedia) return;
-    setCurrentImageIndex((prev) =>
-      prev === 0 ? selectedMedia.mediaUrls.length - 1 : prev - 1,
-    );
-  };
+    if (!selectedMedia) return
+    setCurrentImageIndex((prev) => (prev === 0 ? selectedMedia.mediaUrls.length - 1 : prev - 1))
+  }
 
   const goToNextImage = () => {
-    if (!selectedMedia) return;
-    setCurrentImageIndex((prev) =>
-      prev === selectedMedia.mediaUrls.length - 1 ? 0 : prev + 1,
-    );
-  };
+    if (!selectedMedia) return
+    setCurrentImageIndex((prev) => (prev === selectedMedia.mediaUrls.length - 1 ? 0 : prev + 1))
+  }
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">
-          History
-        </h1>
-        <p className="text-muted-foreground">
-          View historical data, activity logs, and media archives.
-        </p>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">History</h1>
+        <p className="text-muted-foreground">View historical data, activity logs, and media archives.</p>
       </div>
 
-      <Tabs
-        defaultValue="activity"
-        className="w-full"
-        onValueChange={setActiveTab}
-      >
+      <Tabs defaultValue="activity" className="w-full" onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="activity" className="flex items-center gap-2">
             <Activity className="h-4 w-4" />
@@ -681,25 +629,17 @@ export default function HistoryPage() {
                     <div className="flex items-center gap-1.5 text-sm">
                       <Filter className="h-3.5 w-3.5" />
                       <span className="truncate">
-                        {moduleFilter === "all"
-                          ? "All Modules"
-                          : getModuleLabel(moduleFilter)}
+                        {moduleFilter === "all" ? "All Modules" : getModuleLabel(moduleFilter)}
                       </span>
                     </div>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Modules</SelectItem>
-                    <SelectItem value="pet-owner">
-                      Pet Owner Management
-                    </SelectItem>
+                    <SelectItem value="pet-owner">Pet Owner Management</SelectItem>
                     <SelectItem value="pet">Pet Management</SelectItem>
-                    <SelectItem value="boarding">
-                      Boarding Management
-                    </SelectItem>
+                    <SelectItem value="boarding">Boarding Management</SelectItem>
                     <SelectItem value="request">Requests</SelectItem>
-                    <SelectItem value="request-management">
-                      Request Management
-                    </SelectItem>
+                    <SelectItem value="request-management">Request Management</SelectItem>
                   </SelectContent>
                 </Select>
 
@@ -707,9 +647,7 @@ export default function HistoryPage() {
                   <SelectTrigger className="w-full sm:w-[140px] h-10">
                     <div className="flex items-center gap-1.5 text-sm">
                       <Filter className="h-3.5 w-3.5" />
-                      <span className="truncate">
-                        {statusFilter === "all" ? "All Status" : statusFilter}
-                      </span>
+                      <span className="truncate">{statusFilter === "all" ? "All Status" : statusFilter}</span>
                     </div>
                   </SelectTrigger>
                   <SelectContent>
@@ -730,25 +668,14 @@ export default function HistoryPage() {
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {dateFilter
-                        ? format(dateFilter, "PPP")
-                        : "Filter by date"}
+                      {dateFilter ? format(dateFilter, "PPP") : "Filter by date"}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={dateFilter}
-                      onSelect={setDateFilter}
-                      initialFocus
-                    />
+                    <Calendar mode="single" selected={dateFilter} onSelect={setDateFilter} initialFocus />
                     {dateFilter && (
                       <div className="p-3 border-t border-border">
-                        <Button
-                          variant="ghost"
-                          className="w-full"
-                          onClick={() => setDateFilter(undefined)}
-                        >
+                        <Button variant="ghost" className="w-full" onClick={() => setDateFilter(undefined)}>
                           Clear
                         </Button>
                       </div>
@@ -764,9 +691,7 @@ export default function HistoryPage() {
                   className="h-10 w-10 flex-shrink-0"
                   title="Refresh data"
                 >
-                  <RefreshCw
-                    className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
-                  />
+                  <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
                 </Button>
               </div>
             </div>
@@ -783,9 +708,7 @@ export default function HistoryPage() {
                 <div className="flex flex-col items-center justify-center p-8 text-center">
                   <Activity className="h-12 w-12 text-muted-foreground mb-4" />
                   <h3 className="text-lg font-medium">No activity found</h3>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Try adjusting your filters or search query
-                  </p>
+                  <p className="text-sm text-muted-foreground mt-1">Try adjusting your filters or search query</p>
                 </div>
               ) : (
                 <>
@@ -808,9 +731,7 @@ export default function HistoryPage() {
                             className="cursor-pointer hover:bg-muted/50"
                             onClick={() => handleViewDetails(entry)}
                           >
-                            <TableCell className="font-medium">
-                              {formatDate(entry.timestamp)}
-                            </TableCell>
+                            <TableCell className="font-medium">{formatDate(entry.timestamp)}</TableCell>
                             <TableCell>
                               <div className="flex items-center gap-2">
                                 {getModuleIcon(entry.module)}
@@ -819,24 +740,13 @@ export default function HistoryPage() {
                             </TableCell>
                             <TableCell>{entry.description}</TableCell>
                             <TableCell>
-                              {entry.petName && (
-                                <div className="font-medium">
-                                  {entry.petName}
-                                </div>
-                              )}
+                              {entry.petName && <div className="font-medium">{entry.petName}</div>}
                               {entry.ownerName && (
-                                <div className="text-sm text-muted-foreground">
-                                  {entry.ownerName}
-                                </div>
+                                <div className="text-sm text-muted-foreground">{entry.ownerName}</div>
                               )}
                             </TableCell>
-                            <TableCell>
-                              {getStatusBadge(entry.status)}
-                            </TableCell>
-                            <TableCell
-                              className="text-right"
-                              onClick={(e) => e.stopPropagation()}
-                            >
+                            <TableCell>{getStatusBadge(entry.status)}</TableCell>
+                            <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                   <Button variant="ghost" size="icon">
@@ -847,9 +757,7 @@ export default function HistoryPage() {
                                 <DropdownMenuContent align="end">
                                   <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                   <DropdownMenuSeparator />
-                                  <DropdownMenuItem
-                                    onClick={() => handleViewDetails(entry)}
-                                  >
+                                  <DropdownMenuItem onClick={() => handleViewDetails(entry)}>
                                     View Details
                                   </DropdownMenuItem>
                                   <DropdownMenuItem
@@ -895,19 +803,12 @@ export default function HistoryPage() {
               </div>
 
               <div className="flex flex-wrap gap-2 sm:flex-nowrap">
-                <Select
-                  value={mediaTypeFilter}
-                  onValueChange={setMediaTypeFilter}
-                >
+                <Select value={mediaTypeFilter} onValueChange={setMediaTypeFilter}>
                   <SelectTrigger className="w-full sm:w-[140px] h-10">
                     <div className="flex items-center gap-1.5 text-sm">
                       <Filter className="h-3.5 w-3.5" />
                       <span className="truncate">
-                        {mediaTypeFilter === "all"
-                          ? "All Media"
-                          : mediaTypeFilter === "photo"
-                            ? "Photos"
-                            : "Videos"}
+                        {mediaTypeFilter === "all" ? "All Media" : mediaTypeFilter === "photo" ? "Photos" : "Videos"}
                       </span>
                     </div>
                   </SelectTrigger>
@@ -918,18 +819,11 @@ export default function HistoryPage() {
                   </SelectContent>
                 </Select>
 
-                <Select
-                  value={petOwnerFilter}
-                  onValueChange={setPetOwnerFilter}
-                >
+                <Select value={petOwnerFilter} onValueChange={setPetOwnerFilter}>
                   <SelectTrigger className="w-full sm:w-[140px] h-10">
                     <div className="flex items-center gap-1.5 text-sm">
                       <Filter className="h-3.5 w-3.5" />
-                      <span className="truncate">
-                        {petOwnerFilter === "all"
-                          ? "All Owners"
-                          : petOwnerFilter}
-                      </span>
+                      <span className="truncate">{petOwnerFilter === "all" ? "All Owners" : petOwnerFilter}</span>
                     </div>
                   </SelectTrigger>
                   <SelectContent>
@@ -952,25 +846,14 @@ export default function HistoryPage() {
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {dateFilter
-                        ? format(dateFilter, "PPP")
-                        : "Filter by date"}
+                      {dateFilter ? format(dateFilter, "PPP") : "Filter by date"}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={dateFilter}
-                      onSelect={setDateFilter}
-                      initialFocus
-                    />
+                    <Calendar mode="single" selected={dateFilter} onSelect={setDateFilter} initialFocus />
                     {dateFilter && (
                       <div className="p-3 border-t border-border">
-                        <Button
-                          variant="ghost"
-                          className="w-full"
-                          onClick={() => setDateFilter(undefined)}
-                        >
+                        <Button variant="ghost" className="w-full" onClick={() => setDateFilter(undefined)}>
                           Clear
                         </Button>
                       </div>
@@ -986,9 +869,7 @@ export default function HistoryPage() {
                   className="h-10 w-10 flex-shrink-0"
                   title="Refresh data"
                 >
-                  <RefreshCw
-                    className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
-                  />
+                  <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
                 </Button>
               </div>
             </div>
@@ -1011,9 +892,7 @@ export default function HistoryPage() {
               <CardContent className="flex flex-col items-center justify-center p-8 text-center">
                 <Image className="h-12 w-12 text-muted-foreground mb-4" />
                 <h3 className="text-lg font-medium">No media found</h3>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Try adjusting your filters or search query
-                </p>
+                <p className="text-sm text-muted-foreground mt-1">Try adjusting your filters or search query</p>
               </CardContent>
             </Card>
           ) : (
@@ -1046,32 +925,22 @@ export default function HistoryPage() {
 
       {/* Details Dialog */}
       <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
-        <DialogContent
-          className={`${isMobile ? "max-w-[95%]" : "sm:max-w-md"} max-h-[90vh] overflow-y-auto`}
-        >
+        <DialogContent className={`${isMobile ? "max-w-[95%]" : "sm:max-w-md"} max-h-[90vh] overflow-y-auto`}>
           <DialogHeader>
             <DialogTitle className="text-xl">Activity Details</DialogTitle>
-            <DialogDescription>
-              Detailed information about this activity
-            </DialogDescription>
+            <DialogDescription>Detailed information about this activity</DialogDescription>
           </DialogHeader>
 
           {selectedEntry && (
             <div className="space-y-4 py-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-                    Timestamp
-                  </span>
-                  <div className="text-base font-medium mt-1">
-                    {formatDate(selectedEntry.timestamp)}
-                  </div>
+                  <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Timestamp</span>
+                  <div className="text-base font-medium mt-1">{formatDate(selectedEntry.timestamp)}</div>
                 </div>
 
                 <div>
-                  <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-                    Module
-                  </span>
+                  <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Module</span>
                   <div className="text-base font-medium mt-1 flex items-center gap-2">
                     {getModuleIcon(selectedEntry.module)}
                     <span>{getModuleLabel(selectedEntry.module)}</span>
@@ -1080,53 +949,33 @@ export default function HistoryPage() {
               </div>
 
               <div>
-                <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-                  Description
-                </span>
-                <div className="text-base font-medium mt-1">
-                  {selectedEntry.description}
-                </div>
+                <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Description</span>
+                <div className="text-base font-medium mt-1">{selectedEntry.description}</div>
               </div>
 
               <div>
-                <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-                  Performed By
-                </span>
-                <div className="text-base font-medium mt-1">
-                  {selectedEntry.performedBy}
-                </div>
+                <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Performed By</span>
+                <div className="text-base font-medium mt-1">{selectedEntry.performedBy}</div>
               </div>
 
               <div>
-                <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-                  Status
-                </span>
-                <div className="text-base font-medium mt-1">
-                  {getStatusBadge(selectedEntry.status)}
-                </div>
+                <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Status</span>
+                <div className="text-base font-medium mt-1">{getStatusBadge(selectedEntry.status)}</div>
               </div>
 
               {(selectedEntry.petName || selectedEntry.ownerName) && (
                 <div className="grid grid-cols-2 gap-4">
                   {selectedEntry.petName && (
                     <div>
-                      <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-                        Pet
-                      </span>
-                      <div className="text-base font-medium mt-1">
-                        {selectedEntry.petName}
-                      </div>
+                      <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Pet</span>
+                      <div className="text-base font-medium mt-1">{selectedEntry.petName}</div>
                     </div>
                   )}
 
                   {selectedEntry.ownerName && (
                     <div>
-                      <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-                        Owner
-                      </span>
-                      <div className="text-base font-medium mt-1">
-                        {selectedEntry.ownerName}
-                      </div>
+                      <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Owner</span>
+                      <div className="text-base font-medium mt-1">{selectedEntry.ownerName}</div>
                     </div>
                   )}
                 </div>
@@ -1134,9 +983,7 @@ export default function HistoryPage() {
 
               {selectedEntry.amount && (
                 <div>
-                  <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-                    Amount
-                  </span>
+                  <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Amount</span>
                   <div className="text-base font-medium mt-1 text-green-600 dark:text-green-400">
                     {formatCurrency(selectedEntry.amount)}
                   </div>
@@ -1144,106 +991,86 @@ export default function HistoryPage() {
               )}
 
               {/* Enhanced media display with support for multiple images */}
-              {selectedEntry.mediaUrls &&
-                selectedEntry.mediaUrls.length > 0 && (
-                  <div>
-                    <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-                      Media ({selectedEntry.mediaUrls.length}{" "}
-                      {selectedEntry.mediaUrls.length === 1 ? "item" : "items"})
-                    </span>
+              {selectedEntry.mediaUrls && selectedEntry.mediaUrls.length > 0 && (
+                <div>
+                  <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+                    Media ({selectedEntry.mediaUrls.length} {selectedEntry.mediaUrls.length === 1 ? "item" : "items"})
+                  </span>
 
-                    {selectedEntry.mediaUrls.length === 1 ? (
-                      // Single media display
-                      <div className="mt-1 bg-muted rounded-md overflow-hidden">
-                        {selectedEntry.mediaTypes &&
-                        selectedEntry.mediaTypes[0] === "image" ? (
-                          <img
-                            src={
-                              selectedEntry.mediaUrls[0] || "/placeholder.svg"
-                            }
-                            alt="Media"
-                            className="w-full h-auto object-contain"
-                          />
-                        ) : (
-                          <video
-                            src={selectedEntry.mediaUrls[0]}
-                            controls
-                            className="w-full h-auto"
-                          />
-                        )}
-                      </div>
-                    ) : (
-                      // Multiple media display with thumbnails
-                      <div className="mt-1 space-y-2">
-                        <div className="grid grid-cols-3 gap-2">
-                          {selectedEntry.mediaUrls
-                            .slice(0, 3)
-                            .map((url, idx) => (
-                              <div
-                                key={idx}
-                                className="bg-muted rounded-md overflow-hidden aspect-square"
-                              >
-                                {selectedEntry.mediaTypes &&
-                                selectedEntry.mediaTypes[idx] === "image" ? (
-                                  <img
-                                    src={url || "/placeholder.svg"}
-                                    alt={`Media ${idx + 1}`}
-                                    className="w-full h-full object-cover"
-                                  />
-                                ) : (
-                                  <div className="w-full h-full flex items-center justify-center bg-black">
-                                    <Video className="h-6 w-6 text-white" />
-                                  </div>
-                                )}
+                  {selectedEntry.mediaUrls.length === 1 ? (
+                    // Single media display
+                    <div className="mt-1 bg-muted rounded-md overflow-hidden">
+                      {selectedEntry.mediaTypes && selectedEntry.mediaTypes[0] === "image" ? (
+                        <img
+                          src={selectedEntry.mediaUrls[0] || "/placeholder.svg"}
+                          alt="Media"
+                          className="w-full h-auto object-contain"
+                        />
+                      ) : (
+                        <video src={selectedEntry.mediaUrls[0]} controls className="w-full h-auto" />
+                      )}
+                    </div>
+                  ) : (
+                    // Multiple media display with thumbnails
+                    <div className="mt-1 space-y-2">
+                      <div className="grid grid-cols-3 gap-2">
+                        {selectedEntry.mediaUrls.slice(0, 3).map((url, idx) => (
+                          <div key={idx} className="bg-muted rounded-md overflow-hidden aspect-square">
+                            {selectedEntry.mediaTypes && selectedEntry.mediaTypes[idx] === "image" ? (
+                              <img
+                                src={url || "/placeholder.svg"}
+                                alt={`Media ${idx + 1}`}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-black">
+                                <Video className="h-6 w-6 text-white" />
                               </div>
-                            ))}
-                        </div>
-
-                        {selectedEntry.mediaUrls.length > 3 && (
-                          <div className="text-sm text-muted-foreground">
-                            +{selectedEntry.mediaUrls.length - 3} more items
+                            )}
                           </div>
-                        )}
-
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="w-full mt-2"
-                          onClick={() => {
-                            // Find the corresponding media entry and open the media details dialog
-                            const mediaEntry = mediaData.find(
-                              (m) => m.id === selectedEntry.id,
-                            );
-                            if (mediaEntry) {
-                              setSelectedMedia(mediaEntry);
-                              setCurrentImageIndex(0);
-                              setShowDetailsDialog(false);
-                              setShowMediaDetailsDialog(true);
-                            }
-                          }}
-                        >
-                          View All Media
-                        </Button>
+                        ))}
                       </div>
-                    )}
-                  </div>
-                )}
+
+                      {selectedEntry.mediaUrls.length > 3 && (
+                        <div className="text-sm text-muted-foreground">
+                          +{selectedEntry.mediaUrls.length - 3} more items
+                        </div>
+                      )}
+
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full mt-2"
+                        onClick={() => {
+                          // Find the corresponding media entry and open the media details dialog
+                          const mediaEntry = mediaData.find((m) => m.id === selectedEntry.id)
+                          if (mediaEntry) {
+                            setSelectedMedia(mediaEntry)
+                            setCurrentImageIndex(0)
+                            setShowDetailsDialog(false)
+                            setShowMediaDetailsDialog(true)
+                          }
+                        }}
+                      >
+                        View All Media
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
 
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowDetailsDialog(false)}
-            >
+            <Button variant="outline" onClick={() => setShowDetailsDialog(false)}>
               Close
             </Button>
             <Button
               variant="destructive"
               onClick={() => {
-                setShowDetailsDialog(false);
+                setShowDetailsDialog(false)
                 if (selectedEntry) {
-                  handleDelete(selectedEntry.id);
+                  handleDelete(selectedEntry.id)
                 }
               }}
             >
@@ -1255,18 +1082,11 @@ export default function HistoryPage() {
       </Dialog>
 
       {/* Media Details Dialog */}
-      <Dialog
-        open={showMediaDetailsDialog}
-        onOpenChange={setShowMediaDetailsDialog}
-      >
-        <DialogContent
-          className={`${isMobile ? "max-w-[95%]" : "max-w-3xl"} max-h-[90vh] overflow-y-auto`}
-        >
+      <Dialog open={showMediaDetailsDialog} onOpenChange={setShowMediaDetailsDialog}>
+        <DialogContent className={`${isMobile ? "max-w-[95%]" : "max-w-3xl"} max-h-[90vh] overflow-y-auto`}>
           <DialogHeader>
             <DialogTitle className="text-xl">Media Details</DialogTitle>
-            <DialogDescription>
-              Detailed view of the media request
-            </DialogDescription>
+            <DialogDescription>Detailed view of the media request</DialogDescription>
           </DialogHeader>
 
           {selectedMedia && (
@@ -1284,17 +1104,12 @@ export default function HistoryPage() {
                       </div>
                     ) : (
                       <div className="space-y-4">
-                        <h3 className="text-sm font-medium">
-                          Media Gallery ({selectedMedia.mediaUrls.length} items)
-                        </h3>
+                        <h3 className="text-sm font-medium">Media Gallery ({selectedMedia.mediaUrls.length} items)</h3>
 
                         {/* Carousel for multiple images */}
                         <div className="relative bg-muted rounded-md overflow-hidden">
                           <img
-                            src={
-                              selectedMedia.mediaUrls[currentImageIndex] ||
-                              "/placeholder.svg"
-                            }
+                            src={selectedMedia.mediaUrls[currentImageIndex] || "/placeholder.svg"}
                             alt={`Photo ${currentImageIndex + 1} of ${selectedMedia.petName}`}
                             className="w-full h-auto object-contain max-h-[400px] mx-auto"
                           />
@@ -1322,9 +1137,7 @@ export default function HistoryPage() {
                               <button
                                 key={idx}
                                 className={`h-1.5 rounded-full ${
-                                  idx === currentImageIndex
-                                    ? "w-4 bg-primary"
-                                    : "w-1.5 bg-gray-300 dark:bg-gray-600"
+                                  idx === currentImageIndex ? "w-4 bg-primary" : "w-1.5 bg-gray-300 dark:bg-gray-600"
                                 }`}
                                 onClick={() => setCurrentImageIndex(idx)}
                                 aria-label={`Go to image ${idx + 1}`}
@@ -1339,9 +1152,7 @@ export default function HistoryPage() {
                             <div
                               key={idx}
                               className={`cursor-pointer rounded-md overflow-hidden border-2 ${
-                                idx === currentImageIndex
-                                  ? "border-primary"
-                                  : "border-transparent"
+                                idx === currentImageIndex ? "border-primary" : "border-transparent"
                               }`}
                               onClick={() => setCurrentImageIndex(idx)}
                             >
@@ -1357,11 +1168,7 @@ export default function HistoryPage() {
                     )
                   ) : (
                     <div className="bg-muted rounded-md overflow-hidden">
-                      <video
-                        src={selectedMedia.mediaUrls[0]}
-                        controls
-                        className="w-full h-auto max-h-[400px]"
-                      />
+                      <video src={selectedMedia.mediaUrls[0]} controls className="w-full h-auto max-h-[400px]" />
                     </div>
                   )}
                 </div>
@@ -1369,21 +1176,13 @@ export default function HistoryPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-                    Pet Name
-                  </span>
-                  <div className="text-base font-medium mt-1">
-                    {selectedMedia.petName}
-                  </div>
+                  <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Pet Name</span>
+                  <div className="text-base font-medium mt-1">{selectedMedia.petName}</div>
                 </div>
 
                 <div>
-                  <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-                    Owner Name
-                  </span>
-                  <div className="text-base font-medium mt-1">
-                    {selectedMedia.ownerName}
-                  </div>
+                  <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Owner Name</span>
+                  <div className="text-base font-medium mt-1">{selectedMedia.ownerName}</div>
                 </div>
               </div>
 
@@ -1392,18 +1191,14 @@ export default function HistoryPage() {
                   <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
                     Request Type
                   </span>
-                  <div className="text-base font-medium mt-1">
-                    {getMediaTypeBadge(selectedMedia.requestType)}
-                  </div>
+                  <div className="text-base font-medium mt-1">{getMediaTypeBadge(selectedMedia.requestType)}</div>
                 </div>
 
                 <div>
                   <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
                     Completed By
                   </span>
-                  <div className="text-base font-medium mt-1">
-                    {selectedMedia.completedBy}
-                  </div>
+                  <div className="text-base font-medium mt-1">{selectedMedia.completedBy}</div>
                 </div>
               </div>
 
@@ -1412,37 +1207,26 @@ export default function HistoryPage() {
                   <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
                     Requested On
                   </span>
-                  <div className="text-base font-medium mt-1">
-                    {formatDate(selectedMedia.timestamp)}
-                  </div>
+                  <div className="text-base font-medium mt-1">{formatDate(selectedMedia.timestamp)}</div>
                 </div>
 
                 <div>
                   <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
                     Completed On
                   </span>
-                  <div className="text-base font-medium mt-1">
-                    {formatDate(selectedMedia.completedAt)}
-                  </div>
+                  <div className="text-base font-medium mt-1">{formatDate(selectedMedia.completedAt)}</div>
                 </div>
               </div>
 
               <div>
-                <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-                  Description
-                </span>
-                <div className="text-base mt-1">
-                  {selectedMedia.description}
-                </div>
+                <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Description</span>
+                <div className="text-base mt-1">{selectedMedia.description}</div>
               </div>
             </div>
           )}
 
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowMediaDetailsDialog(false)}
-            >
+            <Button variant="outline" onClick={() => setShowMediaDetailsDialog(false)}>
               Close
             </Button>
             <Button
@@ -1453,31 +1237,23 @@ export default function HistoryPage() {
                 if (selectedMedia && selectedMedia.mediaUrls.length > 0) {
                   if (selectedMedia.mediaUrls.length === 1) {
                     // Download single file
-                    handleDownload(
-                      selectedMedia.mediaUrls[0],
-                      `${selectedMedia.petName}-${selectedMedia.requestType}`,
-                    );
+                    handleDownload(selectedMedia.mediaUrls[0], `${selectedMedia.petName}-${selectedMedia.requestType}`)
                   } else {
                     // For multiple files, implement a zip download
-                    handleDownloadAll(
-                      selectedMedia.mediaUrls,
-                      selectedMedia.id,
-                    );
+                    handleDownloadAll(selectedMedia.mediaUrls, selectedMedia.id)
                   }
                 }
               }}
             >
               <Download className="h-4 w-4 mr-2" />
-              {selectedMedia && selectedMedia.mediaUrls.length > 1
-                ? "Download All"
-                : "Download"}
+              {selectedMedia && selectedMedia.mediaUrls.length > 1 ? "Download All" : "Download"}
             </Button>
             <Button
               variant="destructive"
               onClick={() => {
-                setShowMediaDetailsDialog(false);
+                setShowMediaDetailsDialog(false)
                 if (selectedMedia) {
-                  handleDelete(selectedMedia.id);
+                  handleDelete(selectedMedia.id)
                 }
               }}
             >
@@ -1494,16 +1270,12 @@ export default function HistoryPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete this
-              entry from the history.
+              This action cannot be undone. This will permanently delete this entry from the history.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleConfirmDelete}
-              className="bg-red-600 hover:bg-red-700 text-white"
-            >
+            <AlertDialogAction onClick={handleConfirmDelete} className="bg-red-600 hover:bg-red-700 text-white">
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -1520,5 +1292,6 @@ export default function HistoryPage() {
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  );
+  )
 }
+

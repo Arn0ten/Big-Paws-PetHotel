@@ -46,10 +46,12 @@ import {
   DeleteConfirmDialog,
   SuccessDialog,
 } from "./components/dialogs";
-import { BoardPetDialog } from "./components/board-pet-dialog";
 import { SuccessDialog as ActionSuccessDialog } from "../pets/components/confirmation-dialog";
 import { EditPetOwnerDialog } from "./components/edit-pet-owner-dialog";
 import type { PetOwner } from "./utils/types";
+import { PetOwnerDetailsDialog } from "./components/pet-owner-details-dialog";
+// Import the unified board pet dialog
+import { UnifiedBoardPetDialog } from "@/app/webapp/admin/components/unified-board-pet-dialog";
 
 /**
  * BACKEND INTEGRATION NOTES:
@@ -81,263 +83,7 @@ import type { PetOwner } from "./utils/types";
  */
 
 // BACKEND INTEGRATION: Sample data for demonstration purposes
-// This should be replaced with actual API calls in production
-const SAMPLE_PET_OWNERS = [
-  {
-    id: "PO-1001",
-    name: "John Smith",
-    email: "john.smith@example.com",
-    phone: "(555) 123-4567",
-    address: "123 Main St, New York, NY 10001",
-    avatar: "/placeholder.svg?height=40&width=40",
-    pets: [
-      {
-        id: "P-1001",
-        name: "Max",
-        type: "Dog",
-        breed: "Golden Retriever",
-        age: 3,
-        size: "Large",
-        isBoarding: true,
-        notes: "Friendly and energetic",
-        image: "/placeholder.svg?height=200&width=200",
-        ownerId: "PO-1001",
-      },
-      {
-        id: "P-1002",
-        name: "Bella",
-        type: "Dog",
-        breed: "Beagle",
-        age: 2,
-        size: "Medium",
-        isBoarding: false,
-        notes: "Loves to play fetch",
-        image: "/placeholder.svg?height=200&width=200",
-        ownerId: "PO-1001",
-      },
-    ],
-  },
-  {
-    id: "PO-1002",
-    name: "Sarah Johnson",
-    email: "sarah.j@example.com",
-    phone: "(555) 987-6543",
-    address: "456 Oak Ave, Boston, MA 02108",
-    avatar: "/placeholder.svg?height=40&width=40",
-    pets: [
-      {
-        id: "P-1003",
-        name: "Whiskers",
-        type: "Cat",
-        breed: "Siamese",
-        age: 4,
-        size: "Small",
-        isBoarding: true,
-        notes: "Needs special diet",
-        image: "/placeholder.svg?height=200&width=200",
-        ownerId: "PO-1002",
-      },
-    ],
-  },
-  {
-    id: "PO-1003",
-    name: "Michael Brown",
-    email: "michael.b@example.com",
-    phone: "(555) 456-7890",
-    address: "789 Pine St, Chicago, IL 60601",
-    avatar: "/placeholder.svg?height=40&width=40",
-    pets: [],
-  },
-  {
-    id: "PO-1004",
-    name: "Emily Davis",
-    email: "emily.d@example.com",
-    phone: "(555) 234-5678",
-    address: "101 Maple Rd, San Francisco, CA 94102",
-    avatar: "/placeholder.svg?height=40&width=40",
-    pets: [
-      {
-        id: "P-1004",
-        name: "Rocky",
-        type: "Dog",
-        breed: "German Shepherd",
-        age: 5,
-        size: "Large",
-        isBoarding: false,
-        notes: "Protective but friendly",
-        image: "/placeholder.svg?height=200&width=200",
-        ownerId: "PO-1004",
-      },
-      {
-        id: "P-1005",
-        name: "Luna",
-        type: "Cat",
-        breed: "Maine Coon",
-        age: 3,
-        size: "Medium",
-        isBoarding: true,
-        notes: "Long-haired, needs regular grooming",
-        image: "/placeholder.svg?height=200&width=200",
-        ownerId: "PO-1004",
-      },
-      {
-        id: "P-1006",
-        name: "Charlie",
-        type: "Dog",
-        breed: "Poodle",
-        age: 2,
-        size: "Small",
-        isBoarding: false,
-        notes: "Hypoallergenic",
-        image: "/placeholder.svg?height=200&width=200",
-        ownerId: "PO-1004",
-      },
-    ],
-  },
-  {
-    id: "PO-1005",
-    name: "David Wilson",
-    email: "david.w@example.com",
-    phone: "(555) 876-5432",
-    address: "202 Cedar Ln, Seattle, WA 98101",
-    avatar: "/placeholder.svg?height=40&width=40",
-    pets: [
-      {
-        id: "P-1007",
-        name: "Buddy",
-        type: "Dog",
-        breed: "Labrador",
-        age: 4,
-        size: "Large",
-        isBoarding: true,
-        notes: "Loves swimming",
-        image: "/placeholder.svg?height=200&width=200",
-        ownerId: "PO-1005",
-      },
-    ],
-  },
-  {
-    id: "PO-1006",
-    name: "Jennifer Martinez",
-    email: "jennifer.m@example.com",
-    phone: "(555) 345-6789",
-    address: "303 Birch Dr, Austin, TX 78701",
-    avatar: "/placeholder.svg?height=40&width=40",
-    pets: [
-      {
-        id: "P-1008",
-        name: "Mittens",
-        type: "Cat",
-        breed: "Persian",
-        age: 6,
-        size: "Small",
-        isBoarding: false,
-        notes: "Very calm and quiet",
-        image: "/placeholder.svg?height=200&width=200",
-        ownerId: "PO-1006",
-      },
-      {
-        id: "P-1009",
-        name: "Oscar",
-        type: "Cat",
-        breed: "Tabby",
-        age: 2,
-        size: "Medium",
-        isBoarding: true,
-        notes: "Playful and curious",
-        image: "/placeholder.svg?height=200&width=200",
-        ownerId: "PO-1006",
-      },
-    ],
-  },
-  {
-    id: "PO-1007",
-    name: "Robert Taylor",
-    email: "robert.t@example.com",
-    phone: "(555) 567-8901",
-    address: "404 Elm Ct, Denver, CO 80202",
-    avatar: "/placeholder.svg?height=40&width=40",
-    pets: [],
-  },
-  {
-    id: "PO-1008",
-    name: "Lisa Anderson",
-    email: "lisa.a@example.com",
-    phone: "(555) 678-9012",
-    address: "505 Spruce Ave, Miami, FL 33101",
-    avatar: "/placeholder.svg?height=40&width=40",
-    pets: [
-      {
-        id: "P-1010",
-        name: "Rex",
-        type: "Dog",
-        breed: "Boxer",
-        age: 3,
-        size: "Large",
-        isBoarding: false,
-        notes: "Energetic and needs lots of exercise",
-        image: "/placeholder.svg?height=200&width=200",
-        ownerId: "PO-1008",
-      },
-    ],
-  },
-  {
-    id: "PO-1009",
-    name: "Thomas Garcia",
-    email: "thomas.g@example.com",
-    phone: "(555) 789-0123",
-    address: "606 Willow St, Portland, OR 97201",
-    avatar: "/placeholder.svg?height=40&width=40",
-    pets: [
-      {
-        id: "P-1011",
-        name: "Daisy",
-        type: "Dog",
-        breed: "Dachshund",
-        age: 4,
-        size: "Small",
-        isBoarding: true,
-        notes: "Loves to burrow in blankets",
-        image: "/placeholder.svg?height=200&width=200",
-        ownerId: "PO-1009",
-      },
-      {
-        id: "P-1012",
-        name: "Simba",
-        type: "Cat",
-        breed: "Orange Tabby",
-        age: 1,
-        size: "Small",
-        isBoarding: false,
-        notes: "Very young, still learning litter habits",
-        image: "/placeholder.svg?height=200&width=200",
-        ownerId: "PO-1009",
-      },
-    ],
-  },
-  {
-    id: "PO-1010",
-    name: "Patricia Lee",
-    email: "patricia.l@example.com",
-    phone: "(555) 890-1234",
-    address: "707 Aspen Rd, Phoenix, AZ 85001",
-    avatar: "/placeholder.svg?height=40&width=40",
-    pets: [
-      {
-        id: "P-1013",
-        name: "Shadow",
-        type: "Cat",
-        breed: "Black Domestic Shorthair",
-        age: 7,
-        size: "Medium",
-        isBoarding: false,
-        notes: "Shy with strangers",
-        image: "/placeholder.svg?height=200&width=200",
-        ownerId: "PO-1010",
-      },
-    ],
-  },
-];
+
 
 export default function PetOwnersPage() {
   const router = useRouter();
@@ -362,6 +108,9 @@ export default function PetOwnersPage() {
   const [isBoardingPet, setIsBoardingPet] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isUpdatingOwner, setIsUpdatingOwner] = useState(false);
+  // Add state for the pet owner details dialog
+  const [showPetOwnerDetailsDialog, setShowPetOwnerDetailsDialog] =
+    useState(false);
 
   // Success dialog state
   const [successDialog, setSuccessDialog] = useState({
@@ -381,7 +130,7 @@ export default function PetOwnersPage() {
     isRefreshing,
     refreshPetOwners,
     removePetOwner,
-  } = usePetOwners(SAMPLE_PET_OWNERS);
+  } = usePetOwners();
 
   // Filter owners based on search query and filters
   const filteredOwners = petOwners.filter((owner) => {
@@ -736,6 +485,12 @@ export default function PetOwnersPage() {
     }
   };
 
+  // Add a handler for row clicks
+  const handlePetOwnerRowClick = (id: string) => {
+    setSelectedOwnerId(id);
+    setShowPetOwnerDetailsDialog(true);
+  };
+
   return (
     <motion.div
       className="space-y-6"
@@ -904,6 +659,7 @@ export default function PetOwnersPage() {
                     setSelectedOwnerId(id);
                     setShowDeleteDialog(true);
                   }}
+                  onRowClick={handlePetOwnerRowClick} // Add this line
                   itemsPerPage={ITEMS_PER_PAGE}
                   searchQuery={searchQuery}
                 />
@@ -963,7 +719,7 @@ export default function PetOwnersPage() {
         }}
       />
 
-      <BoardPetDialog
+      <UnifiedBoardPetDialog
         owner={selectedOwner}
         isOpen={showBoardPetDialog}
         onOpenChange={setShowBoardPetDialog}
@@ -985,6 +741,20 @@ export default function PetOwnersPage() {
         onOpenChange={setIsEditDialogOpen}
         onSubmit={handleUpdatePetOwner}
         isSubmitting={isUpdatingOwner}
+      />
+      <PetOwnerDetailsDialog
+        owner={selectedOwner}
+        isOpen={showPetOwnerDetailsDialog}
+        onOpenChange={setShowPetOwnerDetailsDialog}
+        onEditOwner={handleEditPetOwner}
+        onDeleteOwner={(id) => {
+          setSelectedOwnerId(id);
+          setShowPetOwnerDetailsDialog(false);
+          setShowDeleteDialog(true);
+        }}
+        onAddPet={handleAddPet}
+        onBoardPet={handleBoardPet}
+        onPetClick={handlePetBadgeClick}
       />
     </motion.div>
   );
