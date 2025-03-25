@@ -166,7 +166,7 @@ export default function WelcomePage() {
           {/* Welcome Banner */}
           <div className="relative h-56 w-full rounded-t-2xl overflow-hidden mb-6 shadow-lg group">
             <Image
-              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/480571878_548286108271303_2393865756725072190_n.jpg-XId4dxCDSDXyIRptjCYGKbbW1cpkmp.jpeg"
+              src="/pet-hotel-3.jpg"
               alt="Pet Hotel"
               fill
               className="object-cover transition-transform duration-700 group-hover:scale-105"
