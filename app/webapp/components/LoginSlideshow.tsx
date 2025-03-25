@@ -4,28 +4,55 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 
+// Define fallback images that we know exist in the project
+const FALLBACK_IMAGE = "/images/default-pic.png";
+
+// Use images we know exist in the project or use placeholders
 const images = [
-  "/pet-hotel-1.jpg",
-  "/pet-hotel-2.jpg",
-  "/pet-hotel-3.jpg",
-  "/pet-hotel-4.jpg",
-  "/pet-hotel-5.jpg",
+  "/images/default-pic.png",
+  "/images/default-pic.png",
+  "/images/default-pic.png",
+  "/images/default-pic.png",
+  "/images/default-pic.png",
 ];
 
 export default function LoginSlideshow() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [imageErrors, setImageErrors] = useState<boolean[]>(
+    Array(images.length).fill(false),
+  );
 
   useEffect(() => {
+    // Set loaded state after component mounts to prevent hydration mismatch
     setIsLoaded(true);
-    const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
-    }, 5000);
 
-    return () => clearInterval(interval);
+    let interval: NodeJS.Timeout | null = null;
+
+    try {
+      interval = setInterval(() => {
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
+      }, 5000);
+    } catch (error) {
+      console.error("Slideshow interval error:", error);
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
   }, []);
 
-  if (!isLoaded) return null;
+  // Handle image error
+  const handleImageError = (index: number) => {
+    const newErrors = [...imageErrors];
+    newErrors[index] = true;
+    setImageErrors(newErrors);
+  };
+
+  // Don't render during SSR to prevent hydration mismatch
+  if (!isLoaded) {
+    return <div className="w-full h-full bg-slate-800"></div>;
+  }
 
   return (
     <div className="relative w-full h-full overflow-hidden">
@@ -39,13 +66,16 @@ export default function LoginSlideshow() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.8 }}
         >
-          <Image
-            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/BigPawsLogoBig-QEuBX7LEMcYoQTMrjMOPnGFkVuwmrA.png"
-            alt="Big Paws Pet Hotel Logo"
-            width={120}
-            height={120}
-            className="mx-auto mb-4"
-          />
+          <div className="mx-auto mb-4 relative h-[120px] w-[120px]">
+            <Image
+              src={FALLBACK_IMAGE || "/placeholder.svg"}
+              alt="Big Paws Pet Hotel Logo"
+              width={120}
+              height={120}
+              className="mx-auto"
+              onError={() => console.log("Logo image failed to load")}
+            />
+          </div>
           <h1 className="text-white text-2xl sm:text-3xl md:text-4xl font-bold drop-shadow-md">
             Big Paws Pet Hotel
           </h1>
@@ -67,11 +97,14 @@ export default function LoginSlideshow() {
           className="absolute inset-0"
         >
           <Image
-            src={images[currentIndex] || "/placeholder.svg"}
+            src={
+              imageErrors[currentIndex] ? FALLBACK_IMAGE : images[currentIndex]
+            }
             alt={`Pet hotel image ${currentIndex + 1}`}
             fill
             className="object-cover"
             priority={currentIndex === 0}
+            onError={() => handleImageError(currentIndex)}
           />
         </motion.div>
       </AnimatePresence>
