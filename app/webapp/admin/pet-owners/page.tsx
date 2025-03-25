@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import {
@@ -48,6 +48,8 @@ import {
 } from "./components/dialogs";
 import { BoardPetDialog } from "./components/board-pet-dialog";
 import { SuccessDialog as ActionSuccessDialog } from "../pets/components/confirmation-dialog";
+import { EditPetOwnerDialog } from "./components/edit-pet-owner-dialog";
+import type { PetOwner } from "./utils/types";
 
 /**
  * BACKEND INTEGRATION NOTES:
@@ -79,8 +81,263 @@ import { SuccessDialog as ActionSuccessDialog } from "../pets/components/confirm
  */
 
 // BACKEND INTEGRATION: Sample data for demonstration purposes
-
 // This should be replaced with actual API calls in production
+const SAMPLE_PET_OWNERS = [
+  {
+    id: "PO-1001",
+    name: "John Smith",
+    email: "john.smith@example.com",
+    phone: "(555) 123-4567",
+    address: "123 Main St, New York, NY 10001",
+    avatar: "/placeholder.svg?height=40&width=40",
+    pets: [
+      {
+        id: "P-1001",
+        name: "Max",
+        type: "Dog",
+        breed: "Golden Retriever",
+        age: 3,
+        size: "Large",
+        isBoarding: true,
+        notes: "Friendly and energetic",
+        image: "/placeholder.svg?height=200&width=200",
+        ownerId: "PO-1001",
+      },
+      {
+        id: "P-1002",
+        name: "Bella",
+        type: "Dog",
+        breed: "Beagle",
+        age: 2,
+        size: "Medium",
+        isBoarding: false,
+        notes: "Loves to play fetch",
+        image: "/placeholder.svg?height=200&width=200",
+        ownerId: "PO-1001",
+      },
+    ],
+  },
+  {
+    id: "PO-1002",
+    name: "Sarah Johnson",
+    email: "sarah.j@example.com",
+    phone: "(555) 987-6543",
+    address: "456 Oak Ave, Boston, MA 02108",
+    avatar: "/placeholder.svg?height=40&width=40",
+    pets: [
+      {
+        id: "P-1003",
+        name: "Whiskers",
+        type: "Cat",
+        breed: "Siamese",
+        age: 4,
+        size: "Small",
+        isBoarding: true,
+        notes: "Needs special diet",
+        image: "/placeholder.svg?height=200&width=200",
+        ownerId: "PO-1002",
+      },
+    ],
+  },
+  {
+    id: "PO-1003",
+    name: "Michael Brown",
+    email: "michael.b@example.com",
+    phone: "(555) 456-7890",
+    address: "789 Pine St, Chicago, IL 60601",
+    avatar: "/placeholder.svg?height=40&width=40",
+    pets: [],
+  },
+  {
+    id: "PO-1004",
+    name: "Emily Davis",
+    email: "emily.d@example.com",
+    phone: "(555) 234-5678",
+    address: "101 Maple Rd, San Francisco, CA 94102",
+    avatar: "/placeholder.svg?height=40&width=40",
+    pets: [
+      {
+        id: "P-1004",
+        name: "Rocky",
+        type: "Dog",
+        breed: "German Shepherd",
+        age: 5,
+        size: "Large",
+        isBoarding: false,
+        notes: "Protective but friendly",
+        image: "/placeholder.svg?height=200&width=200",
+        ownerId: "PO-1004",
+      },
+      {
+        id: "P-1005",
+        name: "Luna",
+        type: "Cat",
+        breed: "Maine Coon",
+        age: 3,
+        size: "Medium",
+        isBoarding: true,
+        notes: "Long-haired, needs regular grooming",
+        image: "/placeholder.svg?height=200&width=200",
+        ownerId: "PO-1004",
+      },
+      {
+        id: "P-1006",
+        name: "Charlie",
+        type: "Dog",
+        breed: "Poodle",
+        age: 2,
+        size: "Small",
+        isBoarding: false,
+        notes: "Hypoallergenic",
+        image: "/placeholder.svg?height=200&width=200",
+        ownerId: "PO-1004",
+      },
+    ],
+  },
+  {
+    id: "PO-1005",
+    name: "David Wilson",
+    email: "david.w@example.com",
+    phone: "(555) 876-5432",
+    address: "202 Cedar Ln, Seattle, WA 98101",
+    avatar: "/placeholder.svg?height=40&width=40",
+    pets: [
+      {
+        id: "P-1007",
+        name: "Buddy",
+        type: "Dog",
+        breed: "Labrador",
+        age: 4,
+        size: "Large",
+        isBoarding: true,
+        notes: "Loves swimming",
+        image: "/placeholder.svg?height=200&width=200",
+        ownerId: "PO-1005",
+      },
+    ],
+  },
+  {
+    id: "PO-1006",
+    name: "Jennifer Martinez",
+    email: "jennifer.m@example.com",
+    phone: "(555) 345-6789",
+    address: "303 Birch Dr, Austin, TX 78701",
+    avatar: "/placeholder.svg?height=40&width=40",
+    pets: [
+      {
+        id: "P-1008",
+        name: "Mittens",
+        type: "Cat",
+        breed: "Persian",
+        age: 6,
+        size: "Small",
+        isBoarding: false,
+        notes: "Very calm and quiet",
+        image: "/placeholder.svg?height=200&width=200",
+        ownerId: "PO-1006",
+      },
+      {
+        id: "P-1009",
+        name: "Oscar",
+        type: "Cat",
+        breed: "Tabby",
+        age: 2,
+        size: "Medium",
+        isBoarding: true,
+        notes: "Playful and curious",
+        image: "/placeholder.svg?height=200&width=200",
+        ownerId: "PO-1006",
+      },
+    ],
+  },
+  {
+    id: "PO-1007",
+    name: "Robert Taylor",
+    email: "robert.t@example.com",
+    phone: "(555) 567-8901",
+    address: "404 Elm Ct, Denver, CO 80202",
+    avatar: "/placeholder.svg?height=40&width=40",
+    pets: [],
+  },
+  {
+    id: "PO-1008",
+    name: "Lisa Anderson",
+    email: "lisa.a@example.com",
+    phone: "(555) 678-9012",
+    address: "505 Spruce Ave, Miami, FL 33101",
+    avatar: "/placeholder.svg?height=40&width=40",
+    pets: [
+      {
+        id: "P-1010",
+        name: "Rex",
+        type: "Dog",
+        breed: "Boxer",
+        age: 3,
+        size: "Large",
+        isBoarding: false,
+        notes: "Energetic and needs lots of exercise",
+        image: "/placeholder.svg?height=200&width=200",
+        ownerId: "PO-1008",
+      },
+    ],
+  },
+  {
+    id: "PO-1009",
+    name: "Thomas Garcia",
+    email: "thomas.g@example.com",
+    phone: "(555) 789-0123",
+    address: "606 Willow St, Portland, OR 97201",
+    avatar: "/placeholder.svg?height=40&width=40",
+    pets: [
+      {
+        id: "P-1011",
+        name: "Daisy",
+        type: "Dog",
+        breed: "Dachshund",
+        age: 4,
+        size: "Small",
+        isBoarding: true,
+        notes: "Loves to burrow in blankets",
+        image: "/placeholder.svg?height=200&width=200",
+        ownerId: "PO-1009",
+      },
+      {
+        id: "P-1012",
+        name: "Simba",
+        type: "Cat",
+        breed: "Orange Tabby",
+        age: 1,
+        size: "Small",
+        isBoarding: false,
+        notes: "Very young, still learning litter habits",
+        image: "/placeholder.svg?height=200&width=200",
+        ownerId: "PO-1009",
+      },
+    ],
+  },
+  {
+    id: "PO-1010",
+    name: "Patricia Lee",
+    email: "patricia.l@example.com",
+    phone: "(555) 890-1234",
+    address: "707 Aspen Rd, Phoenix, AZ 85001",
+    avatar: "/placeholder.svg?height=40&width=40",
+    pets: [
+      {
+        id: "P-1013",
+        name: "Shadow",
+        type: "Cat",
+        breed: "Black Domestic Shorthair",
+        age: 7,
+        size: "Medium",
+        isBoarding: false,
+        notes: "Shy with strangers",
+        image: "/placeholder.svg?height=200&width=200",
+        ownerId: "PO-1010",
+      },
+    ],
+  },
+];
 
 export default function PetOwnersPage() {
   const router = useRouter();
@@ -89,7 +346,8 @@ export default function PetOwnersPage() {
   // State
   const [searchQuery, setSearchQuery] = useState("");
   const [searchInputValue, setSearchInputValue] = useState("");
-  const [filterCity, setFilterCity] = useState<string>("all");
+  const [isSearching, setIsSearching] = useState(false);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [filterHasPets, setFilterHasPets] = useState<string>("all");
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedOwnerId, setSelectedOwnerId] = useState<string | null>(null);
@@ -102,7 +360,8 @@ export default function PetOwnersPage() {
   const [isAddingPet, setIsAddingPet] = useState(false);
   const [showBoardPetDialog, setShowBoardPetDialog] = useState(false);
   const [isBoardingPet, setIsBoardingPet] = useState(false);
-  const [isSearching, setIsSearching] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isUpdatingOwner, setIsUpdatingOwner] = useState(false);
 
   // Success dialog state
   const [successDialog, setSuccessDialog] = useState({
@@ -122,17 +381,7 @@ export default function PetOwnersPage() {
     isRefreshing,
     refreshPetOwners,
     removePetOwner,
-  } = usePetOwners();
-
-  // Get unique cities for filter
-  const uniqueCities = Array.from(
-    new Set(
-      petOwners.map((owner) => {
-        const cityMatch = owner.address.match(/([^,]+),\s*([^,]+)$/);
-        return cityMatch ? cityMatch[1].trim() : "Unknown";
-      }),
-    ),
-  ).sort();
+  } = usePetOwners(SAMPLE_PET_OWNERS);
 
   // Filter owners based on search query and filters
   const filteredOwners = petOwners.filter((owner) => {
@@ -143,18 +392,13 @@ export default function PetOwnersPage() {
       owner.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
       owner.phone.includes(searchQuery);
 
-    // City filter
-    const cityMatch = owner.address.match(/([^,]+),\s*([^,]+)$/);
-    const ownerCity = cityMatch ? cityMatch[1].trim() : "Unknown";
-    const matchesCity = filterCity === "all" || ownerCity === filterCity;
-
     // Has pets filter
     const matchesHasPets =
       filterHasPets === "all" ||
       (filterHasPets === "with-pets" && owner.pets.length > 0) ||
       (filterHasPets === "no-pets" && owner.pets.length === 0);
 
-    return matchesSearch && matchesCity && matchesHasPets;
+    return matchesSearch && matchesHasPets;
   });
 
   // Pagination
@@ -166,7 +410,7 @@ export default function PetOwnersPage() {
   // Reset pagination when filters change
   useEffect(() => {
     resetPage();
-  }, [searchQuery, filterCity, filterHasPets, resetPage]);
+  }, [searchQuery, filterHasPets, resetPage]);
 
   // Get current page data
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -177,31 +421,44 @@ export default function PetOwnersPage() {
   const selectedOwner =
     petOwners.find((owner) => owner.id === selectedOwnerId) || null;
 
-  // Handle search
-  const handleSearch = useCallback(() => {
-    setIsSearching(true);
-    // Simulate search delay
-    setTimeout(() => {
-      setSearchQuery(searchInputValue);
-      setIsSearching(false);
-    }, 800);
-  }, [searchInputValue]);
+  // Handle search input change with debounce
+  const handleSearchInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      setSearchInputValue(value);
 
-  // Handle search input keydown
-  const handleSearchKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === "Enter") {
-        handleSearch();
+      // Clear any existing timeout
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
       }
+
+      // Set searching state immediately for UI feedback
+      if (value.length > 0) {
+        setIsSearching(true);
+      }
+
+      // Debounce the actual search query update
+      searchTimeoutRef.current = setTimeout(() => {
+        setSearchQuery(value);
+        setIsSearching(false);
+      }, 300); // 300ms debounce
     },
-    [handleSearch],
+    [],
   );
+
+  // Clean up timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Clear filters
   const clearFilters = useCallback(() => {
     setSearchQuery("");
     setSearchInputValue("");
-    setFilterCity("all");
     setFilterHasPets("all");
   }, []);
 
@@ -248,15 +505,9 @@ export default function PetOwnersPage() {
       return;
     }
 
-    // In a real implementation, you would navigate to an edit page or open an edit dialog
-    // For now, we'll just show a toast message
-    toast({
-      title: "Edit Pet Owner",
-      description: `Editing ${ownerToEdit.name} (ID: ${id})`,
-    });
-
-    // BACKEND INTEGRATION: Replace this with actual navigation or dialog
-    // router.push(`/webapp/admin/pet-owners/edit/${id}`);
+    // Set the selected owner and open the edit dialog
+    setSelectedOwnerId(id);
+    setIsEditDialogOpen(true);
   };
 
   // Handle add pet to owner
@@ -427,6 +678,64 @@ export default function PetOwnersPage() {
   // Determine if we should show the skeleton loader
   const showSkeletonLoader = isLoading || isRefreshing || isSearching;
 
+  const handleUpdatePetOwner = async (ownerData: Partial<PetOwner>) => {
+    if (!selectedOwnerId) return;
+
+    setIsUpdatingOwner(true);
+
+    try {
+      // BACKEND INTEGRATION: Replace with actual API call to update pet owner
+      // Example:
+      // const response = await fetch(`/api/pet-owners/${selectedOwnerId}`, {
+      //   method: 'PUT',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify(ownerData)
+      // });
+      // if (!response.ok) throw new Error('Failed to update pet owner');
+      // const updatedOwner = await response.json();
+
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      // Update pet owners state
+      setPetOwners(
+        petOwners.map((owner) => {
+          if (owner.id === selectedOwnerId) {
+            return {
+              ...owner,
+              ...ownerData,
+              // Preserve pets array
+              pets: owner.pets,
+            };
+          }
+          return owner;
+        }),
+      );
+
+      setIsEditDialogOpen(false);
+
+      // Show success dialog
+      setSuccessDialog({
+        isOpen: true,
+        title: "Pet Owner Updated",
+        description: `${ownerData.name} has been successfully updated.`,
+        actionLabel: "",
+        onAction: () => {},
+      });
+    } catch (error) {
+      console.error("Failed to update pet owner:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update pet owner. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdatingOwner(false);
+    }
+  };
+
   return (
     <motion.div
       className="space-y-6"
@@ -482,22 +791,15 @@ export default function PetOwnersPage() {
                       placeholder="Search pet owners..."
                       className="pl-8"
                       value={searchInputValue}
-                      onChange={(e) => setSearchInputValue(e.target.value)}
-                      onKeyDown={handleSearchKeyDown}
+                      onChange={handleSearchInputChange}
                     />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="absolute left-0 top-0 h-full px-2"
-                      onClick={handleSearch}
-                      disabled={isSearching}
-                    >
+                    <div className="absolute left-0 top-0 h-full px-2 flex items-center">
                       {isSearching ? (
                         <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
                       ) : (
                         <Search className="h-4 w-4 text-muted-foreground" />
                       )}
-                    </Button>
+                    </div>
                   </div>
                   <div className="flex gap-2">
                     <Button
@@ -527,23 +829,6 @@ export default function PetOwnersPage() {
             <div className="space-y-4">
               {/* Filters */}
               <div className="flex flex-wrap gap-2">
-                <Select value={filterCity} onValueChange={setFilterCity}>
-                  <SelectTrigger className="w-[150px]">
-                    <div className="flex items-center">
-                      <Filter className="mr-2 h-4 w-4 text-muted-foreground" />
-                      <span>City: </span>
-                    </div>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Cities</SelectItem>
-                    {uniqueCities.map((city) => (
-                      <SelectItem key={city} value={city}>
-                        {city}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
                 <Select value={filterHasPets} onValueChange={setFilterHasPets}>
                   <SelectTrigger className="w-[150px]">
                     <div className="flex items-center">
@@ -558,9 +843,7 @@ export default function PetOwnersPage() {
                   </SelectContent>
                 </Select>
 
-                {(searchQuery ||
-                  filterCity !== "all" ||
-                  filterHasPets !== "all") && (
+                {(searchQuery || filterHasPets !== "all") && (
                   <Button
                     variant="outline"
                     size="icon"
@@ -573,9 +856,7 @@ export default function PetOwnersPage() {
               </div>
 
               {/* Active filters display */}
-              {(searchQuery ||
-                filterCity !== "all" ||
-                filterHasPets !== "all") && (
+              {(searchQuery || filterHasPets !== "all") && (
                 <div className="flex flex-wrap gap-2">
                   {searchQuery && (
                     <Badge
@@ -589,18 +870,6 @@ export default function PetOwnersPage() {
                           setSearchQuery("");
                           setSearchInputValue("");
                         }}
-                      />
-                    </Badge>
-                  )}
-                  {filterCity !== "all" && (
-                    <Badge
-                      variant="secondary"
-                      className="flex items-center gap-1"
-                    >
-                      City: {filterCity}
-                      <X
-                        className="h-3 w-3 cursor-pointer"
-                        onClick={() => setFilterCity("all")}
                       />
                     </Badge>
                   )}
@@ -709,6 +978,13 @@ export default function PetOwnersPage() {
         description={successDialog.description}
         actionLabel={successDialog.actionLabel}
         onAction={successDialog.onAction}
+      />
+      <EditPetOwnerDialog
+        owner={selectedOwner}
+        isOpen={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        onSubmit={handleUpdatePetOwner}
+        isSubmitting={isUpdatingOwner}
       />
     </motion.div>
   );

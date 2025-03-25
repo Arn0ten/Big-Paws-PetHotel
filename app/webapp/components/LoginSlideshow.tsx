@@ -5,7 +5,8 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 
 // Define fallback images that we know exist in the project
-const FALLBACK_IMAGE = "/images/default-pic.png";
+const FALLBACK_IMAGE =
+  "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/BigPawsLogoBig-QEuBX7LEMcYoQTMrjMOPnGFkVuwmrA.png";
 
 // Use images we know exist in the project or use placeholders
 const images = [
@@ -68,7 +69,9 @@ export default function LoginSlideshow() {
         >
           <div className="mx-auto mb-4 relative h-[120px] w-[120px]">
             <Image
-              src={FALLBACK_IMAGE || "/placeholder.svg"}
+              src={
+                "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/BigPawsLogoBig-QEuBX7LEMcYoQTMrjMOPnGFkVuwmrA.png"
+              }
               alt="Big Paws Pet Hotel Logo"
               width={120}
               height={120}

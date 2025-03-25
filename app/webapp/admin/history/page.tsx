@@ -86,6 +86,8 @@ import {
   generateSampleHistoryData,
   generateSampleMediaData,
 } from "./data/sample-data";
+// Add import for PaginationControls at the top with other imports
+import { PaginationControls } from "@/app/webapp/admin/components/pagination-controls";
 
 // Update module names and icons
 const getModuleIcon = (module: string) => {
@@ -232,6 +234,10 @@ export default function HistoryPage() {
   const [entryToDelete, setEntryToDelete] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  // Add these state variables for pagination
+  // Add after the other state declarations in the HistoryPage component
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10; // Standardized to 10 items per page
 
   const { toast } = useToast();
   const isMobile = useMediaQuery("(max-width: 640px)");
@@ -395,6 +401,48 @@ export default function HistoryPage() {
     dateFilter,
     sortOrder,
   ]);
+
+  // Add this useEffect to handle pagination reset
+  // Add after the other useEffect hooks
+  useEffect(() => {
+    // Reset to page 1 when filters change
+    setCurrentPage(1);
+  }, [
+    searchQuery,
+    moduleFilter,
+    statusFilter,
+    dateFilter,
+    mediaTypeFilter,
+    petOwnerFilter,
+  ]);
+
+  // Calculate pagination values for history data
+  const totalHistoryItems = filteredHistory.length;
+  const totalHistoryPages = Math.ceil(totalHistoryItems / itemsPerPage);
+  const historyStartIndex = (currentPage - 1) * itemsPerPage;
+  const historyEndIndex = Math.min(
+    historyStartIndex + itemsPerPage,
+    totalHistoryItems,
+  );
+  const currentHistoryItems = filteredHistory.slice(
+    historyStartIndex,
+    historyEndIndex,
+  );
+
+  // Calculate pagination values for media data
+  const totalMediaItems = filteredMedia.length;
+  const totalMediaPages = Math.ceil(totalMediaItems / itemsPerPage);
+  const mediaStartIndex = (currentPage - 1) * itemsPerPage;
+  const mediaEndIndex = Math.min(
+    mediaStartIndex + itemsPerPage,
+    totalMediaItems,
+  );
+  const currentMediaItems = filteredMedia.slice(mediaStartIndex, mediaEndIndex);
+
+  // Handle page change
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
   // Handle refresh button click
   const handleRefresh = () => {
@@ -740,79 +788,92 @@ export default function HistoryPage() {
                   </p>
                 </div>
               ) : (
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-[180px]">Timestamp</TableHead>
-                        <TableHead>Module</TableHead>
-                        <TableHead>Description</TableHead>
-                        <TableHead>Pet / Owner</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredHistory.map((entry) => (
-                        <TableRow
-                          key={entry.id}
-                          className="cursor-pointer hover:bg-muted/50"
-                          onClick={() => handleViewDetails(entry)}
-                        >
-                          <TableCell className="font-medium">
-                            {formatDate(entry.timestamp)}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              {getModuleIcon(entry.module)}
-                              <span>{getModuleLabel(entry.module)}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell>{entry.description}</TableCell>
-                          <TableCell>
-                            {entry.petName && (
-                              <div className="font-medium">{entry.petName}</div>
-                            )}
-                            {entry.ownerName && (
-                              <div className="text-sm text-muted-foreground">
-                                {entry.ownerName}
-                              </div>
-                            )}
-                          </TableCell>
-                          <TableCell>{getStatusBadge(entry.status)}</TableCell>
-                          <TableCell
-                            className="text-right"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon">
-                                  <MoreHorizontal className="h-4 w-4" />
-                                  <span className="sr-only">Actions</span>
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem
-                                  onClick={() => handleViewDetails(entry)}
-                                >
-                                  View Details
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onClick={() => handleDelete(entry.id)}
-                                  className="text-red-600 dark:text-red-400"
-                                >
-                                  Delete
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
+                <>
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-[180px]">Timestamp</TableHead>
+                          <TableHead>Module</TableHead>
+                          <TableHead>Description</TableHead>
+                          <TableHead>Pet / Owner</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
+                      </TableHeader>
+                      <TableBody>
+                        {currentHistoryItems.map((entry) => (
+                          <TableRow
+                            key={entry.id}
+                            className="cursor-pointer hover:bg-muted/50"
+                            onClick={() => handleViewDetails(entry)}
+                          >
+                            <TableCell className="font-medium">
+                              {formatDate(entry.timestamp)}
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                {getModuleIcon(entry.module)}
+                                <span>{getModuleLabel(entry.module)}</span>
+                              </div>
+                            </TableCell>
+                            <TableCell>{entry.description}</TableCell>
+                            <TableCell>
+                              {entry.petName && (
+                                <div className="font-medium">
+                                  {entry.petName}
+                                </div>
+                              )}
+                              {entry.ownerName && (
+                                <div className="text-sm text-muted-foreground">
+                                  {entry.ownerName}
+                                </div>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              {getStatusBadge(entry.status)}
+                            </TableCell>
+                            <TableCell
+                              className="text-right"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="icon">
+                                    <MoreHorizontal className="h-4 w-4" />
+                                    <span className="sr-only">Actions</span>
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem
+                                    onClick={() => handleViewDetails(entry)}
+                                  >
+                                    View Details
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() => handleDelete(entry.id)}
+                                    className="text-red-600 dark:text-red-400"
+                                  >
+                                    Delete
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+
+                  {/* Standardized Pagination Controls */}
+                  <PaginationControls
+                    currentPage={currentPage}
+                    totalPages={totalHistoryPages}
+                    onPageChange={handlePageChange}
+                  />
+                </>
               )}
             </CardContent>
           </Card>
@@ -956,20 +1017,29 @@ export default function HistoryPage() {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {filteredMedia.map((media) => (
-                <MediaCard
-                  key={media.id}
-                  id={media.id}
-                  timestamp={media.timestamp}
-                  petName={media.petName}
-                  requestType={media.requestType}
-                  description={media.description}
-                  mediaUrls={media.mediaUrls}
-                  onClick={() => handleViewMediaDetails(media)}
-                />
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {currentMediaItems.map((media) => (
+                  <MediaCard
+                    key={media.id}
+                    id={media.id}
+                    timestamp={media.timestamp}
+                    petName={media.petName}
+                    requestType={media.requestType}
+                    description={media.description}
+                    mediaUrls={media.mediaUrls}
+                    onClick={() => handleViewMediaDetails(media)}
+                  />
+                ))}
+              </div>
+
+              {/* Standardized Pagination Controls */}
+              <PaginationControls
+                currentPage={currentPage}
+                totalPages={totalMediaPages}
+                onPageChange={handlePageChange}
+              />
+            </>
           )}
         </TabsContent>
       </Tabs>

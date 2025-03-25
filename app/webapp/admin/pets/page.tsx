@@ -51,6 +51,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { PaginationControls } from "@/app/webapp/admin/components/pagination-controls";
 
 /**
  * BACKEND INTEGRATION NOTES:
@@ -77,7 +78,10 @@ import {
 
 export default function PetsPage() {
   const { toast } = useToast();
+  // Search state
   const [searchQuery, setSearchQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [searchInputValue, setSearchInputValue] = useState("");
   const [filterType, setFilterType] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>("all");
@@ -87,7 +91,6 @@ export default function PetsPage() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isBoardDialogOpen, setIsBoardDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSearching, setIsSearching] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Confirmation dialog state
@@ -141,7 +144,7 @@ export default function PetsPage() {
     endIndex,
   } = usePagination({
     totalItems: filteredPets.length,
-    itemsPerPage: 10,
+    itemsPerPage: 10, // Standardized to 10 items per page
   });
 
   // Reset pagination when filters change
@@ -181,25 +184,39 @@ export default function PetsPage() {
     setConfirmationDialog((prev) => ({ ...prev, isOpen: false }));
   }, []);
 
-  // Handle search
-  const handleSearch = useCallback(() => {
-    setIsSearching(true);
-    // Simulate search delay
-    setTimeout(() => {
-      setSearchQuery(searchInputValue);
-      setIsSearching(false);
-    }, 800);
-  }, [searchInputValue]);
+  // Handle search input change with debounce
+  const handleSearchInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      setSearchInputValue(value);
 
-  // Handle search input keydown
-  const handleSearchKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === "Enter") {
-        handleSearch();
+      // Clear any existing timeout
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
       }
+
+      // Set searching state immediately for UI feedback
+      if (value.length > 0) {
+        setIsSearching(true);
+      }
+
+      // Debounce the actual search query update
+      searchTimeoutRef.current = setTimeout(() => {
+        setSearchQuery(value);
+        setIsSearching(false);
+      }, 300); // 300ms debounce
     },
-    [handleSearch],
+    [],
   );
+
+  // Clean up timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Handle add pet
   const handleAddPet = useCallback(
@@ -403,22 +420,15 @@ export default function PetsPage() {
                       placeholder="Search pets..."
                       className="pl-8"
                       value={searchInputValue}
-                      onChange={(e) => setSearchInputValue(e.target.value)}
-                      onKeyDown={handleSearchKeyDown}
+                      onChange={handleSearchInputChange}
                     />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="absolute left-0 top-0 h-full px-2"
-                      onClick={handleSearch}
-                      disabled={isSearching}
-                    >
+                    <div className="absolute left-0 top-0 h-full px-2 flex items-center">
                       {isSearching ? (
                         <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
                       ) : (
                         <Search className="h-4 w-4 text-muted-foreground" />
                       )}
-                    </Button>
+                    </div>
                   </div>
                   <div className="flex gap-2">
                     <Button
@@ -630,43 +640,47 @@ export default function PetsPage() {
                   </Table>
                 </div>
               ) : (
-                <div className="rounded-md border overflow-hidden">
-                  <PetsTable
-                    pets={currentPets}
-                    petOwners={petOwners}
-                    onEdit={(pet) => {
-                      handleSelectPet(pet);
-                      setIsEditDialogOpen(true);
-                    }}
-                    onDelete={(pet) => {
-                      handleSelectPet(pet);
-                      showConfirmation(
-                        "delete",
-                        "Delete Pet",
-                        `Are you sure you want to delete ${pet.name}? This action cannot be undone.`,
-                        () => handleDeletePet(),
-                      );
-                    }}
-                    onBoard={(pet) => {
-                      handleSelectPet(pet);
-                      setIsBoardDialogOpen(true);
-                    }}
-                    onEndBoarding={(pet) => {
-                      handleSelectPet(pet);
-                      showConfirmation(
-                        "endBoarding",
-                        "End Boarding",
-                        `Are you sure you want to end boarding for ${pet.name}?`,
-                        () => handleToggleBoardingStatus(pet.id),
-                      );
-                    }}
+                <>
+                  <div className="rounded-md border overflow-hidden">
+                    <PetsTable
+                      pets={currentPets}
+                      petOwners={petOwners}
+                      onEdit={(pet) => {
+                        handleSelectPet(pet);
+                        setIsEditDialogOpen(true);
+                      }}
+                      onDelete={(pet) => {
+                        handleSelectPet(pet);
+                        showConfirmation(
+                          "delete",
+                          "Delete Pet",
+                          `Are you sure you want to delete ${pet.name}? This action cannot be undone.`,
+                          () => handleDeletePet(),
+                        );
+                      }}
+                      onBoard={(pet) => {
+                        handleSelectPet(pet);
+                        setIsBoardDialogOpen(true);
+                      }}
+                      onEndBoarding={(pet) => {
+                        handleSelectPet(pet);
+                        showConfirmation(
+                          "endBoarding",
+                          "End Boarding",
+                          `Are you sure you want to end boarding for ${pet.name}?`,
+                          () => handleToggleBoardingStatus(pet.id),
+                        );
+                      }}
+                    />
+                  </div>
+
+                  {/* Standardized Pagination Controls */}
+                  <PaginationControls
                     currentPage={currentPage}
                     totalPages={totalPages}
-                    goToPage={goToPage}
-                    nextPage={nextPage}
-                    prevPage={prevPage}
+                    onPageChange={goToPage}
                   />
-                </div>
+                </>
               )}
             </div>
           </CardContent>

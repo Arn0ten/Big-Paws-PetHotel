@@ -1,8 +1,13 @@
-"use client"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
-import { Button } from "@/components/ui/button"
-import { useState, useEffect } from "react"
+"use client";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { useState, useEffect, useRef } from "react";
 import {
   Drawer,
   DrawerClose,
@@ -11,15 +16,27 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-} from "@/components/ui/drawer"
-import { Calendar } from "@/components/ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { format } from "date-fns"
-import { CalendarIcon, ChevronLeft, ChevronRight, Download, Filter, Search } from "lucide-react"
-import type { DateRange } from "react-day-picker"
-import { motion } from "framer-motion"
-import { MediaCard } from "@/app/webapp/components/media-card"
-import { getMediaItems } from "@/app/webapp/data/sample-data"
+} from "@/components/ui/drawer";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { format } from "date-fns";
+import {
+  CalendarIcon,
+  ChevronLeft,
+  ChevronRight,
+  Download,
+  Filter,
+  Search,
+  Loader2,
+} from "lucide-react";
+import type { DateRange } from "react-day-picker";
+import { motion } from "framer-motion";
+import { MediaCard } from "@/app/webapp/components/media-card";
+import { getMediaItems } from "@/app/webapp/data/sample-data";
 
 // BACKEND INTEGRATION: Implement this function to fetch media data from the API
 async function fetchMediaItems() {
@@ -35,58 +52,68 @@ async function fetchMediaItems() {
 
   // For development, return mock data
   return new Promise((resolve) => {
-    setTimeout(() => resolve(getMediaItems()), 500)
-  })
+    setTimeout(() => resolve(getMediaItems()), 500);
+  });
 }
 
 export default function MediaArchivePage() {
-  const [items, setItems] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [selectedType, setSelectedType] = useState("all")
-  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
-  const [selectedMedia, setSelectedMedia] = useState(null)
-  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [items, setItems] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedType, setSelectedType] = useState("all");
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+  const [selectedMedia, setSelectedMedia] = useState(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isSearching, setIsSearching] = useState(false);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Fetch media items on component mount
   useEffect(() => {
     const loadMediaItems = async () => {
-      setIsLoading(true)
+      setIsLoading(true);
       try {
-        const data = await fetchMediaItems()
-        setItems(data)
+        const data = await fetchMediaItems();
+        setItems(data);
       } catch (error) {
-        console.error("Error loading media items:", error)
+        console.error("Error loading media items:", error);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    loadMediaItems()
-  }, [])
+    loadMediaItems();
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleMediaClick = (item) => {
-    setSelectedMedia(item)
-    setCurrentImageIndex(0) // Reset to first image when opening
-  }
+    setSelectedMedia(item);
+    setCurrentImageIndex(0); // Reset to first image when opening
+  };
 
   const handleCloseMedia = () => {
-    setSelectedMedia(null)
-  }
+    setSelectedMedia(null);
+  };
 
   // BACKEND INTEGRATION: Implement this function to download media
   const handleDownload = (url: string, filename = "media") => {
     // For client-side download of a single file:
-    const link = document.createElement("a")
-    link.href = url
-    link.download = filename
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 
     // For server-side handling of multiple files (creating a zip):
     // window.location.href = `/api/pet-owner/media/download?ids=${selectedMedia?.id}`;
-  }
+  };
 
   // BACKEND INTEGRATION: Implement this function to download multiple media files as a zip
   const handleDownloadAll = (urls: string[], mediaId: string) => {
@@ -95,29 +122,35 @@ export default function MediaArchivePage() {
 
     // For development, just download the first file
     if (urls.length > 0) {
-      handleDownload(urls[0], `${selectedMedia?.petName}-media`)
+      handleDownload(urls[0], `${selectedMedia?.petName}-media`);
     }
-  }
+  };
 
   const filteredItems = items.filter((item) => {
     const searchMatch =
       item.petName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (item.description && item.description.toLowerCase().includes(searchQuery.toLowerCase()))
+      (item.description &&
+        item.description.toLowerCase().includes(searchQuery.toLowerCase()));
 
-    const typeMatch = selectedType === "all" || item.requestType === selectedType
+    const typeMatch =
+      selectedType === "all" || item.requestType === selectedType;
 
     const dateMatch =
-      !dateRange?.from || (item.timestamp >= dateRange.from && (!dateRange.to || item.timestamp <= dateRange.to))
+      !dateRange?.from ||
+      (item.timestamp >= dateRange.from &&
+        (!dateRange.to || item.timestamp <= dateRange.to));
 
-    return searchMatch && typeMatch && dateMatch
-  })
+    return searchMatch && typeMatch && dateMatch;
+  });
 
   return (
     <div className="px-3 sm:px-4 md:container mx-auto py-4 sm:py-6 space-y-4 sm:space-y-6">
       <div className="flex flex-col gap-4">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-foreground dark:text-foreground">Media Archive</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-foreground dark:text-foreground">
+              Media Archive
+            </h1>
             <p className="text-base text-muted-foreground dark:text-muted-foreground/90">
               View and see your media requests archive
             </p>
@@ -126,13 +159,36 @@ export default function MediaArchivePage() {
 
         <div className="flex flex-row items-center gap-2 overflow-x-auto hide-scrollbar pb-1">
           <div className="relative flex-1 min-w-[140px]">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            {isSearching ? (
+              <Loader2 className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground animate-spin" />
+            ) : (
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            )}
             <Input
               type="text"
               placeholder="Search..."
               className="pl-8 h-9"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                const query = e.target.value;
+                setSearchQuery(query);
+                setIsSearching(true);
+
+                // Clear any existing timeout
+                if (searchTimeoutRef.current) {
+                  clearTimeout(searchTimeoutRef.current);
+                }
+
+                // Set a new timeout for the search
+                searchTimeoutRef.current = setTimeout(() => {
+                  setIsLoading(true);
+                  // Simulate API call with a delay
+                  setTimeout(() => {
+                    setIsLoading(false);
+                    setIsSearching(false);
+                  }, 500);
+                }, 300);
+              }}
             />
           </div>
 
@@ -141,7 +197,11 @@ export default function MediaArchivePage() {
               <div className="flex items-center gap-1.5 text-sm">
                 <Filter className="h-3.5 w-3.5" />
                 <span className="truncate">
-                  {selectedType === "all" ? "All" : selectedType === "photo" ? "Photos" : "Videos"}
+                  {selectedType === "all"
+                    ? "All"
+                    : selectedType === "photo"
+                      ? "Photos"
+                      : "Videos"}
                 </span>
               </div>
             </SelectTrigger>
@@ -177,7 +237,12 @@ export default function MediaArchivePage() {
                 />
                 {dateRange?.from && (
                   <div className="p-2 border-t border-border">
-                    <Button variant="ghost" size="sm" className="w-full" onClick={() => setDateRange(undefined)}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full"
+                      onClick={() => setDateRange(undefined)}
+                    >
                       Clear Date Filter
                     </Button>
                   </div>
@@ -203,7 +268,9 @@ export default function MediaArchivePage() {
         ) : filteredItems.length === 0 ? (
           // No results
           <div className="text-center py-12">
-            <div className="text-muted-foreground">No media found matching your filters</div>
+            <div className="text-muted-foreground">
+              No media found matching your filters
+            </div>
           </div>
         ) : (
           // Media grid
@@ -239,35 +306,39 @@ export default function MediaArchivePage() {
             <DrawerContent className="max-h-[90vh] sm:max-h-[85vh]">
               <DrawerHeader className="py-2">
                 <DrawerTitle>{selectedMedia.petName}</DrawerTitle>
-                <DrawerDescription className="text-xs">{selectedMedia.description}</DrawerDescription>
+                <DrawerDescription className="text-xs">
+                  {selectedMedia.description}
+                </DrawerDescription>
               </DrawerHeader>
               <div className="px-4 pb-2 relative">
-                {selectedMedia.requestType === "photo" && selectedMedia.mediaUrls.length > 0 && (
-                  <>
-                    {selectedMedia.mediaUrls.length > 1 ? (
-                      <Carousel
-                        mediaUrls={selectedMedia.mediaUrls}
-                        petName={selectedMedia.petName}
-                        currentIndex={currentImageIndex}
-                        setCurrentIndex={setCurrentImageIndex}
-                      />
-                    ) : (
-                      <img
-                        src={selectedMedia.mediaUrls[0] || "/placeholder.svg"}
-                        alt={`Photo of ${selectedMedia.petName}`}
-                        className="w-full h-auto max-h-[50vh] sm:max-h-[60vh] object-contain rounded-md mx-auto"
-                      />
-                    )}
-                  </>
-                )}
-                {selectedMedia.requestType === "video" && selectedMedia.mediaUrls[0] && (
-                  <video
-                    src={selectedMedia.mediaUrls[0]}
-                    className="w-full h-auto max-h-[50vh] sm:max-h-[60vh] object-contain rounded-md mx-auto"
-                    controls
-                    autoPlay
-                  />
-                )}
+                {selectedMedia.requestType === "photo" &&
+                  selectedMedia.mediaUrls.length > 0 && (
+                    <>
+                      {selectedMedia.mediaUrls.length > 1 ? (
+                        <Carousel
+                          mediaUrls={selectedMedia.mediaUrls}
+                          petName={selectedMedia.petName}
+                          currentIndex={currentImageIndex}
+                          setCurrentIndex={setCurrentImageIndex}
+                        />
+                      ) : (
+                        <img
+                          src={selectedMedia.mediaUrls[0] || "/placeholder.svg"}
+                          alt={`Photo of ${selectedMedia.petName}`}
+                          className="w-full h-auto max-h-[50vh] sm:max-h-[60vh] object-contain rounded-md mx-auto"
+                        />
+                      )}
+                    </>
+                  )}
+                {selectedMedia.requestType === "video" &&
+                  selectedMedia.mediaUrls[0] && (
+                    <video
+                      src={selectedMedia.mediaUrls[0]}
+                      className="w-full h-auto max-h-[50vh] sm:max-h-[60vh] object-contain rounded-md mx-auto"
+                      controls
+                      autoPlay
+                    />
+                  )}
               </div>
               <DrawerFooter className="py-2 flex flex-row justify-between">
                 <Button
@@ -275,12 +346,20 @@ export default function MediaArchivePage() {
                   size="sm"
                   onClick={() =>
                     selectedMedia.mediaUrls.length > 1
-                      ? handleDownloadAll(selectedMedia.mediaUrls, selectedMedia.id)
-                      : handleDownload(selectedMedia.mediaUrls[0], `${selectedMedia.petName}-media`)
+                      ? handleDownloadAll(
+                          selectedMedia.mediaUrls,
+                          selectedMedia.id,
+                        )
+                      : handleDownload(
+                          selectedMedia.mediaUrls[0],
+                          `${selectedMedia.petName}-media`,
+                        )
                   }
                 >
                   <Download className="h-4 w-4 mr-2" />
-                  {selectedMedia.mediaUrls.length > 1 ? "Download All" : "Download"}
+                  {selectedMedia.mediaUrls.length > 1
+                    ? "Download All"
+                    : "Download"}
                 </Button>
                 <DrawerClose asChild>
                   <Button variant="outline" size="sm">
@@ -293,24 +372,33 @@ export default function MediaArchivePage() {
         )}
       </div>
     </div>
-  )
+  );
 }
 
 interface CarouselProps {
-  mediaUrls: string[]
-  petName: string
-  currentIndex: number
-  setCurrentIndex: (index: number) => void
+  mediaUrls: string[];
+  petName: string;
+  currentIndex: number;
+  setCurrentIndex: (index: number) => void;
 }
 
-function Carousel({ mediaUrls, petName, currentIndex, setCurrentIndex }: CarouselProps) {
+function Carousel({
+  mediaUrls,
+  petName,
+  currentIndex,
+  setCurrentIndex,
+}: CarouselProps) {
   const goToPrevious = () => {
-    setCurrentIndex(currentIndex === 0 ? mediaUrls.length - 1 : currentIndex - 1)
-  }
+    setCurrentIndex(
+      currentIndex === 0 ? mediaUrls.length - 1 : currentIndex - 1,
+    );
+  };
 
   const goToNext = () => {
-    setCurrentIndex(currentIndex === mediaUrls.length - 1 ? 0 : currentIndex + 1)
-  }
+    setCurrentIndex(
+      currentIndex === mediaUrls.length - 1 ? 0 : currentIndex + 1,
+    );
+  };
 
   return (
     <div className="relative">
@@ -325,7 +413,9 @@ function Carousel({ mediaUrls, petName, currentIndex, setCurrentIndex }: Carouse
           <button
             key={index}
             className={`h-1.5 rounded-full ${
-              index === currentIndex ? "w-4 bg-primary" : "w-1.5 bg-gray-300 dark:bg-gray-600"
+              index === currentIndex
+                ? "w-4 bg-primary"
+                : "w-1.5 bg-gray-300 dark:bg-gray-600"
             }`}
             onClick={() => setCurrentIndex(index)}
             aria-label={`Go to image ${index + 1}`}
@@ -349,6 +439,5 @@ function Carousel({ mediaUrls, petName, currentIndex, setCurrentIndex }: Carouse
         <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 text-white dark:text-gray-900" />
       </button>
     </div>
-  )
+  );
 }
-

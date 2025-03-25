@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Card,
@@ -335,6 +335,8 @@ interface RejectedRequestCardProps {
 
 // Main component for the Requests page
 export default function RequestsPage() {
+  const [isSearching, setIsSearching] = useState(false);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [requests, setRequests] = useState(sampleRequests);
   const [activeTab, setActiveTab] = useState("new");
   const [searchQuery, setSearchQuery] = useState("");
@@ -551,6 +553,14 @@ export default function RequestsPage() {
     };
   }, []);
 
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, []);
+
   return (
     <div className="space-y-6">
       <motion.div
@@ -574,12 +584,30 @@ export default function RequestsPage() {
       <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between mb-6">
         <div className="w-full flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1 min-w-0">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            {isSearching ? (
+              <Loader2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground animate-spin" />
+            ) : (
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            )}
             <Input
               placeholder="Search by pet name, owner, or description..."
               className="pl-9 h-10"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                const query = e.target.value;
+                setSearchQuery(query);
+                setIsSearching(true);
+
+                // Clear any existing timeout
+                if (searchTimeoutRef.current) {
+                  clearTimeout(searchTimeoutRef.current);
+                }
+
+                // Set a new timeout for the search
+                searchTimeoutRef.current = setTimeout(() => {
+                  setIsSearching(false);
+                }, 300);
+              }}
             />
           </div>
 

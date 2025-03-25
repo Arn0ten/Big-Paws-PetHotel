@@ -100,18 +100,6 @@ const menuItems = [
     section: "reports",
     color: "text-cyan-500",
   },
-  {
-    title: "SETTINGS",
-    section: "settings",
-    type: "header",
-  },
-  {
-    title: "System Settings",
-    icon: Settings,
-    href: "/webapp/admin/settings",
-    section: "settings",
-    color: "text-gray-500",
-  },
 ];
 
 interface AdminSidebarProps {
