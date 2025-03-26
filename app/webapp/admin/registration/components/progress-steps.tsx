@@ -40,7 +40,7 @@ export function ProgressSteps({
               >
                 <User className="h-5 w-5" />
               </div>
-              <span className="text-sm font-medium">Personal</span>
+              <span className="text-sm font-medium">Personal Info</span>
             </div>
 
             {/* Address */}

@@ -1,8 +1,15 @@
-"use client"
+"use client";
 
-import { useState, useRef, useEffect } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
+import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "@/components/ui/card";
 import {
   UserPlus,
   Mail,
@@ -15,12 +22,23 @@ import {
   User,
   Home,
   ClipboardList,
-} from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useForm, FormProvider, useFormContext, type SubmitHandler } from "react-hook-form"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  useForm,
+  FormProvider,
+  useFormContext,
+  type SubmitHandler,
+} from "react-hook-form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -28,11 +46,11 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Textarea } from "@/components/ui/textarea"
-import { cn } from "@/lib/utils"
-import { useToast } from "@/hooks/use-toast"
-import { Skeleton } from "@/components/ui/skeleton"
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 
 /**
  * Pet Owner Registration Form
@@ -54,51 +72,55 @@ import { Skeleton } from "@/components/ui/skeleton"
 // This will help backend developers understand what data to expect
 interface FormValues {
   // Basic Information
-  fullName: string // Pet owner's full name
-  email: string // Email address (either this or contactNumber is required)
-  contactNumber: string // Phone number (either this or email is required)
+  fullName: string; // Pet owner's full name
+  email: string; // Email address (either this or contactNumber is required)
+  contactNumber: string; // Phone number (either this or email is required)
 
   // Address Information
-  streetAddress: string // Street address including house/building number
-  province: string // Selected province (from API)
-  provinceCode: string // Province code for API reference
-  city: string // Selected city/municipality (from API)
-  cityCode: string // City code for API reference
+  streetAddress: string; // Street address including house/building number
+  province: string; // Selected province (from API)
+  provinceCode: string; // Province code for API reference
+  city: string; // Selected city/municipality (from API)
+  cityCode: string; // City code for API reference
 }
 
 // Interface for the location API response
 interface Province {
-  id: string
-  name: string
+  id: string;
+  name: string;
 }
 
 interface City {
-  id: string
-  name: string
-  provinceId: string
+  id: string;
+  name: string;
+  provinceId: string;
 }
 
 // Main component
 export default function RegistrationPage() {
   // Form steps
-  const [activeStep, setActiveStep] = useState<"personal" | "address" | "summary">("personal")
-  const [completedSteps, setCompletedSteps] = useState<string[]>([])
+  const [activeStep, setActiveStep] = useState<
+    "personal" | "address" | "summary"
+  >("personal");
+  const [completedSteps, setCompletedSteps] = useState<string[]>([]);
 
   // Confirmation and success states
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false)
-  const [showCancelDialog, setShowCancelDialog] = useState(false)
-  const [showSuccessCard, setShowSuccessCard] = useState(false)
-  const [showCredentialOptions, setShowCredentialOptions] = useState(false)
-  const [showFinalSuccess, setShowFinalSuccess] = useState(false)
-  const [credentialMethod, setCredentialMethod] = useState<"email" | "phone" | null>(null)
-  const [contactValue, setContactValue] = useState("")
-  const [formData, setFormData] = useState<FormValues | null>(null)
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [showSuccessCard, setShowSuccessCard] = useState(false);
+  const [showCredentialOptions, setShowCredentialOptions] = useState(false);
+  const [showFinalSuccess, setShowFinalSuccess] = useState(false);
+  const [credentialMethod, setCredentialMethod] = useState<
+    "email" | "phone" | null
+  >(null);
+  const [contactValue, setContactValue] = useState("");
+  const [formData, setFormData] = useState<FormValues | null>(null);
 
   // API data and loading states
-  const [provinces, setProvinces] = useState<Province[]>([])
-  const [cities, setCities] = useState<City[]>([])
-  const [isLoadingProvinces, setIsLoadingProvinces] = useState(true)
-  const [isLoadingCities, setIsLoadingCities] = useState(false)
+  const [provinces, setProvinces] = useState<Province[]>([]);
+  const [cities, setCities] = useState<City[]>([]);
+  const [isLoadingProvinces, setIsLoadingProvinces] = useState(true);
+  const [isLoadingCities, setIsLoadingCities] = useState(false);
 
   // Set up form with React Hook Form
   const methods = useForm<FormValues>({
@@ -113,7 +135,7 @@ export default function RegistrationPage() {
       city: "",
       cityCode: "",
     },
-  })
+  });
 
   const {
     handleSubmit,
@@ -121,106 +143,108 @@ export default function RegistrationPage() {
     setValue,
     reset,
     formState: { errors, isDirty, isSubmitting },
-  } = methods
+  } = methods;
 
-  const formRef = useRef<HTMLFormElement>(null)
-  const watchProvince = watch("province")
-  const watchProvinceCode = watch("provinceCode")
-  const watchEmail = watch("email")
-  const watchContactNumber = watch("contactNumber")
+  const formRef = useRef<HTMLFormElement>(null);
+  const watchProvince = watch("province");
+  const watchProvinceCode = watch("provinceCode");
+  const watchEmail = watch("email");
+  const watchContactNumber = watch("contactNumber");
 
-  const { toast } = useToast()
+  const { toast } = useToast();
 
   // Fetch provinces on component mount
   useEffect(() => {
     const fetchProvinces = async () => {
       try {
-        setIsLoadingProvinces(true)
+        setIsLoadingProvinces(true);
         // In a real application, use an actual API endpoint
         // This is a mock implementation
-        const response = await fetch("https://psgc.gitlab.io/api/provinces/")
-        if (!response.ok) throw new Error("Failed to fetch provinces")
-        const data = await response.json()
+        const response = await fetch("https://psgc.gitlab.io/api/provinces/");
+        if (!response.ok) throw new Error("Failed to fetch provinces");
+        const data = await response.json();
 
         // Transform API data to our format
         const formattedProvinces = data.map((province: any) => ({
           id: province.code,
           name: province.name,
-        }))
+        }));
 
-        setProvinces(formattedProvinces)
+        setProvinces(formattedProvinces);
       } catch (error) {
-        console.error("Error fetching provinces:", error)
+        console.error("Error fetching provinces:", error);
         toast({
           title: "Error",
           description: "Failed to load provinces. Please try again.",
           variant: "destructive",
-        })
+        });
       } finally {
-        setIsLoadingProvinces(false)
+        setIsLoadingProvinces(false);
       }
-    }
+    };
 
-    fetchProvinces()
-  }, [])
+    fetchProvinces();
+  }, []);
 
   // Fetch cities when province changes
   useEffect(() => {
-    if (!watchProvinceCode) return
+    if (!watchProvinceCode) return;
 
     const fetchCities = async () => {
       try {
-        setCities([])
-        setIsLoadingCities(true)
+        setCities([]);
+        setIsLoadingCities(true);
         // In a real implementation, use the actual API endpoint
         // This is a mock implementation
-        const response = await fetch(`https://psgc.gitlab.io/api/provinces/${watchProvinceCode}/cities-municipalities/`)
-        if (!response.ok) throw new Error("Failed to fetch cities")
-        const data = await response.json()
+        const response = await fetch(
+          `https://psgc.gitlab.io/api/provinces/${watchProvinceCode}/cities-municipalities/`,
+        );
+        if (!response.ok) throw new Error("Failed to fetch cities");
+        const data = await response.json();
 
         // Transform API data to our format
         const formattedCities = data.map((city: any) => ({
           id: city.code,
           name: city.name,
           provinceId: watchProvinceCode,
-        }))
+        }));
 
-        setCities(formattedCities)
+        setCities(formattedCities);
 
         // Reset city selection when province changes
-        setValue("city", "")
-        setValue("cityCode", "")
+        setValue("city", "");
+        setValue("cityCode", "");
       } catch (error) {
-        console.error("Error fetching cities:", error)
+        console.error("Error fetching cities:", error);
         toast({
           title: "Error",
           description: "Failed to load cities. Please try again.",
           variant: "destructive",
-        })
+        });
       } finally {
-        setIsLoadingCities(false)
+        setIsLoadingCities(false);
       }
-    }
+    };
 
-    fetchCities()
-  }, [watchProvinceCode, setValue])
+    fetchCities();
+  }, [watchProvinceCode, setValue]);
 
   // Handle form submission
   const onSubmit: SubmitHandler<FormValues> = (data) => {
     // Store the form data for potential backend submission
-    setFormData(data)
+    setFormData(data);
 
     // Store contact value for credential sending
     if (data.email) {
-      setContactValue(data.email)
-      setCredentialMethod("email")
+      setContactValue(data.email);
+      setCredentialMethod("email");
     } else if (data.contactNumber) {
-      setContactValue(data.contactNumber)
-      setCredentialMethod("phone")
+      setContactValue(data.contactNumber);
+      setCredentialMethod("phone");
     }
 
     // Show confirmation dialog
-    setShowConfirmDialog(true)
+    setShowConfirmDialog(true);
 
     // BACKEND INTEGRATION POINT:
     // This is where you would typically prepare the data for backend submission.
@@ -252,14 +276,14 @@ export default function RegistrationPage() {
       }
     }
     */
-  }
+  };
 
   // Confirm registration and simulate backend submission
   const handleConfirmRegistration = () => {
-    setShowConfirmDialog(false)
+    setShowConfirmDialog(false);
 
     // Log the data that would be sent to the backend
-    console.log("Data to be sent to backend:", formData)
+    console.log("Data to be sent to backend:", formData);
 
     // BACKEND INTEGRATION POINT:
     // This is where the actual API call to register the pet owner would happen
@@ -280,21 +304,21 @@ export default function RegistrationPage() {
 
     // Simulate API call to backend
     setTimeout(() => {
-      setShowSuccessCard(true)
-      setShowCredentialOptions(true)
-    }, 1500)
-  }
+      setShowSuccessCard(true);
+      setShowCredentialOptions(true);
+    }, 1500);
+  };
 
   // Handle sending credentials with loading animation
   const handleSendCredentials = (method: "email" | "phone") => {
-    setCredentialMethod(method)
+    setCredentialMethod(method);
 
     // Show loading state but don't hide options yet
     toast({
       title: "Sending credentials",
       description: `Preparing to send via ${method}...`,
       variant: "default",
-    })
+    });
 
     // BACKEND INTEGRATION POINT:
     // This is where you would make an API call to send credentials
@@ -343,72 +367,75 @@ export default function RegistrationPage() {
 
     // Simulate API call with loading animation
     setTimeout(() => {
-      setShowCredentialOptions(false)
+      setShowCredentialOptions(false);
 
       // This is where you'd make an API call to send credentials
-      console.log(`Sending credentials via ${method} to ${contactValue}`)
+      console.log(`Sending credentials via ${method} to ${contactValue}`);
 
       // Show success after a short delay
       setTimeout(() => {
-        setShowFinalSuccess(true)
+        setShowFinalSuccess(true);
         toast({
           title: "Credentials sent",
           description: `Login credentials have been sent via ${method}`,
           variant: "success",
-        })
-      }, 1000)
-    }, 1500)
-  }
+        });
+      }, 1000);
+    }, 1500);
+  };
 
   // Reset form to register another pet owner
   const handleReset = () => {
-    setShowSuccessCard(false)
-    setShowCredentialOptions(false)
-    setShowFinalSuccess(false)
-    setCredentialMethod(null)
-    setContactValue("")
-    setActiveStep("personal")
-    setCompletedSteps([])
-    reset()
-  }
+    setShowSuccessCard(false);
+    setShowCredentialOptions(false);
+    setShowFinalSuccess(false);
+    setCredentialMethod(null);
+    setContactValue("");
+    setActiveStep("personal");
+    setCompletedSteps([]);
+    reset();
+  };
 
   // Handle cancellation with confirmation
   const handleCancel = () => {
     if (isDirty) {
-      setShowCancelDialog(true)
+      setShowCancelDialog(true);
     } else {
-      reset()
+      reset();
     }
-  }
+  };
 
   // Confirm cancellation
   const confirmCancel = () => {
-    setShowCancelDialog(false)
-    reset()
-    setActiveStep("personal")
-    setCompletedSteps([])
-  }
+    setShowCancelDialog(false);
+    reset();
+    setActiveStep("personal");
+    setCompletedSteps([]);
+  };
 
   // Navigate between form steps
   const navigateToStep = (step: "personal" | "address" | "summary") => {
     // Mark current step as completed if moving forward
-    if ((activeStep === "personal" && step === "address") || (activeStep === "address" && step === "summary")) {
+    if (
+      (activeStep === "personal" && step === "address") ||
+      (activeStep === "address" && step === "summary")
+    ) {
       setCompletedSteps((prev) => {
         if (!prev.includes(activeStep)) {
-          return [...prev, activeStep]
+          return [...prev, activeStep];
         }
-        return prev
-      })
+        return prev;
+      });
     }
 
-    setActiveStep(step)
-  }
+    setActiveStep(step);
+  };
 
   // Steps configuration
   const steps = [
     {
       id: "personal",
-      title: "Personal Info",
+      title: "Personal",
       icon: <User className="h-5 w-5" />,
       progress: 33,
     },
@@ -424,11 +451,16 @@ export default function RegistrationPage() {
       icon: <ClipboardList className="h-5 w-5" />,
       progress: 100,
     },
-  ]
+  ];
 
   return (
     <FormProvider {...methods}>
-      <motion.div className="space-y-8 pb-10" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+      <motion.div
+        className="space-y-8 pb-10"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      >
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -439,8 +471,12 @@ export default function RegistrationPage() {
           }}
           className="mb-8"
         >
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Pet Owner Registration</h1>
-          <p className="text-muted-foreground mt-1">Register new pet owners in the system.</p>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">
+            Pet Owner Registration
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            Register new pet owners in the system.
+          </p>
         </motion.div>
 
         <AnimatePresence mode="wait">
@@ -472,7 +508,10 @@ export default function RegistrationPage() {
                     <UserPlus className="h-5 w-5 text-primary" />
                     <CardTitle>New Pet Owner Registration</CardTitle>
                   </div>
-                  <CardDescription>Please fill out all required fields to register a new pet owner</CardDescription>
+                  <CardDescription>
+                    Please fill out all required fields to register a new pet
+                    owner
+                  </CardDescription>
                 </CardHeader>
 
                 {/* Step Navigation */}
@@ -486,14 +525,22 @@ export default function RegistrationPage() {
                       className="absolute top-1/2 left-0 h-[3px] bg-green-500 hidden sm:block z-0 -translate-y-1/2"
                       initial={{ width: "0%" }}
                       animate={{
-                        width: activeStep === "personal" ? "0%" : activeStep === "address" ? "50%" : "100%",
+                        width:
+                          activeStep === "personal"
+                            ? "0%"
+                            : activeStep === "address"
+                              ? "50%"
+                              : "100%",
                       }}
                       transition={{ duration: 0.5, ease: "easeInOut" }}
                     />
 
                     <div className="grid grid-cols-3 w-full">
                       {steps.map((step, index) => (
-                        <div key={step.id} className="flex flex-1 items-center justify-center z-10">
+                        <div
+                          key={step.id}
+                          className="flex flex-1 items-center justify-center z-10"
+                        >
                           <div
                             className={cn(
                               "flex flex-col items-center text-center space-y-1",
@@ -501,7 +548,10 @@ export default function RegistrationPage() {
                                 ? "text-green-600 dark:text-green-400"
                                 : completedSteps.includes(step.id)
                                   ? "text-green-600 dark:text-green-400"
-                                  : index < steps.findIndex((s) => s.id === activeStep)
+                                  : index <
+                                      steps.findIndex(
+                                        (s) => s.id === activeStep,
+                                      )
                                     ? "text-green-600 dark:text-green-400"
                                     : "text-muted-foreground",
                             )}
@@ -512,7 +562,10 @@ export default function RegistrationPage() {
                                 activeStep === step.id
                                   ? {
                                       scale: [1, 1.15, 1],
-                                      transition: { duration: 0.5, times: [0, 0.5, 1] },
+                                      transition: {
+                                        duration: 0.5,
+                                        times: [0, 0.5, 1],
+                                      },
                                     }
                                   : {}
                               }
@@ -521,23 +574,33 @@ export default function RegistrationPage() {
                                 activeStep === step.id
                                   ? "border-green-500 bg-green-100 dark:bg-green-900/30"
                                   : completedSteps.includes(step.id) ||
-                                      index < steps.findIndex((s) => s.id === activeStep)
+                                      index <
+                                        steps.findIndex(
+                                          (s) => s.id === activeStep,
+                                        )
                                     ? "border-green-500 bg-green-500 text-white"
                                     : "border-muted-foreground/30",
                               )}
                             >
                               {completedSteps.includes(step.id) ||
-                              index < steps.findIndex((s) => s.id === activeStep) ? (
+                              index <
+                                steps.findIndex((s) => s.id === activeStep) ? (
                                 <Check className="h-5 w-5" />
                               ) : (
                                 step.icon
                               )}
                             </motion.div>
-                            <span className="text-sm font-medium hidden sm:block">{step.title}</span>
-                            <span className="text-xs text-muted-foreground hidden sm:block">{step.description}</span>
+                            <span className="text-sm font-medium hidden sm:block">
+                              {step.title}
+                            </span>
+                            <span className="text-xs text-muted-foreground hidden sm:block">
+                              {step.description}
+                            </span>
                           </div>
 
-                          {index < steps.length - 1 && <div className="w-full h-[2px] mx-2 hidden sm:block z-0" />}
+                          {index < steps.length - 1 && (
+                            <div className="w-full h-[2px] mx-2 hidden sm:block z-0" />
+                          )}
                         </div>
                       ))}
                     </div>
@@ -545,15 +608,23 @@ export default function RegistrationPage() {
                 </div>
 
                 <CardContent className="pt-6">
-                  <form ref={formRef} onSubmit={handleSubmit(onSubmit)} id="registration-form">
+                  <form
+                    ref={formRef}
+                    onSubmit={handleSubmit(onSubmit)}
+                    id="registration-form"
+                  >
                     <AnimatePresence mode="wait">
                       {activeStep === "personal" && (
-                        <StepPersonalInfo navigateToNextStep={() => navigateToStep("address")} />
+                        <StepPersonalInfo
+                          navigateToNextStep={() => navigateToStep("address")}
+                        />
                       )}
 
                       {activeStep === "address" && (
                         <StepAddress
-                          navigateToPreviousStep={() => navigateToStep("personal")}
+                          navigateToPreviousStep={() =>
+                            navigateToStep("personal")
+                          }
                           navigateToNextStep={() => navigateToStep("summary")}
                           provinces={provinces}
                           cities={cities}
@@ -564,7 +635,9 @@ export default function RegistrationPage() {
 
                       {activeStep === "summary" && (
                         <StepSummary
-                          navigateToPreviousStep={() => navigateToStep("address")}
+                          navigateToPreviousStep={() =>
+                            navigateToStep("address")
+                          }
                           handleCancel={handleCancel}
                           isSubmitting={isSubmitting}
                         />
@@ -594,14 +667,20 @@ export default function RegistrationPage() {
             <DialogHeader>
               <DialogTitle>Confirm Registration</DialogTitle>
               <DialogDescription>
-                Are you sure you want to register this pet owner? This action cannot be undone.
+                Are you sure you want to register this pet owner? This action
+                cannot be undone.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-0 sm:justify-between">
-              <Button variant="outline" onClick={() => setShowConfirmDialog(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setShowConfirmDialog(false)}
+              >
                 Cancel
               </Button>
-              <Button onClick={handleConfirmRegistration}>Confirm Registration</Button>
+              <Button onClick={handleConfirmRegistration}>
+                Confirm Registration
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -612,11 +691,15 @@ export default function RegistrationPage() {
             <DialogHeader>
               <DialogTitle>Discard Changes</DialogTitle>
               <DialogDescription>
-                Are you sure you want to cancel? All entered information will be lost.
+                Are you sure you want to cancel? All entered information will be
+                lost.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-0 sm:justify-between">
-              <Button variant="outline" onClick={() => setShowCancelDialog(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setShowCancelDialog(false)}
+              >
                 Continue Editing
               </Button>
               <Button variant="destructive" onClick={confirmCancel}>
@@ -627,25 +710,29 @@ export default function RegistrationPage() {
         </Dialog>
       </motion.div>
     </FormProvider>
-  )
+  );
 }
 
 // Step 1: Personal Information Component
-const StepPersonalInfo = ({ navigateToNextStep }: { navigateToNextStep: () => void }) => {
+const StepPersonalInfo = ({
+  navigateToNextStep,
+}: {
+  navigateToNextStep: () => void;
+}) => {
   const {
     register,
     formState: { errors },
     watch,
     trigger,
-  } = useFormContext<FormValues>()
-  const watchEmail = watch("email")
-  const watchContactNumber = watch("contactNumber")
+  } = useFormContext<FormValues>();
+  const watchEmail = watch("email");
+  const watchContactNumber = watch("contactNumber");
 
-  const { toast } = useToast()
+  const { toast } = useToast();
 
   const handleNext = async () => {
     // Validate only the personal info fields
-    const isValid = await trigger(["fullName", "email", "contactNumber"])
+    const isValid = await trigger(["fullName", "email", "contactNumber"]);
 
     if (isValid) {
       // Add animation before navigating
@@ -653,27 +740,27 @@ const StepPersonalInfo = ({ navigateToNextStep }: { navigateToNextStep: () => vo
         title: "Personal information validated",
         description: "Moving to address information",
         variant: "default",
-      })
+      });
 
       // Navigate immediately without delay
-      navigateToNextStep()
+      navigateToNextStep();
     } else {
       // Show error toast
       toast({
         title: "Validation Error",
         description: "Please fill in all required fields before proceeding",
         variant: "destructive",
-      })
+      });
 
       // Scroll to the first error field
-      const firstErrorField = Object.keys(errors)[0] as keyof FormValues
-      const element = document.getElementById(firstErrorField)
+      const firstErrorField = Object.keys(errors)[0] as keyof FormValues;
+      const element = document.getElementById(firstErrorField);
       if (element) {
-        element.scrollIntoView({ behavior: "smooth", block: "center" })
-        element.focus()
+        element.scrollIntoView({ behavior: "smooth", block: "center" });
+        element.focus();
       }
     }
-  }
+  };
 
   return (
     <motion.div
@@ -711,7 +798,10 @@ const StepPersonalInfo = ({ navigateToNextStep }: { navigateToNextStep: () => vo
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <Label htmlFor="email" className="text-base font-medium">
-              Email Address {!watchContactNumber && <span className="text-destructive">*</span>}
+              Email Address{" "}
+              {!watchContactNumber && (
+                <span className="text-destructive">*</span>
+              )}
             </Label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -727,12 +817,12 @@ const StepPersonalInfo = ({ navigateToNextStep }: { navigateToNextStep: () => vo
                 {...register("email", {
                   validate: (value) => {
                     if (!value && !watchContactNumber) {
-                      return "Either email or contact number is required"
+                      return "Either email or contact number is required";
                     }
                     if (value && !/^\S+@\S+\.\S+$/.test(value)) {
-                      return "Invalid email format"
+                      return "Invalid email format";
                     }
-                    return true
+                    return true;
                   },
                 })}
               />
@@ -747,7 +837,8 @@ const StepPersonalInfo = ({ navigateToNextStep }: { navigateToNextStep: () => vo
 
           <div>
             <Label htmlFor="contactNumber" className="text-base font-medium">
-              Contact Number {!watchEmail && <span className="text-destructive">*</span>}
+              Contact Number{" "}
+              {!watchEmail && <span className="text-destructive">*</span>}
             </Label>
             <div className="relative">
               <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -762,12 +853,12 @@ const StepPersonalInfo = ({ navigateToNextStep }: { navigateToNextStep: () => vo
                 {...register("contactNumber", {
                   validate: (value) => {
                     if (!value && !watchEmail) {
-                      return "Either contact number or email is required"
+                      return "Either contact number or email is required";
                     }
                     if (value && !/^(09|\+639)\d{9}$/.test(value)) {
-                      return "Invalid Philippine phone number"
+                      return "Invalid Philippine phone number";
                     }
-                    return true
+                    return true;
                   },
                 })}
               />
@@ -783,13 +874,17 @@ const StepPersonalInfo = ({ navigateToNextStep }: { navigateToNextStep: () => vo
       </div>
 
       <div className="flex justify-end pt-4">
-        <Button type="button" onClick={handleNext} className="bg-green-600 hover:bg-green-700">
+        <Button
+          type="button"
+          onClick={handleNext}
+          className="bg-green-600 hover:bg-green-700"
+        >
           Next Step <ChevronRight className="ml-1 h-4 w-4" />
         </Button>
       </div>
     </motion.div>
-  )
-}
+  );
+};
 
 // Step 2: Address Information Component
 const StepAddress = ({
@@ -800,12 +895,12 @@ const StepAddress = ({
   isLoadingProvinces,
   isLoadingCities,
 }: {
-  navigateToPreviousStep: () => void
-  navigateToNextStep: () => void
-  provinces: Province[]
-  cities: City[]
-  isLoadingProvinces: boolean
-  isLoadingCities: boolean
+  navigateToPreviousStep: () => void;
+  navigateToNextStep: () => void;
+  provinces: Province[];
+  cities: City[];
+  isLoadingProvinces: boolean;
+  isLoadingCities: boolean;
 }) => {
   const {
     register,
@@ -813,13 +908,13 @@ const StepAddress = ({
     watch,
     setValue,
     trigger,
-  } = useFormContext<FormValues>()
+  } = useFormContext<FormValues>();
 
-  const { toast } = useToast()
+  const { toast } = useToast();
 
   const handleNext = async () => {
     // Validate only the address fields
-    const isValid = await trigger(["streetAddress", "province", "city"])
+    const isValid = await trigger(["streetAddress", "province", "city"]);
 
     if (isValid) {
       // Add animation before navigating
@@ -827,27 +922,27 @@ const StepAddress = ({
         title: "Address information validated",
         description: "Moving to summary",
         variant: "default",
-      })
+      });
 
       // Navigate immediately without delay
-      navigateToNextStep()
+      navigateToNextStep();
     } else {
       // Show error toast
       toast({
         title: "Validation Error",
         description: "Please fill in all required fields before proceeding",
         variant: "destructive",
-      })
+      });
 
       // Scroll to the first error field
-      const firstErrorField = Object.keys(errors)[0] as keyof FormValues
-      const element = document.getElementById(firstErrorField)
+      const firstErrorField = Object.keys(errors)[0] as keyof FormValues;
+      const element = document.getElementById(firstErrorField);
       if (element) {
-        element.scrollIntoView({ behavior: "smooth", block: "center" })
-        element.focus()
+        element.scrollIntoView({ behavior: "smooth", block: "center" });
+        element.focus();
       }
     }
-  }
+  };
 
   return (
     <motion.div
@@ -872,7 +967,9 @@ const StepAddress = ({
                 errors.streetAddress &&
                   "border-destructive dark:border-red-400 focus-visible:ring-destructive dark:focus-visible:ring-red-400",
               )}
-              {...register("streetAddress", { required: "Street address is required" })}
+              {...register("streetAddress", {
+                required: "Street address is required",
+              })}
             />
           </div>
           {errors.streetAddress && (
@@ -895,9 +992,9 @@ const StepAddress = ({
                 <Select
                   onValueChange={(value) => {
                     // Extract the province data from the selected value
-                    const [id, name] = value.split("|")
-                    setValue("province", name, { shouldValidate: true })
-                    setValue("provinceCode", id, { shouldValidate: true })
+                    const [id, name] = value.split("|");
+                    setValue("province", name, { shouldValidate: true });
+                    setValue("provinceCode", id, { shouldValidate: true });
                   }}
                 >
                   <SelectTrigger
@@ -911,14 +1008,20 @@ const StepAddress = ({
                   </SelectTrigger>
                   <SelectContent className="max-h-[300px]">
                     {provinces.map((province) => (
-                      <SelectItem key={province.id} value={`${province.id}|${province.name}`}>
+                      <SelectItem
+                        key={province.id}
+                        value={`${province.id}|${province.name}`}
+                      >
                         {province.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               )}
-              <input {...register("province", { required: "Province is required" })} type="hidden" />
+              <input
+                {...register("province", { required: "Province is required" })}
+                type="hidden"
+              />
               <input {...register("provinceCode")} type="hidden" />
             </div>
             {errors.province && (
@@ -941,9 +1044,9 @@ const StepAddress = ({
                   disabled={cities.length === 0 || isLoadingCities}
                   onValueChange={(value) => {
                     // Extract the city data from the selected value
-                    const [id, name] = value.split("|")
-                    setValue("city", name, { shouldValidate: true })
-                    setValue("cityCode", id, { shouldValidate: true })
+                    const [id, name] = value.split("|");
+                    setValue("city", name, { shouldValidate: true });
+                    setValue("cityCode", id, { shouldValidate: true });
                   }}
                 >
                   <SelectTrigger
@@ -965,14 +1068,22 @@ const StepAddress = ({
                   </SelectTrigger>
                   <SelectContent className="max-h-[300px]">
                     {cities.map((city) => (
-                      <SelectItem key={city.id} value={`${city.id}|${city.name}`}>
+                      <SelectItem
+                        key={city.id}
+                        value={`${city.id}|${city.name}`}
+                      >
                         {city.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               )}
-              <input {...register("city", { required: "City/Municipality is required" })} type="hidden" />
+              <input
+                {...register("city", {
+                  required: "City/Municipality is required",
+                })}
+                type="hidden"
+              />
               <input {...register("cityCode")} type="hidden" />
             </div>
             {errors.city && (
@@ -986,16 +1097,24 @@ const StepAddress = ({
       </div>
 
       <div className="flex justify-between pt-4">
-        <Button type="button" variant="outline" onClick={navigateToPreviousStep}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={navigateToPreviousStep}
+        >
           Back
         </Button>
-        <Button type="button" onClick={handleNext} className="bg-green-600 hover:bg-green-700">
+        <Button
+          type="button"
+          onClick={handleNext}
+          className="bg-green-600 hover:bg-green-700"
+        >
           Next Step <ChevronRight className="ml-1 h-4 w-4" />
         </Button>
       </div>
     </motion.div>
-  )
-}
+  );
+};
 
 // Step 3: Summary Component
 const StepSummary = ({
@@ -1003,14 +1122,14 @@ const StepSummary = ({
   handleCancel,
   isSubmitting,
 }: {
-  navigateToPreviousStep: () => void
-  handleCancel: () => void
-  isSubmitting: boolean
+  navigateToPreviousStep: () => void;
+  handleCancel: () => void;
+  isSubmitting: boolean;
 }) => {
-  const { watch } = useFormContext<FormValues>()
+  const { watch } = useFormContext<FormValues>();
 
   // Get all form values for summary
-  const formValues = watch()
+  const formValues = watch();
 
   return (
     <motion.div
@@ -1024,7 +1143,9 @@ const StepSummary = ({
         <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg mb-6">
           <p className="text-sm text-green-700 dark:text-green-300 flex items-center">
             <Check className="h-5 w-5 mr-2 text-green-600 dark:text-green-400" />
-            <span className="font-medium">Please review the information below before submitting.</span>
+            <span className="font-medium">
+              Please review the information below before submitting.
+            </span>
           </p>
         </div>
 
@@ -1036,16 +1157,24 @@ const StepSummary = ({
           </h3>
           <div className="grid grid-cols-1 gap-4">
             <div className="bg-background p-3 rounded-md border">
-              <p className="text-sm font-medium text-muted-foreground">Full Name</p>
-              <p className="text-base font-semibold">{formValues.fullName || "—"}</p>
+              <p className="text-sm font-medium text-muted-foreground">
+                Full Name
+              </p>
+              <p className="text-base font-semibold">
+                {formValues.fullName || "—"}
+              </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="bg-background p-3 rounded-md border">
-                <p className="text-sm font-medium text-muted-foreground">Email Address</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Email Address
+                </p>
                 <p className="text-base">{formValues.email || "—"}</p>
               </div>
               <div className="bg-background p-3 rounded-md border">
-                <p className="text-sm font-medium text-muted-foreground">Contact Number</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Contact Number
+                </p>
                 <p className="text-base">{formValues.contactNumber || "—"}</p>
               </div>
             </div>
@@ -1060,16 +1189,22 @@ const StepSummary = ({
           </h3>
           <div className="grid grid-cols-1 gap-4">
             <div className="bg-background p-3 rounded-md border">
-              <p className="text-sm font-medium text-muted-foreground">Street Address</p>
+              <p className="text-sm font-medium text-muted-foreground">
+                Street Address
+              </p>
               <p className="text-base">{formValues.streetAddress || "—"}</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="bg-background p-3 rounded-md border">
-                <p className="text-sm font-medium text-muted-foreground">Province</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Province
+                </p>
                 <p className="text-base">{formValues.province || "—"}</p>
               </div>
               <div className="bg-background p-3 rounded-md border">
-                <p className="text-sm font-medium text-muted-foreground">City/Municipality</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  City/Municipality
+                </p>
                 <p className="text-base">{formValues.city || "—"}</p>
               </div>
             </div>
@@ -1078,7 +1213,11 @@ const StepSummary = ({
       </div>
 
       <div className="flex justify-between pt-4">
-        <Button type="button" variant="outline" onClick={navigateToPreviousStep}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={navigateToPreviousStep}
+        >
           Back
         </Button>
         <div className="space-x-2">
@@ -1095,7 +1234,11 @@ const StepSummary = ({
               <>
                 <motion.div
                   animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+                  transition={{
+                    duration: 1,
+                    repeat: Number.POSITIVE_INFINITY,
+                    ease: "linear",
+                  }}
                   className="mr-2"
                 >
                   <svg
@@ -1124,8 +1267,8 @@ const StepSummary = ({
         </div>
       </div>
     </motion.div>
-  )
-}
+  );
+};
 
 // Success Card Component
 const SuccessCard = ({
@@ -1138,14 +1281,14 @@ const SuccessCard = ({
   handleSendCredentials,
   handleReset,
 }: {
-  showCredentialOptions: boolean
-  showFinalSuccess: boolean
-  credentialMethod: "email" | "phone" | null
-  contactValue: string
-  watchEmail: string
-  watchContactNumber: string
-  handleSendCredentials: (method: "email" | "phone") => void
-  handleReset: () => void
+  showCredentialOptions: boolean;
+  showFinalSuccess: boolean;
+  credentialMethod: "email" | "phone" | null;
+  contactValue: string;
+  watchEmail: string;
+  watchContactNumber: string;
+  handleSendCredentials: (method: "email" | "phone") => void;
+  handleReset: () => void;
 }) => {
   return (
     <motion.div
@@ -1185,7 +1328,9 @@ const SuccessCard = ({
           >
             <Check className="h-8 w-8 text-green-600 dark:text-green-300" />
           </motion.div>
-          <CardTitle className="text-xl text-green-700 dark:text-green-400">Registration Successful!</CardTitle>
+          <CardTitle className="text-xl text-green-700 dark:text-green-400">
+            Registration Successful!
+          </CardTitle>
           <CardDescription className="text-green-600 dark:text-green-300">
             The pet owner has been successfully registered in the system.
           </CardDescription>
@@ -1198,13 +1343,17 @@ const SuccessCard = ({
                 Where would you like to send the temporary login credentials?
               </p>
               <div className="grid grid-cols-2 gap-4">
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
                   <Button
                     variant="outline"
                     className={cn(
                       "flex flex-col items-center justify-center h-28 p-4 w-full border-2",
                       !watchEmail && "opacity-50 cursor-not-allowed",
-                      watchEmail && "hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/20",
+                      watchEmail &&
+                        "hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/20",
                     )}
                     onClick={() => handleSendCredentials("email")}
                     disabled={!watchEmail}
@@ -1214,20 +1363,28 @@ const SuccessCard = ({
                     </div>
                     <span className="font-medium">Via Email</span>
                     {!watchEmail ? (
-                      <span className="text-xs text-muted-foreground mt-1">No email provided</span>
+                      <span className="text-xs text-muted-foreground mt-1">
+                        No email provided
+                      </span>
                     ) : (
-                      <span className="text-xs text-muted-foreground mt-1 truncate max-w-[120px]">{watchEmail}</span>
+                      <span className="text-xs text-muted-foreground mt-1 truncate max-w-[120px]">
+                        {watchEmail}
+                      </span>
                     )}
                   </Button>
                 </motion.div>
 
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
                   <Button
                     variant="outline"
                     className={cn(
                       "flex flex-col items-center justify-center h-28 p-4 w-full border-2",
                       !watchContactNumber && "opacity-50 cursor-not-allowed",
-                      watchContactNumber && "hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/20",
+                      watchContactNumber &&
+                        "hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/20",
                     )}
                     onClick={() => handleSendCredentials("phone")}
                     disabled={!watchContactNumber}
@@ -1237,7 +1394,9 @@ const SuccessCard = ({
                     </div>
                     <span className="font-medium">Via SMS</span>
                     {!watchContactNumber ? (
-                      <span className="text-xs text-muted-foreground mt-1">No phone provided</span>
+                      <span className="text-xs text-muted-foreground mt-1">
+                        No phone provided
+                      </span>
                     ) : (
                       <span className="text-xs text-muted-foreground mt-1 truncate max-w-[120px]">
                         {watchContactNumber}
@@ -1279,24 +1438,31 @@ const SuccessCard = ({
                   </motion.div>
                 )}
               </motion.div>
-              <p className="mt-4 text-muted-foreground">Temporary login credentials have been sent to:</p>
+              <p className="mt-4 text-muted-foreground">
+                Temporary login credentials have been sent to:
+              </p>
               <p className="font-medium text-lg">
                 {credentialMethod === "email" ? (
                   <span className="flex items-center justify-center">
-                    <Mail className="h-4 w-4 mr-2 text-green-600 dark:text-green-400" /> {contactValue}
+                    <Mail className="h-4 w-4 mr-2 text-green-600 dark:text-green-400" />{" "}
+                    {contactValue}
                   </span>
                 ) : (
                   <span className="flex items-center justify-center">
-                    <Phone className="h-4 w-4 mr-2 text-green-600 dark:text-green-400" /> {contactValue}
+                    <Phone className="h-4 w-4 mr-2 text-green-600 dark:text-green-400" />{" "}
+                    {contactValue}
                   </span>
                 )}
               </p>
               <div className="bg-muted/50 p-4 rounded-lg mt-4 text-sm text-muted-foreground">
                 <p>
-                  <span className="font-medium text-foreground">Note:</span> The pet owner will be prompted to change
-                  their password on first login.
+                  <span className="font-medium text-foreground">Note:</span> The
+                  pet owner will be prompted to change their password on first
+                  login.
                 </p>
-                <p className="mt-2">The temporary credentials will expire in 24 hours if not used.</p>
+                <p className="mt-2">
+                  The temporary credentials will expire in 24 hours if not used.
+                </p>
               </div>
             </div>
           ) : null}
@@ -1313,6 +1479,5 @@ const SuccessCard = ({
         </CardFooter>
       </Card>
     </motion.div>
-  )
-}
-
+  );
+};
