@@ -124,49 +124,59 @@ export default function RequestDetailPage() {
       case "pending":
       case "new":
         return (
-          <Badge
-            variant="outline"
-            className="bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-700/30 dark:text-yellow-400"
-          >
-            <Clock className="h-3 w-3 mr-1" /> Pending
-          </Badge>
-        )
+          <div className="self-start">
+            <Badge
+              variant="outline"
+              className="bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-700/30 dark:text-yellow-400 inline-flex whitespace-nowrap"
+            >
+              <Clock className="h-3 w-3 mr-1" /> Pending
+            </Badge>
+          </div>
+        );
       case "approved":
       case "in-progress":
         return (
-          <Badge
-            variant="outline"
-            className="bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:border-green-700/30 dark:text-green-400"
-          >
-            <CheckCircle2 className="h-3 w-3 mr-1" /> In Progress
-          </Badge>
-        )
+          <div className="self-start">
+            <Badge
+              variant="outline"
+              className="bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:border-green-700/30 dark:text-green-400 inline-flex whitespace-nowrap"
+            >
+              <CheckCircle2 className="h-3 w-3 mr-1" /> In Progress
+            </Badge>
+          </div>
+        );
       case "completed":
         return (
-          <Badge
-            variant="outline"
-            className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:border-blue-700/30 dark:text-blue-400"
-          >
-            <CheckCircle2 className="h-3 w-3 mr-1" /> Completed
-          </Badge>
-        )
+          <div className="self-start">
+            <Badge
+              variant="outline"
+              className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:border-blue-700/30 dark:text-blue-400 inline-flex whitespace-nowrap"
+            >
+              <CheckCircle2 className="h-3 w-3 mr-1" /> Completed
+            </Badge>
+          </div>
+        );
       case "rejected":
         return (
-          <Badge
-            variant="outline"
-            className="bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:border-red-700/30 dark:text-red-400"
-          >
-            <XCircle className="h-3 w-3 mr-1" /> Rejected
-          </Badge>
-        )
+          <div className="self-start">
+            <Badge
+              variant="outline"
+              className="bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:border-red-700/30 dark:text-red-400 inline-flex whitespace-nowrap"
+            >
+              <XCircle className="h-3 w-3 mr-1" /> Rejected
+            </Badge>
+          </div>
+        );
       default:
         return (
-          <Badge variant="outline">
-            <AlertCircle className="h-3 w-3 mr-1" /> {status}
-          </Badge>
-        )
+          <div className="self-start">
+            <Badge variant="outline" className="inline-flex whitespace-nowrap">
+              <AlertCircle className="h-3 w-3 mr-1" /> {status}
+            </Badge>
+          </div>
+        );
     }
-  }
+  };
 
   // Get request type title
   const getRequestTypeTitle = (type) => {
