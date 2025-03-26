@@ -84,7 +84,6 @@ import { UnifiedBoardPetDialog } from "@/app/webapp/admin/components/unified-boa
 
 // BACKEND INTEGRATION: Sample data for demonstration purposes
 
-
 export default function PetOwnersPage() {
   const router = useRouter();
   const { toast } = useToast();
@@ -256,6 +255,7 @@ export default function PetOwnersPage() {
 
     // Set the selected owner and open the edit dialog
     setSelectedOwnerId(id);
+    setShowPetOwnerDetailsDialog(false); // Close the details dialog first
     setIsEditDialogOpen(true);
   };
 
@@ -273,11 +273,32 @@ export default function PetOwnersPage() {
     setShowBoardPetDialog(true);
   };
 
-  // Handle pet badge click
+  // Modify the pet owner management page to fix the issue with multiple dialogs
+  // We need to update the handlePetBadgeClick function and related state management
+
+  // First, add a state to track if we should reopen the pet owner details dialog
+  const [shouldReopenOwnerDetails, setShouldReopenOwnerDetails] =
+    useState(false);
+
+  // Then modify the handlePetBadgeClick function to close the pet owner details dialog first
   const handlePetBadgeClick = (pet: Pet) => {
+    // If pet owner details dialog is open, close it and set flag to reopen later
+    if (showPetOwnerDetailsDialog) {
+      setShouldReopenOwnerDetails(true);
+      setShowPetOwnerDetailsDialog(false);
+    }
+
     setSelectedPet(pet);
     setShowPetDetailsDialog(true);
   };
+
+  // Add an effect to reopen the pet owner details dialog when pet details dialog closes
+  useEffect(() => {
+    if (!showPetDetailsDialog && shouldReopenOwnerDetails) {
+      setShowPetOwnerDetailsDialog(true);
+      setShouldReopenOwnerDetails(false);
+    }
+  }, [showPetDetailsDialog, shouldReopenOwnerDetails]);
 
   // Toggle expanded pets list
   const toggleExpandedPetsList = (ownerId: string) => {
@@ -683,12 +704,17 @@ export default function PetOwnersPage() {
         onConfirm={confirmDelete}
       />
 
+      {/* Update the onOpenChange handler for the PetDetailsDialog */}
       <PetDetailsDialog
         pet={selectedPet}
         isOpen={showPetDetailsDialog}
-        onOpenChange={setShowPetDetailsDialog}
+        onOpenChange={(open) => {
+          setShowPetDetailsDialog(open);
+          // When dialog closes and we should reopen owner details, don't do anything here
+          // The effect above will handle reopening the owner details dialog
+        }}
         onEditPet={(pet) => {
-          // BACKEND INTEGRATION: Navigate to edit pet page or show edit dialog
+          // Handle edit pet
           setShowPetDetailsDialog(false);
         }}
         onBoardPet={(pet) => {

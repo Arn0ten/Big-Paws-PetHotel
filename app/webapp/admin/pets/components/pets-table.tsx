@@ -1,27 +1,53 @@
-"use client"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { MoreHorizontal, Edit, Trash2, Hotel, CheckCircle, Dog, Cat, Info } from "lucide-react"
-import type { Pet, PetOwner } from "../utils/types"
-import { Skeleton } from "@/components/ui/skeleton"
+"use client";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  MoreHorizontal,
+  Edit,
+  Trash2,
+  Hotel,
+  CheckCircle,
+  Dog,
+  Cat,
+  Info,
+} from "lucide-react";
+import type { Pet, PetOwner } from "../utils/types";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface PetsTableProps {
-  pets: Pet[]
-  petOwners: PetOwner[]
-  onEdit: (pet: Pet) => void
-  onDelete: (pet: Pet) => void
-  onBoard: (pet: Pet) => void
-  onEndBoarding: (pet: Pet) => void
-  currentPage: number
-  totalPages: number
-  goToPage: (page: number) => void
-  nextPage: () => void
-  prevPage: () => void
-  isLoading?: boolean
+  pets: Pet[];
+  petOwners: PetOwner[];
+  onEdit: (pet: Pet) => void;
+  onDelete: (pet: Pet) => void;
+  onBoard: (pet: Pet) => void;
+  onEndBoarding: (pet: Pet) => void;
+  currentPage: number;
+  totalPages: number;
+  goToPage: (page: number) => void;
+  nextPage: () => void;
+  prevPage: () => void;
+  isLoading?: boolean;
 }
 
 export function PetsTable({
@@ -40,9 +66,9 @@ export function PetsTable({
 }: PetsTableProps) {
   // Find owner name by pet's ownerId
   const getOwnerName = (ownerId: string): string => {
-    const owner = petOwners.find((owner) => owner.id === ownerId)
-    return owner ? owner.name : "Unknown Owner"
-  }
+    const owner = petOwners.find((owner) => owner.id === ownerId);
+    return owner ? owner.name : "Unknown Owner";
+  };
 
   // Add a loading state renderer
   if (isLoading) {
@@ -106,7 +132,7 @@ export function PetsTable({
           </Table>
         </div>
       </div>
-    )
+    );
   }
 
   // Rest of the component remains the same
@@ -164,7 +190,11 @@ export function PetsTable({
                           : "bg-purple-600 text-white hover:bg-purple-700 dark:bg-purple-700 dark:text-white dark:hover:bg-purple-600"
                       }
                     >
-                      {pet.type === "Dog" ? <Dog className="mr-1 h-3 w-3" /> : <Cat className="mr-1 h-3 w-3" />}
+                      {pet.type === "Dog" ? (
+                        <Dog className="mr-1 h-3 w-3" />
+                      ) : (
+                        <Cat className="mr-1 h-3 w-3" />
+                      )}
                       {pet.type}
                     </Badge>
                   </TableCell>
@@ -179,7 +209,9 @@ export function PetsTable({
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <div className="flex items-center cursor-help">
-                              <span className="truncate max-w-[100px]">{pet.notes}</span>
+                              <span className="truncate max-w-[100px]">
+                                {pet.notes}
+                              </span>
                               <Info className="h-3 w-3 ml-1 text-muted-foreground" />
                             </div>
                           </TooltipTrigger>
@@ -189,11 +221,19 @@ export function PetsTable({
                         </Tooltip>
                       </TooltipProvider>
                     ) : (
-                      <span className="text-muted-foreground text-sm">No notes</span>
+                      <span className="text-muted-foreground text-sm">
+                        No notes
+                      </span>
                     )}
                   </TableCell>
                   <TableCell>
-                    <Badge className={pet.isBoarding ? "bg-green-500 text-white" : "bg-red-500 text-white"}>
+                    <Badge
+                      className={
+                        pet.isBoarding
+                          ? "bg-green-500 text-white"
+                          : "bg-red-500 text-white"
+                      }
+                    >
                       {pet.isBoarding ? "Boarding" : "Not Boarding"}
                     </Badge>
                   </TableCell>
@@ -220,14 +260,18 @@ export function PetsTable({
                       )}
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                          >
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem onClick={() => onEdit(pet)}>
                             <Edit className="mr-2 h-4 w-4 text-blue-500" />
-                            Edit
+                            Edit Details
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => onDelete(pet)}
@@ -255,6 +299,5 @@ export function PetsTable({
         </Table>
       </div>
     </div>
-  )
+  );
 }
-

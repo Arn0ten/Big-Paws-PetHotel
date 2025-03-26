@@ -30,11 +30,11 @@
  *   image?: string
  * }
  */
-"use client";
+"use client"
 
-import type React from "react";
+import type React from "react"
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState } from "react"
 import {
   Dialog,
   DialogContent,
@@ -42,18 +42,12 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
   PawPrint,
   Dog,
@@ -66,18 +60,19 @@ import {
   Dna,
   CalendarDays,
   Ruler,
-} from "lucide-react";
-import type { Pet, PetOwner } from "../utils/types";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+} from "lucide-react"
+import type { Pet, PetOwner } from "../utils/types"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 // Define the FormErrors type
 interface FormErrors {
-  name?: boolean;
-  type?: boolean;
-  breed?: boolean;
-  age?: boolean;
-  size?: boolean;
-  ownerId?: boolean;
+  name?: boolean
+  type?: boolean
+  breed?: boolean
+  age?: boolean
+  size?: boolean
+  ownerId?: boolean
+  image?: boolean
 }
 
 const DOG_BREEDS = [
@@ -101,7 +96,7 @@ const DOG_BREEDS = [
   "Shih Tzu",
   "Bernese Mountain Dog",
   "Pomeranian",
-];
+]
 
 const CAT_BREEDS = [
   "Maine Coon",
@@ -124,92 +119,146 @@ const CAT_BREEDS = [
   "Cornish Rex",
   "Devon Rex",
   "Ocicat",
-];
+]
 
 /**
  * Component for adding a new pet
  */
 export interface AddPetDialogProps {
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
-  onSubmit: (petData: Partial<Pet>, ownerId: string) => Promise<void>;
-  isSubmitting: boolean;
-  petOwners: PetOwner[];
+  isOpen: boolean
+  onOpenChange: (open: boolean) => void
+  onSubmit: (petData: Partial<Pet>, ownerId: string) => Promise<void>
+  isSubmitting: boolean
+  petOwners: PetOwner[]
 }
 
-export function AddPetDialog({
-  isOpen,
-  onOpenChange,
-  onSubmit,
-  isSubmitting,
-  petOwners,
-}: AddPetDialogProps) {
-  const [formState, setFormState] = useState<Partial<Pet>>({
+export function AddPetDialog({ isOpen, onOpenChange, onSubmit, isSubmitting, petOwners }: AddPetDialogProps) {
+  const [formData, setFormData] = useState<Partial<Pet>>({
     type: "Dog",
     size: "Medium",
-  });
-  const [ownerId, setOwnerId] = useState<string>("");
-  const [formErrors, setFormErrors] = useState<FormErrors>({});
+  })
+  const [ownerId, setOwnerId] = useState<string>("")
+  const [formErrors, setFormErrors] = useState<FormErrors>({})
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const updateField = useCallback(
-    (field: keyof Pet, value: any) => {
-      setFormState((prev) => ({
-        ...prev,
-        [field]: value,
-        // Reset breed if pet type changes
-        ...(field === "type" && { breed: undefined }),
-      }));
+  // Handle form input change
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
 
-      // Clear error for this field if it exists
-      if (formErrors[field]) {
-        setFormErrors((prev) => {
-          const newErrors = { ...prev };
-          delete newErrors[field];
-          return newErrors;
-        });
-      }
-    },
-    [formErrors],
-  );
+    // Clear error for this field if it exists
+    if (formErrors[name]) {
+      setFormErrors((prev) => {
+        const newErrors = { ...prev }
+        delete newErrors[name]
+        return newErrors
+      })
+    }
+  }
 
-  const validateForm = useCallback(() => {
-    const errors: FormErrors = {};
-    const requiredFields: (keyof Pet)[] = [
-      "name",
-      "type",
-      "breed",
-      "age",
-      "size",
-    ];
+  // Handle select change
+  const handleSelectChange = (field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }))
 
-    requiredFields.forEach((field) => {
-      if (!formState[field]) {
-        errors[field] = true;
-      }
-    });
-
-    if (!ownerId) {
-      errors["ownerId"] = true;
+    // Reset breed if pet type changes
+    if (field === "type") {
+      setFormData((prev) => ({ ...prev, breed: undefined }))
     }
 
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  }, [formState, ownerId]);
+    // Clear error for this field if it exists
+    if (formErrors[field]) {
+      setFormErrors((prev) => {
+        const newErrors = { ...prev }
+        delete newErrors[field]
+        return newErrors
+      })
+    }
+  }
+
+  // Handle image upload
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Validate file type
+    const validTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"]
+    if (!validTypes.includes(file.type)) {
+      setFormErrors((prev) => ({
+        ...prev,
+        image: true,
+      }))
+      return
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setFormErrors((prev) => ({
+        ...prev,
+        image: true,
+      }))
+      return
+    }
+
+    // Mock implementation - replace with actual upload
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        const imageUrl = event.target.result.toString()
+        setFormData((prev) => ({ ...prev, image: imageUrl }))
+        setFormErrors((prev) => {
+          const newErrors = { ...prev }
+          delete newErrors.image
+          return newErrors
+        })
+      }
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const validateForm = () => {
+    const errors: FormErrors = {}
+    const requiredFields: (keyof Pet)[] = ["name", "type", "breed", "age", "size"]
+
+    requiredFields.forEach((field) => {
+      if (!formData[field]) {
+        errors[field] = true
+      }
+    })
+
+    if (!ownerId) {
+      errors["ownerId"] = true
+    }
+
+    setFormErrors(errors)
+    return Object.keys(errors).length === 0
+  }
 
   const handleSubmit = async () => {
-    if (!validateForm()) return;
-    await onSubmit({ ...formState, ownerId }, ownerId);
-  };
+    if (!validateForm()) return
+
+    // Set default image based on pet type if no image is provided
+    if (!formData.image) {
+      const defaultImage = formData.type === "Dog" ? "/default-images/dog.png" : "/default-images/cat.png"
+      formData.image = defaultImage
+    }
+
+    await onSubmit(formData, ownerId)
+  }
 
   // Reset form when dialog closes
   const handleOpenChange = (open: boolean) => {
     if (!open) {
-      setFormState({ type: "Dog", size: "Medium" });
-      setOwnerId("");
-      setFormErrors({});
+      setFormData({ type: "Dog", size: "Medium" })
+      setOwnerId("")
+      setFormErrors({})
     }
-    onOpenChange(open);
-  };
+    onOpenChange(open)
+  }
+
+  // Get default image based on pet type
+  const getDefaultImage = () => {
+    return formData.type === "Dog" ? "/default-images/dog.png" : "/default-images/cat.png"
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
@@ -219,194 +268,199 @@ export function AddPetDialog({
             <PlusCircle className="h-5 w-5" />
             Add New Pet
           </DialogTitle>
-          <DialogDescription>
-            Register a new pet in the system
-          </DialogDescription>
+          <DialogDescription>Register a new pet in the system</DialogDescription>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+        <div className="space-y-4 py-4">
+          <div className="flex flex-col items-center mb-4">
+            <Avatar className="h-24 w-24 mb-2">
+              <AvatarImage src={formData.image || getDefaultImage()} alt="Pet Profile" />
+              <AvatarFallback>
+                {formData.type === "Dog" ? <Dog className="h-12 w-12" /> : <Cat className="h-12 w-12" />}
+              </AvatarFallback>
+            </Avatar>
+
+            <Label htmlFor="image-upload" className="cursor-pointer">
+              <div className="flex items-center gap-2 bg-primary text-primary-foreground px-3 py-1 rounded-md text-sm">
+                <Upload className="h-3 w-3" />
+                <span>Upload Photo</span>
+              </div>
+              <Input
+                id="image-upload"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageUpload}
+                ref={fileInputRef}
+              />
+            </Label>
+            <p className="text-xs text-muted-foreground mt-1">Optional: Upload a profile picture</p>
+            {formErrors.image && <p className="text-xs text-red-500 mt-1">Please upload a valid image (max 5MB)</p>}
+          </div>
+
           <div className="space-y-2">
-            <Label
-              htmlFor="pet-name"
-              className="text-sm font-medium flex items-center"
-            >
+            <Label htmlFor="name" className="text-sm font-medium flex items-center">
               Pet Name <span className="text-red-500 ml-1">*</span>
             </Label>
-            <Input
-              id="pet-name"
-              placeholder="Enter pet name"
-              value={formState.name || ""}
-              onChange={(e) => updateField("name", e.target.value)}
-              className={`focus-visible:ring-primary ${formErrors.name ? "border-red-500 focus-visible:ring-red-500" : "border-input"}`}
-            />
-            {formErrors.name && (
-              <p className="text-xs text-red-500">Pet name is required</p>
-            )}
+            <div className="relative">
+              <PawPrint className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                id="name"
+                name="name"
+                placeholder="Enter pet name"
+                value={formData.name || ""}
+                onChange={handleInputChange}
+                className={`pl-9 ${formErrors.name ? "border-red-500 focus-visible:ring-red-500" : ""}`}
+              />
+            </div>
+            {formErrors.name && <p className="text-xs text-red-500">Pet name is required</p>}
           </div>
 
           <div className="space-y-2">
-            <Label
-              htmlFor="pet-owner"
-              className="text-sm font-medium flex items-center"
-            >
+            <Label htmlFor="pet-owner" className="text-sm font-medium flex items-center">
               Pet Owner <span className="text-red-500 ml-1">*</span>
             </Label>
-            <Select value={ownerId} onValueChange={setOwnerId}>
-              <SelectTrigger
-                id="pet-owner"
-                className={`${formErrors.ownerId ? "border-red-500 focus-visible:ring-red-500" : "border-input"} focus-visible:ring-primary`}
-              >
-                <SelectValue placeholder="Select pet owner" />
-              </SelectTrigger>
-              <SelectContent>
-                {petOwners.map((owner) => (
-                  <SelectItem key={owner.id} value={owner.id}>
-                    <div className="flex items-center">
-                      <User className="mr-2 h-4 w-4 text-muted-foreground" />
-                      {owner.name}
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {formErrors.ownerId && (
-              <p className="text-xs text-red-500">Pet owner is required</p>
-            )}
+            <div className="relative">
+              <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Select value={ownerId} onValueChange={setOwnerId}>
+                <SelectTrigger
+                  id="pet-owner"
+                  className={`pl-9 ${formErrors.ownerId ? "border-red-500 focus-visible:ring-red-500" : ""}`}
+                >
+                  <SelectValue placeholder="Select pet owner" />
+                </SelectTrigger>
+                <SelectContent>
+                  {petOwners.map((owner) => (
+                    <SelectItem key={owner.id} value={owner.id}>
+                      <div className="flex items-center">
+                        <User className="mr-2 h-4 w-4 text-muted-foreground" />
+                        {owner.name}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {formErrors.ownerId && <p className="text-xs text-red-500">Pet owner is required</p>}
           </div>
 
           <div className="space-y-2">
-            <Label
-              htmlFor="pet-type"
-              className="text-sm font-medium flex items-center"
-            >
+            <Label htmlFor="type" className="text-sm font-medium flex items-center">
               Pet Type <span className="text-red-500 ml-1">*</span>
             </Label>
-            <Select
-              value={formState.type}
-              onValueChange={(value) => updateField("type", value)}
-            >
-              <SelectTrigger
-                id="pet-type"
-                className={`${formErrors.type ? "border-red-500 focus-visible:ring-red-500" : "border-input"} focus-visible:ring-primary`}
-              >
-                <SelectValue placeholder="Select pet type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Dog">
-                  <div className="flex items-center">
-                    <Dog className="mr-2 h-4 w-4 text-blue-500" />
-                    Dog
-                  </div>
-                </SelectItem>
-                <SelectItem value="Cat">
-                  <div className="flex items-center">
-                    <Cat className="mr-2 h-4 w-4 text-purple-500" />
-                    Cat
-                  </div>
-                </SelectItem>
-              </SelectContent>
-            </Select>
-            {formErrors.type && (
-              <p className="text-xs text-red-500">Pet type is required</p>
-            )}
+            <div className="relative">
+              {formData.type === "Dog" ? (
+                <Dog className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              ) : (
+                <Cat className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              )}
+              <Select value={formData.type || "Dog"} onValueChange={(value) => handleSelectChange("type", value)}>
+                <SelectTrigger
+                  id="type"
+                  className={`pl-9 ${formErrors.type ? "border-red-500 focus-visible:ring-red-500" : ""}`}
+                >
+                  <SelectValue placeholder="Select pet type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Dog">
+                    <div className="flex items-center">
+                      <Dog className="mr-2 h-4 w-4 text-blue-500" />
+                      Dog
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="Cat">
+                    <div className="flex items-center">
+                      <Cat className="mr-2 h-4 w-4 text-purple-500" />
+                      Cat
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {formErrors.type && <p className="text-xs text-red-500">Pet type is required</p>}
           </div>
 
           <div className="space-y-2">
-            <Label
-              htmlFor="pet-breed"
-              className="text-sm font-medium flex items-center"
-            >
+            <Label htmlFor="breed" className="text-sm font-medium flex items-center">
               Breed <span className="text-red-500 ml-1">*</span>
             </Label>
-            <Select
-              value={formState.breed}
-              onValueChange={(value) => updateField("breed", value)}
-            >
-              <SelectTrigger
-                id="pet-breed"
-                className={`${formErrors.breed ? "border-red-500 focus-visible:ring-red-500" : "border-input"} focus-visible:ring-primary`}
-              >
-                <SelectValue placeholder="Select breed" />
-              </SelectTrigger>
-              <SelectContent>
-                {(formState.type === "Dog" ? DOG_BREEDS : CAT_BREEDS).map(
-                  (breed) => (
+            <div className="relative">
+              <Dna className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Select value={formData.breed || ""} onValueChange={(value) => handleSelectChange("breed", value)}>
+                <SelectTrigger
+                  id="breed"
+                  className={`pl-9 ${formErrors.breed ? "border-red-500 focus-visible:ring-red-500" : ""}`}
+                >
+                  <SelectValue placeholder="Select breed" />
+                </SelectTrigger>
+                <SelectContent>
+                  {(formData.type === "Dog" ? DOG_BREEDS : CAT_BREEDS).map((breed) => (
                     <SelectItem key={breed} value={breed}>
                       {breed}
                     </SelectItem>
-                  ),
-                )}
-              </SelectContent>
-            </Select>
-            {formErrors.breed && (
-              <p className="text-xs text-red-500">Breed is required</p>
-            )}
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {formErrors.breed && <p className="text-xs text-red-500">Breed is required</p>}
           </div>
 
           <div className="space-y-2">
-            <Label
-              htmlFor="pet-age"
-              className="text-sm font-medium flex items-center"
-            >
+            <Label htmlFor="age" className="text-sm font-medium flex items-center">
               Age (years) <span className="text-red-500 ml-1">*</span>
             </Label>
-            <Input
-              id="pet-age"
-              type="number"
-              min="0"
-              max="30"
-              placeholder="Enter age"
-              value={formState.age || ""}
-              onChange={(e) =>
-                updateField("age", Number.parseInt(e.target.value))
-              }
-              className={`focus-visible:ring-primary ${formErrors.age ? "border-red-500 focus-visible:ring-red-500" : "border-input"}`}
-            />
-            {formErrors.age && (
-              <p className="text-xs text-red-500">Age is required</p>
-            )}
+            <div className="relative">
+              <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                id="age"
+                name="age"
+                type="number"
+                min="0"
+                max="30"
+                placeholder="Enter age"
+                value={formData.age || ""}
+                onChange={handleInputChange}
+                className={`pl-9 ${formErrors.age ? "border-red-500 focus-visible:ring-red-500" : ""}`}
+              />
+            </div>
+            {formErrors.age && <p className="text-xs text-red-500">Age is required</p>}
           </div>
 
           <div className="space-y-2">
-            <Label
-              htmlFor="pet-size"
-              className="text-sm font-medium flex items-center"
-            >
+            <Label htmlFor="size" className="text-sm font-medium flex items-center">
               Size <span className="text-red-500 ml-1">*</span>
             </Label>
-            <Select
-              value={formState.size}
-              onValueChange={(value) => updateField("size", value)}
-            >
-              <SelectTrigger
-                id="pet-size"
-                className={`${formErrors.size ? "border-red-500 focus-visible:ring-red-500" : "border-input"} focus-visible:ring-primary`}
-              >
-                <SelectValue placeholder="Select size" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Small">Small</SelectItem>
-                <SelectItem value="Medium">Medium</SelectItem>
-                <SelectItem value="Large">Large</SelectItem>
-                <SelectItem value="XL">XL</SelectItem>
-              </SelectContent>
-            </Select>
-            {formErrors.size && (
-              <p className="text-xs text-red-500">Size is required</p>
-            )}
+            <div className="relative">
+              <Ruler className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Select value={formData.size || "Medium"} onValueChange={(value) => handleSelectChange("size", value)}>
+                <SelectTrigger
+                  id="size"
+                  className={`pl-9 ${formErrors.size ? "border-red-500 focus-visible:ring-red-500" : ""}`}
+                >
+                  <SelectValue placeholder="Select size" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Small">Small</SelectItem>
+                  <SelectItem value="Medium">Medium</SelectItem>
+                  <SelectItem value="Large">Large</SelectItem>
+                  <SelectItem value="XL">Extra Large</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {formErrors.size && <p className="text-xs text-red-500">Size is required</p>}
           </div>
 
-          <div className="space-y-2 md:col-span-2">
-            <Label htmlFor="pet-notes" className="text-sm font-medium">
-              Additional Notes{" "}
-              <span className="text-xs text-muted-foreground">(optional)</span>
+          <div className="space-y-2">
+            <Label htmlFor="notes" className="text-sm font-medium">
+              Notes <span className="text-xs text-muted-foreground">(optional)</span>
             </Label>
             <Textarea
-              id="pet-notes"
-              placeholder="Enter any additional information about the pet"
-              value={formState.notes || ""}
-              onChange={(e) => updateField("notes", e.target.value)}
-              className="min-h-[80px] focus-visible:ring-primary"
+              id="notes"
+              name="notes"
+              placeholder="Enter any additional notes about this pet"
+              value={formData.notes || ""}
+              onChange={handleInputChange}
+              className="min-h-[80px]"
             />
           </div>
         </div>
@@ -435,7 +489,7 @@ export function AddPetDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
+  )
 }
 
 /**
@@ -449,16 +503,16 @@ export function EditPetDialog({
   isSubmitting,
   petOwners,
 }: {
-  pet: Pet | null;
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
-  onSubmit: (petData: Partial<Pet>) => Promise<void>;
-  isSubmitting: boolean;
-  petOwners: PetOwner[];
+  pet: Pet | null
+  isOpen: boolean
+  onOpenChange: (open: boolean) => void
+  onSubmit: (petData: Partial<Pet>) => Promise<void>
+  isSubmitting: boolean
+  petOwners: PetOwner[]
 }) {
-  const [formData, setFormData] = useState<Partial<Pet>>({});
-  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [formData, setFormData] = useState<Partial<Pet>>({})
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({})
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Initialize form data when pet changes or dialog opens
   useEffect(() => {
@@ -473,55 +527,53 @@ export function EditPetDialog({
         ownerId: pet.ownerId,
         notes: pet.notes || "",
         image: pet.image || "/placeholder.svg?height=200&width=200",
-      });
-      setFormErrors({});
+      })
+      setFormErrors({})
     }
-  }, [pet, isOpen]);
+  }, [pet, isOpen])
 
   // Handle form input change
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
 
     // Clear error for this field if it exists
     if (formErrors[name]) {
       setFormErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors[name];
-        return newErrors;
-      });
+        const newErrors = { ...prev }
+        delete newErrors[name]
+        return newErrors
+      })
     }
-  };
+  }
 
   // Handle select change
   const handleSelectChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }))
 
     // Clear error for this field if it exists
     if (formErrors[field]) {
       setFormErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors[field];
-        return newErrors;
-      });
+        const newErrors = { ...prev }
+        delete newErrors[field]
+        return newErrors
+      })
     }
-  };
+  }
 
   // Handle image upload
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const file = e.target.files?.[0]
+    if (!file) return
 
     // Validate file type
-    const validTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+    const validTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"]
     if (!validTypes.includes(file.type)) {
       setFormErrors((prev) => ({
         ...prev,
         image: "Please upload a valid image file (JPEG, PNG, GIF, WEBP)",
-      }));
-      return;
+      }))
+      return
     }
 
     // Validate file size (max 5MB)
@@ -529,8 +581,8 @@ export function EditPetDialog({
       setFormErrors((prev) => ({
         ...prev,
         image: "Image size should be less than 5MB",
-      }));
-      return;
+      }))
+      return
     }
 
     // BACKEND INTEGRATION POINT:
@@ -548,80 +600,74 @@ export function EditPetDialog({
     // }
 
     // Mock implementation - replace with actual upload
-    const reader = new FileReader();
+    const reader = new FileReader()
     reader.onload = (event) => {
       if (event.target?.result) {
-        const imageUrl = event.target.result.toString();
-        setFormData((prev) => ({ ...prev, image: imageUrl }));
+        const imageUrl = event.target.result.toString()
+        setFormData((prev) => ({ ...prev, image: imageUrl }))
         setFormErrors((prev) => {
-          const newErrors = { ...prev };
-          delete newErrors.image;
-          return newErrors;
-        });
+          const newErrors = { ...prev }
+          delete newErrors.image
+          return newErrors
+        })
       }
-    };
-    reader.readAsDataURL(file);
-  };
+    }
+    reader.readAsDataURL(file)
+  }
 
   // Validate form
   const validateForm = () => {
-    const errors: Record<string, string> = {};
-    const requiredFields: (keyof Pet)[] = [
-      "name",
-      "type",
-      "breed",
-      "size",
-      "ownerId",
-    ];
+    const errors: Record<string, string> = {}
+    const requiredFields: (keyof Pet)[] = ["name", "type", "breed", "size", "ownerId"]
 
     requiredFields.forEach((field) => {
       if (!formData[field]) {
-        errors[field] = "This field is required";
+        errors[field] = "This field is required"
       }
-    });
+    })
 
     // Age validation
     if (formData.age !== undefined) {
       if (isNaN(Number(formData.age))) {
-        errors.age = "Age must be a number";
+        errors.age = "Age must be a number"
       } else if (Number(formData.age) < 0 || Number(formData.age) > 30) {
-        errors.age = "Age must be between 0 and 30";
+        errors.age = "Age must be between 0 and 30"
       }
     } else {
-      errors.age = "Age is required";
+      errors.age = "Age is required"
     }
 
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
+    setFormErrors(errors)
+    return Object.keys(errors).length === 0
+  }
 
   // Handle form submission
   const handleSubmit = async () => {
-    if (!validateForm()) return;
+    if (!validateForm()) return
 
     try {
-      await onSubmit(formData);
+      await onSubmit(formData)
     } catch (error) {
-      console.error("Failed to update pet:", error);
+      console.error("Failed to update pet:", error)
     }
-  };
+  }
 
   // Reset form when dialog closes
   const handleOpenChange = (open: boolean) => {
     if (!open) {
-      setFormData({});
-      setFormErrors({});
+      setFormData({})
+      setFormErrors({})
     }
-    onOpenChange(open);
-  };
+    onOpenChange(open)
+  }
 
   // Get owner name for display
   const getOwnerName = (ownerId: string) => {
-    const owner = petOwners.find((o) => o.id === ownerId);
-    return owner ? owner.name : "Unknown Owner";
-  };
+    const owner = petOwners.find((o) => o.id === ownerId)
+    return owner ? owner.name : "Unknown Owner"
+  }
 
-  if (!pet) return null;
+  if (!pet) return null
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
@@ -631,24 +677,15 @@ export function EditPetDialog({
             <PawPrint className="h-5 w-5" />
             Edit Pet
           </DialogTitle>
-          <DialogDescription>
-            Update information for {pet.name}
-          </DialogDescription>
+          <DialogDescription>Update information for {pet.name}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <div className="flex flex-col items-center mb-4">
             <Avatar className="h-24 w-24 mb-2">
-              <AvatarImage
-                src={formData.image || "/placeholder.svg?height=200&width=200"}
-                alt="Pet Profile"
-              />
+              <AvatarImage src={formData.image || "/placeholder.svg?height=200&width=200"} alt="Pet Profile" />
               <AvatarFallback>
-                {formData.type === "Dog" ? (
-                  <Dog className="h-12 w-12" />
-                ) : (
-                  <Cat className="h-12 w-12" />
-                )}
+                {formData.type === "Dog" ? <Dog className="h-12 w-12" /> : <Cat className="h-12 w-12" />}
               </AvatarFallback>
             </Avatar>
 
@@ -666,19 +703,12 @@ export function EditPetDialog({
                 ref={fileInputRef}
               />
             </Label>
-            <p className="text-xs text-muted-foreground mt-1">
-              Optional: Upload a profile picture
-            </p>
-            {formErrors.image && (
-              <p className="text-xs text-red-500 mt-1">{formErrors.image}</p>
-            )}
+            <p className="text-xs text-muted-foreground mt-1">Optional: Upload a profile picture</p>
+            {formErrors.image && <p className="text-xs text-red-500 mt-1">{formErrors.image}</p>}
           </div>
 
           <div className="space-y-2">
-            <Label
-              htmlFor="name"
-              className="text-sm font-medium flex items-center"
-            >
+            <Label htmlFor="name" className="text-sm font-medium flex items-center">
               Pet Name <span className="text-red-500 ml-1">*</span>
             </Label>
             <div className="relative">
@@ -692,16 +722,11 @@ export function EditPetDialog({
                 className={`pl-9 ${formErrors.name ? "border-red-500 focus-visible:ring-red-500" : ""}`}
               />
             </div>
-            {formErrors.name && (
-              <p className="text-xs text-red-500">{formErrors.name}</p>
-            )}
+            {formErrors.name && <p className="text-xs text-red-500">{formErrors.name}</p>}
           </div>
 
           <div className="space-y-2">
-            <Label
-              htmlFor="type"
-              className="text-sm font-medium flex items-center"
-            >
+            <Label htmlFor="type" className="text-sm font-medium flex items-center">
               Pet Type <span className="text-red-500 ml-1">*</span>
             </Label>
             <div className="relative">
@@ -710,10 +735,7 @@ export function EditPetDialog({
               ) : (
                 <Cat className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               )}
-              <Select
-                value={formData.type || ""}
-                onValueChange={(value) => handleSelectChange("type", value)}
-              >
+              <Select value={formData.type || ""} onValueChange={(value) => handleSelectChange("type", value)}>
                 <SelectTrigger
                   id="type"
                   className={`pl-9 ${formErrors.type ? "border-red-500 focus-visible:ring-red-500" : ""}`}
@@ -736,24 +758,16 @@ export function EditPetDialog({
                 </SelectContent>
               </Select>
             </div>
-            {formErrors.type && (
-              <p className="text-xs text-red-500">{formErrors.type}</p>
-            )}
+            {formErrors.type && <p className="text-xs text-red-500">{formErrors.type}</p>}
           </div>
 
           <div className="space-y-2">
-            <Label
-              htmlFor="breed"
-              className="text-sm font-medium flex items-center"
-            >
+            <Label htmlFor="breed" className="text-sm font-medium flex items-center">
               Breed <span className="text-red-500 ml-1">*</span>
             </Label>
             <div className="relative">
               <Dna className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Select
-                value={formData.breed || ""}
-                onValueChange={(value) => handleSelectChange("breed", value)}
-              >
+              <Select value={formData.breed || ""} onValueChange={(value) => handleSelectChange("breed", value)}>
                 <SelectTrigger
                   id="breed"
                   className={`pl-9 ${formErrors.breed ? "border-red-500 focus-visible:ring-red-500" : ""}`}
@@ -761,26 +775,19 @@ export function EditPetDialog({
                   <SelectValue placeholder="Select breed" />
                 </SelectTrigger>
                 <SelectContent>
-                  {(formData.type === "Dog" ? DOG_BREEDS : CAT_BREEDS).map(
-                    (breed) => (
-                      <SelectItem key={breed} value={breed}>
-                        {breed}
-                      </SelectItem>
-                    ),
-                  )}
+                  {(formData.type === "Dog" ? DOG_BREEDS : CAT_BREEDS).map((breed) => (
+                    <SelectItem key={breed} value={breed}>
+                      {breed}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
-            {formErrors.breed && (
-              <p className="text-xs text-red-500">{formErrors.breed}</p>
-            )}
+            {formErrors.breed && <p className="text-xs text-red-500">{formErrors.breed}</p>}
           </div>
 
           <div className="space-y-2">
-            <Label
-              htmlFor="age"
-              className="text-sm font-medium flex items-center"
-            >
+            <Label htmlFor="age" className="text-sm font-medium flex items-center">
               Age (years) <span className="text-red-500 ml-1">*</span>
             </Label>
             <div className="relative">
@@ -797,24 +804,16 @@ export function EditPetDialog({
                 className={`pl-9 ${formErrors.age ? "border-red-500 focus-visible:ring-red-500" : ""}`}
               />
             </div>
-            {formErrors.age && (
-              <p className="text-xs text-red-500">{formErrors.age}</p>
-            )}
+            {formErrors.age && <p className="text-xs text-red-500">{formErrors.age}</p>}
           </div>
 
           <div className="space-y-2">
-            <Label
-              htmlFor="size"
-              className="text-sm font-medium flex items-center"
-            >
+            <Label htmlFor="size" className="text-sm font-medium flex items-center">
               Size <span className="text-red-500 ml-1">*</span>
             </Label>
             <div className="relative">
               <Ruler className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Select
-                value={formData.size || ""}
-                onValueChange={(value) => handleSelectChange("size", value)}
-              >
+              <Select value={formData.size || ""} onValueChange={(value) => handleSelectChange("size", value)}>
                 <SelectTrigger
                   id="size"
                   className={`pl-9 ${formErrors.size ? "border-red-500 focus-visible:ring-red-500" : ""}`}
@@ -829,32 +828,22 @@ export function EditPetDialog({
                 </SelectContent>
               </Select>
             </div>
-            {formErrors.size && (
-              <p className="text-xs text-red-500">{formErrors.size}</p>
-            )}
+            {formErrors.size && <p className="text-xs text-red-500">{formErrors.size}</p>}
           </div>
 
           <div className="space-y-2">
-            <Label
-              htmlFor="ownerId"
-              className="text-sm font-medium flex items-center"
-            >
+            <Label htmlFor="ownerId" className="text-sm font-medium flex items-center">
               Owner <span className="text-red-500 ml-1">*</span>
             </Label>
             <div className="relative">
               <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Select
-                value={formData.ownerId || ""}
-                onValueChange={(value) => handleSelectChange("ownerId", value)}
-              >
+              <Select value={formData.ownerId || ""} onValueChange={(value) => handleSelectChange("ownerId", value)}>
                 <SelectTrigger
                   id="ownerId"
                   className={`pl-9 ${formErrors.ownerId ? "border-red-500 focus-visible:ring-red-500" : ""}`}
                 >
                   <SelectValue placeholder="Select owner">
-                    {formData.ownerId
-                      ? getOwnerName(formData.ownerId)
-                      : "Select owner"}
+                    {formData.ownerId ? getOwnerName(formData.ownerId) : "Select owner"}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
@@ -869,15 +858,12 @@ export function EditPetDialog({
                 </SelectContent>
               </Select>
             </div>
-            {formErrors.ownerId && (
-              <p className="text-xs text-red-500">{formErrors.ownerId}</p>
-            )}
+            {formErrors.ownerId && <p className="text-xs text-red-500">{formErrors.ownerId}</p>}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="notes" className="text-sm font-medium">
-              Notes{" "}
-              <span className="text-xs text-muted-foreground">(optional)</span>
+              Notes <span className="text-xs text-muted-foreground">(optional)</span>
             </Label>
             <Textarea
               id="notes"
@@ -914,18 +900,18 @@ export function EditPetDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
+  )
 }
 
 /**
  * Component for confirming pet deletion
  */
 export interface DeleteConfirmDialogProps {
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
-  onConfirm: () => void;
-  title?: string;
-  description?: string;
+  isOpen: boolean
+  onOpenChange: (open: boolean) => void
+  onConfirm: () => void
+  title?: string
+  description?: string
 }
 
 export function DeleteConfirmDialog({
@@ -947,23 +933,18 @@ export function DeleteConfirmDialog({
         </DialogHeader>
         <div className="flex items-center gap-2 p-4 bg-destructive/10 rounded-md">
           <AlertCircle className="h-5 w-5 text-destructive" />
-          <p className="text-sm text-destructive">
-            This will permanently delete the pet and all associated records.
-          </p>
+          <p className="text-sm text-destructive">This will permanently delete the pet and all associated records.</p>
         </div>
         <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-4">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button
-            variant="destructive"
-            onClick={onConfirm}
-            className="bg-red-600 hover:bg-red-700 text-white"
-          >
+          <Button variant="destructive" onClick={onConfirm} className="bg-red-600 hover:bg-red-700 text-white">
             Delete
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
+  )
 }
+

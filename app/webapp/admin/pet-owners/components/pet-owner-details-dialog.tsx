@@ -64,8 +64,8 @@ export function PetOwnerDetailsDialog({
         </DialogHeader>
 
         <div className="space-y-4 md:space-y-6">
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
-            <Avatar className="h-20 w-20 border-2 border-primary/20">
+          <div className="flex flex-col items-center text-center mb-4">
+            <Avatar className="h-24 w-24 border-2 border-primary/20 mb-3">
               <AvatarImage src={owner.avatar} alt={owner.name} />
               <AvatarFallback className="bg-primary/10 text-primary text-xl">
                 {owner.name
@@ -75,27 +75,46 @@ export function PetOwnerDetailsDialog({
               </AvatarFallback>
             </Avatar>
 
-            <div className="flex-1 text-center sm:text-left">
-              <h3 className="text-xl font-bold">{owner.name}</h3>
-              <div className="flex flex-col sm:flex-row gap-2 mt-2">
+            <h3 className="text-xl font-bold">{owner.name}</h3>
+
+            <div className="flex flex-wrap justify-center gap-2 mt-2 mb-3">
+              <Badge
+                variant="outline"
+                className="flex items-center gap-1 bg-primary/10 text-primary"
+              >
+                <Users className="h-3 w-3" />
+                {owner.pets.length} {owner.pets.length === 1 ? "Pet" : "Pets"}
+              </Badge>
+
+              {owner.pets.some((pet) => pet.isBoarding) && (
                 <Badge
                   variant="outline"
-                  className="flex items-center gap-1 bg-primary/10 text-primary"
+                  className="flex items-center gap-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
                 >
-                  <Users className="h-3 w-3" />
-                  {owner.pets.length} {owner.pets.length === 1 ? "Pet" : "Pets"}
+                  <Hotel className="h-3 w-3" />
+                  {owner.pets.filter((pet) => pet.isBoarding).length} Boarding
                 </Badge>
+              )}
+            </div>
 
-                {owner.pets.some((pet) => pet.isBoarding) && (
-                  <Badge
-                    variant="outline"
-                    className="flex items-center gap-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                  >
-                    <Hotel className="h-3 w-3" />
-                    {owner.pets.filter((pet) => pet.isBoarding).length} Boarding
-                  </Badge>
-                )}
-              </div>
+            <div className="flex flex-wrap justify-center gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-primary/20 hover:bg-primary/10 hover:text-primary"
+                onClick={() => onEditOwner(owner.id)}
+              >
+                <Edit className="mr-1 h-3.5 w-3.5" />
+                Edit Owner
+              </Button>
+              <Button
+                size="sm"
+                className="bg-green-600 hover:bg-green-700 text-white"
+                onClick={() => onAddPet(owner.id)}
+              >
+                <PlusCircle className="mr-1 h-3.5 w-3.5" />
+                Add Pet
+              </Button>
             </div>
           </div>
 
@@ -151,7 +170,10 @@ export function PetOwnerDetailsDialog({
                     <div
                       key={pet.id}
                       className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer"
-                      onClick={() => onPetClick(pet)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onPetClick(pet);
+                      }}
                     >
                       <Avatar className="h-10 w-10 border">
                         <AvatarImage src={pet.image} alt={pet.name} />
@@ -208,39 +230,14 @@ export function PetOwnerDetailsDialog({
             </>
           )}
 
-          <div className="flex flex-wrap gap-2 pt-2">
+          <div className="pt-2">
             <Button
               variant="outline"
-              className="flex-1 sm:flex-none border-primary/20 hover:bg-primary/10 hover:text-primary"
-              onClick={() => onEditOwner(owner.id)}
-            >
-              <Edit className="mr-2 h-4 w-4" />
-              Edit Owner
-            </Button>
-
-            <Button
-              variant="outline"
-              className="flex-1 sm:flex-none border-red-300 bg-red-50 hover:bg-red-100 text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:hover:bg-red-800/50 dark:text-red-400"
+              className="w-full bg-red-500 hover:bg-red-600 text-white"
               onClick={() => onDeleteOwner(owner.id)}
             >
               <Trash2 className="mr-2 h-4 w-4" />
               Delete Owner
-            </Button>
-
-            <Button
-              className="flex-1 sm:flex-none bg-green-600 hover:bg-green-700 text-white"
-              onClick={() => onAddPet(owner.id)}
-            >
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Add Pet
-            </Button>
-
-            <Button
-              className="flex-1 sm:flex-none bg-amber-600 hover:bg-amber-700 text-white"
-              onClick={() => onBoardPet(owner.id)}
-            >
-              <Hotel className="mr-2 h-4 w-4" />
-              Board Pet
             </Button>
           </div>
         </div>
