@@ -1,15 +1,18 @@
-"use client"
+"use client";
 
-import { cn } from "@/lib/utils"
-import { User, Home, Phone } from "lucide-react"
+import { cn } from "@/lib/utils";
+import { User, Home, Phone } from "lucide-react";
 
 interface ProgressStepsProps {
-  currentStep: number
-  totalSteps?: number
+  currentStep: number;
+  totalSteps?: number;
 }
 
 // Update the ProgressSteps component to fix the alignment issue
-export function ProgressSteps({ currentStep, totalSteps = 3 }: ProgressStepsProps) {
+export function ProgressSteps({
+  currentStep,
+  totalSteps = 3,
+}: ProgressStepsProps) {
   return (
     <div className="w-full py-4 sm:py-8">
       <div className="mx-auto w-full max-w-3xl">
@@ -37,7 +40,7 @@ export function ProgressSteps({ currentStep, totalSteps = 3 }: ProgressStepsProp
               >
                 <User className="h-5 w-5" />
               </div>
-              <span className="text-sm font-medium">Personal Info</span>
+              <span className="text-sm font-medium">Personal</span>
             </div>
 
             {/* Address */}
@@ -67,12 +70,13 @@ export function ProgressSteps({ currentStep, totalSteps = 3 }: ProgressStepsProp
               >
                 <Phone className="h-5 w-5" />
               </div>
-              <span className="text-sm font-medium whitespace-nowrap">Emergency Contact</span>
+              <span className="text-sm font-medium whitespace-nowrap">
+                Emergency Contact
+              </span>
             </div>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }
-
