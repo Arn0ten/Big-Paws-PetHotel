@@ -312,31 +312,41 @@ export function AddPetDialog({
           </div>
 
           <div className="space-y-2">
-            <Label
-              htmlFor="pet-type"
-              className="text-sm font-medium flex items-center"
-            >
-              Pet Type <span className="text-red-500 ml-1">*</span>
-            </Label>
-            <Select
-              value={formState.type}
-              onValueChange={(value) => updateField("type", value)}
-            >
-              <SelectTrigger
-                id="pet-type"
-                className={`${formErrors.type ? "border-red-500 focus-visible:ring-red-500" : "border-input"} focus-visible:ring-blue-500`}
-              >
-                <SelectValue placeholder="Select pet type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Dog">Dog</SelectItem>
-                <SelectItem value="Cat">Cat</SelectItem>
-              </SelectContent>
-            </Select>
-            {formErrors.type && (
-              <p className="text-xs text-red-500">Pet type is required</p>
-            )}
-          </div>
+                      <Label
+                        htmlFor="pet-type"
+                        className="text-sm font-medium flex items-center"
+                      >
+                        Pet Type <span className="text-red-500 ml-1">*</span>
+                      </Label>
+                      <Select
+                        value={formState.type}
+                        onValueChange={(value) => updateField("type", value)}
+                      >
+                        <SelectTrigger
+                          id="pet-type"
+                          className={`${formErrors.type ? "border-red-500 focus-visible:ring-red-500" : "border-input"} focus-visible:ring-primary`}
+                        >
+                          <SelectValue placeholder="Select pet type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Dog">
+                            <div className="flex items-center">
+                              <Dog className="mr-2 h-4 w-4 text-blue-500" />
+                              Dog
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="Cat">
+                            <div className="flex items-center">
+                              <Cat className="mr-2 h-4 w-4 text-purple-500" />
+                              Cat
+                            </div>
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {formErrors.type && (
+                        <p className="text-xs text-red-500">Pet type is required</p>
+                      )}
+                    </div>
 
           <div className="space-y-2">
             <Label
