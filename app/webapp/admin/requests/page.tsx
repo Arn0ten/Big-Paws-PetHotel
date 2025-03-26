@@ -1,14 +1,21 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect, useRef } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
+import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import {
   Camera,
   Video,
@@ -29,8 +36,8 @@ import {
   CheckCircle,
   Dog,
   Cat,
-} from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
+} from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
   DialogContent,
@@ -38,67 +45,72 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
-import { Skeleton } from "@/components/ui/skeleton"
-import { formatDate } from "../boarding/utils/helpers"
-import { Label } from "@/components/ui/label"
-import { useMediaQuery } from "@/hooks/use-media-query"
-import { Textarea } from "@/components/ui/textarea"
-import { formatDistanceToNow } from "date-fns"
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import { formatDate } from "../boarding/utils/helpers";
+import { Label } from "@/components/ui/label";
+import { useMediaQuery } from "@/hooks/use-media-query";
+import { Textarea } from "@/components/ui/textarea";
+import { formatDistanceToNow } from "date-fns";
 
 // Utility functions for request management
 const getRequestTypeIcon = (type: string) => {
   switch (type) {
     case "photo":
-      return <Camera className="h-5 w-5" />
+      return <Camera className="h-5 w-5" />;
     case "video":
-      return <Video className="h-5 w-5" />
+      return <Video className="h-5 w-5" />;
     case "grooming":
-      return <Scissors className="h-5 w-5" />
+      return <Scissors className="h-5 w-5" />;
     case "boarding-extension":
-      return <Clock className="h-5 w-5" />
+      return <Clock className="h-5 w-5" />;
     case "custom":
-      return <FileText className="h-5 w-5" />
+      return <FileText className="h-5 w-5" />;
     case "dog":
-      return <Dog className="h-5 w-5" />
+      return <Dog className="h-5 w-5" />;
     case "cat":
-      return <Cat className="h-5 w-5" />
+      return <Cat className="h-5 w-5" />;
     default:
-      return <FileText className="h-5 w-5" />
+      return <FileText className="h-5 w-5" />;
   }
-}
+};
 
 const getRequestTypeLabel = (type: string) => {
   switch (type) {
     case "photo":
-      return "Photo Update"
+      return "Photo Update";
     case "video":
-      return "Video Request"
+      return "Video Request";
     case "grooming":
-      return "Grooming Service"
+      return "Grooming Service";
     case "boarding-extension":
-      return "Boarding Extension"
+      return "Boarding Extension";
     case "custom":
-      return "Custom Request"
+      return "Custom Request";
     case "dog":
-      return "Dog"
+      return "Dog";
     case "cat":
-      return "Cat"
+      return "Cat";
     default:
-      return "Request"
+      return "Request";
   }
-}
+};
 
 // Function to get time ago in words
 const getTimeAgo = (date: string) => {
   try {
-    return formatDistanceToNow(new Date(date), { addSuffix: true })
+    return formatDistanceToNow(new Date(date), { addSuffix: true });
   } catch (error) {
-    console.error("Error formatting date:", error)
-    return "N/A"
+    console.error("Error formatting date:", error);
+    return "N/A";
   }
-}
+};
 
 // Sample data for demonstration
 // NOTE FOR BACKEND: Replace with API call to fetch requests
@@ -182,7 +194,8 @@ const sampleRequests = [
     description: "Would like to see a photo of Rocky during playtime.",
     isUrgent: false,
     rejectedBy: "Admin",
-    rejectionReason: "Rocky is currently being groomed. We'll send you a photo once he's done.",
+    rejectionReason:
+      "Rocky is currently being groomed. We'll send you a photo once he's done.",
     petSize: "Large",
     boardingId: "board-005",
   },
@@ -195,7 +208,8 @@ const sampleRequests = [
     petOwnerName: "Jennifer Taylor",
     status: "new",
     createdAt: "2025-03-05T13:25:00Z",
-    description: "Daisy needs a full grooming session with special attention to her ears.",
+    description:
+      "Daisy needs a full grooming session with special attention to her ears.",
     isUrgent: false,
     groomingService: "full-grooming",
     petSize: "Medium",
@@ -211,7 +225,8 @@ const sampleRequests = [
     status: "rejected",
     createdAt: "2025-03-04T09:15:00Z",
     rejectedAt: "2025-03-04T11:30:00Z",
-    description: "Need to extend Cooper's stay by 3 more days due to delayed flight.",
+    description:
+      "Need to extend Cooper's stay by 3 more days due to delayed flight.",
     extensionDetails: {
       duration: "3",
       unit: "days",
@@ -219,7 +234,8 @@ const sampleRequests = [
     currentEndDate: "2025-03-07T12:00:00Z",
     isUrgent: true,
     rejectedBy: "Admin",
-    rejectionReason: "We're fully booked for those dates. Please call us to discuss alternatives.",
+    rejectionReason:
+      "We're fully booked for those dates. Please call us to discuss alternatives.",
     petSize: "Large",
     boardingId: "board-007",
   },
@@ -232,7 +248,8 @@ const sampleRequests = [
     petOwnerName: "Amanda Clark",
     status: "new",
     createdAt: "2025-03-03T15:40:00Z",
-    description: "Can you make sure Milo gets his medication at 3pm every day? It's in his bag.",
+    description:
+      "Can you make sure Milo gets his medication at 3pm every day? It's in his bag.",
     isUrgent: true,
     petSize: "Small",
     boardingId: "board-008",
@@ -246,7 +263,8 @@ const sampleRequests = [
     petOwnerName: "Thomas Wright",
     status: "new",
     createdAt: "2025-03-02T10:20:00Z",
-    description: "Would love to see a video of Zoe playing with other dogs if possible.",
+    description:
+      "Would love to see a video of Zoe playing with other dogs if possible.",
     isUrgent: false,
     petSize: "Medium",
     boardingId: "board-009",
@@ -265,7 +283,8 @@ const sampleRequests = [
     groomingService: "premium-wash-and-cut",
     isUrgent: false,
     rejectedBy: "Admin",
-    rejectionReason: "Our groomer is fully booked today. We can schedule for tomorrow morning if that works for you.",
+    rejectionReason:
+      "Our groomer is fully booked today. We can schedule for tomorrow morning if that works for you.",
     petSize: "Small",
     boardingId: "board-010",
   },
@@ -298,7 +317,8 @@ const sampleRequests = [
     petOwnerName: "Lisa Thompson",
     status: "new",
     createdAt: "2025-03-11T09:15:00Z",
-    description: "Need to extend Coco's daycare by 2 more hours due to traffic.",
+    description:
+      "Need to extend Coco's daycare by 2 more hours due to traffic.",
     extensionDetails: {
       duration: "2",
       unit: "hours",
@@ -308,50 +328,50 @@ const sampleRequests = [
     petSize: "Small",
     boardingId: "board-012",
   },
-]
+];
 
 interface NewRequestCardProps {
-  request: any
-  onApprove: () => void
-  onReject: () => void
-  onViewDetails: () => void
+  request: any;
+  onApprove: () => void;
+  onReject: () => void;
+  onViewDetails: () => void;
 }
 
 interface RejectedRequestCardProps {
-  request: any
-  onViewDetails: () => void
-  onReconsider: () => void
+  request: any;
+  onViewDetails: () => void;
+  onReconsider: () => void;
 }
 
 // Main component for the Requests page
 export default function RequestsPage() {
-  const [isSearching, setIsSearching] = useState(false)
-  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const [requests, setRequests] = useState(sampleRequests)
-  const [activeTab, setActiveTab] = useState("new")
-  const [searchQuery, setSearchQuery] = useState("")
-  const [filterType, setFilterType] = useState("all")
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc")
-  const [selectedRequest, setSelectedRequest] = useState<any>(null)
-  const [showDetailsDialog, setShowDetailsDialog] = useState(false)
-  const [showRejectDialog, setShowRejectDialog] = useState(false)
-  const [showReconsiderDialog, setShowReconsiderDialog] = useState(false)
-  const [rejectionReason, setRejectionReason] = useState("")
-  const [reconsiderationReason, setReconsiderationReason] = useState("")
-  const [isProcessing, setIsProcessing] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const { toast } = useToast()
-  const isMobile = useMediaQuery("(max-width: 640px)")
-  const isSmallScreen = useMediaQuery("(max-width: 768px)")
-  const isTablet = useMediaQuery("(max-width: 1024px)")
-  const [showSuccessDialog, setShowSuccessDialog] = useState(false)
-  const [successMessage, setSuccessMessage] = useState("")
-  const [successTitle, setSuccessTitle] = useState("")
-  const [successType, setSuccessType] = useState("")
+  const [isSearching, setIsSearching] = useState(false);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [requests, setRequests] = useState(sampleRequests);
+  const [activeTab, setActiveTab] = useState("new");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterType, setFilterType] = useState("all");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [selectedRequest, setSelectedRequest] = useState<any>(null);
+  const [showDetailsDialog, setShowDetailsDialog] = useState(false);
+  const [showRejectDialog, setShowRejectDialog] = useState(false);
+  const [showReconsiderDialog, setShowReconsiderDialog] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState("");
+  const [reconsiderationReason, setReconsiderationReason] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+  const isMobile = useMediaQuery("(max-width: 640px)");
+  const isSmallScreen = useMediaQuery("(max-width: 768px)");
+  const isTablet = useMediaQuery("(max-width: 1024px)");
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [successTitle, setSuccessTitle] = useState("");
+  const [successType, setSuccessType] = useState("");
 
   const handleApproveRequest = (request: any) => {
-    setSelectedRequest(request)
-    setIsProcessing(true)
+    setSelectedRequest(request);
+    setIsProcessing(true);
 
     // NOTE FOR BACKEND: Replace with actual API call to approve request
     setTimeout(() => {
@@ -365,29 +385,29 @@ export default function RequestsPage() {
               approvedBy: "Admin",
             }
           : req,
-      )
+      );
 
-      setRequests(updatedRequests)
-      setIsProcessing(false)
-      setShowDetailsDialog(false)
+      setRequests(updatedRequests);
+      setIsProcessing(false);
+      setShowDetailsDialog(false);
 
       // Show success dialog
-      setSuccessTitle("Request Approved")
+      setSuccessTitle("Request Approved");
       setSuccessMessage(
         `The ${getRequestTypeLabel(request.type).toLowerCase()} for ${request.petName} has been approved and moved to In Progress.`,
-      )
-      setSuccessType(request.type)
-      setShowSuccessDialog(true)
+      );
+      setSuccessType(request.type);
+      setShowSuccessDialog(true);
 
       // Reset state
-      setSelectedRequest(null)
-    }, 1500)
-  }
+      setSelectedRequest(null);
+    }, 1500);
+  };
 
   const handleRejectRequest = () => {
-    if (!selectedRequest || !rejectionReason.trim()) return
+    if (!selectedRequest || !rejectionReason.trim()) return;
 
-    setIsProcessing(true)
+    setIsProcessing(true);
 
     // NOTE FOR BACKEND: Replace with actual API call to reject request
     setTimeout(() => {
@@ -402,30 +422,30 @@ export default function RequestsPage() {
               rejectionReason: rejectionReason,
             }
           : req,
-      )
+      );
 
-      setRequests(updatedRequests)
-      setIsProcessing(false)
-      setShowRejectDialog(false)
-      setShowDetailsDialog(false)
+      setRequests(updatedRequests);
+      setIsProcessing(false);
+      setShowRejectDialog(false);
+      setShowDetailsDialog(false);
 
       // Show success dialog
-      setSuccessTitle("Request Rejected")
+      setSuccessTitle("Request Rejected");
       setSuccessMessage(
         `The ${getRequestTypeLabel(selectedRequest.type).toLowerCase()} for ${selectedRequest.petName} has been rejected.`,
-      )
-      setSuccessType(selectedRequest.type)
-      setShowSuccessDialog(true)
+      );
+      setSuccessType(selectedRequest.type);
+      setShowSuccessDialog(true);
 
       // Reset state
-      setRejectionReason("")
-    }, 1500)
-  }
+      setRejectionReason("");
+    }, 1500);
+  };
 
   const handleReconsiderRequest = () => {
-    if (!selectedRequest || !reconsiderationReason.trim()) return
+    if (!selectedRequest || !reconsiderationReason.trim()) return;
 
-    setIsProcessing(true)
+    setIsProcessing(true);
 
     // NOTE FOR BACKEND: Replace with actual API call to reconsider request
     setTimeout(() => {
@@ -454,78 +474,79 @@ export default function RequestsPage() {
               },
             }
           : req,
-      )
+      );
 
-      setRequests(updatedRequests)
-      setIsProcessing(false)
-      setShowReconsiderDialog(false)
-      setShowDetailsDialog(false)
+      setRequests(updatedRequests);
+      setIsProcessing(false);
+      setShowReconsiderDialog(false);
+      setShowDetailsDialog(false);
 
       // Show success dialog
-      setSuccessTitle("Request Reconsidered")
+      setSuccessTitle("Request Reconsidered");
       setSuccessMessage(
         `The ${getRequestTypeLabel(selectedRequest.type).toLowerCase()} for ${selectedRequest.petName} has been moved back to New Requests.`,
-      )
-      setSuccessType(selectedRequest.type)
-      setShowSuccessDialog(true)
+      );
+      setSuccessType(selectedRequest.type);
+      setShowSuccessDialog(true);
 
       // Reset state
-      setReconsiderationReason("")
-    }, 1500)
-  }
+      setReconsiderationReason("");
+    }, 1500);
+  };
 
   const handleRefresh = () => {
-    setIsLoading(true)
-    setSearchQuery("")
-    setFilterType("all")
+    setIsLoading(true);
+    setSearchQuery("");
+    setFilterType("all");
 
     // NOTE FOR BACKEND: Replace with actual API call to refresh data
     setTimeout(() => {
       // Simulate refreshing data
-      setRequests([...sampleRequests])
-      setIsLoading(false)
-    }, 1500)
-  }
+      setRequests([...sampleRequests]);
+      setIsLoading(false);
+    }, 1500);
+  };
 
   const toggleSortOrder = () => {
-    setSortOrder(sortOrder === "asc" ? "desc" : "asc")
-  }
+    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+  };
 
   // Filter and sort requests - implementing FIFO (newest first)
   const filteredAndSortedRequests = requests
     .filter((request) => {
       // Filter by tab
-      if (activeTab === "new" && request.status !== "new") return false
-      if (activeTab === "rejected" && request.status !== "rejected") return false
+      if (activeTab === "new" && request.status !== "new") return false;
+      if (activeTab === "rejected" && request.status !== "rejected")
+        return false;
 
       // Filter by search query
-      const searchLower = searchQuery.toLowerCase()
+      const searchLower = searchQuery.toLowerCase();
       if (
         searchQuery &&
         !request.petName.toLowerCase().includes(searchLower) &&
         !request.petOwnerName.toLowerCase().includes(searchLower) &&
         !request.description.toLowerCase().includes(searchLower)
       ) {
-        return false
+        return false;
       }
 
       // Filter by request type
       if (filterType !== "all" && request.type !== filterType) {
-        return false
+        return false;
       }
 
-      return true
+      return true;
     })
     .sort((a, b) => {
       // Sort by creation date - newest first (FIFO)
-      const dateA = new Date(a.createdAt).getTime()
-      const dateB = new Date(b.createdAt).getTime()
-      return sortOrder === "desc" ? dateB - dateA : dateA - dateB
-    })
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+      return sortOrder === "desc" ? dateB - dateA : dateA - dateB;
+    });
 
   useEffect(() => {
     // Add CSS to hide scrollbars but keep functionality
-    const style = document.createElement("style")
+    const style = document.createElement("style");
     style.textContent = `
       .scrollbar-hide::-webkit-scrollbar {
         display: none;
@@ -534,21 +555,21 @@ export default function RequestsPage() {
         -ms-overflow-style: none;
         scrollbar-width: none;
       }
-    `
-    document.head.appendChild(style)
+    `;
+    document.head.appendChild(style);
 
     return () => {
-      document.head.removeChild(style)
-    }
-  }, [])
+      document.head.removeChild(style);
+    };
+  }, []);
 
   useEffect(() => {
     return () => {
       if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current)
+        clearTimeout(searchTimeoutRef.current);
       }
-    }
-  }, [])
+    };
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -561,8 +582,12 @@ export default function RequestsPage() {
           stiffness: 300,
         }}
       >
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">Requests</h1>
-        <p className="text-muted-foreground">Review and manage incoming requests from pet owners.</p>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">
+          Requests
+        </h1>
+        <p className="text-muted-foreground">
+          Review and manage incoming requests from pet owners.
+        </p>
       </motion.div>
 
       {/* Enhanced Search, Filter, and Refresh Section */}
@@ -579,19 +604,19 @@ export default function RequestsPage() {
               className="pl-9 h-10"
               value={searchQuery}
               onChange={(e) => {
-                const query = e.target.value
-                setSearchQuery(query)
-                setIsSearching(true)
+                const query = e.target.value;
+                setSearchQuery(query);
+                setIsSearching(true);
 
                 // Clear any existing timeout
                 if (searchTimeoutRef.current) {
-                  clearTimeout(searchTimeoutRef.current)
+                  clearTimeout(searchTimeoutRef.current);
                 }
 
                 // Set a new timeout for the search
                 searchTimeoutRef.current = setTimeout(() => {
-                  setIsSearching(false)
-                }, 300)
+                  setIsSearching(false);
+                }, 300);
               }}
             />
           </div>
@@ -623,7 +648,9 @@ export default function RequestsPage() {
                 <SelectItem value="photo">Photo Updates</SelectItem>
                 <SelectItem value="video">Video Requests</SelectItem>
                 <SelectItem value="grooming">Grooming</SelectItem>
-                <SelectItem value="boarding-extension">Boarding Extensions</SelectItem>
+                <SelectItem value="boarding-extension">
+                  Boarding Extensions
+                </SelectItem>
                 <SelectItem value="custom">Custom Requests</SelectItem>
               </SelectContent>
             </Select>
@@ -649,7 +676,9 @@ export default function RequestsPage() {
               className="h-10 w-10 flex-shrink-0"
               title="Refresh data"
             >
-              <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
+              <RefreshCw
+                className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
+              />
             </Button>
           </div>
         </div>
@@ -657,7 +686,11 @@ export default function RequestsPage() {
 
       {/* Enhanced Tab Interface */}
       <div className="bg-card rounded-lg shadow-sm border">
-        <Tabs defaultValue="new" className="w-full" onValueChange={setActiveTab}>
+        <Tabs
+          defaultValue="new"
+          className="w-full"
+          onValueChange={setActiveTab}
+        >
           <div className="px-4 pt-4">
             <TabsList className="w-full grid grid-cols-2 h-14 p-1 bg-muted/30 dark:bg-muted/20 rounded-lg overflow-x-auto scrollbar-hide">
               <TabsTrigger
@@ -671,17 +704,26 @@ export default function RequestsPage() {
                 <FileText className="h-5 w-5" />
                 <span className="hidden sm:inline">New Requests</span>
                 <span className="sm:hidden">New</span>
-                <Badge variant={activeTab === "new" ? "default" : "secondary"} className="ml-1 text-xs px-2 py-0 h-5">
+                <Badge
+                  variant={activeTab === "new" ? "default" : "secondary"}
+                  className="ml-1 text-xs px-2 py-0 h-5"
+                >
                   {requests.filter((r) => r.status === "new").length}
                 </Badge>
                 {/* Show indicator for reconsidered requests */}
-                {requests.some((r) => r.status === "new" && r.isReconsidered) && (
+                {requests.some(
+                  (r) => r.status === "new" && r.isReconsidered,
+                ) && (
                   <Badge
                     variant="outline"
                     className="ml-1 bg-amber-100 text-amber-700 border-amber-200 text-xs px-2 py-0 h-5"
                   >
                     <RotateCcw className="h-3 w-3 mr-1" />
-                    {requests.filter((r) => r.status === "new" && r.isReconsidered).length}
+                    {
+                      requests.filter(
+                        (r) => r.status === "new" && r.isReconsidered,
+                      ).length
+                    }
                   </Badge>
                 )}
               </TabsTrigger>
@@ -710,7 +752,9 @@ export default function RequestsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 min-h-[600px]">
               {isLoading ? (
                 // Skeleton loading for cards
-                Array.from({ length: 6 }).map((_, index) => <RequestCardSkeleton key={index} />)
+                Array.from({ length: 6 }).map((_, index) => (
+                  <RequestCardSkeleton key={index} />
+                ))
               ) : filteredAndSortedRequests.length === 0 ? (
                 <div className="col-span-full">
                   <EmptyState message="No new requests found" />
@@ -724,13 +768,13 @@ export default function RequestsPage() {
                         request={request}
                         onApprove={() => handleApproveRequest(request)}
                         onReject={() => {
-                          setSelectedRequest(request)
-                          setRejectionReason("")
-                          setShowRejectDialog(true)
+                          setSelectedRequest(request);
+                          setRejectionReason("");
+                          setShowRejectDialog(true);
                         }}
                         onViewDetails={() => {
-                          setSelectedRequest(request)
-                          setShowDetailsDialog(true)
+                          setSelectedRequest(request);
+                          setShowDetailsDialog(true);
                         }}
                       />
                     ))}
@@ -744,7 +788,9 @@ export default function RequestsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 min-h-[600px]">
               {isLoading ? (
                 // Skeleton loading for cards
-                Array.from({ length: 6 }).map((_, index) => <RequestCardSkeleton key={index} />)
+                Array.from({ length: 6 }).map((_, index) => (
+                  <RequestCardSkeleton key={index} />
+                ))
               ) : filteredAndSortedRequests.length === 0 ? (
                 <div className="col-span-full">
                   <EmptyState message="No rejected requests found" />
@@ -757,13 +803,13 @@ export default function RequestsPage() {
                         key={request.id}
                         request={request}
                         onViewDetails={() => {
-                          setSelectedRequest(request)
-                          setShowDetailsDialog(true)
+                          setSelectedRequest(request);
+                          setShowDetailsDialog(true);
                         }}
                         onReconsider={() => {
-                          setSelectedRequest(request)
-                          setReconsiderationReason("")
-                          setShowReconsiderDialog(true)
+                          setSelectedRequest(request);
+                          setReconsiderationReason("");
+                          setShowReconsiderDialog(true);
                         }}
                       />
                     ))}
@@ -777,7 +823,9 @@ export default function RequestsPage() {
 
       {/* Request Details Dialog */}
       <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
-        <DialogContent className={`${isMobile ? "max-w-[95%]" : "sm:max-w-[600px]"} max-h-[90vh] overflow-y-auto`}>
+        <DialogContent
+          className={`${isMobile ? "max-w-[95%]" : "sm:max-w-[600px]"} max-h-[90vh] overflow-y-auto`}
+        >
           {selectedRequest && (
             <>
               <DialogHeader>
@@ -797,36 +845,56 @@ export default function RequestsPage() {
                   {getRequestTypeLabel(selectedRequest.type)}
                 </DialogTitle>
                 <DialogDescription>
-                  Request from {selectedRequest.petOwnerName} for {selectedRequest.petName}
+                  Request from {selectedRequest.petOwnerName} for{" "}
+                  {selectedRequest.petName}
                 </DialogDescription>
               </DialogHeader>
 
               <div className="space-y-5 py-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Pet</span>
-                    <div className="text-base font-medium mt-1">{selectedRequest.petName}</div>
+                    <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+                      Pet
+                    </span>
+                    <div className="text-base font-medium mt-1">
+                      {selectedRequest.petName}
+                    </div>
                   </div>
 
                   <div>
-                    <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Pet Owner</span>
-                    <div className="text-base font-medium mt-1">{selectedRequest.petOwnerName}</div>
+                    <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+                      Pet Owner
+                    </span>
+                    <div className="text-base font-medium mt-1">
+                      {selectedRequest.petOwnerName}
+                    </div>
                   </div>
 
                   <div>
-                    <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Submitted</span>
-                    <div className="text-base font-medium mt-1">{formatDate(selectedRequest.createdAt)}</div>
+                    <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+                      Submitted
+                    </span>
+                    <div className="text-base font-medium mt-1">
+                      {formatDate(selectedRequest.createdAt)}
+                    </div>
                   </div>
 
                   <div>
-                    <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Status</span>
+                    <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+                      Status
+                    </span>
                     <div className="mt-1 flex flex-wrap gap-1">
                       <Badge
-                        variant={selectedRequest.status === "rejected" ? "destructive" : "default"}
+                        variant={
+                          selectedRequest.status === "rejected"
+                            ? "destructive"
+                            : "default"
+                        }
                         className="text-xs"
                       >
                         {selectedRequest.status === "new" && "New"}
-                        {selectedRequest.status === "in-progress" && "In Progress"}
+                        {selectedRequest.status === "in-progress" &&
+                          "In Progress"}
                         {selectedRequest.status === "completed" && "Completed"}
                         {selectedRequest.status === "rejected" && "Rejected"}
                       </Badge>
@@ -836,7 +904,10 @@ export default function RequestsPage() {
                         </Badge>
                       )}
                       {selectedRequest.isReconsidered && (
-                        <Badge variant="outline" className="bg-amber-100 text-amber-700 border-amber-200 text-xs">
+                        <Badge
+                          variant="outline"
+                          className="bg-amber-100 text-amber-700 border-amber-200 text-xs"
+                        >
                           <RotateCcw className="h-3 w-3 mr-1" />
                           Reconsidered
                         </Badge>
@@ -844,40 +915,49 @@ export default function RequestsPage() {
                     </div>
                   </div>
 
-                  {selectedRequest.type === "boarding-extension" && selectedRequest.extensionDetails && (
-                    <>
-                      <div>
-                        <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-                          Current End Date
-                        </span>
-                        <div className="text-base font-medium mt-1">{formatDate(selectedRequest.currentEndDate)}</div>
-                      </div>
+                  {selectedRequest.type === "boarding-extension" &&
+                    selectedRequest.extensionDetails && (
+                      <>
+                        <div>
+                          <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+                            Current End Date
+                          </span>
+                          <div className="text-base font-medium mt-1">
+                            {formatDate(selectedRequest.currentEndDate)}
+                          </div>
+                        </div>
 
-                      <div>
+                        <div>
+                          <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+                            Extension Requested
+                          </span>
+                          <div className="text-base font-medium mt-1 text-amber-700 dark:text-amber-400">
+                            {selectedRequest.extensionDetails.duration}{" "}
+                            {selectedRequest.extensionDetails.unit}
+                          </div>
+                        </div>
+                      </>
+                    )}
+
+                  {selectedRequest.type === "grooming" &&
+                    selectedRequest.groomingService && (
+                      <div className="col-span-2">
                         <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-                          Extension Requested
+                          Requested Service
                         </span>
-                        <div className="text-base font-medium mt-1 text-amber-700 dark:text-amber-400">
-                          {selectedRequest.extensionDetails.duration} {selectedRequest.extensionDetails.unit}
+                        <div className="text-base font-medium mt-1 text-green-700 dark:text-green-400">
+                          {selectedRequest.groomingService
+                            .replace(/-/g, " ")
+                            .replace(/\b\w/g, (l) => l.toUpperCase())}
                         </div>
                       </div>
-                    </>
-                  )}
-
-                  {selectedRequest.type === "grooming" && selectedRequest.groomingService && (
-                    <div className="col-span-2">
-                      <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-                        Requested Service
-                      </span>
-                      <div className="text-base font-medium mt-1 text-green-700 dark:text-green-400">
-                        {selectedRequest.groomingService.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
-                      </div>
-                    </div>
-                  )}
+                    )}
                 </div>
 
                 <div>
-                  <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Description</span>
+                  <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+                    Description
+                  </span>
                   <div className="mt-1 p-3 bg-muted/30 rounded-md text-base whitespace-pre-wrap">
                     {selectedRequest.description}
                   </div>
@@ -892,7 +972,8 @@ export default function RequestsPage() {
                       {selectedRequest.rejectionReason}
                     </div>
                     <div className="mt-1 text-xs text-muted-foreground">
-                      Rejected by {selectedRequest.rejectedBy} on {formatDate(selectedRequest.rejectedAt)}
+                      Rejected by {selectedRequest.rejectedBy} on{" "}
+                      {formatDate(selectedRequest.rejectedAt)}
                     </div>
                   </div>
                 )}
@@ -906,20 +987,23 @@ export default function RequestsPage() {
                       {selectedRequest.reconsiderationReason}
                     </div>
                     <div className="mt-1 text-xs text-muted-foreground">
-                      Reconsidered by {selectedRequest.reconsideredBy} on {formatDate(selectedRequest.reconsideredAt)}
+                      Reconsidered by {selectedRequest.reconsideredBy} on{" "}
+                      {formatDate(selectedRequest.reconsideredAt)}
                     </div>
                   </div>
                 )}
               </div>
 
-              <DialogFooter className={`${isMobile ? "flex-col space-y-2" : ""}`}>
+              <DialogFooter
+                className={`${isMobile ? "flex-col space-y-2" : ""}`}
+              >
                 {selectedRequest.status === "new" ? (
                   <>
                     <Button
                       variant="outline"
                       onClick={() => {
-                        setRejectionReason("")
-                        setShowRejectDialog(true)
+                        setRejectionReason("");
+                        setShowRejectDialog(true);
                       }}
                       disabled={isProcessing}
                       className={`${isMobile ? "w-full" : ""}`}
@@ -932,7 +1016,8 @@ export default function RequestsPage() {
                       disabled={isProcessing}
                       className={`${isMobile ? "w-full" : ""}`}
                     >
-                      {isProcessing && selectedRequest?.id === selectedRequest?.id ? (
+                      {isProcessing &&
+                      selectedRequest?.id === selectedRequest?.id ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                           Processing...
@@ -957,8 +1042,8 @@ export default function RequestsPage() {
                     <Button
                       variant="default"
                       onClick={() => {
-                        setReconsiderationReason("")
-                        setShowReconsiderDialog(true)
+                        setReconsiderationReason("");
+                        setShowReconsiderDialog(true);
                       }}
                       className={`${isMobile ? "w-full" : ""} bg-amber-600 hover:bg-amber-700 text-white`}
                     >
@@ -983,14 +1068,17 @@ export default function RequestsPage() {
 
       {/* Reject Request Dialog - Update styling */}
       <Dialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
-        <DialogContent className={`${isMobile ? "max-w-[95%]" : "sm:max-w-md"}`}>
+        <DialogContent
+          className={`${isMobile ? "max-w-[95%]" : "sm:max-w-md"}`}
+        >
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <X className="h-5 w-5 text-red-500" />
               Reject Request
             </DialogTitle>
             <DialogDescription>
-              Please provide a reason for rejecting this request. This will be visible to the pet owner.
+              Please provide a reason for rejecting this request. This will be
+              visible to the pet owner.
             </DialogDescription>
           </DialogHeader>
 
@@ -1011,7 +1099,8 @@ export default function RequestsPage() {
                 className="resize-none"
               />
               <p className="text-xs text-muted-foreground">
-                Be clear and concise about why the request cannot be fulfilled at this time.
+                Be clear and concise about why the request cannot be fulfilled
+                at this time.
               </p>
             </div>
           </div>
@@ -1045,16 +1134,21 @@ export default function RequestsPage() {
       </Dialog>
 
       {/* Reconsider Request Dialog - Update styling */}
-      <Dialog open={showReconsiderDialog} onOpenChange={setShowReconsiderDialog}>
-        <DialogContent className={`${isMobile ? "max-w-[95%]" : "sm:max-w-md"}`}>
+      <Dialog
+        open={showReconsiderDialog}
+        onOpenChange={setShowReconsiderDialog}
+      >
+        <DialogContent
+          className={`${isMobile ? "max-w-[95%]" : "sm:max-w-md"}`}
+        >
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <RotateCcw className="h-5 w-5 text-amber-500" />
               Reconsider Request
             </DialogTitle>
             <DialogDescription>
-              This will move the request back to the New Requests tab for reconsideration. Please provide a reason for
-              this change.
+              This will move the request back to the New Requests tab for
+              reconsideration. Please provide a reason for this change.
             </DialogDescription>
           </DialogHeader>
 
@@ -1075,7 +1169,8 @@ export default function RequestsPage() {
                 className="resize-none"
               />
               <p className="text-xs text-muted-foreground">
-                Explain why this request is being reconsidered. This message will be visible to the pet owner.
+                Explain why this request is being reconsidered. This message
+                will be visible to the pet owner.
               </p>
             </div>
           </div>
@@ -1122,105 +1217,131 @@ export default function RequestsPage() {
                   delay: 0.1,
                 }}
               >
-                {successType === "photo" && <Camera className="h-6 w-6 text-blue-500" />}
-                {successType === "video" && <Video className="h-6 w-6 text-purple-500" />}
-                {successType === "grooming" && <Scissors className="h-6 w-6 text-green-500" />}
-                {successType === "boarding-extension" && <Clock className="h-6 w-6 text-amber-500" />}
-                {successType === "custom" && <FileText className="h-6 w-6 text-gray-500" />}
-                {!successType && <CheckCircle className="h-6 w-6 text-green-500" />}
+                {successType === "photo" && (
+                  <Camera className="h-6 w-6 text-blue-500" />
+                )}
+                {successType === "video" && (
+                  <Video className="h-6 w-6 text-purple-500" />
+                )}
+                {successType === "grooming" && (
+                  <Scissors className="h-6 w-6 text-green-500" />
+                )}
+                {successType === "boarding-extension" && (
+                  <Clock className="h-6 w-6 text-amber-500" />
+                )}
+                {successType === "custom" && (
+                  <FileText className="h-6 w-6 text-gray-500" />
+                )}
+                {!successType && (
+                  <CheckCircle className="h-6 w-6 text-green-500" />
+                )}
               </motion.div>
             </div>
-            <DialogTitle className="text-center text-xl">{successTitle}</DialogTitle>
-            <DialogDescription className="text-center">{successMessage}</DialogDescription>
+            <DialogTitle className="text-center text-xl">
+              {successTitle}
+            </DialogTitle>
+            <DialogDescription className="text-center">
+              {successMessage}
+            </DialogDescription>
           </DialogHeader>
 
           <DialogFooter>
-            <Button onClick={() => setShowSuccessDialog(false)} className="w-full">
+            <Button
+              onClick={() => setShowSuccessDialog(false)}
+              className="w-full"
+            >
               Close
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }
 
-// New Request Card Component with improved button layout
-function NewRequestCard({ request, onApprove, onReject, onViewDetails }: NewRequestCardProps) {
-  const isMobile = useMediaQuery("(max-width: 640px)")
-  const isSmallCard = useMediaQuery("(max-width: 400px)")
-  const [isApproving, setIsApproving] = useState(false)
+// Update the getCardBorderColor function to use Bordio-style subtle borders
+const getCardBorderColor = (type: string, isUrgent: boolean) => {
+  if (isUrgent) return "border-red-100 dark:border-red-900/50";
+
+  switch (type) {
+    case "photo":
+      return "border-blue-100 dark:border-blue-900/50"; // Subtle blue border
+    case "video":
+      return "border-purple-100 dark:border-purple-900/50"; // Subtle purple border
+    case "grooming":
+      return "border-green-100 dark:border-green-900/50"; // Subtle green border
+    case "boarding-extension":
+      return "border-amber-100 dark:border-amber-900/50"; // Subtle amber border
+    case "custom":
+      return "border-gray-100 dark:border-gray-800/50"; // Subtle gray border
+    default:
+      return "border-slate-100 dark:border-slate-800/50"; // Default subtle slate border
+  }
+};
+
+// Update the getCardBgColor function to use Bordio-style pastel colors
+const getCardBgColor = (type: string, isUrgent: boolean) => {
+  if (isUrgent) return "bg-red-50/70 dark:bg-red-950/30";
+
+  switch (type) {
+    case "photo":
+      return "bg-blue-50/70 dark:bg-blue-950/30"; // Light blue for photo requests
+    case "video":
+      return "bg-purple-50/70 dark:bg-purple-950/30"; // Light purple for video requests
+    case "grooming":
+      return "bg-green-50/70 dark:bg-green-950/30"; // Light green for grooming requests
+    case "boarding-extension":
+      return "bg-amber-50/70 dark:bg-amber-950/30"; // Light amber/orange for boarding extensions
+    case "custom":
+      return "bg-gray-50/70 dark:bg-gray-950/30"; // Light gray for custom requests
+    default:
+      return "bg-slate-50/70 dark:bg-slate-950/30"; // Default light slate
+  }
+};
+
+// Update the NewRequestCard component to use the Bordio-style card design
+function NewRequestCard({
+  request,
+  onApprove,
+  onReject,
+  onViewDetails,
+}: NewRequestCardProps) {
+  const isMobile = useMediaQuery("(max-width: 640px)");
+  const isSmallCard = useMediaQuery("(max-width: 400px)");
+  const [isApproving, setIsApproving] = useState(false);
 
   // Force stacking on narrow cards
   useEffect(() => {
     const handleResize = () => {
-      const cardElements = document.querySelectorAll(".request-card")
+      const cardElements = document.querySelectorAll(".request-card");
       cardElements.forEach((card) => {
-        const cardWidth = (card as HTMLElement).offsetWidth
+        const cardWidth = (card as HTMLElement).offsetWidth;
         if (cardWidth < 300) {
-          ;(card as HTMLElement).classList.add("narrow-card")
+          (card as HTMLElement).classList.add("narrow-card");
         } else {
-          ;(card as HTMLElement).classList.remove("narrow-card")
+          (card as HTMLElement).classList.remove("narrow-card");
         }
-      })
-    }
+      });
+    };
 
-    handleResize()
-    window.addEventListener("resize", handleResize)
-    return () => window.removeEventListener("resize", handleResize)
-  }, [])
-
-  const getCardBorderColor = (type: string, isUrgent: boolean) => {
-    if (isUrgent) return "border-red-300 dark:border-red-800"
-
-    switch (type) {
-      case "photo":
-        return "border-blue-200 dark:border-blue-800"
-      case "video":
-        return "border-purple-200 dark:border-purple-800"
-      case "grooming":
-        return "border-green-200 dark:border-green-800"
-      case "boarding-extension":
-        return "border-amber-200 dark:border-amber-800"
-      case "custom":
-        return "border-gray-200 dark:border-gray-700"
-      default:
-        return ""
-    }
-  }
-
-  const getCardBgColor = (type: string, isUrgent: boolean) => {
-    if (isUrgent) return "bg-red-50 dark:bg-red-950/20"
-
-    switch (type) {
-      case "photo":
-        return "bg-blue-50 dark:bg-blue-950/20"
-      case "video":
-        return "bg-purple-50 dark:bg-purple-950/20"
-      case "grooming":
-        return "bg-green-50 dark:bg-green-950/20"
-      case "boarding-extension":
-        return "bg-amber-50 dark:bg-amber-950/20"
-      case "custom":
-        return "bg-gray-50 dark:bg-gray-950/20"
-      default:
-        return ""
-    }
-  }
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const handleApprove = (e: React.MouseEvent) => {
-    e.stopPropagation() // Prevent card click event
-    setIsApproving(true)
+    e.stopPropagation(); // Prevent card click event
+    setIsApproving(true);
 
     // Call the onApprove function
-    onApprove()
+    onApprove();
 
     // Reset the state after a delay (this would normally be handled by the API response)
     // In a real implementation, you would reset this in the .then() or .finally() of your API call
     setTimeout(() => {
-      setIsApproving(false)
-    }, 2000)
-  }
+      setIsApproving(false);
+    }, 2000);
+  };
 
   return (
     <motion.div
@@ -1258,7 +1379,10 @@ function NewRequestCard({ request, onApprove, onReject, onViewDetails }: NewRequ
                   {getRequestTypeLabel(request.type)}
                 </CardTitle>
                 <CardDescription className="text-foreground/70 dark:text-foreground/60 font-medium">
-                  {request.petName} <span className="text-muted-foreground">({request.petOwnerName})</span>
+                  {request.petName}{" "}
+                  <span className="text-muted-foreground">
+                    ({request.petOwnerName})
+                  </span>
                 </CardDescription>
               </div>
             </div>
@@ -1269,7 +1393,10 @@ function NewRequestCard({ request, onApprove, onReject, onViewDetails }: NewRequ
                 </Badge>
               )}
               {request.isReconsidered && (
-                <Badge variant="outline" className="bg-amber-100 text-amber-700 border-amber-200 ml-auto">
+                <Badge
+                  variant="outline"
+                  className="bg-amber-100 text-amber-700 border-amber-200 ml-auto"
+                >
                   <RotateCcw className="h-3 w-3 mr-1" />
                   Reconsidered
                 </Badge>
@@ -1278,29 +1405,43 @@ function NewRequestCard({ request, onApprove, onReject, onViewDetails }: NewRequ
           </div>
         </CardHeader>
         <CardContent className="p-4 pt-2 flex-grow">
-          <p className="text-sm line-clamp-3 text-foreground/90 dark:text-foreground/80">{request.description}</p>
+          <p className="text-sm line-clamp-3 text-foreground/90 dark:text-foreground/80">
+            {request.description}
+          </p>
 
-          {request.type === "boarding-extension" && request.extensionDetails && (
-            <div className="mt-3 flex flex-col gap-1">
-              <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Extension</span>
-              <div className="text-base font-medium text-amber-700 dark:text-amber-400">
-                {request.extensionDetails.duration} {request.extensionDetails.unit}
+          {request.type === "boarding-extension" &&
+            request.extensionDetails && (
+              <div className="mt-3 flex flex-col gap-1">
+                <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+                  Extension
+                </span>
+                <div className="text-base font-medium text-amber-700 dark:text-amber-400">
+                  {request.extensionDetails.duration}{" "}
+                  {request.extensionDetails.unit}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
           {request.type === "grooming" && request.groomingService && (
             <div className="mt-3 flex flex-col gap-1">
-              <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Service</span>
+              <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+                Service
+              </span>
               <div className="text-base font-medium text-green-700 dark:text-green-400">
-                {request.groomingService.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+                {request.groomingService
+                  .replace(/-/g, " ")
+                  .replace(/\b\w/g, (l) => l.toUpperCase())}
               </div>
             </div>
           )}
 
           <div className="mt-3">
-            <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Submitted</span>
-            <div className="text-sm font-medium mt-0.5">{getTimeAgo(request.createdAt)}</div>
+            <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+              Submitted
+            </span>
+            <div className="text-sm font-medium mt-0.5">
+              {getTimeAgo(request.createdAt)}
+            </div>
           </div>
 
           {/* Show reconsideration reason if applicable */}
@@ -1319,7 +1460,9 @@ function NewRequestCard({ request, onApprove, onReject, onViewDetails }: NewRequ
           <Button variant="outline" className="w-full" onClick={onViewDetails}>
             View Details
           </Button>
-          <div className={`flex flex-col ${!isSmallCard ? "sm:flex-row" : ""} gap-2 w-full`}>
+          <div
+            className={`flex flex-col ${!isSmallCard ? "sm:flex-row" : ""} gap-2 w-full`}
+          >
             <Button
               variant="outline"
               className="w-full text-sm px-2 sm:px-4"
@@ -1351,13 +1494,17 @@ function NewRequestCard({ request, onApprove, onReject, onViewDetails }: NewRequ
         </CardFooter>
       </Card>
     </motion.div>
-  )
+  );
 }
 
-// Rejected Request Card Component with Reconsider button
-function RejectedRequestCard({ request, onViewDetails, onReconsider }: RejectedRequestCardProps) {
-  const isMobile = useMediaQuery("(max-width: 640px)")
-  const isSmallCard = useMediaQuery("(max-width: 400px)")
+// Update the RejectedRequestCard component to use the Bordio-style card design
+function RejectedRequestCard({
+  request,
+  onViewDetails,
+  onReconsider,
+}: RejectedRequestCardProps) {
+  const isMobile = useMediaQuery("(max-width: 640px)");
+  const isSmallCard = useMediaQuery("(max-width: 400px)");
 
   return (
     <motion.div
@@ -1368,7 +1515,7 @@ function RejectedRequestCard({ request, onViewDetails, onReconsider }: RejectedR
       whileHover={{ scale: 1.02 }}
       className="h-full"
     >
-      <Card className="border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/20 w-full h-full flex flex-col request-card">
+      <Card className="border-red-100 dark:border-red-900/50 bg-red-50/70 dark:bg-red-950/30 w-full h-full flex flex-col request-card">
         <CardHeader className="p-4 pb-2">
           <div className="flex justify-between items-start">
             <div className="flex items-center space-x-2">
@@ -1389,7 +1536,10 @@ function RejectedRequestCard({ request, onViewDetails, onReconsider }: RejectedR
                   {getRequestTypeLabel(request.type)}
                 </CardTitle>
                 <CardDescription className="text-foreground/70 dark:text-foreground/60 font-medium">
-                  {request.petName} <span className="text-muted-foreground">({request.petOwnerName})</span>
+                  {request.petName}{" "}
+                  <span className="text-muted-foreground">
+                    ({request.petOwnerName})
+                  </span>
                 </CardDescription>
               </div>
             </div>
@@ -1402,30 +1552,48 @@ function RejectedRequestCard({ request, onViewDetails, onReconsider }: RejectedR
           </div>
         </CardHeader>
         <CardContent className="p-4 pt-2 flex-grow">
-          <p className="text-sm line-clamp-2 text-foreground/90 dark:text-foreground/80">{request.description}</p>
+          <p className="text-sm line-clamp-2 text-foreground/90 dark:text-foreground/80">
+            {request.description}
+          </p>
 
           <div className="mt-3 grid grid-cols-2 gap-x-2 gap-y-3">
             <div>
-              <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Submitted</span>
-              <div className="text-sm font-medium mt-0.5">{formatDate(request.createdAt)}</div>
+              <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+                Submitted
+              </span>
+              <div className="text-sm font-medium mt-0.5">
+                {formatDate(request.createdAt)}
+              </div>
             </div>
 
             <div>
-              <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Rejected</span>
-              <div className="text-sm font-medium mt-0.5">{formatDate(request.rejectedAt)}</div>
+              <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+                Rejected
+              </span>
+              <div className="text-sm font-medium mt-0.5">
+                {formatDate(request.rejectedAt)}
+              </div>
             </div>
 
             <div className="col-span-2">
-              <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Rejected by</span>
-              <div className="text-sm font-medium mt-0.5">{request.rejectedBy}</div>
+              <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+                Rejected by
+              </span>
+              <div className="text-sm font-medium mt-0.5">
+                {request.rejectedBy}
+              </div>
             </div>
           </div>
 
           {/* Show rejection reason preview */}
           <div className="mt-3">
-            <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Rejection Reason</span>
+            <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+              Rejection Reason
+            </span>
             <div className="mt-1 p-2 bg-red-50 border border-red-100 rounded-md dark:bg-red-950/20 dark:border-red-800">
-              <p className="text-sm text-red-700 dark:text-red-300 line-clamp-2">{request.rejectionReason}</p>
+              <p className="text-sm text-red-700 dark:text-red-300 line-clamp-2">
+                {request.rejectionReason}
+              </p>
             </div>
           </div>
         </CardContent>
@@ -1445,7 +1613,7 @@ function RejectedRequestCard({ request, onViewDetails, onReconsider }: RejectedR
         </CardFooter>
       </Card>
     </motion.div>
-  )
+  );
 }
 
 // Skeleton component for loading state
@@ -1476,7 +1644,7 @@ function RequestCardSkeleton() {
         </CardFooter>
       </Card>
     </div>
-  )
+  );
 }
 
 // Empty state component
@@ -1491,6 +1659,5 @@ function EmptyState({ message = "No requests found" }: { message?: string }) {
         </p>
       </CardContent>
     </Card>
-  )
+  );
 }
-

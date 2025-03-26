@@ -60,26 +60,20 @@ export const getRequestTypeLabel = (type: string) => {
  * @param type The request type
  * @returns The Tailwind CSS class for the border color
  */
-export const getCardBorderColor = (type: string, isUrgent: boolean) => {
-  if (isUrgent) return "border-red-300 dark:border-red-800"
-
+export const getCardBorderColor = (type: string) => {
   switch (type) {
     case "photo":
-      return "border-blue-200 dark:border-blue-800"
+      return "border-blue-100 dark:border-blue-900/50" // Subtle blue border
     case "video":
-      return "border-purple-200 dark:border-purple-800"
+      return "border-purple-100 dark:border-purple-900/50" // Subtle purple border
     case "grooming":
-      return "border-green-200 dark:border-green-800"
+      return "border-green-100 dark:border-green-900/50" // Subtle green border
     case "boarding-extension":
-      return "border-amber-200 dark:border-amber-800"
+      return "border-amber-100 dark:border-amber-900/50" // Subtle amber border
     case "custom":
-      return "border-gray-200 dark:border-gray-700"
-    case "dog":
-      return "border-blue-200 dark:border-blue-800"
-    case "cat":
-      return "border-purple-200 dark:border-purple-800"
+      return "border-gray-100 dark:border-gray-800/50" // Subtle gray border
     default:
-      return ""
+      return "border-slate-100 dark:border-slate-800/50" // Default subtle slate border
   }
 }
 
@@ -88,26 +82,20 @@ export const getCardBorderColor = (type: string, isUrgent: boolean) => {
  * @param type The request type
  * @returns The Tailwind CSS class for the background color
  */
-export const getCardBgColor = (type: string, isUrgent: boolean) => {
-  if (isUrgent) return "bg-red-50 dark:bg-red-950/20"
-
+export const getCardBgColor = (type: string) => {
   switch (type) {
     case "photo":
-      return "bg-blue-50 dark:bg-blue-950/20"
+      return "bg-blue-50/70 dark:bg-blue-950/30" // Light blue for photo requests
     case "video":
-      return "bg-purple-50 dark:bg-purple-950/20"
+      return "bg-purple-50/70 dark:bg-purple-950/30" // Light purple for video requests
     case "grooming":
-      return "bg-green-50 dark:bg-green-950/20"
+      return "bg-green-50/70 dark:bg-green-950/30" // Light green for grooming requests
     case "boarding-extension":
-      return "bg-amber-50 dark:bg-amber-950/20"
+      return "bg-amber-50/70 dark:bg-amber-950/30" // Light amber/orange for boarding extensions
     case "custom":
-      return "bg-gray-50 dark:bg-gray-950/20"
-    case "dog":
-      return "bg-blue-50 dark:bg-blue-950/20"
-    case "cat":
-      return "bg-purple-50 dark:bg-purple-950/20"
+      return "bg-gray-50/70 dark:bg-gray-950/30" // Light gray for custom requests
     default:
-      return ""
+      return "bg-slate-50/70 dark:bg-slate-950/30" // Default light slate
   }
 }
 

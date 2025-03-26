@@ -148,16 +148,33 @@ export default function RequestCard({ request }: RequestCardProps) {
     }
   }
 
+  // Update the getCardBorderColor function to use Bordio-style subtle borders
   const getCardBorderColor = (status: string) => {
     switch (status) {
       case "pending":
-        return "border-yellow-200 dark:border-yellow-800/50"
+        return "border-yellow-100 dark:border-yellow-900/50"
       case "approved":
-        return "border-blue-200 dark:border-blue-800/50"
+        return "border-blue-100 dark:border-blue-900/50"
       case "completed":
-        return "border-green-200 dark:border-green-800/50"
+        return "border-green-100 dark:border-green-900/50"
       case "rejected":
-        return "border-red-200 dark:border-red-800/50"
+        return "border-red-100 dark:border-red-900/50"
+      default:
+        return ""
+    }
+  }
+
+  // Add a new function for Bordio-style background colors
+  const getCardBgColor = (status: string) => {
+    switch (status) {
+      case "pending":
+        return "bg-yellow-50/70 dark:bg-yellow-950/30"
+      case "approved":
+        return "bg-blue-50/70 dark:bg-blue-950/30"
+      case "completed":
+        return "bg-green-50/70 dark:bg-green-950/30"
+      case "rejected":
+        return "bg-red-50/70 dark:bg-red-950/30"
       default:
         return ""
     }
@@ -205,11 +222,12 @@ export default function RequestCard({ request }: RequestCardProps) {
     }
   }
 
+  // Update the Card component in the return statement to use the new color functions
   return (
     <>
       <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} transition={{ duration: 0.2 }}>
         <Card
-          className={`cursor-pointer overflow-hidden ${getCardBorderColor(request.status)} dark:border-opacity-70`}
+          className={`cursor-pointer overflow-hidden ${getCardBorderColor(request.status)} ${getCardBgColor(request.status)} dark:border-opacity-70`}
           onClick={() => setShowDetails(true)}
         >
           <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between">
