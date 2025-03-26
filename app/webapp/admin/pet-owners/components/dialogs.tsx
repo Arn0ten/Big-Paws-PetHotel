@@ -284,7 +284,7 @@ export function AddPetDialog({
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="w-full max-w-md md:max-w-lg p-4 md:p-6 overflow-y-auto max-h-[80vh]">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
+          <DialogTitle className="flex items-center gap-2 text-primary">
             <PlusCircle className="h-5 w-5" />
             Add New Pet
           </DialogTitle>

@@ -124,7 +124,7 @@ export default function Header() {
                     Loading...
                   </>
                 ) : (
-                  "Pet Dashboard"
+                  "Pet Hotel"
                 )}
               </Button>
               <Button asChild className="text-xs sm:text-sm">

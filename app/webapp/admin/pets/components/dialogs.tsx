@@ -412,11 +412,7 @@ export function AddPetDialog({
         </div>
 
         <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-4">
-          <Button
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            className="border-red-300 bg-red-50 hover:bg-red-100 text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:hover:bg-red-800/50 dark:text-red-400"
-          >
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
           <Button
@@ -895,11 +891,7 @@ export function EditPetDialog({
         </div>
 
         <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-4">
-          <Button
-            variant="outline"
-            onClick={() => handleOpenChange(false)}
-            className="border-red-300 bg-red-50 hover:bg-red-100 text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:hover:bg-red-800/50 dark:text-red-400"
-          >
+          <Button variant="outline" onClick={() => handleOpenChange(false)}>
             Cancel
           </Button>
           <Button
@@ -960,11 +952,7 @@ export function DeleteConfirmDialog({
           </p>
         </div>
         <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-4">
-          <Button
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            className="bg-red-600 hover:bg-red-700 text-white"
-          >
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
           <Button
