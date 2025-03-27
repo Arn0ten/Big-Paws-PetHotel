@@ -1,13 +1,13 @@
-"use client";
+"use client"
 
-import type React from "react";
+import type React from "react"
 
-import { useState, useEffect, useRef } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { motion } from "framer-motion";
-import { useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
+import { useState, useEffect, useRef } from "react"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { motion } from "framer-motion"
+import { useRouter } from "next/navigation"
+import { cn } from "@/lib/utils"
 import {
   LayoutDashboard,
   PawPrint,
@@ -16,17 +16,16 @@ import {
   ClipboardList,
   Bell,
   History,
-  Settings,
   ChevronLeft,
   Menu,
   ChevronRight,
   LogOut,
   CalendarClock,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useMediaQuery } from "@/hooks/use-media-query";
+} from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { useMediaQuery } from "@/hooks/use-media-query"
 // Import Image from next/image at the top of the file
-import Image from "next/image";
+import Image from "next/image"
 
 const menuItems = [
   {
@@ -100,129 +99,188 @@ const menuItems = [
     section: "reports",
     color: "text-cyan-500",
   },
-];
+]
 
 interface AdminSidebarProps {
-  onCollapse?: (collapsed: boolean) => void;
+  onCollapse?: (collapsed: boolean) => void
 }
 
 export function AdminSidebar({ onCollapse }: AdminSidebarProps) {
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+
+  // Add state for notification counters
+  const [viewedNotifications, setViewedNotifications] = useState<Record<string, boolean>>({})
+
+  // Sample notification counts - in a real app, this would come from an API
+  const [notificationCounts, setNotificationCounts] = useState({
+    "/webapp/admin/requests": 10, // 10 unread new requests (sample data)
+    "/webapp/admin/request-management": 5, // 5 unread "In Progress" requests (sample data)
+  })
 
   // Add these refs after the state declarations
-  const wasMobile = useRef(false);
-  const previousDesktopState = useRef<boolean | undefined>(undefined);
+  const wasMobile = useRef(false)
+  const previousDesktopState = useRef<boolean | undefined>(undefined)
 
-  const pathname = usePathname();
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const pathname = usePathname()
+  const isMobile = useMediaQuery("(max-width: 768px)")
 
   // Add this at the top of the component
   useEffect(() => {
     const handleError = (error: Error) => {
-      console.error("Sidebar error:", error);
+      console.error("Sidebar error:", error)
       // Prevent complete UI crash by handling errors
-    };
+    }
 
-    window.addEventListener("error", handleError as any);
+    window.addEventListener("error", handleError as any)
     return () => {
-      window.removeEventListener("error", handleError as any);
-    };
-  }, []);
+      window.removeEventListener("error", handleError as any)
+    }
+  }, [])
+
+  // Add this useEffect to periodically fetch notification counts
+  useEffect(() => {
+    // BACKEND INTEGRATION POINT:
+    // In a real implementation, you would fetch the actual notification counts from your API
+    // The counts should represent:
+    // 1. For "/webapp/admin/requests": Number of unread NEW requests
+    // 2. For "/webapp/admin/request-management": Number of unread IN PROGRESS requests
+    //
+    // Example implementation:
+    // const fetchNotificationCounts = async () => {
+    //   try {
+    //     const response = await fetch('/api/admin/notifications/counts');
+    //     const data = await response.json();
+    //     setNotificationCounts({
+    //       "/webapp/admin/requests": data.unreadNewRequestsCount,
+    //       "/webapp/admin/request-management": data.unreadInProgressRequestsCount,
+    //     });
+    //   } catch (error) {
+    //     console.error('Failed to fetch notification counts:', error);
+    //   }
+    // };
+    //
+    // fetchNotificationCounts();
+    // const interval = setInterval(fetchNotificationCounts, 30000); // Refresh every 30 seconds
+    //
+    // return () => clearInterval(interval);
+    // For this demo, we're using fixed sample values (10 and 5)
+  }, [])
 
   // Update the auto-collapse on mobile useEffect
   useEffect(() => {
     if (isMobile && !wasMobile.current) {
-      setIsCollapsed(true);
-    } else if (
-      !isMobile &&
-      wasMobile.current &&
-      previousDesktopState.current !== undefined
-    ) {
+      setIsCollapsed(true)
+    } else if (!isMobile && wasMobile.current && previousDesktopState.current !== undefined) {
       // Restore previous desktop state when returning to desktop
-      setIsCollapsed(previousDesktopState.current);
+      setIsCollapsed(previousDesktopState.current)
     }
 
     // Track previous state
-    wasMobile.current = isMobile;
-  }, [isMobile]);
+    wasMobile.current = isMobile
+  }, [isMobile])
 
   // Add a useEffect to track desktop sidebar state
   useEffect(() => {
     if (!isMobile) {
-      previousDesktopState.current = isCollapsed;
+      previousDesktopState.current = isCollapsed
     }
-  }, [isCollapsed, isMobile]);
+  }, [isCollapsed, isMobile])
 
   // Close mobile menu when navigating
   useEffect(() => {
-    setIsMobileMenuOpen(false);
-  }, [pathname]);
+    setIsMobileMenuOpen(false)
+  }, [pathname])
 
   const toggleSidebar = () => {
     try {
-      const newCollapsedState = isMobile ? isCollapsed : !isCollapsed;
-      setIsCollapsed(newCollapsedState);
+      const newCollapsedState = isMobile ? isCollapsed : !isCollapsed
+      setIsCollapsed(newCollapsedState)
 
       if (isMobile) {
-        setIsMobileMenuOpen(!isMobileMenuOpen);
+        setIsMobileMenuOpen(!isMobileMenuOpen)
       }
 
       // Store desktop state for restoration
       if (!isMobile) {
-        previousDesktopState.current = newCollapsedState;
+        previousDesktopState.current = newCollapsedState
       }
 
       // Notify parent component
       if (onCollapse) {
-        onCollapse(newCollapsedState);
+        onCollapse(newCollapsedState)
       }
 
       // Dispatch custom event for other components that need to know about sidebar state
       const event = new CustomEvent("sidebarStateChange", {
         detail: { isCollapsed: newCollapsedState },
-      });
-      window.dispatchEvent(event as any);
+      })
+      window.dispatchEvent(event as any)
     } catch (error) {
-      console.error("Sidebar toggle error:", error);
+      console.error("Sidebar toggle error:", error)
       // Prevent complete UI crash by handling errors
     }
-  };
+  }
 
-  const router = useRouter();
+  const router = useRouter()
 
-  const handleNavigation = (
-    e: React.MouseEvent<HTMLAnchorElement>,
-    href: string,
-  ) => {
-    e.preventDefault();
+  const handleNavigation = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault()
+
+    // Mark notifications as read when clicking on a menu item
+    if (notificationCounts[href] && !viewedNotifications[href]) {
+      setViewedNotifications((prev) => ({
+        ...prev,
+        [href]: true,
+      }))
+
+      // BACKEND INTEGRATION POINT:
+      // Here you would call your API to mark these specific notifications as read
+      // For "/webapp/admin/requests": Mark all NEW requests as read
+      // For "/webapp/admin/request-management": Mark all IN PROGRESS requests as read
+      //
+      // Example implementation:
+      // if (href === "/webapp/admin/requests") {
+      //   fetch('/api/admin/notifications/mark-read', {
+      //     method: 'POST',
+      //     headers: { 'Content-Type': 'application/json' },
+      //     body: JSON.stringify({ type: 'new_requests' })
+      //   });
+      // } else if (href === "/webapp/admin/request-management") {
+      //   fetch('/api/admin/notifications/mark-read', {
+      //     method: 'POST',
+      //     headers: { 'Content-Type': 'application/json' },
+      //     body: JSON.stringify({ type: 'in_progress_requests' })
+      //   });
+      // }
+    }
 
     // Check if we're already on this page to prevent unnecessary transitions
-    if (pathname === href) return;
+    if (pathname === href) return
 
     try {
       // First, dispatch a custom event to animate the current page out
       const event = new CustomEvent("pageTransitionStart", {
         detail: { href },
-      });
-      window.dispatchEvent(event);
+      })
+      window.dispatchEvent(event)
 
       // Then navigate after a short delay with error handling
       setTimeout(() => {
         try {
-          router.push(href);
+          router.push(href)
         } catch (error) {
-          console.error("Navigation error:", error);
+          console.error("Navigation error:", error)
           // Fallback to direct navigation if router.push fails
-          window.location.href = href;
+          window.location.href = href
         }
-      }, 300);
+      }, 300)
     } catch (error) {
-      console.error("Navigation error:", error);
+      console.error("Navigation error:", error)
       // Fallback to direct navigation if anything fails
-      window.location.href = href;
+      window.location.href = href
     }
-  };
+  }
 
   return (
     <>
@@ -231,8 +289,8 @@ export function AdminSidebar({ onCollapse }: AdminSidebarProps) {
         <div
           className="fixed inset-0 bg-black/50 z-40"
           onClick={() => {
-            setIsMobileMenuOpen(false);
-            if (onCollapse) onCollapse(true);
+            setIsMobileMenuOpen(false)
+            if (onCollapse) onCollapse(true)
           }}
         />
       )}
@@ -241,13 +299,7 @@ export function AdminSidebar({ onCollapse }: AdminSidebarProps) {
       <motion.div
         initial={false}
         animate={{
-          width: isMobile
-            ? isMobileMenuOpen
-              ? 280
-              : 0
-            : isCollapsed
-              ? 80
-              : 280,
+          width: isMobile ? (isMobileMenuOpen ? 280 : 0) : isCollapsed ? 80 : 280,
           x: isMobile && !isMobileMenuOpen ? -280 : 0,
         }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
@@ -258,10 +310,7 @@ export function AdminSidebar({ onCollapse }: AdminSidebarProps) {
       >
         <div className="flex h-16 items-center justify-between px-4">
           {(!isCollapsed || (isMobile && isMobileMenuOpen)) && (
-            <Link
-              href="/webapp/admin/dashboard"
-              className="flex items-center gap-2"
-            >
+            <Link href="/webapp/admin/dashboard" className="flex items-center gap-2">
               <div className="h-8 w-8 relative overflow-hidden rounded-full">
                 <Image
                   src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/BigPawsLogo-AkdNb3dVilOpSFaUX922eFxqhj5Dq2.png"
@@ -282,11 +331,7 @@ export function AdminSidebar({ onCollapse }: AdminSidebarProps) {
             className="ml-auto text-slate-400 hover:text-white hover:bg-slate-700"
             onClick={toggleSidebar}
           >
-            {isCollapsed && !isMobile ? (
-              <ChevronRight size={20} />
-            ) : (
-              <ChevronLeft size={20} />
-            )}
+            {isCollapsed && !isMobile ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
           </Button>
         </div>
 
@@ -298,21 +343,15 @@ export function AdminSidebar({ onCollapse }: AdminSidebarProps) {
               try {
                 // Reset scroll position on route changes to prevent scroll position issues
                 const handleRouteChange = () => {
-                  el.scrollTop = 0;
-                };
+                  el.scrollTop = 0
+                }
 
-                window.addEventListener(
-                  "routeChangeComplete",
-                  handleRouteChange,
-                );
+                window.addEventListener("routeChangeComplete", handleRouteChange)
                 return () => {
-                  window.removeEventListener(
-                    "routeChangeComplete",
-                    handleRouteChange,
-                  );
-                };
+                  window.removeEventListener("routeChangeComplete", handleRouteChange)
+                }
               } catch (error) {
-                console.error("Sidebar scroll error:", error);
+                console.error("Sidebar scroll error:", error)
                 // Continue rendering even if scroll handling fails
               }
             }
@@ -331,57 +370,61 @@ export function AdminSidebar({ onCollapse }: AdminSidebarProps) {
                       >
                         {item.title}
                       </div>
-                    ) : null;
+                    ) : null
                   }
 
-                  if (!item.href) return null;
+                  if (!item.href) return null
 
-                  const isActive = pathname === item.href;
-                  const Icon = item.icon;
+                  const isActive = pathname === item.href
+                  const Icon = item.icon
+
+                  // Check if this menu item has notifications
+                  const hasNotifications = notificationCounts[item.href] && !viewedNotifications[item.href]
+                  const notificationCount = hasNotifications ? notificationCounts[item.href] : 0
 
                   return (
                     <Link
                       key={`item-${index}`}
                       href={item.href}
-                      onClick={(e) =>
-                        item.href && handleNavigation(e, item.href)
-                      }
+                      onClick={(e) => item.href && handleNavigation(e, item.href)}
                       className={cn(
                         "flex items-center gap-3 rounded-lg px-3 py-2 text-slate-300 transition-all",
                         "hover:bg-slate-700/50 hover:text-white",
-                        isActive
-                          ? "bg-slate-700/70 text-white font-medium"
-                          : "",
+                        isActive ? "bg-slate-700/70 text-white font-medium" : "",
                       )}
                     >
                       <div
                         className={cn(
-                          "flex h-7 w-7 items-center justify-center rounded-md",
-                          isActive
-                            ? `${item.color} bg-slate-800`
-                            : "text-slate-400",
+                          "flex h-7 w-7 items-center justify-center rounded-md relative",
+                          isActive ? `${item.color} bg-slate-800` : "text-slate-400",
                         )}
                       >
                         <Icon size={18} />
+
+                        {/* Notification counter badge */}
+                        {hasNotifications && (
+                          <div className="absolute -top-1.5 -right-1.5 flex items-center justify-center min-w-[18px] h-[18px] text-[10px] font-bold bg-red-500 text-white rounded-full px-1">
+                            {notificationCount > 99 ? "99+" : notificationCount}
+                          </div>
+                        )}
                       </div>
 
                       {(!isCollapsed || (isMobile && isMobileMenuOpen)) && (
                         <span className="text-sm">{item.title}</span>
                       )}
 
-                      {isActive &&
-                        (!isCollapsed || (isMobile && isMobileMenuOpen)) && (
-                          <motion.div
-                            layoutId="activeIndicator"
-                            className="ml-auto h-2 w-2 rounded-full bg-blue-500"
-                            transition={{ duration: 0.2 }}
-                          />
-                        )}
+                      {isActive && (!isCollapsed || (isMobile && isMobileMenuOpen)) && (
+                        <motion.div
+                          layoutId="activeIndicator"
+                          className="ml-auto h-2 w-2 rounded-full bg-blue-500"
+                          transition={{ duration: 0.2 }}
+                        />
+                      )}
                     </Link>
-                  );
-                });
+                  )
+                })
               } catch (error) {
-                console.error("Sidebar menu rendering error:", error);
+                console.error("Sidebar menu rendering error:", error)
                 // Fallback UI if menu rendering fails
                 return (
                   <div className="p-4 text-slate-300">
@@ -395,7 +438,7 @@ export function AdminSidebar({ onCollapse }: AdminSidebarProps) {
                       Refresh
                     </Button>
                   </div>
-                );
+                )
               }
             })()}
           </nav>
@@ -406,9 +449,7 @@ export function AdminSidebar({ onCollapse }: AdminSidebarProps) {
             variant="ghost"
             className={cn(
               "w-full justify-start text-slate-400 hover:text-white hover:bg-slate-700",
-              !isCollapsed || (isMobile && isMobileMenuOpen)
-                ? "px-3"
-                : "px-0 justify-center",
+              !isCollapsed || (isMobile && isMobileMenuOpen) ? "px-3" : "px-0 justify-center",
             )}
             onClick={() => {
               // BACKEND INTEGRATION POINT:
@@ -416,9 +457,9 @@ export function AdminSidebar({ onCollapse }: AdminSidebarProps) {
               // Example: await authService.logout();
 
               // For now, we'll just redirect to the login page
-              localStorage.removeItem("user");
-              localStorage.removeItem("auth_token");
-              router.push("/webapp/auth/login");
+              localStorage.removeItem("user")
+              localStorage.removeItem("auth_token")
+              router.push("/webapp/auth/login")
             }}
           >
             <LogOut size={18} className="mr-2" />
@@ -434,13 +475,14 @@ export function AdminSidebar({ onCollapse }: AdminSidebarProps) {
           size="icon"
           className="fixed left-4 top-3 z-50 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 lg:hidden"
           onClick={() => {
-            setIsMobileMenuOpen(true);
-            if (onCollapse) onCollapse(false);
+            setIsMobileMenuOpen(true)
+            if (onCollapse) onCollapse(false)
           }}
         >
           <Menu size={24} />
         </Button>
       )}
     </>
-  );
+  )
 }
+

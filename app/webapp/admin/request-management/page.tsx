@@ -53,14 +53,10 @@ import { EnhancedRequestDialog } from "./components/enhanced-request-dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useMediaQuery } from "@/hooks/use-media-query";
+import { ChatBubble } from "./components/chat-bubble";
 import { sampleRequests, sampleBoardingData } from "./data/sample-data";
 import { PRICING, calculateExtensionCost } from "./data/pricing-data";
-import {
-  getRequestTypeIcon,
-  getRequestTypeLabel,
-  getCardBorderColor,
-  getCardBgColor,
-} from "./utils/ui-helpers";
+import { getRequestTypeIcon, getRequestTypeLabel } from "./utils/ui-helpers";
 
 interface InProgressRequestCardProps {
   request: any;
@@ -117,6 +113,8 @@ export default function RequestManagementPage() {
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [showConfirmProcessDialog, setShowConfirmProcessDialog] =
+    useState(false);
 
   // Calculate price based on request type and details
   // NOTE FOR BACKEND: Implement proper price calculation on actual service rates
@@ -1274,29 +1272,32 @@ function InProgressRequestCard({
   onUndoAccept,
   onViewDetails,
 }: InProgressRequestCardProps) {
+  const [showConfirmProcessDialog, setShowConfirmProcessDialog] =
+    useState(false);
   const isMobile = useMediaQuery("(max-width: 640px)");
   const isSmallCard = useMediaQuery("(max-width: 400px)");
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-      transition={{
-        duration: 0.3,
-      }}
-      whileHover={{ scale: 1.02 }}
-      className="h-full"
-    >
-      <Card
-        className={`w-full h-full flex flex-col ${getCardBorderColor(request.type)} ${getCardBgColor(request.type)} cursor-pointer hover:shadow-md transition-shadow`}
-        onClick={onViewDetails}
+    <>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+        transition={{
+          duration: 0.3,
+        }}
+        whileHover={{ scale: 1.02 }}
+        className="h-full"
       >
-        <CardHeader className="p-4 pb-2">
-          <div className="flex justify-between items-start">
-            <div className="flex items-center space-x-2">
-              <div
-                className={`
+        <Card
+          className={`w-full h-full flex flex-col ${getCardBorderColor(request.type)} ${getCardBgColor(request.type)} cursor-pointer hover:shadow-md transition-shadow`}
+          onClick={onViewDetails}
+        >
+          <CardHeader className="p-4 pb-2">
+            <div className="flex justify-between items-start">
+              <div className="flex items-center space-x-2">
+                <div
+                  className={`
                 p-2 rounded-full 
                 ${request.type === "photo" ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300" : ""}
                 ${request.type === "video" ? "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300" : ""}
@@ -1304,38 +1305,58 @@ function InProgressRequestCard({
                 ${request.type === "boarding-extension" ? "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300" : ""}
                 ${request.type === "custom" ? "bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300" : ""}
               `}
-              >
-                {getRequestTypeIcon(request.type)}
-              </div>
-              <div>
-                <CardTitle className="text-base font-semibold tracking-tight">
-                  {getRequestTypeLabel(request.type)}
-                </CardTitle>
-                <CardDescription className="text-foreground/70 dark:text-foreground/60 font-medium">
-                  {request.petName}{" "}
-                  <span className="text-muted-foreground">
-                    ({request.petOwnerName})
-                  </span>
-                </CardDescription>
+                >
+                  {getRequestTypeIcon(request.type)}
+                </div>
+                <div>
+                  <CardTitle className="text-base font-semibold tracking-tight">
+                    {getRequestTypeLabel(request.type)}
+                  </CardTitle>
+                  <CardDescription className="text-foreground/70 dark:text-foreground/60 font-medium">
+                    {request.petName}{" "}
+                    <span className="text-muted-foreground">
+                      ({request.petOwnerName})
+                    </span>
+                  </CardDescription>
+                </div>
               </div>
             </div>
-          </div>
-        </CardHeader>
-        <CardContent className="p-4 pt-2 flex-grow">
-          <p className="text-sm line-clamp-3 text-foreground/90 dark:text-foreground/80">
-            {request.description}
-          </p>
+          </CardHeader>
+          <CardContent className="p-4 pt-2 flex-grow">
+            <p className="text-sm line-clamp-3 text-foreground/90 dark:text-foreground/80">
+              {request.description}
+            </p>
 
-          {request.type === "boarding-extension" &&
-            request.extensionDetails && (
+            {request.type === "boarding-extension" &&
+              request.extensionDetails && (
+                <div className="mt-3 flex flex-col gap-1">
+                  <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+                    Extension
+                  </span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-base font-medium text-amber-700 dark:text-amber-400">
+                      {request.extensionDetails.duration}{" "}
+                      {request.extensionDetails.unit}
+                    </span>
+                    {request.price && (
+                      <span className="text-base font-medium text-green-600 dark:text-green-400">
+                        {formatCurrency(request.price)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+
+            {request.type === "grooming" && request.groomingService && (
               <div className="mt-3 flex flex-col gap-1">
                 <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-                  Extension
+                  Service
                 </span>
                 <div className="flex items-center justify-between">
-                  <span className="text-base font-medium text-amber-700 dark:text-amber-400">
-                    {request.extensionDetails.duration}{" "}
-                    {request.extensionDetails.unit}
+                  <span className="text-base font-medium text-green-700 dark:text-green-400">
+                    {request.groomingService
+                      .replace(/-/g, " ")
+                      .replace(/\b\w/g, (l) => l.toUpperCase())}
                   </span>
                   {request.price && (
                     <span className="text-base font-medium text-green-600 dark:text-green-400">
@@ -1346,80 +1367,95 @@ function InProgressRequestCard({
               </div>
             )}
 
-          {request.type === "grooming" && request.groomingService && (
-            <div className="mt-3 flex flex-col gap-1">
+            <div className="mt-3">
               <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-                Service
+                Submitted
               </span>
-              <div className="flex items-center justify-between">
-                <span className="text-base font-medium text-green-700 dark:text-green-400">
-                  {request.groomingService
-                    .replace(/-/g, " ")
-                    .replace(/\b\w/g, (l) => l.toUpperCase())}
-                </span>
-                {request.price && (
-                  <span className="text-base font-medium text-green-600 dark:text-green-400">
-                    {formatCurrency(request.price)}
-                  </span>
-                )}
+              <div className="text-sm font-medium mt-0.5">
+                {formatDate(request.createdAt)}
               </div>
             </div>
-          )}
 
-          <div className="mt-3">
-            <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-              Submitted
-            </span>
-            <div className="text-sm font-medium mt-0.5">
-              {formatDate(request.createdAt)}
-            </div>
-          </div>
+            {/* Show undo reason if this was previously completed and undone */}
+            {request.undoReason && (
+              <div className="mt-3 p-2 bg-amber-50 border border-amber-100 rounded-md dark:bg-amber-950/20 dark:border-amber-800">
+                <p className="text-xs uppercase tracking-wide text-amber-700 dark:text-amber-300 font-medium">
+                  Returned to In-Progress
+                </p>
+                <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
+                  {request.undoReason}
+                </p>
+                <p className="text-xs text-amber-600/70 dark:text-amber-400/70 mt-1">
+                  {request.undoTimestamp
+                    ? formatDate(request.undoTimestamp)
+                    : ""}
+                </p>
+              </div>
+            )}
+          </CardContent>
+          <CardFooter className={`p-4 pt-0 mt-auto flex flex-col gap-2`}>
+            <Button
+              className="w-full"
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent card click event
+                // Show confirmation dialog instead of directly calling onProcess
+                setShowConfirmProcessDialog(true);
+              }}
+              size={isSmallCard ? "sm" : "default"}
+            >
+              Process Request
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full text-amber-600 border-amber-200 hover:bg-amber-50 hover:text-amber-700 dark:border-amber-800 dark:text-amber-400 dark:hover:bg-amber-950/50"
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent card click event
+                onUndoAccept && onUndoAccept();
+              }}
+              size={isSmallCard ? "sm" : "default"}
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Return to New
+            </Button>
+          </CardFooter>
+        </Card>
+      </motion.div>
 
-          {/* Show undo reason if this was previously completed and undone */}
-          {request.undoReason && (
-            <div className="mt-3 p-2 bg-amber-50 border border-amber-100 rounded-md dark:bg-amber-950/20 dark:border-amber-800">
-              <p className="text-xs uppercase tracking-wide text-amber-700 dark:text-amber-300 font-medium">
-                Returned to In-Progress
-              </p>
-              <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
-                {request.undoReason}
-              </p>
-              <p className="text-xs text-amber-600/70 dark:text-amber-400/70 mt-1">
-                {request.undoTimestamp ? formatDate(request.undoTimestamp) : ""}
-              </p>
-            </div>
-          )}
-        </CardContent>
-        <CardFooter className={`p-4 pt-0 mt-auto flex flex-col gap-2`}>
-          <Button
-            className="w-full"
-            onClick={(e) => {
-              e.stopPropagation(); // Prevent card click event
-              onProcess(); // Use the passed prop instead of direct state manipulation
-            }}
-            size={isSmallCard ? "sm" : "default"}
-          >
-            Process Request
-          </Button>
-          <Button
-            variant="outline"
-            className="w-full text-amber-600 border-amber-200 hover:bg-amber-50 hover:text-amber-700 dark:border-amber-800 dark:text-amber-400 dark:hover:bg-amber-950/50"
-            onClick={(e) => {
-              e.stopPropagation(); // Prevent card click event
-              onUndoAccept && onUndoAccept();
-            }}
-            size={isSmallCard ? "sm" : "default"}
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Return to New
-          </Button>
-        </CardFooter>
-      </Card>
-    </motion.div>
+      <Dialog
+        open={showConfirmProcessDialog}
+        onOpenChange={setShowConfirmProcessDialog}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Confirm Process Request</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to process this request for{" "}
+              {request.petName}?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowConfirmProcessDialog(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                setShowConfirmProcessDialog(false);
+                onProcess();
+              }}
+            >
+              Confirm
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
-// Update the CompletedRequestCard component to use the Bordio-style card design
+// Update CompletedRequestCard to remove 'new' badge when viewed
 function CompletedRequestCard({ request }: CompletedRequestCardProps) {
   const [showDetails, setShowDetails] = useState(false);
   const [isNewlyCompleted, setIsNewlyCompleted] = useState(
@@ -1444,7 +1480,7 @@ function CompletedRequestCard({ request }: CompletedRequestCardProps) {
         className="h-full"
       >
         <Card
-          className={`border-green-100 dark:border-green-900/50 bg-green-50/70 dark:bg-green-950/30 w-full h-full flex flex-col ${
+          className={`border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950/20 w-full h-full flex flex-col ${
             isNewlyCompleted
               ? "ring-2 ring-green-400 dark:ring-green-600 shadow-md"
               : ""
@@ -1577,7 +1613,6 @@ function CompletedRequestCard({ request }: CompletedRequestCardProps) {
         </Card>
       </motion.div>
 
-      {/* Dialog content remains the same */}
       <Dialog
         open={showDetails}
         onOpenChange={(open) => {
@@ -1586,7 +1621,225 @@ function CompletedRequestCard({ request }: CompletedRequestCardProps) {
           }
         }}
       >
-        {/* Dialog content remains unchanged */}
+        <DialogContent
+          className={`${isMobile ? "w-[95vw] max-w-lg" : "max-w-4xl"} ${isMobile ? "h-[90vh]" : "h-[85vh]"} p-0 flex flex-col`}
+        >
+          <DialogHeader className="px-6 py-4 border-b">
+            <DialogTitle className="text-xl flex items-center gap-2">
+              <div
+                className={`
+        p-2 rounded-full 
+        ${request.type === "photo" ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300" : ""}
+        ${request.type === "video" ? "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300" : ""}
+        ${request.type === "grooming" ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300" : ""}
+        ${request.type === "boarding-extension" ? "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300" : ""}
+        ${request.type === "custom" ? "bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300" : ""}
+      `}
+              >
+                {getRequestTypeIcon(request.type)}
+              </div>
+              {getRequestTypeLabel(request.type)} Request
+            </DialogTitle>
+            <DialogDescription>
+              Completed on {formatDate(request.completedAt)} by{" "}
+              {request.completedBy}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex-1 overflow-hidden flex flex-col md:flex-row">
+            {/* Left panel - Request details */}
+            <div className="w-full md:w-1/2 border-r overflow-y-auto p-4 bg-slate-50 dark:bg-slate-900/30">
+              <div className="space-y-5">
+                <div className="bg-white dark:bg-slate-800 p-3 rounded-lg shadow-sm">
+                  <h3 className="text-xs uppercase tracking-wide text-muted-foreground font-medium mb-2">
+                    Pet Information
+                  </h3>
+                  <p className="text-lg font-semibold">{request.petName}</p>
+                  <p className="text-sm">
+                    Owner:{" "}
+                    <span className="font-medium">{request.petOwnerName}</span>
+                  </p>
+                </div>
+
+                {request.type === "boarding-extension" &&
+                  request.extensionDetails && (
+                    <div className="bg-white dark:bg-slate-800 p-3 rounded-lg shadow-sm">
+                      <h3 className="text-xs uppercase tracking-wide text-muted-foreground font-medium mb-2">
+                        Extension Details
+                      </h3>
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm">Duration:</span>
+                          <span className="text-base font-medium text-amber-700 dark:text-amber-400">
+                            {request.extensionDetails.duration}{" "}
+                            {request.extensionDetails.unit}
+                          </span>
+                        </div>
+                        {request.price && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm">Price:</span>
+                            <span className="text-base font-medium text-green-600 dark:text-green-400">
+                              {formatCurrency(request.price)}
+                            </span>
+                          </div>
+                        )}
+                        {request.newEndDate && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm">New End Date:</span>
+                            <span className="text-base font-medium">
+                              {formatDate(request.newEndDate)}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                {request.type === "grooming" && request.groomingService && (
+                  <div className="bg-white dark:bg-slate-800 p-3 rounded-lg shadow-sm">
+                    <h3 className="text-xs uppercase tracking-wide text-muted-foreground font-medium mb-2">
+                      Grooming Service
+                    </h3>
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm">Service:</span>
+                        <span className="text-base font-medium text-green-700 dark:text-green-400">
+                          {request.groomingService
+                            .replace(/-/g, " ")
+                            .replace(/\b\w/g, (l) => l.toUpperCase())}
+                        </span>
+                      </div>
+                      {request.price && (
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm">Price:</span>
+                          <span className="text-base font-medium text-green-600 dark:text-green-400">
+                            {formatCurrency(request.price)}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                <div className="bg-white dark:bg-slate-800 p-3 rounded-lg shadow-sm">
+                  <h3 className="text-xs uppercase tracking-wide text-muted-foreground font-medium mb-2">
+                    Timeline
+                  </h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Submitted:</span>
+                      <span className="text-base font-medium">
+                        {formatDate(request.createdAt)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Completed:</span>
+                      <span className="text-base font-medium">
+                        {formatDate(request.completedAt)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {request.mediaFiles && (
+                  <div className="bg-white dark:bg-slate-800 p-3 rounded-lg shadow-sm">
+                    <h3 className="text-xs uppercase tracking-wide text-muted-foreground font-medium mb-2">
+                      Media
+                    </h3>
+                    <div className="p-3 bg-muted/50 rounded-md text-center">
+                      <span className="font-medium">
+                        {request.mediaFiles.count || 1} {request.type}
+                        {request.mediaFiles.count > 1 ? "s" : ""} uploaded
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Right panel - Chat conversation */}
+            <div className="w-full md:w-1/2 flex flex-col h-full">
+              <div className="flex-1 overflow-y-auto p-4 space-y-6">
+                {/* Pet owner request message */}
+                <ChatBubble
+                  sender={request.petOwnerName}
+                  message={request.description}
+                  timestamp={request.createdAt}
+                  avatar={request.petOwnerName.charAt(0)}
+                  isAdmin={false}
+                  type={request.type}
+                />
+
+                {/* Admin response message */}
+                <ChatBubble
+                  sender={request.completedBy || "Admin"}
+                  message={
+                    request.processingNotes || "Request completed successfully."
+                  }
+                  timestamp={request.completedAt}
+                  avatar="A"
+                  isAdmin={true}
+                />
+
+                {/* Conditional media message from admin */}
+                {request.mediaFiles && (
+                  <ChatBubble
+                    sender={request.completedBy || "Admin"}
+                    message={`Here's the ${
+                      request.type === "photo"
+                        ? request.mediaFiles.count > 1
+                          ? "photos"
+                          : "photo"
+                        : "video"
+                    } of ${request.petName} as requested.`}
+                    timestamp={request.completedAt}
+                    avatar="A"
+                    isAdmin={true}
+                    media={{
+                      url: request.mediaFiles.urls
+                        ? request.mediaFiles.urls[0]
+                        : "/placeholder.svg?height=300&width=400",
+                      type: request.type === "photo" ? "image" : "video",
+                      urls: request.mediaFiles.urls,
+                      audioUrl: request.mediaFiles.audioUrl,
+                      audioName: request.mediaFiles.audioName,
+                    }}
+                  />
+                )}
+
+                {/* Conditional confirmation message for boarding extension */}
+                {request.type === "boarding-extension" &&
+                  request.newEndDate && (
+                    <ChatBubble
+                      sender={request.completedBy || "Admin"}
+                      message={`The boarding extension has been approved. The new end date is ${formatDate(request.newEndDate)}.`}
+                      timestamp={request.completedAt}
+                      avatar="A"
+                      isAdmin={true}
+                    />
+                  )}
+
+                {/* Conditional confirmation message for grooming */}
+                {request.type === "grooming" && (
+                  <ChatBubble
+                    sender={request.completedBy || "Admin"}
+                    message={`The grooming service (${request.groomingService.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}) has been completed for ${request.petName}.`}
+                    timestamp={request.completedAt}
+                    avatar="A"
+                    isAdmin={true}
+                  />
+                )}
+              </div>
+
+              {/* Removed chat input area - no longer needed */}
+              <div className="p-4 border-t">
+                <div className="text-center text-sm text-muted-foreground">
+                  This conversation is completed
+                </div>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
       </Dialog>
     </>
   );
@@ -1636,3 +1889,22 @@ function EmptyState({ message = "No requests found" }: { message?: string }) {
     </Card>
   );
 }
+
+export const getCardBorderColor = (type: string) => {
+  if (type === "photo") return "border-blue-200 dark:border-blue-800";
+  if (type === "video") return "border-purple-200 dark:border-purple-800";
+  if (type === "grooming") return "border-green-200 dark:border-green-800";
+  if (type === "boarding-extension")
+    return "border-amber-200 dark:border-amber-800";
+  if (type === "custom") return "border-gray-200 dark:border-gray-800";
+  return "border-border";
+};
+
+export const getCardBgColor = (type: string) => {
+  if (type === "photo") return "bg-blue-50 dark:bg-blue-950/20";
+  if (type === "video") return "bg-purple-50 dark:bg-purple-950/20";
+  if (type === "grooming") return "bg-green-50 dark:bg-green-950/20";
+  if (type === "boarding-extension") return "bg-amber-50 dark:bg-amber-950/20";
+  if (type === "custom") return "bg-gray-50 dark:bg-gray-950/20";
+  return "bg-background";
+};

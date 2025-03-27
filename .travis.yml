@@ -1,0 +1,54 @@
+# Travis CI Configuration for Big-Paws Pet Boarding Application
+# This file configures the continuous integration pipeline for the application
+
+# Specify the language and version
+language: node_js
+node_js:
+  - "18" # Use Node.js 18 (or update to your preferred version)
+
+# Cache dependencies to speed up builds
+cache:
+  directories:
+    - node_modules
+
+# Define environment variables (add your environment variables here)
+# For sensitive data, use Travis CI environment variables in the Travis dashboard
+env:
+  global:
+    - NODE_ENV=test
+    # - DATABASE_URL=your_test_database_url (configure in Travis dashboard)
+    # - NEXT_PUBLIC_API_URL=your_api_url (configure in Travis dashboard)
+
+# Install dependencies
+install:
+  - npm ci # Use 'npm ci' instead of 'npm install' for cleaner installs in CI
+
+# Run tests and other commands
+script:
+  - npm run lint # Run linting
+  - npm run test # Run tests
+  # - npm run build  # Uncomment to test the build process
+
+# Configure deployment (uncomment and configure as needed)
+# deploy:
+#   provider: pages | heroku | aws | azure (choose your deployment target)
+#   skip_cleanup: true
+#   github_token: $GITHUB_TOKEN  # Set in Travis dashboard
+#   on:
+#     branch: main
+
+# Notifications configuration
+notifications:
+  email:
+    recipients:
+      - a.bautista.129340.tc@umindanao.edu.ph
+    on_success: change # Options: always, never, change
+    on_failure: always
+# CONFIGURATION GUIDE:
+# 1. Create a Travis CI account and link it to your GitHub repository
+# 2. Add sensitive environment variables in the Travis CI dashboard
+# 3. Adjust the Node.js version to match your development environment
+# 4. Uncomment and configure the deployment section based on your hosting provider
+# 5. Update the notification email to your team's email
+# 6. Push this file to your repository to trigger your first build
+

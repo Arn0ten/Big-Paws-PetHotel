@@ -368,6 +368,8 @@ export default function RequestsPage() {
   const [successMessage, setSuccessMessage] = useState("");
   const [successTitle, setSuccessTitle] = useState("");
   const [successType, setSuccessType] = useState("");
+  const [showApproveConfirmDialog, setShowApproveConfirmDialog] =
+    useState(false);
 
   const handleApproveRequest = (request: any) => {
     setSelectedRequest(request);
@@ -1259,47 +1261,7 @@ export default function RequestsPage() {
   );
 }
 
-// Update the getCardBorderColor function to use Bordio-style subtle borders
-const getCardBorderColor = (type: string, isUrgent: boolean) => {
-  if (isUrgent) return "border-red-100 dark:border-red-900/50";
-
-  switch (type) {
-    case "photo":
-      return "border-blue-100 dark:border-blue-900/50"; // Subtle blue border
-    case "video":
-      return "border-purple-100 dark:border-purple-900/50"; // Subtle purple border
-    case "grooming":
-      return "border-green-100 dark:border-green-900/50"; // Subtle green border
-    case "boarding-extension":
-      return "border-amber-100 dark:border-amber-900/50"; // Subtle amber border
-    case "custom":
-      return "border-gray-100 dark:border-gray-800/50"; // Subtle gray border
-    default:
-      return "border-slate-100 dark:border-slate-800/50"; // Default subtle slate border
-  }
-};
-
-// Update the getCardBgColor function to use Bordio-style pastel colors
-const getCardBgColor = (type: string, isUrgent: boolean) => {
-  if (isUrgent) return "bg-red-50/70 dark:bg-red-950/30";
-
-  switch (type) {
-    case "photo":
-      return "bg-blue-50/70 dark:bg-blue-950/30"; // Light blue for photo requests
-    case "video":
-      return "bg-purple-50/70 dark:bg-purple-950/30"; // Light purple for video requests
-    case "grooming":
-      return "bg-green-50/70 dark:bg-green-950/30"; // Light green for grooming requests
-    case "boarding-extension":
-      return "bg-amber-50/70 dark:bg-amber-950/30"; // Light amber/orange for boarding extensions
-    case "custom":
-      return "bg-gray-50/70 dark:bg-gray-950/30"; // Light gray for custom requests
-    default:
-      return "bg-slate-50/70 dark:bg-slate-950/30"; // Default light slate
-  }
-};
-
-// Update the NewRequestCard component to use the Bordio-style card design
+// New Request Card Component with improved button layout
 function NewRequestCard({
   request,
   onApprove,
@@ -1309,6 +1271,8 @@ function NewRequestCard({
   const isMobile = useMediaQuery("(max-width: 640px)");
   const isSmallCard = useMediaQuery("(max-width: 400px)");
   const [isApproving, setIsApproving] = useState(false);
+  const [showApproveConfirmDialog, setShowApproveConfirmDialog] =
+    useState(false);
 
   // Force stacking on narrow cards
   useEffect(() => {
@@ -1329,18 +1293,43 @@ function NewRequestCard({
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  const getCardBorderColor = (type: string) => {
+    switch (type) {
+      case "photo":
+        return "border-blue-200 dark:border-blue-800";
+      case "video":
+        return "border-purple-200 dark:border-purple-800";
+      case "grooming":
+        return "border-green-200 dark:border-green-800";
+      case "boarding-extension":
+        return "border-amber-200 dark:border-amber-800";
+      case "custom":
+        return "border-gray-200 dark:border-gray-700";
+      default:
+        return "";
+    }
+  };
+
+  const getCardBgColor = (type: string) => {
+    switch (type) {
+      case "photo":
+        return "bg-blue-50 dark:bg-blue-950/20";
+      case "video":
+        return "bg-purple-50 dark:bg-purple-950/20";
+      case "grooming":
+        return "bg-green-50 dark:bg-green-950/20";
+      case "boarding-extension":
+        return "bg-amber-50 dark:bg-amber-950/20";
+      case "custom":
+        return "bg-gray-50 dark:bg-gray-950/20";
+      default:
+        return "";
+    }
+  };
+
   const handleApprove = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent card click event
-    setIsApproving(true);
-
-    // Call the onApprove function
-    onApprove();
-
-    // Reset the state after a delay (this would normally be handled by the API response)
-    // In a real implementation, you would reset this in the .then() or .finally() of your API call
-    setTimeout(() => {
-      setIsApproving(false);
-    }, 2000);
+    setShowApproveConfirmDialog(true);
   };
 
   return (
@@ -1355,7 +1344,7 @@ function NewRequestCard({
       className="h-full"
     >
       <Card
-        className={`w-full h-full flex flex-col request-card ${getCardBorderColor(request.type, request.isUrgent)} ${getCardBgColor(request.type, request.isUrgent)}`}
+        className={`w-full h-full flex flex-col request-card ${getCardBorderColor(request.type)} ${getCardBgColor(request.type)}`}
       >
         <CardHeader className="p-4 pb-2">
           <div className="flex justify-between items-start">
@@ -1387,11 +1376,6 @@ function NewRequestCard({
               </div>
             </div>
             <div className="flex flex-col items-end gap-1">
-              {request.isUrgent && (
-                <Badge variant="destructive" className="ml-auto">
-                  Urgent
-                </Badge>
-              )}
               {request.isReconsidered && (
                 <Badge
                   variant="outline"
@@ -1464,15 +1448,6 @@ function NewRequestCard({
             className={`flex flex-col ${!isSmallCard ? "sm:flex-row" : ""} gap-2 w-full`}
           >
             <Button
-              variant="outline"
-              className="w-full text-sm px-2 sm:px-4"
-              onClick={onReject}
-              size={isSmallCard ? "sm" : "default"}
-            >
-              <ThumbsDown className="mr-1 sm:mr-2 h-4 w-4" />
-              <span>Reject</span>
-            </Button>
-            <Button
               className="w-full text-sm px-2 sm:px-4"
               onClick={handleApprove}
               size={isSmallCard ? "sm" : "default"}
@@ -1490,14 +1465,55 @@ function NewRequestCard({
                 </>
               )}
             </Button>
+            <Button
+              variant="outline"
+              className="w-full text-sm px-2 sm:px-4"
+              onClick={onReject}
+              size={isSmallCard ? "sm" : "default"}
+            >
+              <ThumbsDown className="mr-1 sm:mr-2 h-4 w-4" />
+              <span>Reject</span>
+            </Button>
           </div>
         </CardFooter>
       </Card>
+      <Dialog
+        open={showApproveConfirmDialog}
+        onOpenChange={setShowApproveConfirmDialog}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Confirm Approval</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to approve this{" "}
+              {getRequestTypeLabel(request.type).toLowerCase()} request for{" "}
+              {request.petName}?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowApproveConfirmDialog(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                setShowApproveConfirmDialog(false);
+                setIsApproving(true);
+                onApprove();
+              }}
+            >
+              Confirm
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 }
 
-// Update the RejectedRequestCard component to use the Bordio-style card design
+// Rejected Request Card Component with Reconsider button
 function RejectedRequestCard({
   request,
   onViewDetails,
@@ -1515,7 +1531,7 @@ function RejectedRequestCard({
       whileHover={{ scale: 1.02 }}
       className="h-full"
     >
-      <Card className="border-red-100 dark:border-red-900/50 bg-red-50/70 dark:bg-red-950/30 w-full h-full flex flex-col request-card">
+      <Card className="border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/20 w-full h-full flex flex-col request-card">
         <CardHeader className="p-4 pb-2">
           <div className="flex justify-between items-start">
             <div className="flex items-center space-x-2">
