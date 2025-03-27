@@ -368,8 +368,8 @@ export function AdminSidebar({ onCollapse }: AdminSidebarProps) {
                 <Image
                   src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/main-logo-dark-kytTGWlLTF0sp9UhYxhJmTAZ3prDO8.png"
                   alt="Big Paws Logo"
-                  width={32}
-                  height={32}
+                  width={200}
+                  height={60}
                   className="object-cover"
                 />
               </div>
