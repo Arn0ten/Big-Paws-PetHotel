@@ -1,18 +1,31 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { useToast } from "@/hooks/use-toast"
-import { Loader2, X, Upload, ImageIcon, FileImage } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useToast } from "@/hooks/use-toast";
+import { Loader2, X, Upload, ImageIcon, FileImage } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 /**
  * Request Form Component
@@ -43,20 +56,20 @@ import { useRouter } from "next/navigation"
 
 // BACKEND INTEGRATION: Define the interface for the request form data
 interface RequestFormData {
-  petId: string
-  requestType: string
-  description: string
-  urgency: string
-  mediaFiles: File[]
+  petId: string;
+  requestType: string;
+  description: string;
+  urgency: string;
+  mediaFiles: File[];
 }
 
 // BACKEND INTEGRATION: Define the interface for the pet data
 interface Pet {
-  id: string
-  name: string
-  type: string
-  breed: string
-  imageUrl?: string
+  id: string;
+  name: string;
+  type: string;
+  breed: string;
+  imageUrl?: string;
 }
 
 /**
@@ -108,29 +121,47 @@ interface Pet {
  */
 // BACKEND INTEGRATION: Replace with actual API call to fetch pets
 const mockPets: Pet[] = [
-  { id: "1", name: "Buddy", type: "Dog", breed: "Golden Retriever", imageUrl: "/images/default-dog.jpg" },
-  { id: "2", name: "Whiskers", type: "Cat", breed: "Siamese", imageUrl: "/images/default-cat.jpg" },
-  { id: "3", name: "Max", type: "Dog", breed: "German Shepherd", imageUrl: "/images/default-dog.jpg" },
-]
+  {
+    id: "1",
+    name: "Buddy",
+    type: "Dog",
+    breed: "Golden Retriever",
+    imageUrl: "/images/default-dog.jpg",
+  },
+  {
+    id: "2",
+    name: "Whiskers",
+    type: "Cat",
+    breed: "Siamese",
+    imageUrl: "/images/default-cat.jpg",
+  },
+  {
+    id: "3",
+    name: "Max",
+    type: "Dog",
+    breed: "German Shepherd",
+    imageUrl: "/images/default-dog.jpg",
+  },
+];
 
 export default function RequestForm() {
-  const [selectedPet, setSelectedPet] = useState("")
-  const [requestType, setRequestType] = useState("")
-  const [description, setDescription] = useState("")
-  const [urgency, setUrgency] = useState("normal")
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
-  const [previewUrls, setPreviewUrls] = useState<string[]>([])
-  const { toast } = useToast()
-  const router = useRouter()
+  const [selectedPet, setSelectedPet] = useState("");
+  const [requestType, setRequestType] = useState("");
+  const [description, setDescription] = useState("");
+  const [urgency, setUrgency] = useState("normal");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const { toast } = useToast();
+  const router = useRouter();
 
   // BACKEND INTEGRATION: Replace with actual API call to fetch pets
-  const pets = mockPets
+  const pets = mockPets;
 
   // Handle file selection
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const newFiles = Array.from(e.target.files)
+      const newFiles = Array.from(e.target.files);
 
       // Validate file types (only images for photo requests, videos for video requests)
       const validFiles = newFiles.filter((file) => {
@@ -139,41 +170,43 @@ export default function RequestForm() {
             title: "Invalid file type",
             description: "Please select only image files for photo requests.",
             variant: "destructive",
-          })
-          return false
+          });
+          return false;
         }
         if (requestType === "video" && !file.type.startsWith("video/")) {
           toast({
             title: "Invalid file type",
             description: "Please select only video files for video requests.",
             variant: "destructive",
-          })
-          return false
+          });
+          return false;
         }
-        return true
-      })
+        return true;
+      });
 
       // Update selected files
-      setSelectedFiles((prev) => [...prev, ...validFiles])
+      setSelectedFiles((prev) => [...prev, ...validFiles]);
 
       // Create preview URLs
-      const newPreviewUrls = validFiles.map((file) => URL.createObjectURL(file))
-      setPreviewUrls((prev) => [...prev, ...newPreviewUrls])
+      const newPreviewUrls = validFiles.map((file) =>
+        URL.createObjectURL(file),
+      );
+      setPreviewUrls((prev) => [...prev, ...newPreviewUrls]);
     }
-  }
+  };
 
   // Remove a file from the selection
   const removeFile = (index: number) => {
-    setSelectedFiles((prev) => prev.filter((_, i) => i !== index))
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
 
     // Revoke the object URL to avoid memory leaks
-    URL.revokeObjectURL(previewUrls[index])
-    setPreviewUrls((prev) => prev.filter((_, i) => i !== index))
-  }
+    URL.revokeObjectURL(previewUrls[index]);
+    setPreviewUrls((prev) => prev.filter((_, i) => i !== index));
+  };
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     // Validate form
     if (!selectedPet) {
@@ -181,8 +214,8 @@ export default function RequestForm() {
         title: "Missing pet",
         description: "Please select a pet for this request.",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
     if (!requestType) {
@@ -190,8 +223,8 @@ export default function RequestForm() {
         title: "Missing request type",
         description: "Please select a request type.",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
     if (!description) {
@@ -199,21 +232,24 @@ export default function RequestForm() {
         title: "Missing description",
         description: "Please provide a description for your request.",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
     // For photo/video requests, require at least one file
-    if ((requestType === "photo" || requestType === "video") && selectedFiles.length === 0) {
+    if (
+      (requestType === "photo" || requestType === "video") &&
+      selectedFiles.length === 0
+    ) {
       toast({
         title: "No files selected",
         description: `Please select at least one ${requestType === "photo" ? "image" : "video"} file.`,
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
     try {
       /**
@@ -261,18 +297,18 @@ export default function RequestForm() {
        */
 
       // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
       // Show success toast
       toast({
         title: "Request submitted",
         description: "Your request has been submitted successfully.",
-      })
+      });
 
       // Redirect to requests page
-      router.push("/webapp/pet-owner/requests")
+      router.push("/webapp/pet-owner/requests");
     } catch (error) {
-      console.error("Error submitting request:", error)
+      console.error("Error submitting request:", error);
 
       // BACKEND INTEGRATION: Improve error handling based on API response
       // Example:
@@ -301,11 +337,11 @@ export default function RequestForm() {
         title: "Error",
         description: "Failed to submit request. Please try again.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <Card>
@@ -360,7 +396,11 @@ export default function RequestForm() {
 
           <div className="space-y-2">
             <Label>Urgency</Label>
-            <RadioGroup value={urgency} onValueChange={setUrgency} className="flex flex-col space-y-1">
+            <RadioGroup
+              value={urgency}
+              onValueChange={setUrgency}
+              className="flex flex-col space-y-1"
+            >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="low" id="low" />
                 <Label htmlFor="low">Low</Label>
@@ -382,7 +422,9 @@ export default function RequestForm() {
               <Label>
                 {requestType === "photo" ? "Upload Photos" : "Upload Video"}
                 {requestType === "photo" && (
-                  <span className="text-xs text-muted-foreground ml-1">(Multiple photos allowed)</span>
+                  <span className="text-xs text-muted-foreground ml-1">
+                    (Multiple photos allowed)
+                  </span>
                 )}
               </Label>
 
@@ -399,7 +441,9 @@ export default function RequestForm() {
                       : "Drag and drop video, or click to browse"}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {requestType === "photo" ? "JPG, PNG, GIF up to 10MB each" : "MP4, MOV up to 100MB"}
+                    {requestType === "photo"
+                      ? "JPG, PNG, GIF up to 10MB each"
+                      : "MP4, MOV up to 100MB"}
                   </p>
                 </div>
 
@@ -422,7 +466,9 @@ export default function RequestForm() {
               {/* Preview selected files */}
               {selectedFiles.length > 0 && (
                 <div className="mt-4">
-                  <Label className="mb-2 block">Selected Files ({selectedFiles.length})</Label>
+                  <Label className="mb-2 block">
+                    Selected Files ({selectedFiles.length})
+                  </Label>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                     {previewUrls.map((url, index) => (
                       <div key={index} className="relative group">
@@ -445,7 +491,9 @@ export default function RequestForm() {
                         >
                           <X className="h-4 w-4 text-white" />
                         </button>
-                        <p className="text-xs truncate mt-1">{selectedFiles[index].name}</p>
+                        <p className="text-xs truncate mt-1">
+                          {selectedFiles[index].name}
+                        </p>
                       </div>
                     ))}
                   </div>
@@ -470,6 +518,5 @@ export default function RequestForm() {
         </CardFooter>
       </form>
     </Card>
-  )
+  );
 }
-

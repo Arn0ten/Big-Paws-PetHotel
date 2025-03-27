@@ -27,7 +27,6 @@ import { formatCurrency } from "../../boarding/utils/helpers";
 import {
   getRequestTypeIcon,
   getRequestTypeLabel,
-  getCardBorderColor,
   getCardBgColor,
 } from "../utils/ui-helpers";
 import { ChatBubble } from "./chat-bubble";
@@ -62,7 +61,7 @@ export function InProgressRequestCard({
       className="h-full"
     >
       <Card
-        className={`w-full h-full flex flex-col ${getCardBorderColor(request.type, request.isUrgent)} ${getCardBgColor(request.type, request.isUrgent)} cursor-pointer hover:shadow-md transition-shadow`}
+        className={`w-full h-full flex flex-col ${getCardBgColor(request.type, request.isUrgent)} cursor-pointer hover:shadow-md transition-shadow`}
         onClick={onViewDetails}
       >
         <CardHeader className="p-4 pb-2">
@@ -220,7 +219,7 @@ export function CompletedRequestCard({ request }: CompletedRequestCardProps) {
         className="h-full"
       >
         <Card
-          className={`border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950/20 w-full h-full flex flex-col ${
+          className={`bg-green-50 dark:bg-green-950/20 w-full h-full flex flex-col ${
             isNewlyCompleted
               ? "ring-2 ring-green-400 dark:ring-green-600 shadow-md"
               : ""

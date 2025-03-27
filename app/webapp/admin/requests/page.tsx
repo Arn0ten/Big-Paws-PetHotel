@@ -1010,7 +1010,7 @@ export default function RequestsPage() {
                       disabled={isProcessing}
                       className={`${isMobile ? "w-full" : ""}`}
                     >
-                      <ThumbsDown className="mr-2 h-4 w-4" />
+                      <ThumbsDown className="mr-2 h-4 w-4 text" />
                       Reject
                     </Button>
                     <Button

@@ -30,8 +30,6 @@ import {
   XCircle,
   Edit,
   Hotel,
-  AlertCircle,
-  PartyPopper,
   Upload,
   PawPrint,
   Dna,
@@ -40,6 +38,55 @@ import {
 import type { Pet, PetOwner, FormErrors } from "../utils/types"
 import { DOG_BREEDS, CAT_BREEDS } from "../utils/constants"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+
+/**
+ * Component for displaying success message
+ */
+interface GlobalSuccessDialogProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  title: string
+  description: string
+  type: "add-pet" | "boarding" | "edit-pet"
+  actionLabel: string
+  onAction: () => void
+}
+
+function GlobalSuccessDialog({
+  open,
+  onOpenChange,
+  title,
+  description,
+  type,
+  actionLabel,
+  onAction,
+}: GlobalSuccessDialogProps) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.75 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.75 }}
+          transition={{ duration: 0.2 }}
+        >
+          <DialogHeader>
+            <DialogTitle>{title}</DialogTitle>
+            <DialogDescription>{description}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+            <Button variant="outline" onClick={() => onOpenChange(false)} className="w-full">
+              Close
+            </Button>
+            <Button onClick={onAction} className="w-full">
+              {actionLabel}
+            </Button>
+          </DialogFooter>
+        </motion.div>
+      </DialogContent>
+    </Dialog>
+  )
+}
 
 /**
  * Component for displaying pet details
@@ -539,21 +586,12 @@ export function DeleteConfirmDialog({
 }: DeleteConfirmDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="w-full max-w-md md:max-w-lg p-4 md:p-6 overflow-y-auto max-h-[80vh]">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-destructive flex items-center gap-2">
-            <AlertCircle className="h-5 w-5" />
-            {title}
-          </DialogTitle>
+          <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
-        <div className="flex items-center gap-2 p-4 bg-destructive/10 rounded-md">
-          <AlertCircle className="h-5 w-5 text-destructive" />
-          <p className="text-sm text-destructive">
-            This will permanently delete the pet owner and all associated records.
-          </p>
-        </div>
-        <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-4">
+        <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
@@ -578,41 +616,18 @@ export interface SuccessDialogProps {
 
 export function SuccessDialog({ isOpen, onOpenChange, ownerName, onBoardPet }: SuccessDialogProps) {
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="w-full max-w-md md:max-w-lg p-4 md:p-6 overflow-y-auto max-h-[80vh]">
-        <motion.div
-          className="flex items-center justify-center flex-col text-center py-6"
-          initial={{ scale: 0.8 }}
-          animate={{ scale: 1 }}
-          transition={{ type: "spring", stiffness: 300, damping: 15 }}
-        >
-          <div className="rounded-full bg-green-100 dark:bg-green-900/50 p-3 mb-4">
-            <PartyPopper className="h-8 w-8 text-green-600 dark:text-green-400" />
-          </div>
-          <h3 className="text-xl font-bold text-green-700 dark:text-green-300 mb-2">Pet Added Successfully!</h3>
-          <p className="text-green-600 dark:text-green-400 mb-6">The pet has been added to {ownerName}'s profile.</p>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              className="border-green-300 bg-green-50 hover:bg-green-100 text-green-700 dark:border-green-800 dark:bg-green-900/30 dark:hover:bg-green-800/50 dark:text-green-400"
-            >
-              Close
-            </Button>
-            <Button
-              className="bg-green-600 hover:bg-green-700 text-white dark:bg-green-700 dark:hover:bg-green-800 dark:text-white"
-              onClick={() => {
-                onOpenChange(false)
-                onBoardPet()
-              }}
-            >
-              <Hotel className="mr-2 h-4 w-4" />
-              Let's Board This Pet
-            </Button>
-          </div>
-        </motion.div>
-      </DialogContent>
-    </Dialog>
+    <GlobalSuccessDialog
+      open={isOpen}
+      onOpenChange={onOpenChange}
+      title="Pet Added Successfully!"
+      description={`The pet has been added to ${ownerName}'s profile.`}
+      type="add-pet"
+      actionLabel="Let's Board This Pet"
+      onAction={() => {
+        onOpenChange(false)
+        onBoardPet()
+      }}
+    />
   )
 }
 

@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   Dialog,
@@ -7,21 +7,27 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 interface ConfirmationDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  title: string
-  description: string
-  onConfirm: () => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  title: string;
+  description: string;
+  onConfirm: () => void;
 }
 
-export function ConfirmationDialog({ open, onOpenChange, title, description, onConfirm }: ConfirmationDialogProps) {
+export function ConfirmationDialog({
+  open,
+  onOpenChange,
+  title,
+  description,
+  onConfirm,
+}: ConfirmationDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
@@ -36,6 +42,5 @@ export function ConfirmationDialog({ open, onOpenChange, title, description, onC
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
-

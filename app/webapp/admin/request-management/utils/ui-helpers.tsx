@@ -55,55 +55,31 @@ export const getRequestTypeLabel = (type: string) => {
   }
 };
 
-/**
- * Get the border color class for a request card
- * @param type The request type
- * @returns The Tailwind CSS class for the border color
- */
-export const getCardBorderColor = (type: string) => {
-  switch (type) {
-    case "photo":
-      return "border-blue-200 dark:border-blue-800";
-    case "video":
-      return "border-purple-200 dark:border-purple-800";
-    case "grooming":
-      return "border-green-200 dark:border-green-800";
-    case "boarding-extension":
-      return "border-amber-200 dark:border-amber-800";
-    case "custom":
-      return "border-gray-200 dark:border-gray-700";
-    case "dog":
-      return "border-blue-200 dark:border-blue-800";
-    case "cat":
-      return "border-purple-200 dark:border-purple-800";
-    default:
-      return "";
-  }
+// Update the getCardBorderColor and getCardBgColor functions to use pastel backgrounds instead of neon borders
+
+export const getCardBorderColor = (type: string, isUrgent: boolean) => {
+  // This function is now deprecated in favor of getCardBgColor
+  return "";
 };
 
-/**
- * Get the background color class for a request card
- * @param type The request type
- * @returns The Tailwind CSS class for the background color
- */
-export const getCardBgColor = (type: string) => {
+export const getCardBgColor = (type: string, isUrgent: boolean) => {
+  if (isUrgent) {
+    return "bg-red-50 dark:bg-red-950/20"; // Pastel red for urgent requests
+  }
+
   switch (type) {
     case "photo":
-      return "bg-blue-50 dark:bg-blue-950/20";
+      return "bg-blue-50 dark:bg-blue-950/20"; // Pastel blue
     case "video":
-      return "bg-purple-50 dark:bg-purple-950/20";
+      return "bg-purple-50 dark:bg-purple-950/20"; // Pastel purple
     case "grooming":
-      return "bg-green-50 dark:bg-green-950/20";
+      return "bg-green-50 dark:bg-green-950/20"; // Pastel green
     case "boarding-extension":
-      return "bg-amber-50 dark:bg-amber-950/20";
+      return "bg-amber-50 dark:bg-amber-950/20"; // Pastel amber
     case "custom":
-      return "bg-gray-50 dark:bg-gray-950/20";
-    case "dog":
-      return "bg-blue-50 dark:bg-blue-950/20";
-    case "cat":
-      return "bg-purple-50 dark:bg-purple-950/20";
+      return "bg-gray-50 dark:bg-gray-950/20"; // Pastel gray
     default:
-      return "";
+      return "bg-gray-50 dark:bg-gray-950/20"; // Default pastel gray
   }
 };
 
