@@ -1,3 +1,10 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -28,11 +35,6 @@ import {
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import { motion } from "framer-motion";
 
 // Add a cancel button to each request in the list view
 // Add a confirmation dialog for cancellation
@@ -190,6 +192,7 @@ export default function PetOwnerRequestsPage() {
       case "in-progress":
         return (
           <div className="self-start">
+            {" "}
             <Badge
               variant="outline"
               className="bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:border-green-700/30 dark:text-green-400 inline-flex whitespace-nowrap"
@@ -201,6 +204,7 @@ export default function PetOwnerRequestsPage() {
       case "completed":
         return (
           <div className="self-start">
+            {" "}
             <Badge
               variant="outline"
               className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:border-blue-700/30 dark:text-blue-400 inline-flex whitespace-nowrap"
@@ -212,6 +216,7 @@ export default function PetOwnerRequestsPage() {
       case "rejected":
         return (
           <div className="self-start">
+            {" "}
             <Badge
               variant="outline"
               className="bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:border-red-700/30 dark:text-red-400 inline-flex whitespace-nowrap"
@@ -223,7 +228,8 @@ export default function PetOwnerRequestsPage() {
       default:
         return (
           <div className="self-start">
-            <Badge variant="outline" className="inline-flex whitespace-nowrap">
+            {" "}
+            <Badge variant="outline">
               <AlertCircle className="h-3 w-3 mr-1" /> {status}
             </Badge>
           </div>
