@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   app:
@@ -32,7 +32,6 @@ services:
 
 volumes:
   postgres_data:
-
 # CONFIGURATION GUIDE:
 # 1. This docker-compose file sets up both the Next.js application and a PostgreSQL database
 # 2. Environment variables are passed from the host to the containers
