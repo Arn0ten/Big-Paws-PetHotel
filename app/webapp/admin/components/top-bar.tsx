@@ -17,9 +17,12 @@ import {
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
+import { LogoutConfirmationDialog } from "@/components/ui/logout-confirmation-dialog";
 
 export function TopBar() {
   const [notifications, setNotifications] = useState(3);
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
 
@@ -29,8 +32,14 @@ export function TopBar() {
   };
 
   // Handle logout with confirmation
-  const handleLogout = () => {
+  const handleLogoutClick = () => {
+    setLogoutDialogOpen(true);
+  };
+
+  const handleLogout = async () => {
     try {
+      setIsLoggingOut(true);
+
       // Show confirmation toast
       toast({
         title: "Logging out...",
@@ -40,6 +49,9 @@ export function TopBar() {
       // BACKEND INTEGRATION POINT:
       // Replace this with your actual logout API call
       // Example: await authService.logout();
+
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
       // For now, we'll just clear local storage and redirect
       localStorage.removeItem("user");
@@ -54,6 +66,7 @@ export function TopBar() {
         description: "Please try again later.",
         variant: "destructive",
       });
+      setIsLoggingOut(false);
     }
   };
 
@@ -95,10 +108,7 @@ export function TopBar() {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
               <Avatar className="h-8 w-8">
-                <AvatarImage
-                  src="/default-images/default-pic.png"
-                  alt="Admin"
-                />
+                <AvatarImage src="/images/default-user.png" alt="Admin" />
                 <AvatarFallback className="bg-primary text-primary-foreground">
                   AJ
                 </AvatarFallback>
@@ -128,13 +138,32 @@ export function TopBar() {
               <span>Settings</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout}>
+            <DropdownMenuItem
+              onClick={handleLogoutClick}
+              disabled={isLoggingOut}
+            >
               <LogOut className="mr-2 h-4 w-4" />
-              <span>Log out</span>
+              <span className="flex items-center">
+                Log out
+                {isLoggingOut && (
+                  <div className="ml-2 h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+                )}
+              </span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      {/* Logout confirmation dialog */}
+      <LogoutConfirmationDialog
+        open={logoutDialogOpen}
+        onOpenChange={setLogoutDialogOpen}
+        onConfirm={handleLogout}
+        isLoading={isLoggingOut}
+        title="Log Out"
+        description="Are you sure you want to log out from the admin panel?"
+        confirmText="Logging Out..."
+      />
     </div>
   );
 }

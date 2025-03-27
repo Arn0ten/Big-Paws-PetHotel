@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils"
 import ThemeToggle from "./components/theme-toggle"
 import BottomNavigation from "./components/bottom-navigation"
 import { getUnreadNotificationsCount } from "../data/sample-data"
+import { LogoutConfirmationDialog } from "@/components/ui/logout-confirmation-dialog"
 
 export default function PetOwnerLayout({
   children,
@@ -19,6 +20,8 @@ export default function PetOwnerLayout({
   children: React.ReactNode
 }) {
   const [isMounted, setIsMounted] = useState(false)
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false)
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
   const pathname = usePathname()
 
   // Simple mount effect without dependencies to avoid re-renders
@@ -67,6 +70,14 @@ export default function PetOwnerLayout({
       icon: User,
     },
   ]
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true)
+    // Simulate logout process
+    await new Promise((resolve) => setTimeout(resolve, 1500))
+    // In a real app, you would call your logout API here
+    window.location.href = "/webapp/auth/login"
+  }
 
   return (
     <div className="min-h-screen bg-background font-sans">
@@ -160,12 +171,11 @@ export default function PetOwnerLayout({
             <Button
               variant="outline"
               className="w-full justify-start text-base font-medium text-foreground dark:text-foreground"
-              asChild
+              onClick={() => setLogoutDialogOpen(true)}
             >
-              <Link href="/webapp/auth/login">
-                <LogOut className="mr-2 h-4 w-4" />
-                Sign Out
-              </Link>
+              <LogOut className="mr-2 h-4 w-4" />
+              Sign Out
+              {isLoggingOut && <div className="ml-2 h-2 w-2 rounded-full bg-red-500 animate-pulse" />}
             </Button>
           </div>
         </div>
@@ -178,6 +188,15 @@ export default function PetOwnerLayout({
 
       {/* Bottom Navigation */}
       <BottomNavigation />
+      <LogoutConfirmationDialog
+        open={logoutDialogOpen}
+        onOpenChange={setLogoutDialogOpen}
+        onConfirm={handleLogout}
+        isLoading={isLoggingOut}
+        title="Sign Out"
+        description="Are you sure you want to sign out from your account?"
+        confirmText="Signing Out..."
+      />
     </div>
   )
 }

@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Loader2, RefreshCw, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PaginationControls } from "@/app/webapp/admin/components/pagination-controls";
+import { ActionConfirmationDialog } from "@/components/ui/action-confirmation-dialog";
 
 // In the FilterBar component props
 interface FilterBarProps {
@@ -127,6 +128,16 @@ export default function BoardingManagementPage() {
     message: "",
   });
 
+  const [actionDialog, setActionDialog] = useState({
+    open: false,
+    title: "",
+    description: "",
+    action: "",
+    orderId: "",
+    status: "",
+  });
+  const [isProcessing, setIsProcessing] = useState(false);
+
   // Filter states
   const [searchTerm, setSearchTerm] = useState("");
   const [boardingStatusFilter, setBoardingStatusFilter] = useState("");
@@ -221,59 +232,99 @@ export default function BoardingManagementPage() {
     orderId: string,
     status: PaymentStatus,
   ) => {
-    // Update local state
-    const updatedOrders = boardingOrders.map((order) => {
-      if (order.id === orderId) {
-        const updatedOrder = {
-          ...updateBoardingStatus(order, status),
-          lastModifiedBy: "Admin",
-          updatedAt: new Date().toISOString(),
-          lastModificationReason: `Payment status updated to ${status}`,
-        };
-        return updatedOrder;
-      }
-      return order;
-    });
-
-    setBoardingOrders(updatedOrders);
-    setSuccessDialog({
+    setActionDialog({
       open: true,
-      message: `Payment status has been updated to ${status}.`,
+      title: `Confirm Payment Status Change`,
+      description: `Are you sure you want to mark this boarding as ${status}?`,
+      action: "updatePayment",
+      orderId,
+      status,
     });
   };
 
   const handleReleasePet = (orderId: string) => {
-    // Update local state
-    const updatedOrders = boardingOrders.map((order) => {
-      if (order.id === orderId) {
-        const releasedOrder = releasePet(order);
-        return {
-          ...releasedOrder,
-          lastModifiedBy: "Admin",
-          lastModificationReason: "Pet released",
-        };
-      }
-      return order;
-    });
-
-    setBoardingOrders(updatedOrders);
-    setSuccessDialog({
+    setActionDialog({
       open: true,
-      message: "Pet has been successfully released.",
+      title: "Confirm Pet Release",
+      description:
+        "Are you sure you want to release this pet? This action cannot be undone.",
+      action: "releasePet",
+      orderId,
+      status: "",
     });
   };
 
-  //Delete record
   const handleDeleteRecord = (orderId: string) => {
-    // Update local state
-    const updatedOrders = boardingOrders.filter(
-      (order) => order.id !== orderId,
-    );
-    setBoardingOrders(updatedOrders);
-    setSuccessDialog({
+    setActionDialog({
       open: true,
-      message: "Boarding record has been successfully deleted.",
+      title: "Confirm Record Deletion",
+      description:
+        "Are you sure you want to delete this boarding record? This action cannot be undone.",
+      action: "deleteRecord",
+      orderId,
+      status: "",
     });
+  };
+
+  const handleConfirmAction = async () => {
+    setIsProcessing(true);
+
+    // Simulate processing delay
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+
+    const { action, orderId, status } = actionDialog;
+
+    // Update local state based on the action
+    if (action === "updatePayment") {
+      const updatedOrders = boardingOrders.map((order) => {
+        if (order.id === orderId) {
+          const updatedOrder = {
+            ...updateBoardingStatus(order, status as PaymentStatus),
+            lastModifiedBy: "Admin",
+            updatedAt: new Date().toISOString(),
+            lastModificationReason: `Payment status updated to ${status}`,
+          };
+          return updatedOrder;
+        }
+        return order;
+      });
+
+      setBoardingOrders(updatedOrders);
+      setSuccessDialog({
+        open: true,
+        message: `Payment status has been updated to ${status}.`,
+      });
+    } else if (action === "releasePet") {
+      const updatedOrders = boardingOrders.map((order) => {
+        if (order.id === orderId) {
+          const releasedOrder = releasePet(order);
+          return {
+            ...releasedOrder,
+            lastModifiedBy: "Admin",
+            lastModificationReason: "Pet released",
+          };
+        }
+        return order;
+      });
+
+      setBoardingOrders(updatedOrders);
+      setSuccessDialog({
+        open: true,
+        message: "Pet has been successfully released.",
+      });
+    } else if (action === "deleteRecord") {
+      const updatedOrders = boardingOrders.filter(
+        (order) => order.id !== orderId,
+      );
+      setBoardingOrders(updatedOrders);
+      setSuccessDialog({
+        open: true,
+        message: "Boarding record has been successfully deleted.",
+      });
+    }
+
+    setIsProcessing(false);
+    setActionDialog({ ...actionDialog, open: false });
   };
 
   const handleRefresh = () => {
@@ -374,6 +425,7 @@ export default function BoardingManagementPage() {
                   onReleasePet={handleReleasePet}
                   onDeleteRecord={handleDeleteRecord}
                   tabName="All Boardings"
+                  isProcessing={isProcessing}
                 />
 
                 {/* Standardized Pagination Controls */}
@@ -395,6 +447,7 @@ export default function BoardingManagementPage() {
                   onUpdatePaymentStatus={handleUpdatePaymentStatus}
                   onReleasePet={handleReleasePet}
                   tabName="Active"
+                  isProcessing={isProcessing}
                 />
 
                 {/* Standardized Pagination Controls */}
@@ -416,6 +469,7 @@ export default function BoardingManagementPage() {
                   onUpdatePaymentStatus={handleUpdatePaymentStatus}
                   onReleasePet={handleReleasePet}
                   tabName="Completed"
+                  isProcessing={isProcessing}
                 />
 
                 {/* Standardized Pagination Controls */}
@@ -437,6 +491,7 @@ export default function BoardingManagementPage() {
                   onUpdatePaymentStatus={handleUpdatePaymentStatus}
                   onReleasePet={handleReleasePet}
                   tabName="Overdue"
+                  isProcessing={isProcessing}
                 />
 
                 {/* Standardized Pagination Controls */}
@@ -459,6 +514,7 @@ export default function BoardingManagementPage() {
                   onDeleteRecord={handleDeleteRecord}
                   isReadOnly={true}
                   tabName="Released"
+                  isProcessing={isProcessing}
                 />
 
                 {/* Standardized Pagination Controls */}
@@ -478,6 +534,15 @@ export default function BoardingManagementPage() {
         onOpenChange={(open) => setSuccessDialog({ ...successDialog, open })}
         title="Action Successful"
         description={successDialog.message}
+      />
+      <ActionConfirmationDialog
+        open={actionDialog.open}
+        onOpenChange={(open) => setActionDialog({ ...actionDialog, open })}
+        onConfirm={handleConfirmAction}
+        title={actionDialog.title}
+        description={actionDialog.description}
+        confirmText={isProcessing ? "Processing..." : "Confirm"}
+        isLoading={isProcessing}
       />
     </div>
   );
