@@ -3,22 +3,15 @@
 import type React from "react";
 import { Shield, FileText, Lock, AlertTriangle } from "lucide-react";
 import { useState } from "react";
-import {
-  Facebook,
-  Instagram,
-  Github,
-  Mail,
-  MessageCircle,
-  X,
-} from "lucide-react";
+import { Facebook, Instagram, Github, Mail, MessageCircle } from "lucide-react";
 import Image from "next/image";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogClose,
 } from "@/components/ui/dialog";
+import { PawPrint, LifeBuoy, Building, HelpCircle } from "lucide-react";
 
 export default function Footer() {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -33,100 +26,165 @@ export default function Footer() {
   };
 
   const servicesContent = (
-    <div className="space-y-4">
-      <div className="space-y-2">
-        <h3 className="text-lg font-medium">Pet Boarding</h3>
-        <p className="text-muted-foreground">
-          Luxury accommodations for your pets while you're away. We provide
-          comfortable kennels, regular exercise, and personalized care.
-        </p>
-      </div>
-      <div className="space-y-2">
-        <h3 className="text-lg font-medium">Grooming</h3>
-        <p className="text-muted-foreground">
-          Professional grooming services including bathing, haircuts, nail
-          trimming, and more to keep your pet looking and feeling their best.
-        </p>
-      </div>
-      <div className="space-y-2">
-        <h3 className="text-lg font-medium">Day Care</h3>
-        <p className="text-muted-foreground">
-          Supervised play and socialization for your pet during the day. Perfect
-          for busy pet owners who want their pets to have company.
-        </p>
-      </div>
-      <div className="space-y-2">
-        <h3 className="text-lg font-medium">Home Services</h3>
-        <p className="text-muted-foreground">
-          In-home pet care services including feeding, walking, medication
-          administration, and more for pets who prefer staying at home.
-        </p>
+    <div className="flex flex-col min-h-[50vh]">
+      <div className="prose prose-lg dark:prose-invert max-w-none">
+        <section className="bg-card rounded-lg p-8 shadow-lg">
+          <div className="flex items-center mb-6">
+            <PawPrint className="h-6 w-6 mr-2 text-primary" />
+            <h2 className="text-2xl font-semibold m-0">Our Pet Services</h2>
+          </div>
+
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <h3 className="text-xl font-semibold">Pet Boarding</h3>
+              <p className="text-muted-foreground">
+                Luxury accommodations for your pets while you're away. We
+                provide comfortable kennels, regular exercise, and personalized
+                care. Our facilities include climate-controlled rooms,
+                comfortable bedding, and 24/7 monitoring.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="text-xl font-semibold">Grooming</h3>
+              <p className="text-muted-foreground">
+                Professional grooming services including bathing, haircuts, nail
+                trimming, and more to keep your pet looking and feeling their
+                best. Our groomers are certified professionals with years of
+                experience handling all breeds.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="text-xl font-semibold">Day Care</h3>
+              <p className="text-muted-foreground">
+                Supervised play and socialization for your pet during the day.
+                Perfect for busy pet owners who want their pets to have company.
+                Our day care includes structured play sessions, rest periods,
+                and optional training reinforcement.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="text-xl font-semibold">Home Services</h3>
+              <p className="text-muted-foreground">
+                In-home pet care services including feeding, walking, medication
+                administration, and more for pets who prefer staying at home.
+                Our staff are bonded and insured, providing peace of mind while
+                you're away.
+              </p>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   );
 
   const supportContent = (
-    <div className="space-y-4">
-      <div className="space-y-2">
-        <h3 className="text-lg font-medium">Pricing</h3>
-        <p className="text-muted-foreground">
-          Detailed information about our pricing plans and options for all
-          services.
-        </p>
-      </div>
-      <div className="space-y-2">
-        <h3 className="text-lg font-medium">Documentation</h3>
-        <p className="text-muted-foreground">
-          Comprehensive guides and documentation for pet owners about our
-          services and facilities.
-        </p>
-      </div>
-      <div className="space-y-2">
-        <h3 className="text-lg font-medium">Guides</h3>
-        <p className="text-muted-foreground">
-          Step-by-step guides for preparing your pet for boarding, grooming, and
-          other services.
-        </p>
-      </div>
-      <div className="space-y-2">
-        <h3 className="text-lg font-medium">FAQ</h3>
-        <p className="text-muted-foreground">
-          Answers to frequently asked questions about our services, policies,
-          and procedures.
-        </p>
+    <div className="flex flex-col min-h-[50vh]">
+      <div className="prose prose-lg dark:prose-invert max-w-none">
+        <section className="bg-card rounded-lg p-8 shadow-lg">
+          <div className="flex items-center mb-6">
+            <LifeBuoy className="h-6 w-6 mr-2 text-primary" />
+            <h2 className="text-2xl font-semibold m-0">Support Resources</h2>
+          </div>
+
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <h3 className="text-xl font-semibold">Pricing</h3>
+              <p className="text-muted-foreground">
+                Detailed information about our pricing plans and options for all
+                services. We offer transparent pricing with no hidden fees.
+                Discounts are available for extended stays and multiple pets
+                from the same family.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="text-xl font-semibold">Documentation</h3>
+              <p className="text-muted-foreground">
+                Comprehensive guides and documentation for pet owners about our
+                services and facilities. Learn about our check-in procedures,
+                what to bring, and how we care for your pets during their stay
+                with us.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="text-xl font-semibold">Guides</h3>
+              <p className="text-muted-foreground">
+                Step-by-step guides for preparing your pet for boarding,
+                grooming, and other services. Our preparation guides help ensure
+                your pet has the best possible experience with minimal stress or
+                anxiety.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="text-xl font-semibold">FAQ</h3>
+              <p className="text-muted-foreground">
+                Answers to frequently asked questions about our services,
+                policies, and procedures. Find information about vaccination
+                requirements, feeding schedules, medication administration, and
+                more.
+              </p>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   );
 
   const companyContent = (
-    <div className="space-y-4">
-      <div className="space-y-2">
-        <h3 className="text-lg font-medium">About</h3>
-        <p className="text-muted-foreground">
-          Learn about our company's history, mission, and values. Big Paws Pet
-          Hotel has been providing exceptional pet care since 2020.
-        </p>
-      </div>
-      <div className="space-y-2">
-        <h3 className="text-lg font-medium">Blog</h3>
-        <p className="text-muted-foreground">
-          Read our latest articles on pet care, health tips, and industry news
-          to keep your furry friends happy and healthy.
-        </p>
-      </div>
-      <div className="space-y-2">
-        <h3 className="text-lg font-medium">Careers</h3>
-        <p className="text-muted-foreground">
-          Join our team of passionate pet care professionals. View current job
-          openings and application information.
-        </p>
-      </div>
-      <div className="space-y-2">
-        <h3 className="text-lg font-medium">Press</h3>
-        <p className="text-muted-foreground">
-          Media resources, press releases, and news about Big Paws Pet Hotel's
-          growth and achievements.
-        </p>
+    <div className="flex flex-col min-h-[50vh]">
+      <div className="prose prose-lg dark:prose-invert max-w-none">
+        <section className="bg-card rounded-lg p-8 shadow-lg">
+          <div className="flex items-center mb-6">
+            <Building className="h-6 w-6 mr-2 text-primary" />
+            <h2 className="text-2xl font-semibold m-0">About Our Company</h2>
+          </div>
+
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <h3 className="text-xl font-semibold">About</h3>
+              <p className="text-muted-foreground">
+                Learn about our company's history, mission, and values. Big Paws
+                Pet Hotel has been providing exceptional pet care since 2020.
+                Founded by pet lovers, our mission is to provide the highest
+                quality care while giving pet owners peace of mind.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="text-xl font-semibold">Blog</h3>
+              <p className="text-muted-foreground">
+                Read our latest articles on pet care, health tips, and industry
+                news to keep your furry friends happy and healthy. Our blog is
+                updated weekly with content from veterinarians, trainers, and
+                pet care experts.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="text-xl font-semibold">Careers</h3>
+              <p className="text-muted-foreground">
+                Join our team of passionate pet care professionals. View current
+                job openings and application information. We offer competitive
+                salaries, benefits, and a positive work environment for people
+                who love animals.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="text-xl font-semibold">Press</h3>
+              <p className="text-muted-foreground">
+                Media resources, press releases, and news about Big Paws Pet
+                Hotel's growth and achievements. For media inquiries, please
+                contact our press office at press@bigpawspethotel.com.
+              </p>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   );
@@ -393,28 +451,46 @@ export default function Footer() {
   );
 
   const helpContent = (
-    <div className="space-y-4">
-      <div className="space-y-2">
-        <h3 className="text-lg font-medium">Contact Support</h3>
-        <p className="text-muted-foreground">
-          Our support team is available 7 days a week from 8am to 8pm. Contact
-          us by phone at +63 950 189 0933 or email at
-          support@bigpawspethotel.com.
-        </p>
-      </div>
-      <div className="space-y-2">
-        <h3 className="text-lg font-medium">Emergency Services</h3>
-        <p className="text-muted-foreground">
-          For pet emergencies outside of business hours, please call our 24/7
-          emergency line at +63 950 189 0934.
-        </p>
-      </div>
-      <div className="space-y-2">
-        <h3 className="text-lg font-medium">Feedback</h3>
-        <p className="text-muted-foreground">
-          We value your feedback! Let us know how we can improve our services to
-          better serve you and your pets.
-        </p>
+    <div className="flex flex-col min-h-[50vh]">
+      <div className="prose prose-lg dark:prose-invert max-w-none">
+        <section className="bg-card rounded-lg p-8 shadow-lg">
+          <div className="flex items-center mb-6">
+            <HelpCircle className="h-6 w-6 mr-2 text-primary" />
+            <h2 className="text-2xl font-semibold m-0">Help & Support</h2>
+          </div>
+
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <h3 className="text-xl font-semibold">Contact Support</h3>
+              <p className="text-muted-foreground">
+                Our support team is available 7 days a week from 8am to 8pm.
+                Contact us by phone at +63 950 189 0933 or email at
+                support@bigpawspethotel.com. We strive to respond to all
+                inquiries within 24 hours.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="text-xl font-semibold">Emergency Services</h3>
+              <p className="text-muted-foreground">
+                For pet emergencies outside of business hours, please call our
+                24/7 emergency line at +63 950 189 0934. Our on-call staff can
+                provide guidance or arrange for immediate veterinary care if
+                needed.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="text-xl font-semibold">Feedback</h3>
+              <p className="text-muted-foreground">
+                We value your feedback! Let us know how we can improve our
+                services to better serve you and your pets. Submit feedback
+                through our website form or speak directly with a manager during
+                your next visit.
+              </p>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   );
@@ -653,7 +729,7 @@ export default function Footer() {
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>{dialogContent.title}</DialogTitle>
           </DialogHeader>
