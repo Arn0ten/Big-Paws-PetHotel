@@ -4,10 +4,10 @@
 # Specify the language and version
 language: node_js
 node_js:
-  - "18" # Using Node.js 18 which is required by @remix-run/react
+  - "18"  # Using Node.js 18 which is required by @remix-run/react
 
 # Specify a newer Ubuntu distribution that supports Node.js 18
-dist: focal # Use Ubuntu 20.04 Focal Fossa instead of default Xenial
+dist: focal  # Use Ubuntu 20.04 Focal Fossa instead of default Xenial
 
 # Cache dependencies to speed up builds
 cache:
@@ -25,14 +25,19 @@ env:
     - POSTMARK_API_KEY=5e1444e3-0235-4c2b-8086-baeca18fec07
     - RESEND_API_KEY=re_9EmmCig4_5etMbwZedgeuKfkXjdsKjTKD
 
+# Before installing dependencies, create ESLint config to avoid prompts
+before_install:
+  # Create a basic ESLint config to prevent interactive prompts
+  - echo '{"extends": "next/core-web-vitals"}' > .eslintrc.json
+
 # Install dependencies using yarn
 install:
-  - yarn install # Use yarn to install dependencies
+  - yarn install  # Use yarn to install dependencies
 
 # Run tests and other commands
 script:
-  - yarn lint || true # Run linting (continue even if it fails)
-  - yarn test || true # Run tests (continue even if it fails)
+  - yarn lint || true  # Run linting (continue even if it fails)
+  - yarn test || true  # Run tests (continue even if it fails)
   # - yarn build  # Uncomment to test the build process
 
 # Configure deployment (uncomment and configure as needed)
@@ -48,8 +53,9 @@ notifications:
   email:
     recipients:
       - a.bautista.129340.tc@umindanao.edu.ph
-    on_success: change # Options: always, never, change
+    on_success: change  # Options: always, never, change
     on_failure: always
+
 # CONFIGURATION GUIDE:
 # 1. Create a Travis CI account and link it to your GitHub repository
 # 2. Add sensitive environment variables in the Travis CI dashboard
