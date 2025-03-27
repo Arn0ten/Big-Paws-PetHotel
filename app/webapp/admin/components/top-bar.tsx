@@ -42,7 +42,7 @@ export function TopBar() {
 
       // Show confirmation toast
       toast({
-        title: "Logging out...",
+        title: "Logging out",
         description: "You will be redirected to the login page.",
       });
 
@@ -162,7 +162,7 @@ export function TopBar() {
         isLoading={isLoggingOut}
         title="Log Out"
         description="Are you sure you want to log out from the admin panel?"
-        confirmText="Logging Out..."
+        confirmText="Log Out"
       />
     </div>
   );

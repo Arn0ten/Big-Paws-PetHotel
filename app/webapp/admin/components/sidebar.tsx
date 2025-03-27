@@ -537,9 +537,9 @@ export function AdminSidebar({ onCollapse }: AdminSidebarProps) {
         onOpenChange={setLogoutDialogOpen}
         onConfirm={handleLogout}
         isLoading={isLoggingOut}
-        title="Log Out"
+        title="Log Out..."
         description="Are you sure you want to log out from the admin panel?"
-        confirmText="Logging Out..."
+        confirmText="Logging Out"
       />
 
       {/* Mobile menu button - only show when sidebar is closed */}

@@ -1,34 +1,34 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect, useCallback } from "react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { ThemeToggle } from "@/components/theme-toggle"
-import Image from "next/image"
-import { Menu, Loader2 } from "lucide-react"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { useTheme } from "next-themes"
-import { useRouter } from "next/navigation"
+import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme-toggle";
+import Image from "next/image";
+import { Menu, Loader2 } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useTheme } from "next-themes";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
-  const [isScrolled, setIsScrolled] = useState(false)
-  const { theme } = useTheme()
-  const [isSheetOpen, setIsSheetOpen] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const router = useRouter()
+  const [isScrolled, setIsScrolled] = useState(false);
+  const { theme } = useTheme();
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
-    if (typeof window === "undefined") return
+    if (typeof window === "undefined") return;
 
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 0)
-    }
+      setIsScrolled(window.scrollY > 0);
+    };
 
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const menuItems = [
     { href: "#about", label: "About us" },
@@ -36,45 +36,51 @@ export default function Header() {
     { href: "#rates", label: "Rates" },
     { href: "#contact", label: "Contact" },
     { href: "#location", label: "Visit us" },
-  ]
+  ];
 
   const logoSrc =
     theme === "dark"
       ? "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/main-logo-dark-kytTGWlLTF0sp9UhYxhJmTAZ3prDO8.png"
-      : "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/main-logo-light-6OFylQsMc1kyo3k8BvpElizUQOLktK.png"
+      : "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/main-logo-light-6OFylQsMc1kyo3k8BvpElizUQOLktK.png";
 
-  const scrollToSection = useCallback((e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    e.preventDefault()
-    const targetId = href.replace("#", "")
-    const elem = document.getElementById(targetId)
-    if (elem) {
-      elem.scrollIntoView({ behavior: "smooth", block: "start" })
-      setIsSheetOpen(false)
-    }
-  }, [])
+  const scrollToSection = useCallback(
+    (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+      e.preventDefault();
+      const targetId = href.replace("#", "");
+      const elem = document.getElementById(targetId);
+      if (elem) {
+        elem.scrollIntoView({ behavior: "smooth", block: "start" });
+        setIsSheetOpen(false);
+      }
+    },
+    [],
+  );
 
-  const scrollToBookService = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault()
-    const contactSection = document.getElementById("contact")
-    if (contactSection) {
-      contactSection.scrollIntoView({ behavior: "smooth", block: "start" })
-      setTimeout(() => {
-        const bookServiceTab = document.querySelector(
-          '[data-state="inactive"][value="book-service"]',
-        ) as HTMLButtonElement
-        if (bookServiceTab) {
-          bookServiceTab.click()
-        }
-      }, 100)
-    }
-    setIsSheetOpen(false)
-  }, [])
+  const scrollToBookService = useCallback(
+    (e: React.MouseEvent<HTMLAnchorElement>) => {
+      e.preventDefault();
+      const contactSection = document.getElementById("contact");
+      if (contactSection) {
+        contactSection.scrollIntoView({ behavior: "smooth", block: "start" });
+        setTimeout(() => {
+          const bookServiceTab = document.querySelector(
+            '[data-state="inactive"][value="book-service"]',
+          ) as HTMLButtonElement;
+          if (bookServiceTab) {
+            bookServiceTab.click();
+          }
+        }, 100);
+      }
+      setIsSheetOpen(false);
+    },
+    [],
+  );
 
   const handlePetDashboardClick = useCallback(async () => {
-    setIsLoading(true)
-    await router.push("/webapp")
-    setIsLoading(false)
-  }, [router])
+    setIsLoading(true);
+    await router.push("/webapp");
+    setIsLoading(false);
+  }, [router]);
 
   return (
     <header
@@ -101,7 +107,11 @@ export default function Header() {
               <Link
                 key={item.href}
                 href={item.href}
-                onClick={(e) => (item.href.startsWith("#") ? scrollToSection(e, item.href) : undefined)}
+                onClick={(e) =>
+                  item.href.startsWith("#")
+                    ? scrollToSection(e, item.href)
+                    : undefined
+                }
                 className="text-sm md:text-base font-medium text-muted-foreground hover:text-foreground transition-colors relative after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-0 after:bg-foreground after:transition-all hover:after:w-full"
               >
                 {item.label}
@@ -124,7 +134,7 @@ export default function Header() {
                     Loading...
                   </>
                 ) : (
-                  "Pet Hotel"
+                  "Pet Dashboard"
                 )}
               </Button>
               <Button asChild className="text-xs sm:text-sm">
@@ -150,7 +160,7 @@ export default function Header() {
                       href={item.href}
                       onClick={(e) => {
                         if (item.href.startsWith("#")) {
-                          scrollToSection(e, item.href)
+                          scrollToSection(e, item.href);
                         }
                       }}
                       className="text-lg font-medium text-muted-foreground hover:text-foreground transition-colors px-2 py-1 relative after:absolute after:left-2 after:bottom-0 after:h-[2px] after:w-0 after:bg-foreground after:transition-all hover:after:w-[calc(100%-16px)]"
@@ -175,6 +185,5 @@ export default function Header() {
         </div>
       </div>
     </header>
-  )
+  );
 }
-
