@@ -1,40 +1,39 @@
-# Multi-stage build for Big-Paws Pet Boarding Application
-# Stage 1: Build the application
-FROM node:18-alpine AS builder
+# Build stage
+FROM node:16-alpine AS builder
 
+# Set working directory
 WORKDIR /app
 
-# Copy package files and install dependencies
-COPY package*.json ./
-RUN npm ci
+# Copy package.json and yarn.lock
+COPY package.json yarn.lock ./
 
-# Copy the rest of the application code
+# Install dependencies
+RUN yarn install --frozen-lockfile
+
+# Copy the rest of the application
 COPY . .
 
-# Build the Next.js application
-RUN npm run build
+# Build the application
+RUN yarn build
 
-# Stage 2: Create the production image
-FROM node:18-alpine AS runner
+# Production stage
+FROM node:16-alpine AS runner
 
+# Set working directory
 WORKDIR /app
 
-# Set to production environment
+# Set environment variables
 ENV NODE_ENV=production
 
-# Create a non-root user to run the application
+# Create a non-root user
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
-# Copy only the necessary files from the builder stage
-COPY --from=builder /app/next.config.js ./
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/package.json ./package.json
+# Copy built application from builder stage
+COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
 COPY --from=builder /app/node_modules ./node_modules
-
-# Set the correct permissions
-RUN chown -R nextjs:nodejs /app
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/public ./public
 
 # Switch to non-root user
 USER nextjs
@@ -42,13 +41,14 @@ USER nextjs
 # Expose the port the app will run on
 EXPOSE 3000
 
-# Define the command to run the app
-CMD ["npm", "start"]
+# Start the application
+CMD ["yarn", "start"]
 
 # CONFIGURATION GUIDE:
-# 1. Build the Docker image: docker build -t big-paws-app .
-# 2. Run the container: docker run -p 3000:3000 big-paws-app
-# 3. For development, you may want to mount volumes for hot reloading
-# 4. Environment variables can be passed at runtime with -e flag:
-#    docker run -p 3000:3000 -e DATABASE_URL=your_db_url big-paws-app
+# 1. This Dockerfile uses a multi-stage build to create a smaller production image
+# 2. The builder stage installs dependencies and builds the Next.js application
+# 3. The runner stage only contains what's needed to run the application
+# 4. A non-root user is created for better security
+# 5. To build: docker build -t big-paws-app .
+# 6. To run: docker run -p 3000:3000 big-paws-app
 

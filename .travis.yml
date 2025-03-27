@@ -11,6 +11,7 @@ node_js:
 
 # Cache dependencies to speed up builds
 cache:
+  yarn: true
   directories:
     - node_modules
 
@@ -19,20 +20,20 @@ cache:
 env:
   global:
     - NODE_ENV=test
-      - MAILGUN_API_KEY=2cdce7f1940a1b40335b4ad68ffebd18-3af52e3b-22961c93
-      - MAILGUN_DOMAIN=bigpawspethotel.tech
-      - POSTMARK_API_KEY=5e1444e3-0235-4c2b-8086-baeca18fec07
-      - RESEND_API_KEY=re_9EmmCig4_5etMbwZedgeuKfkXjdsKjTKD
+    - MAILGUN_API_KEY=2cdce7f1940a1b40335b4ad68ffebd18-3af52e3b-22961c93
+    - MAILGUN_DOMAIN=bigpawspethotel.tech
+    - POSTMARK_API_KEY=5e1444e3-0235-4c2b-8086-baeca18fec07
+    - RESEND_API_KEY=re_9EmmCig4_5etMbwZedgeuKfkXjdsKjTKD
 
-# Install dependencies
+# Install dependencies using yarn instead of npm
 install:
-  - npm ci # Use 'npm ci' instead of 'npm install' for cleaner installs in CI
+  - yarn install  # Use yarn instead of npm ci since the project uses yarn
 
 # Run tests and other commands
 script:
-  - npm run lint # Run linting
-  - npm run test # Run tests
-  # - npm run build  # Uncomment to test the build process
+  - yarn lint  # Run linting (adjust command if needed)
+  - yarn test  # Run tests (adjust command if needed)
+  # - yarn build  # Uncomment to test the build process
 
 # Configure deployment (uncomment and configure as needed)
 # deploy:
@@ -47,12 +48,13 @@ notifications:
   email:
     recipients:
       - a.bautista.129340.tc@umindanao.edu.ph
-    on_success: change # Options: always, never, change
+    on_success: change  # Options: always, never, change
     on_failure: always
+
 # CONFIGURATION GUIDE:
 # 1. Create a Travis CI account and link it to your GitHub repository
 # 2. Add sensitive environment variables in the Travis CI dashboard
-# 3. Adjust the Node.js version to match your development environment
+# 3. If you need Node.js 18+, uncomment the "dist: focal" line to use Ubuntu 20.04
 # 4. Uncomment and configure the deployment section based on your hosting provider
 # 5. Update the notification email to your team's email
 # 6. Push this file to your repository to trigger your first build
