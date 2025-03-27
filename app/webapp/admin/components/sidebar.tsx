@@ -109,8 +109,8 @@ interface AdminSidebarProps {
 export function AdminSidebar({ onCollapse }: AdminSidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
-    const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const { toast } = useToast();
   // Add state for notification counters
   const [viewedNotifications, setViewedNotifications] = useState<
@@ -523,7 +523,8 @@ export function AdminSidebar({ onCollapse }: AdminSidebarProps) {
               !isCollapsed || (isMobile && isMobileMenuOpen)
                 ? "px-3"
                 : "px-0 justify-center",
-            )}onClick={() => setLogoutDialogOpen(true)}
+            )}
+            onClick={() => setLogoutDialogOpen(true)}
           >
             <LogOut size={18} className="mr-2" />
             {(!isCollapsed || (isMobile && isMobileMenuOpen)) && "Log Out"}
@@ -531,15 +532,15 @@ export function AdminSidebar({ onCollapse }: AdminSidebarProps) {
         </div>
       </motion.div>
       {/* Logout confirmation dialog */}
-            <LogoutConfirmationDialog
-              open={logoutDialogOpen}
-              onOpenChange={setLogoutDialogOpen}
-              onConfirm={handleLogout}
-              isLoading={isLoggingOut}
-              title="Log Out"
-              description="Are you sure you want to log out from the admin panel?"
-              confirmText="Logging Out..."
-            />
+      <LogoutConfirmationDialog
+        open={logoutDialogOpen}
+        onOpenChange={setLogoutDialogOpen}
+        onConfirm={handleLogout}
+        isLoading={isLoggingOut}
+        title="Log Out"
+        description="Are you sure you want to log out from the admin panel?"
+        confirmText="Logging Out..."
+      />
 
       {/* Mobile menu button - only show when sidebar is closed */}
       {isMobile && !isMobileMenuOpen && (
