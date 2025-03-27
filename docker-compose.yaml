@@ -1,6 +1,3 @@
-# Docker Compose configuration for Big-Paws Pet Boarding Application
-# This file sets up the application and its dependencies as services
-
 version: '3.8'
 
 services:
@@ -13,9 +10,12 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      # Add your environment variables here
-      # - DATABASE_URL=postgres://user:password@db:5432/big_paws
-      # - NEXT_PUBLIC_API_URL=http://localhost:3000/api
+      - MAILGUN_API_KEY=${2cdce7f1940a1b40335b4ad68ffebd18-3af52e3b-22961c93}
+      - MAILGUN_DOMAIN=${bigpawspethotel.tech}
+      - POSTMARK_API_KEY=${5e1444e3-0235-4c2b-8086-baeca18fec07}
+      - RESEND_API_KEY=${re_9EmmCig4_5etMbwZedgeuKfkXjdsKjTKD}
+
+      # Add other environment variables as needed
     depends_on:
       - db
     restart: unless-stopped
@@ -31,14 +31,14 @@ services:
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=big_paws
+      - POSTGRES_USER=${DB_USER:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-postgres}
+      - POSTGRES_DB=${DB_NAME:-big_paws_db}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
 
-  # Add additional services as needed (Redis, Elasticsearch, etc.)
+  # Add additional services as needed (Redis, etc.)
   # redis:
   #   image: redis:alpine
   #   ports:
@@ -49,11 +49,8 @@ volumes:
   postgres_data:
 
 # CONFIGURATION GUIDE:
-# 1. Adjust the database service based on your needs (PostgreSQL, MySQL, MongoDB)
-# 2. Configure environment variables for each service
-# 3. For development, uncomment the volumes section in the app service
-# 4. Add additional services as needed (Redis, Elasticsearch, etc.)
-# 5. Start all services: docker-compose up
-# 6. For production, consider using docker-compose.prod.yml with optimized settings
-# 7. Run in detached mode: docker-compose up -d
+# 1. Create a .env file with your environment variables
+# 2. Run with: docker-compose up
+# 3. For development: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+# 4. For production deployment, consider using Docker Swarm or Kubernetes
 

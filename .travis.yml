@@ -4,7 +4,10 @@
 # Specify the language and version
 language: node_js
 node_js:
-  - "18" # Use Node.js 18 (or update to your preferred version)
+  - "16"  # Using Node.js 16 which is compatible with Ubuntu Xenial's GLIBC version
+
+# Specify a newer Ubuntu distribution that supports Node.js 18+ if needed
+# dist: focal  # Uncomment to use Ubuntu 20.04 Focal Fossa instead of default Xenial
 
 # Cache dependencies to speed up builds
 cache:
@@ -16,8 +19,10 @@ cache:
 env:
   global:
     - NODE_ENV=test
-    # - DATABASE_URL=your_test_database_url (configure in Travis dashboard)
-    # - NEXT_PUBLIC_API_URL=your_api_url (configure in Travis dashboard)
+      - MAILGUN_API_KEY=2cdce7f1940a1b40335b4ad68ffebd18-3af52e3b-22961c93
+      - MAILGUN_DOMAIN=bigpawspethotel.tech
+      - POSTMARK_API_KEY=5e1444e3-0235-4c2b-8086-baeca18fec07
+      - RESEND_API_KEY=re_9EmmCig4_5etMbwZedgeuKfkXjdsKjTKD
 
 # Install dependencies
 install:

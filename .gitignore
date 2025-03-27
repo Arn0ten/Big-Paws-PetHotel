@@ -7,6 +7,10 @@
 /.next/
 /out/
 
+#CI/CD
+/.travis.yml
+.travis.yml
+
 # production
 /build
 
