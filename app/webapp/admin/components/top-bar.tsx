@@ -162,7 +162,7 @@ export function TopBar() {
         isLoading={isLoggingOut}
         title="Log Out"
         description="Are you sure you want to log out from the admin panel?"
-        confirmText="Logging Out..."
+        confirmText="Log Out"
       />
     </div>
   );

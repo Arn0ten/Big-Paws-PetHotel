@@ -195,7 +195,7 @@ export default function PetOwnerLayout({
         isLoading={isLoggingOut}
         title="Sign Out"
         description="Are you sure you want to sign out from your account?"
-        confirmText="Signing Out..."
+        confirmText="Sig Out"
       />
     </div>
   )

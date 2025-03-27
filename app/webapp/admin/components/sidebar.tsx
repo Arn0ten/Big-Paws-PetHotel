@@ -148,7 +148,7 @@ export function AdminSidebar({ onCollapse }: AdminSidebarProps) {
 
       // Show confirmation toast
       toast({
-        title: "Logging out...",
+        title: "Log Out",
         description: "You will be redirected to the login page.",
       });
 
@@ -364,7 +364,7 @@ export function AdminSidebar({ onCollapse }: AdminSidebarProps) {
               href="/webapp/admin/dashboard"
               className="flex items-center gap-2"
             >
-              <div className="h-8 w-8 relative overflow-hidden rounded-full">
+              <div className="flex items-center">
                 <Image
                   src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/main-logo-dark-kytTGWlLTF0sp9UhYxhJmTAZ3prDO8.png"
                   alt="Big Paws Logo"
@@ -537,9 +537,9 @@ export function AdminSidebar({ onCollapse }: AdminSidebarProps) {
         onOpenChange={setLogoutDialogOpen}
         onConfirm={handleLogout}
         isLoading={isLoggingOut}
-        title="Log Out..."
+        title="Log Out"
         description="Are you sure you want to log out from the admin panel?"
-        confirmText="Logging Out"
+        confirmText="Log Out"
       />
 
       {/* Mobile menu button - only show when sidebar is closed */}
