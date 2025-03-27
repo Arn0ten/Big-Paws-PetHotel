@@ -370,7 +370,7 @@ export function AdminSidebar({ onCollapse }: AdminSidebarProps) {
                   alt="Big Paws Logo"
                   width={200}
                   height={60}
-                  className="object-cover"
+                  className="h-8 w-auto sm:h-10 md:h-12"
                 />
               </div>
             </Link>
