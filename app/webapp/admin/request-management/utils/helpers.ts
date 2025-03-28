@@ -10,34 +10,39 @@ import { BOARDING_RATES } from "../types"
  * - Consider moving them to a shared utility library
  */
 
-// Format currency in Philippine Peso
-export const formatCurrency = (amount: number): string => {
-  return new Intl.NumberFormat("en-PH", {
-    style: "currency",
-    currency: "PHP",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount)
-}
-
-// Format date with or without time
-export const formatDate = (dateString: string, includeTime = true): string => {
-  if (!dateString) return "N/A"
-
+/**
+ * Format a date string to a more readable format
+ */
+export function formatDate(dateString: string): string {
   const date = new Date(dateString)
-
-  if (isNaN(date.getTime())) {
-    return "Invalid Date"
-  }
-
-  const options: Intl.DateTimeFormatOptions = {
+  return new Intl.DateTimeFormat("en-US", {
     year: "numeric",
     month: "short",
     day: "numeric",
-    ...(includeTime ? { hour: "2-digit", minute: "2-digit" } : {}),
-  }
+    hour: "numeric",
+    minute: "numeric",
+    hour12: true,
+  }).format(date)
+}
 
-  return new Intl.DateTimeFormat("en-PH", options).format(date)
+/**
+ * Format a number as currency
+ */
+export function formatCurrency(amount: number): string {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+  }).format(amount)
+}
+
+/**
+ * Format seconds to MM:SS format
+ */
+export function formatTime(seconds: number): string {
+  const minutes = Math.floor(seconds / 60)
+  const remainingSeconds = Math.floor(seconds % 60)
+  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`
 }
 
 // Calculate the time difference between two dates in a human-readable format

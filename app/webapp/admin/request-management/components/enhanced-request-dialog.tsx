@@ -1,18 +1,14 @@
 "use client";
 
 import { DialogFooter } from "@/components/ui/dialog";
-
 import type React from "react";
-
 import { useState, useEffect, useRef } from "react";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -24,13 +20,41 @@ import {
 } from "@/components/ui/popover";
 import { format, addDays, addHours, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
-import { CalendarIcon, Clock, Loader2 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  CalendarIcon,
+  Clock,
+  Loader2,
+  Camera,
+  Video,
+  Scissors,
+  ClipboardList,
+  Info,
+  CheckCircle2,
+  ArrowLeft,
+  ArrowRight,
+  DollarSign,
+  Sparkles,
+  RefreshCw,
+} from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency, formatDate } from "../utils/helpers";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { PhotoUpload } from "./media-upload/photo-upload";
 import { VideoUpload } from "./media-upload/video-upload";
+import { Progress } from "@/components/ui/progress";
+
+// Import the note generation utilities
+import { generateNote, analyzeMedia } from "../data/note-templates";
+
+// Import the MediaAnalysis component
+import { MediaAnalysis } from "./media-analysis";
 
 // Define fallback rate constants if they're not imported
 const BOARDING_RATES = {
@@ -83,28 +107,6 @@ interface EnhancedRequestDialogProps {
   handleRemoveSelectedFile: (index: number) => void;
 }
 
-/**
- * Enhanced Request Dialog Component
- *
- * BACKEND INTEGRATION NOTES:
- *
- * 1. File Upload:
- *    - This component handles file selection and preview
- *    - The actual upload happens in the parent component's handleCompleteRequest function
- *    - Ensure the backend can handle multiple file uploads via multipart/form-data
- *
- * 2. Form Data:
- *    - processingNotes: Text notes about the request processing
- *    - selectedFiles: Array of File objects to be uploaded
- *    - extensionDate: Date object for boarding extensions
- *    - selectedGroomingService: String ID of the selected grooming service
- *    - selectedAudioUrl: URL of the selected background audio for videos
- *
- * 3. Validation:
- *    - Add server-side validation for all form inputs
- *    - Ensure file types, sizes, and video duration are validated on both client and server
- */
-// Fix dialog responsiveness and ensure audio stops when dialog closes
 export function EnhancedRequestDialog({
   open,
   onOpenChange,
@@ -125,7 +127,6 @@ export function EnhancedRequestDialog({
   const [selectedAudioName, setSelectedAudioName] = useState<string | null>(
     null,
   );
-  // Add a new state variable to track if audio has been merged with video
   const [audioMerged, setAudioMerged] = useState(false);
   const [mergedVideoUrl, setMergedVideoUrl] = useState<string | null>(null);
   const [processingNotes, setProcessingNotes] = useState("");
@@ -137,6 +138,7 @@ export function EnhancedRequestDialog({
   const [isHourExtension, setIsHourExtension] = useState(false);
   const [newEndDate, setNewEndDate] = useState<Date | undefined>(undefined);
   const [newEndTime, setNewEndTime] = useState<string>("");
+  const [currentStep, setCurrentStep] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const isMobile = useMediaQuery("(max-width: 640px)");
@@ -144,6 +146,45 @@ export function EnhancedRequestDialog({
     undefined,
   );
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [isGeneratingNote, setIsGeneratingNote] = useState(false);
+  const [hasGeneratedNote, setHasGeneratedNote] = useState(false);
+
+  // Add this state variable inside the EnhancedRequestDialog component
+  const [mediaAnalysisResult, setMediaAnalysisResult] = useState<string | null>(
+    null,
+  );
+
+  // Add this function inside the EnhancedRequestDialog component
+  const handleMediaAnalysisComplete = (analysis: string) => {
+    setMediaAnalysisResult(analysis);
+  };
+
+  // Update the handleGenerateNote function to use the media analysis result
+  // Replace the existing handleGenerateNote function with this updated version:
+
+  const handleGenerateNote = () => {
+    if (!request) return;
+
+    setIsGeneratingNote(true);
+
+    // Simulate AI processing delay
+    setTimeout(() => {
+      // Use the media analysis result if available, otherwise generate a new one
+      const mediaDescription =
+        mediaAnalysisResult || analyzeMedia(request, selectedFiles);
+
+      // Generate the complete note
+      const generatedNote = generateNote(request, mediaDescription);
+
+      // Update the processing notes with the generated text
+      setProcessingNotes(generatedNote);
+
+      // Update state to show the Regenerate button
+      setHasGeneratedNote(true);
+      setIsGeneratingNote(false);
+    }, 1000);
+  };
 
   // Reset state when dialog opens/closes or request changes
   useEffect(() => {
@@ -156,6 +197,7 @@ export function EnhancedRequestDialog({
       setExtensionDate(undefined);
       setAudioMerged(false);
       setMergedVideoUrl(null);
+      setCurrentStep(0);
 
       // Check if this is an hour extension
       if (request.type === "boarding-extension" && request.extensionDetails) {
@@ -469,12 +511,12 @@ export function EnhancedRequestDialog({
 
   // Format the current end date for display
   const formattedCurrentEndDate = request.currentEndDate
-    ? `${formatDate(request.currentEndDate, false)}, at ${format(new Date(request.currentEndDate), "h:mm a")}`
+    ? `${formatDate(request.currentEndDate)}`
     : "Not specified";
 
   // Update the formattedNewEndDate to match the same format
   const formattedNewEndDate = date
-    ? `${formatDate(date.toISOString(), false)}, at ${format(date, "h:mm a")}`
+    ? `${formatDate(date.toISOString())}`
     : "Not specified";
 
   // Calculate additional cost
@@ -507,6 +549,126 @@ export function EnhancedRequestDialog({
     ? `${request.extensionDetails.duration} ${request.extensionDetails.unit}`
     : "Not specified";
 
+  // Get the appropriate icon for the request type
+  const getRequestTypeIcon = () => {
+    switch (request.type) {
+      case "photo":
+        return <Camera className="h-5 w-5" />;
+      case "video":
+        return <Video className="h-5 w-5" />;
+      case "grooming":
+        return <Scissors className="h-5 w-5" />;
+      case "boarding-extension":
+        return <Clock className="h-5 w-5" />;
+      default:
+        return <ClipboardList className="h-5 w-5" />;
+    }
+  };
+
+  // Get the appropriate color class for the request type
+  const getRequestTypeColorClass = () => {
+    switch (request.type) {
+      case "photo":
+        return "text-blue-600 dark:text-blue-400";
+      case "video":
+        return "text-purple-600 dark:text-purple-400";
+      case "grooming":
+        return "text-green-600 dark:text-green-400";
+      case "boarding-extension":
+        return "text-amber-600 dark:text-amber-400";
+      default:
+        return "text-gray-600 dark:text-gray-400";
+    }
+  };
+
+  // Get the appropriate background color class for the request type
+  const getRequestTypeBgClass = () => {
+    switch (request.type) {
+      case "photo":
+        return "bg-blue-50 dark:bg-blue-950/20";
+      case "video":
+        return "bg-purple-50 dark:bg-purple-950/20";
+      case "grooming":
+        return "bg-green-50 dark:bg-green-950/20";
+      case "boarding-extension":
+        return "bg-amber-50 dark:bg-amber-950/20";
+      default:
+        return "bg-gray-50 dark:bg-gray-950/20";
+    }
+  };
+
+  // Get the appropriate border color class for the request type
+  const getRequestTypeBorderClass = () => {
+    switch (request.type) {
+      case "photo":
+        return "border-blue-200 dark:border-blue-800";
+      case "video":
+        return "border-purple-200 dark:border-purple-800";
+      case "grooming":
+        return "border-green-200 dark:border-green-800";
+      case "boarding-extension":
+        return "border-amber-200 dark:border-amber-800";
+      default:
+        return "border-gray-200 dark:border-gray-800";
+    }
+  };
+
+  // Get the steps for the current request type
+  const getSteps = () => {
+    switch (request.type) {
+      case "photo":
+        return ["Review Request", "Upload Photos", "Add Notes", "Complete"];
+      case "video":
+        return ["Review Request", "Upload Video", "Add Notes", "Complete"];
+      case "grooming":
+        return [
+          "Review Request",
+          "Confirm Service",
+          "Upload Photos",
+          "Add Notes",
+          "Complete",
+        ];
+      case "boarding-extension":
+        return ["Review Request", "Confirm Extension", "Add Notes", "Complete"];
+      default:
+        return ["Review Request", "Process", "Complete"];
+    }
+  };
+
+  const steps = getSteps();
+  const progress = ((currentStep + 1) / steps.length) * 100;
+
+  // Determine if we can go to the next step
+  const canGoNext = () => {
+    if (currentStep === steps.length - 1) return false;
+
+    // For photo upload step
+    if (
+      request.type === "photo" &&
+      currentStep === 1 &&
+      selectedFiles.length === 0
+    ) {
+      return false;
+    }
+
+    // For video upload step
+    if (request.type === "video" && currentStep === 1 && !videoFile) {
+      return false;
+    }
+
+    // For boarding extension confirmation step
+    if (request.type === "boarding-extension" && currentStep === 1 && !date) {
+      return false;
+    }
+
+    return true;
+  };
+
+  // Determine if we can complete the request
+  const canComplete = () => {
+    return currentStep === steps.length - 1 && isFormValid();
+  };
+
   return (
     <Dialog
       open={open}
@@ -534,448 +696,699 @@ export function EnhancedRequestDialog({
       }}
     >
       <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto p-0 max-w-[95vw] w-full overflow-x-hidden">
-        <DialogHeader className="p-6 pb-2 border-b">
-          <DialogTitle className="text-xl font-semibold">
-            Process Request
-          </DialogTitle>
-          <DialogDescription>
-            Review and process the request from {request.petOwnerName} for{" "}
-            {request.petName}.
-          </DialogDescription>
+        <DialogHeader
+          className={`p-6 pb-4 border-b ${getRequestTypeBgClass()}`}
+        >
+          <div className="flex items-center gap-3">
+            <div
+              className={`p-2 rounded-full bg-white dark:bg-gray-800 ${getRequestTypeColorClass()}`}
+            >
+              {getRequestTypeIcon()}
+            </div>
+            <div>
+              <DialogTitle className="text-xl font-semibold">
+                Process {request.petName}'s{" "}
+                {request.type
+                  .replace(/-/g, " ")
+                  .replace(/\b\w/g, (l) => l.toUpperCase())}{" "}
+                Request
+              </DialogTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                Submitted by {request.petOwnerName} on{" "}
+                {formatDate(request.createdAt)}
+              </p>
+            </div>
+          </div>
         </DialogHeader>
 
-        <Tabs value={activeTab} className="w-full" onValueChange={setActiveTab}>
-          <div className="px-6 pt-4">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="info">Request Information</TabsTrigger>
-              <TabsTrigger value="process">Process Request</TabsTrigger>
-            </TabsList>
+        {/* Progress indicator */}
+        <div className="px-6 pt-4">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-sm font-medium">
+              Step {currentStep + 1} of {steps.length}
+            </span>
+            <span className="text-sm font-medium">{steps[currentStep]}</span>
           </div>
+          <Progress value={progress} className="h-2" />
 
-          <TabsContent value="info" className="p-6 pt-4">
-            <div className="space-y-4 max-w-full overflow-x-hidden">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-xs text-muted-foreground uppercase tracking-wider">
-                    Request Type
-                  </Label>
-                  <div className="mt-1">
-                    <Badge
-                      className={`
-                        text-sm font-medium
-                        ${request.type === "photo" ? "bg-blue-100 text-blue-700 hover:bg-blue-100 dark:bg-blue-900 dark:text-blue-300" : ""}
-                        ${request.type === "video" ? "bg-purple-100 text-purple-700 hover:bg-purple-100 dark:bg-purple-900 dark:text-purple-300" : ""}
-                        ${request.type === "grooming" ? "bg-green-100 text-green-700 hover:bg-green-100 dark:bg-green-900 dark:text-green-300" : ""}
-                        ${request.type === "boarding-extension" ? "bg-amber-100 text-amber-700 hover:bg-amber-100 dark:bg-amber-900 dark:text-amber-300" : ""}
-                        ${request.type === "custom" ? "bg-gray-100 text-gray-700 hover:bg-gray-100 dark:bg-gray-900 dark:text-gray-300" : ""}
-                      `}
-                    >
-                      {request.type === "photo" && "Photo Update"}
-                      {request.type === "video" && "Video Request"}
-                      {request.type === "grooming" && "Grooming Service"}
-                      {request.type === "boarding-extension" &&
-                        "Boarding Extension"}
-                      {request.type === "custom" && "Custom Request"}
-                    </Badge>
-                    {/* Removed urgent badge */}
-                  </div>
-                </div>
-
-                <div>
-                  <Label className="text-xs text-muted-foreground uppercase tracking-wider">
-                    Submitted
-                  </Label>
-                  <div className="mt-1 text-base font-medium">
-                    {formatDate(request.createdAt)}
-                  </div>
-                </div>
-
-                <div>
-                  <Label className="text-xs text-muted-foreground uppercase tracking-wider">
-                    Pet
-                  </Label>
-                  <div className="mt-1 text-base font-medium">
-                    {request.petName}
-                  </div>
-                </div>
-
-                <div>
-                  <Label className="text-xs text-muted-foreground uppercase tracking-wider">
-                    Pet Size
-                  </Label>
-                  <div className="mt-1 text-base font-medium">
-                    <Badge variant="outline" className="font-normal">
-                      {request.petSize}
-                    </Badge>
-                  </div>
-                </div>
-
-                <div>
-                  <Label className="text-xs text-muted-foreground uppercase tracking-wider">
-                    Pet Owner
-                  </Label>
-                  <div className="mt-1 text-base font-medium">
-                    {request.petOwnerName}
-                  </div>
-                </div>
-
-                {request.type === "boarding-extension" &&
-                  request.extensionDetails && (
-                    <>
-                      <div>
-                        <Label className="text-xs text-muted-foreground uppercase tracking-wider">
-                          Current End Date
-                        </Label>
-                        <div className="mt-1 text-base font-medium">
-                          {formattedCurrentEndDate}
-                        </div>
-                      </div>
-
-                      <div>
-                        <Label className="text-xs text-muted-foreground uppercase tracking-wider">
-                          Extension Requested
-                        </Label>
-                        <div className="mt-1 text-base font-medium text-amber-700 dark:text-amber-400">
-                          {request.extensionDetails.duration}{" "}
-                          {request.extensionDetails.unit}
-                        </div>
-                      </div>
-                    </>
-                  )}
-
-                {request.type === "grooming" && request.groomingService && (
-                  <div>
-                    <Label className="text-xs text-muted-foreground uppercase tracking-wider">
-                      Requested Service
-                    </Label>
-                    <div className="mt-1 text-base font-medium text-green-700 dark:text-green-400">
-                      {request.groomingService
-                        .replace(/-/g, " ")
-                        .replace(/\b\w/g, (l) => l.toUpperCase())}
-                    </div>
-                  </div>
-                )}
+          <div className="hidden sm:flex justify-between mt-2">
+            {steps.map((step, index) => (
+              <div
+                key={index}
+                className={`text-xs ${index <= currentStep ? "text-primary" : "text-muted-foreground"}`}
+              >
+                {step}
               </div>
+            ))}
+          </div>
+        </div>
 
-              <div>
-                <Label className="text-xs text-muted-foreground uppercase tracking-wider">
-                  Description
-                </Label>
-                <div className="mt-1 p-3 bg-muted/30 rounded-md text-base whitespace-pre-wrap">
-                  {request.description}
-                </div>
-              </div>
-            </div>
-          </TabsContent>
-
-          <TabsContent
-            value="process"
-            className="px-2 sm:px-6 pt-4 overflow-x-hidden max-w-full"
-          >
-            <div className="space-y-6 w-full max-w-[calc(100vw-32px)] sm:max-w-full overflow-hidden">
-              {/* Photo Upload Section */}
-              {request.type === "photo" && (
-                <PhotoUpload
-                  selectedFiles={selectedFiles}
-                  previewUrls={previewUrls}
-                  onFileSelect={handlePhotoSelect}
-                  onRemoveFile={handleRemoveSelectedFile}
-                  onRemoveAllFiles={handleRemoveAllPhotos}
-                  maxFiles={5}
-                />
-              )}
-
-              {/* Video Upload Section */}
-              {request.type === "video" && (
-                <VideoUpload
-                  selectedFile={videoFile}
-                  previewUrl={videoPreviewUrl}
-                  onFileSelect={handleVideoSelect}
-                  onRemoveFile={handleRemoveVideo}
-                  maxDuration={60}
-                  onAudioSelect={handleAudioSelect}
-                />
-              )}
-
-              {/* Boarding Extension Section */}
-              {request.type === "boarding-extension" && (
-                <div className="space-y-4">
+        <div className="p-6">
+          {/* Step 1: Review Request */}
+          {currentStep === 0 && (
+            <div className="space-y-6">
+              <Card className={`border ${getRequestTypeBorderClass()}`}>
+                <CardHeader className={`${getRequestTypeBgClass()} pb-2`}>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Info className="h-5 w-5" />
+                    Request Details
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Card className="border-amber-200 dark:border-amber-800">
-                      <CardContent className="p-4 space-y-4">
-                        <h3 className="text-base font-medium text-amber-700 dark:text-amber-400 flex items-center">
-                          <Clock className="h-4 w-4 mr-2" />
-                          Extension Approval
-                        </h3>
+                    <div>
+                      <Label className="text-xs text-muted-foreground uppercase tracking-wider">
+                        Pet
+                      </Label>
+                      <div className="mt-1 text-base font-medium">
+                        {request.petName}
+                      </div>
+                    </div>
 
-                        <div className="space-y-3">
-                          <div className="space-y-1">
+                    <div>
+                      <Label className="text-xs text-muted-foreground uppercase tracking-wider">
+                        Pet Size
+                      </Label>
+                      <div className="mt-1">
+                        <Badge variant="outline" className="font-normal">
+                          {request.petSize}
+                        </Badge>
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label className="text-xs text-muted-foreground uppercase tracking-wider">
+                        Pet Owner
+                      </Label>
+                      <div className="mt-1 text-base font-medium">
+                        {request.petOwnerName}
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label className="text-xs text-muted-foreground uppercase tracking-wider">
+                        Submitted
+                      </Label>
+                      <div className="mt-1 text-base font-medium">
+                        {formatDate(request.createdAt)}
+                      </div>
+                    </div>
+
+                    {request.type === "boarding-extension" &&
+                      request.extensionDetails && (
+                        <>
+                          <div>
                             <Label className="text-xs text-muted-foreground uppercase tracking-wider">
-                              Current End Date:
+                              Current End Date
                             </Label>
-                            <div className="text-base font-medium break-words">
+                            <div className="mt-1 text-base font-medium">
                               {formattedCurrentEndDate}
                             </div>
                           </div>
 
-                          <div className="space-y-1">
+                          <div>
                             <Label className="text-xs text-muted-foreground uppercase tracking-wider">
-                              Extension Requested:
+                              Extension Requested
                             </Label>
-                            <div className="text-base font-medium text-amber-700 dark:text-amber-400">
-                              {formattedExtensionRequested}
+                            <div className="mt-1 text-base font-medium text-amber-700 dark:text-amber-400">
+                              {request.extensionDetails.duration}{" "}
+                              {request.extensionDetails.unit}
                             </div>
                           </div>
+                        </>
+                      )}
 
-                          {isHourExtension ? (
-                            <>
-                              <div className="space-y-1">
-                                <Label className="text-xs text-muted-foreground uppercase tracking-wider">
-                                  New End Date:
-                                </Label>
-                                <div className="text-base font-medium break-words">
-                                  {formattedNewEndDate}
-                                </div>
-                              </div>
-
-                              <div className="space-y-1">
-                                <Label className="text-xs text-muted-foreground uppercase tracking-wider">
-                                  Additional Cost:
-                                </Label>
-                                <div className="text-base font-medium text-green-600 dark:text-green-400">
-                                  {formatCurrency(additionalCost)}
-                                </div>
-                              </div>
-                            </>
-                          ) : (
-                            <>
-                              <div className="space-y-1">
-                                <Label
-                                  htmlFor="extension-date"
-                                  className="text-xs text-muted-foreground uppercase tracking-wider"
-                                >
-                                  New End Date:
-                                </Label>
-                                <div className="flex flex-col space-y-2">
-                                  <Popover>
-                                    <PopoverTrigger asChild>
-                                      <Button
-                                        variant={"outline"}
-                                        className={cn(
-                                          "w-full justify-start text-left font-normal",
-                                          !date && "text-muted-foreground",
-                                        )}
-                                      >
-                                        <CalendarIcon className="mr-2 h-4 w-4" />
-                                        {date ? (
-                                          format(date, "PPP")
-                                        ) : (
-                                          <span>Select date</span>
-                                        )}
-                                      </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-auto p-0">
-                                      <Calendar
-                                        mode="single"
-                                        selected={date}
-                                        onSelect={setDate}
-                                        initialFocus
-                                        disabled={(date) => date < new Date()}
-                                      />
-                                    </PopoverContent>
-                                  </Popover>
-                                </div>
-                              </div>
-
-                              <div className="space-y-1">
-                                <Label className="text-xs text-muted-foreground uppercase tracking-wider">
-                                  Additional Cost:
-                                </Label>
-                                <div className="text-base font-medium text-green-600 dark:text-green-400">
-                                  {formatCurrency(additionalCost)}
-                                </div>
-                              </div>
-                            </>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    <div className="space-y-4">
-                      <div>
-                        <Label
-                          htmlFor="processing-notes"
-                          className="text-base font-medium"
-                        >
-                          Processing Notes
+                    {request.type === "grooming" && request.groomingService && (
+                      <div className="col-span-2">
+                        <Label className="text-xs text-muted-foreground uppercase tracking-wider">
+                          Requested Service
                         </Label>
-                        <p className="text-sm text-muted-foreground mb-2">
-                          Add any notes about this extension request. These
-                          notes will be visible to the pet owner.
-                        </p>
-                        <Textarea
-                          id="processing-notes"
-                          placeholder="Enter processing notes..."
-                          value={processingNotes}
-                          onChange={(e) => setProcessingNotes(e.target.value)}
-                          rows={5}
-                        />
+                        <div className="mt-1 text-base font-medium text-green-700 dark:text-green-400">
+                          {request.groomingService
+                            .replace(/-/g, " ")
+                            .replace(/\b\w/g, (l) => l.toUpperCase())}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="mt-4">
+                    <Label className="text-xs text-muted-foreground uppercase tracking-wider">
+                      Description
+                    </Label>
+                    <div className="mt-1 p-3 bg-muted/30 rounded-md text-base whitespace-pre-wrap">
+                      {request.description}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Step 2: Upload Photos (for photo requests) */}
+          {request.type === "photo" && currentStep === 1 && (
+            <div className="space-y-4">
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Camera className="h-5 w-5 text-blue-600" />
+                    Upload Photos
+                  </CardTitle>
+                  <CardDescription>
+                    Upload up to 5 photos of {request.petName} to share with the
+                    pet owner.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-4">
+                  <PhotoUpload
+                    selectedFiles={selectedFiles}
+                    previewUrls={previewUrls}
+                    onFileSelect={handlePhotoSelect}
+                    onRemoveFile={handleRemoveSelectedFile}
+                    onRemoveAllFiles={handleRemoveAllPhotos}
+                    maxFiles={5}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Step 2: Upload Video (for video requests) */}
+          {request.type === "video" && currentStep === 1 && (
+            <div className="space-y-4">
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Video className="h-5 w-5 text-purple-600" />
+                    Upload Video
+                  </CardTitle>
+                  <CardDescription>
+                    Upload a video of {request.petName} to share with the pet
+                    owner.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-4">
+                  <VideoUpload
+                    selectedFile={videoFile}
+                    previewUrl={videoPreviewUrl}
+                    onFileSelect={handleVideoSelect}
+                    onRemoveFile={handleRemoveVideo}
+                    maxDuration={60}
+                    onAudioSelect={handleAudioSelect}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Step 2: Confirm Service (for grooming requests) */}
+          {request.type === "grooming" && currentStep === 1 && (
+            <div className="space-y-4">
+              <Card className="border-green-200 dark:border-green-800">
+                <CardHeader className="bg-green-50 dark:bg-green-950/20 pb-2">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Scissors className="h-5 w-5 text-green-600" />
+                    Confirm Grooming Service
+                  </CardTitle>
+                  <CardDescription>
+                    Review and confirm the grooming service for{" "}
+                    {request.petName}.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-4 space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex flex-wrap justify-between items-center gap-2">
+                      <Label className="text-sm font-medium">
+                        Requested Service:
+                      </Label>
+                      <Badge className="bg-green-100 text-green-700 hover:bg-green-100 dark:bg-green-900 dark:text-green-300 text-sm font-medium">
+                        {request.groomingService
+                          ?.replace(/-/g, " ")
+                          .replace(/\b\w/g, (l) => l.toUpperCase()) ||
+                          selectedGroomingService
+                            .replace(/-/g, " ")
+                            .replace(/\b\w/g, (l) => l.toUpperCase())}
+                      </Badge>
+                    </div>
+
+                    <div className="flex justify-between items-center">
+                      <Label className="text-sm font-medium">Pet Size:</Label>
+                      <span className="text-base font-medium">
+                        {request.petSize}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between items-center">
+                      <Label className="text-sm font-medium">
+                        Total Price:
+                      </Label>
+                      <span className="text-base font-medium text-green-600 dark:text-green-400 flex items-center">
+                        <DollarSign className="h-4 w-4 mr-1" />
+                        {formatCurrency(calculatedPrice || request.price || 0)}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-md">
+                    <p className="text-xs text-amber-700 dark:text-amber-400">
+                      Note: Grooming service details are predefined and cannot
+                      be modified. The price is automatically calculated based
+                      on the service type and pet size.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Step 2: Confirm Extension (for boarding extension requests) */}
+          {request.type === "boarding-extension" && currentStep === 1 && (
+            <div className="space-y-4">
+              <Card className="border-amber-200 dark:border-amber-800">
+                <CardHeader className="bg-amber-50 dark:bg-amber-950/20 pb-2">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Clock className="h-5 w-5 text-amber-600" />
+                    Confirm Boarding Extension
+                  </CardTitle>
+                  <CardDescription>
+                    Review and confirm the boarding extension for{" "}
+                    {request.petName}.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-4 space-y-4">
+                  <div className="space-y-3">
+                    <div className="space-y-1">
+                      <Label className="text-sm font-medium">
+                        Current End Date:
+                      </Label>
+                      <div className="text-base font-medium break-words">
+                        {formattedCurrentEndDate}
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <Label className="text-sm font-medium">
+                        Extension Requested:
+                      </Label>
+                      <div className="text-base font-medium text-amber-700 dark:text-amber-400">
+                        {formattedExtensionRequested}
+                      </div>
+                    </div>
+
+                    {isHourExtension ? (
+                      <>
+                        <div className="space-y-1">
+                          <Label className="text-sm font-medium">
+                            New End Date:
+                          </Label>
+                          <div className="text-base font-medium break-words">
+                            {formattedNewEndDate}
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="space-y-1">
+                          <Label
+                            htmlFor="extension-date"
+                            className="text-sm font-medium"
+                          >
+                            New End Date:
+                          </Label>
+                          <div className="flex flex-col space-y-2">
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Button
+                                  variant={"outline"}
+                                  className={cn(
+                                    "w-full justify-start text-left font-normal",
+                                    !date && "text-muted-foreground",
+                                  )}
+                                >
+                                  <CalendarIcon className="mr-2 h-4 w-4" />
+                                  {date ? (
+                                    format(date, "PPP")
+                                  ) : (
+                                    <span>Select date</span>
+                                  )}
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0">
+                                <Calendar
+                                  mode="single"
+                                  selected={date}
+                                  onSelect={setDate}
+                                  initialFocus
+                                  disabled={(date) => date < new Date()}
+                                />
+                              </PopoverContent>
+                            </Popover>
+                          </div>
+                        </div>
+                      </>
+                    )}
+
+                    <div className="space-y-1">
+                      <Label className="text-sm font-medium">
+                        Additional Cost:
+                      </Label>
+                      <div className="text-base font-medium text-green-600 dark:text-green-400 flex items-center">
+                        <DollarSign className="h-4 w-4 mr-1" />
+                        {formatCurrency(additionalCost)}
                       </div>
                     </div>
                   </div>
-                </div>
-              )}
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
-              {/* Grooming Service Section */}
-              {request.type === "grooming" && (
-                <div className="space-y-4">
-                  <div>
-                    <Label className="text-base font-medium">
-                      Grooming Service Details
-                    </Label>
-                    <p className="text-sm text-muted-foreground mb-2">
-                      The following grooming service has been requested for{" "}
-                      {request.petName}.
-                    </p>
+          {/* Step 3: Upload Photos (for grooming requests) */}
+          {request.type === "grooming" && currentStep === 2 && (
+            <div className="space-y-4">
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Camera className="h-5 w-5 text-green-600" />
+                    Upload Grooming Photos
+                  </CardTitle>
+                  <CardDescription>
+                    Upload up to 2 photos of {request.petName} after grooming to
+                    share with the pet owner.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-4">
+                  <PhotoUpload
+                    selectedFiles={selectedFiles}
+                    previewUrls={previewUrls}
+                    onFileSelect={handlePhotoSelect}
+                    onRemoveFile={handleRemoveSelectedFile}
+                    onRemoveAllFiles={handleRemoveAllPhotos}
+                    maxFiles={2}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
-                    <Card className="border-green-200 dark:border-green-800">
-                      <CardContent className="p-4 space-y-4">
-                        <div className="space-y-2">
-                          <div className="flex flex-wrap justify-between items-center gap-2">
-                            <Label className="text-xs text-muted-foreground uppercase tracking-wider">
-                              Requested Service:
-                            </Label>
-                            <Badge className="bg-green-100 text-green-700 hover:bg-green-100 dark:bg-green-900 dark:text-green-300 text-sm font-medium">
-                              {request.groomingService
-                                ?.replace(/-/g, " ")
-                                .replace(/\b\w/g, (l) => l.toUpperCase()) ||
-                                selectedGroomingService
-                                  .replace(/-/g, " ")
-                                  .replace(/\b\w/g, (l) => l.toUpperCase())}
-                            </Badge>
-                          </div>
-
-                          <div className="flex justify-between items-center">
-                            <Label className="text-xs text-muted-foreground uppercase tracking-wider">
-                              Pet Size:
-                            </Label>
-                            <span className="text-base font-medium">
-                              {request.petSize}
-                            </span>
-                          </div>
-
-                          <div className="flex justify-between items-center">
-                            <Label className="text-xs text-muted-foreground uppercase tracking-wider">
-                              Total Price:
-                            </Label>
-                            <span className="text-base font-medium text-green-600 dark:text-green-400">
-                              {formatCurrency(
-                                calculatedPrice || request.price || 0,
-                              )}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-md">
-                          <p className="text-xs text-amber-700 dark:text-amber-400">
-                            Note: Grooming service details are predefined and
-                            cannot be modified. The price is automatically
-                            calculated based on the service type and pet size.
-                          </p>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-
-                  {/* Add photo upload section for grooming service */}
-                  <div>
-                    <Label className="text-base font-medium">
-                      Upload Grooming Photos
-                    </Label>
-                    <p className="text-sm text-muted-foreground mb-2">
-                      Upload up to 2 photos of {request.petName} after grooming
-                      to share with the pet owner.
-                    </p>
-                    <PhotoUpload
-                      selectedFiles={selectedFiles}
-                      previewUrls={previewUrls}
-                      onFileSelect={handlePhotoSelect}
-                      onRemoveFile={handleRemoveSelectedFile}
-                      onRemoveAllFiles={handleRemoveAllPhotos}
-                      maxFiles={2}
-                    />
-                  </div>
-
-                  <div>
-                    <Label
-                      htmlFor="processing-notes"
-                      className="text-base font-medium"
-                    >
-                      Processing Notes
-                    </Label>
-                    <p className="text-sm text-muted-foreground mb-2">
-                      Add any notes about this grooming service. These notes
-                      will be visible to the pet owner.
-                    </p>
-                    <Textarea
-                      id="processing-notes"
-                      placeholder="Enter processing notes..."
-                      value={processingNotes}
-                      onChange={(e) => setProcessingNotes(e.target.value)}
-                      rows={5}
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Custom/Other Request Section */}
-              {(request.type === "custom" ||
-                request.type === "photo" ||
-                request.type === "video") && (
-                <div>
-                  <Label
-                    htmlFor="processing-notes"
-                    className="text-base font-medium"
-                  >
+          {/* Step for Processing Notes (different step number depending on request type) */}
+          {((request.type === "photo" && currentStep === 2) ||
+            (request.type === "video" && currentStep === 2) ||
+            (request.type === "grooming" && currentStep === 3) ||
+            (request.type === "boarding-extension" && currentStep === 2)) && (
+            <div className="space-y-4">
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <ClipboardList className="h-5 w-5" />
                     Processing Notes
-                  </Label>
-                  <p className="text-sm text-muted-foreground mb-2">
+                  </CardTitle>
+                  <CardDescription>
                     Add any notes about this request. These notes will be
                     visible to the pet owner.
-                  </p>
+                  </CardDescription>
+                </CardHeader>
+                {/* Find the Processing Notes section and add the MediaAnalysis component above the Textarea */}
+                {/* Look for the Card that contains the processing notes Textarea */}
+                <CardContent className="pt-4 space-y-4">
+                  {/* Media Analysis Component - only show for photo, video, and grooming requests with files */}
+                  {(request.type === "photo" ||
+                    request.type === "video" ||
+                    (request.type === "grooming" &&
+                      selectedFiles.length > 0)) &&
+                    selectedFiles.length > 0 && (
+                      <MediaAnalysis
+                        files={selectedFiles}
+                        requestType={request.type}
+                        petName={request.petName}
+                        onAnalysisComplete={handleMediaAnalysisComplete}
+                      />
+                    )}
+
                   <Textarea
                     id="processing-notes"
                     placeholder="Enter processing notes..."
                     value={processingNotes}
                     onChange={(e) => setProcessingNotes(e.target.value)}
                     rows={5}
+                    className="resize-none"
                   />
-                </div>
-              )}
-            </div>
-          </TabsContent>
-        </Tabs>
 
-        <DialogFooter className="p-4 border-t">
+                  <div className="flex justify-end">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleGenerateNote}
+                      disabled={isGeneratingNote}
+                      className={`${hasGeneratedNote ? "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100 hover:text-amber-800 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-800 dark:hover:bg-amber-900/30" : "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 hover:text-blue-800 dark:bg-blue-950/20 dark:text-blue-400 dark:border-blue-800 dark:hover:bg-blue-900/30"}`}
+                    >
+                      {isGeneratingNote ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Generating...
+                        </>
+                      ) : hasGeneratedNote ? (
+                        <>
+                          <RefreshCw className="mr-2 h-4 w-4" />
+                          Regenerate Note
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="mr-2 h-4 w-4" />
+                          Generate Note
+                        </>
+                      )}
+                    </Button>
+                  </div>
+
+                  {hasGeneratedNote && (
+                    <div className="p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-md">
+                      <p className="text-xs text-blue-700 dark:text-blue-400">
+                        <span className="font-medium">Note:</span> The generated
+                        text is based on AI analysis of the media content and
+                        request details. Feel free to edit it to better match
+                        your specific needs.
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Final Step: Review and Complete */}
+          {((request.type === "photo" && currentStep === 3) ||
+            (request.type === "video" && currentStep === 3) ||
+            (request.type === "grooming" && currentStep === 4) ||
+            (request.type === "boarding-extension" && currentStep === 3)) && (
+            <div className="space-y-6">
+              <Card className={`border ${getRequestTypeBorderClass()}`}>
+                <CardHeader className={`${getRequestTypeBgClass()} pb-2`}>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <CheckCircle2 className="h-5 w-5" />
+                    Review and Complete
+                  </CardTitle>
+                  <CardDescription>
+                    Review the information below before completing the request.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-4 space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-xs text-muted-foreground uppercase tracking-wider">
+                        Request Type
+                      </Label>
+                      <div className="mt-1">
+                        <Badge
+                          className={`
+                          text-sm font-medium
+                          ${request.type === "photo" ? "bg-blue-100 text-blue-700 hover:bg-blue-100 dark:bg-blue-900 dark:text-blue-300" : ""}
+                          ${request.type === "video" ? "bg-purple-100 text-purple-700 hover:bg-purple-100 dark:bg-purple-900 dark:text-purple-300" : ""}
+                          ${request.type === "grooming" ? "bg-green-100 text-green-700 hover:bg-green-100 dark:bg-green-900 dark:text-green-300" : ""}
+                          ${request.type === "boarding-extension" ? "bg-amber-100 text-amber-700 hover:bg-amber-100 dark:bg-amber-900 dark:text-amber-300" : ""}
+                          ${request.type === "custom" ? "bg-gray-100 text-gray-700 hover:bg-gray-100 dark:bg-gray-900 dark:text-gray-300" : ""}
+                        `}
+                        >
+                          {request.type === "photo" && "Photo Update"}
+                          {request.type === "video" && "Video Request"}
+                          {request.type === "grooming" && "Grooming Service"}
+                          {request.type === "boarding-extension" &&
+                            "Boarding Extension"}
+                          {request.type === "custom" && "Custom Request"}
+                        </Badge>
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label className="text-xs text-muted-foreground uppercase tracking-wider">
+                        Pet
+                      </Label>
+                      <div className="mt-1 text-base font-medium">
+                        {request.petName}
+                      </div>
+                    </div>
+
+                    {/* Request-specific details */}
+                    {request.type === "photo" && (
+                      <div>
+                        <Label className="text-xs text-muted-foreground uppercase tracking-wider">
+                          Photos Uploaded
+                        </Label>
+                        <div className="mt-1 text-base font-medium">
+                          {selectedFiles.length} photos
+                        </div>
+                      </div>
+                    )}
+
+                    {request.type === "video" && (
+                      <div>
+                        <Label className="text-xs text-muted-foreground uppercase tracking-wider">
+                          Video Uploaded
+                        </Label>
+                        <div className="mt-1 text-base font-medium">
+                          {selectedFiles.length > 0 ? "Yes" : "No"}
+                        </div>
+                      </div>
+                    )}
+
+                    {request.type === "grooming" && (
+                      <>
+                        <div>
+                          <Label className="text-xs text-muted-foreground uppercase tracking-wider">
+                            Service
+                          </Label>
+                          <div className="mt-1 text-base font-medium text-green-700 dark:text-green-400">
+                            {selectedGroomingService
+                              .replace(/-/g, " ")
+                              .replace(/\b\w/g, (l) => l.toUpperCase())}
+                          </div>
+                        </div>
+                        <div>
+                          <Label className="text-xs text-muted-foreground uppercase tracking-wider">
+                            Price
+                          </Label>
+                          <div className="mt-1 text-base font-medium text-green-600 dark:text-green-400">
+                            {formatCurrency(calculatedPrice || 0)}
+                          </div>
+                        </div>
+                        <div>
+                          <Label className="text-xs text-muted-foreground uppercase tracking-wider">
+                            Photos Uploaded
+                          </Label>
+                          <div className="mt-1 text-base font-medium">
+                            {selectedFiles.length} photos
+                          </div>
+                        </div>
+                      </>
+                    )}
+
+                    {request.type === "boarding-extension" && (
+                      <>
+                        <div>
+                          <Label className="text-xs text-muted-foreground uppercase tracking-wider">
+                            Extension
+                          </Label>
+                          <div className="mt-1 text-base font-medium text-amber-700 dark:text-amber-400">
+                            {formattedExtensionRequested}
+                          </div>
+                        </div>
+                        <div>
+                          <Label className="text-xs text-muted-foreground uppercase tracking-wider">
+                            New End Date
+                          </Label>
+                          <div className="mt-1 text-base font-medium">
+                            {formattedNewEndDate}
+                          </div>
+                        </div>
+                        <div>
+                          <Label className="text-xs text-muted-foreground uppercase tracking-wider">
+                            Additional Cost
+                          </Label>
+                          <div className="mt-1 text-base font-medium text-green-600 dark:text-green-400">
+                            {formatCurrency(additionalCost)}
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  {processingNotes && (
+                    <div>
+                      <Label className="text-xs text-muted-foreground uppercase tracking-wider">
+                        Processing Notes
+                      </Label>
+                      <div className="mt-1 p-3 bg-muted/30 rounded-md text-base whitespace-pre-wrap">
+                        {processingNotes}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-md">
+                    <p className="text-sm text-blue-700 dark:text-blue-300">
+                      Completing this request will notify the pet owner and
+                      update the status to "Completed".
+                      {(request.type === "grooming" ||
+                        request.type === "boarding-extension") &&
+                        " It will also update the boarding record with the additional charges."}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </div>
+
+        <DialogFooter className="p-4 border-t flex flex-col sm:flex-row gap-2">
+          {currentStep > 0 && (
+            <Button
+              variant="outline"
+              onClick={() => setCurrentStep(currentStep - 1)}
+              className="flex items-center"
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back
+            </Button>
+          )}
+
+          {currentStep < steps.length - 1 && (
+            <Button
+              onClick={() => setCurrentStep(currentStep + 1)}
+              disabled={!canGoNext()}
+              className="flex items-center"
+            >
+              Next
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          )}
+
+          {currentStep === steps.length - 1 && (
+            <Button
+              onClick={handleComplete}
+              disabled={isProcessing || !canComplete()}
+              className="flex items-center"
+            >
+              {isProcessing ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 className="mr-2 h-4 w-4" />
+                  Complete Request
+                </>
+              )}
+            </Button>
+          )}
+
           <Button
-            variant="outline"
+            variant="ghost"
             onClick={() => onOpenChange(false)}
             disabled={isProcessing}
+            className="sm:order-first"
           >
             Cancel
-          </Button>
-          <Button
-            onClick={handleComplete}
-            disabled={!isFormValid() || isProcessing}
-          >
-            {isProcessing ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Processing...
-              </>
-            ) : (
-              "Complete Request"
-            )}
           </Button>
         </DialogFooter>
       </DialogContent>
