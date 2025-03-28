@@ -621,6 +621,20 @@ export default function RequestsPage() {
                 }, 300);
               }}
             />
+            {searchQuery && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="absolute right-1 top-1/2 -translate-y-1/2 h-7 px-2 text-xs font-medium"
+                onClick={() => {
+                  setSearchQuery("");
+                  setIsSearching(false);
+                }}
+                aria-label="Clear search"
+              >
+                Clear
+              </Button>
+            )}
           </div>
 
           <div className="flex flex-wrap gap-2 sm:flex-nowrap">

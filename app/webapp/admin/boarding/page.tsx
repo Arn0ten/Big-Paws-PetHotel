@@ -21,6 +21,15 @@ import { Loader2, RefreshCw, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PaginationControls } from "@/app/webapp/admin/components/pagination-controls";
 import { ActionConfirmationDialog } from "@/components/ui/action-confirmation-dialog";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 // In the FilterBar component props
 interface FilterBarProps {
@@ -93,6 +102,23 @@ export function FilterBar({
               <Search className="h-4 w-4 text-muted-foreground" />
             )}
           </div>
+          {searchTerm && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="absolute right-1 top-1/2 -translate-y-1/2 h-7 px-2 text-xs font-medium"
+              onClick={() => {
+                setSearchTerm("");
+                onSearch("");
+                if (searchInputRef.current) {
+                  searchInputRef.current.focus();
+                }
+              }}
+              aria-label="Clear search"
+            >
+              Clear
+            </Button>
+          )}
         </div>
         <Button
           variant="outline"
@@ -351,6 +377,13 @@ export default function BoardingManagementPage() {
 
   const isTableLoading = isLoading || isRefreshing || isSearching;
 
+  // Update the BoardingManagementPage component to handle card clicks
+  // First, add a function to handle card clicks that will set the active tab
+
+  const handleCardClick = (tabValue: string) => {
+    setActiveTab(tabValue);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -365,7 +398,11 @@ export default function BoardingManagementPage() {
       </div>
 
       {/* Stats Cards */}
-      <StatsCards boardingOrders={boardingOrders} isLoading={isTableLoading} />
+      <StatsCards
+        boardingOrders={boardingOrders}
+        isLoading={isTableLoading}
+        onCardClick={handleCardClick}
+      />
 
       {/* Filters */}
       <FilterBar
@@ -551,35 +588,90 @@ export default function BoardingManagementPage() {
 function BoardingTableSkeleton() {
   return (
     <div className="rounded-md border shadow-sm overflow-hidden">
-      <div className="p-4">
-        <div className="h-10 flex items-center border-b">
-          {Array(8)
-            .fill(0)
-            .map((_, i) => (
-              <div
-                key={i}
-                className="h-4 w-full max-w-[100px] mx-2 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"
-              />
-            ))}
-        </div>
-        {Array(5)
-          .fill(0)
-          .map((_, i) => (
-            <div key={i} className="h-16 flex items-center border-b">
-              <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-700 mx-2 animate-pulse" />
-              {Array(7)
-                .fill(0)
-                .map((_, j) => (
-                  <div
-                    key={j}
-                    className="h-4 w-full max-w-[100px] mx-2 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"
-                    style={{
-                      animationDelay: `${(i * 7 + j) * 0.05}s`,
-                    }}
-                  />
-                ))}
-            </div>
-          ))}
+      <div className="overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[80px]">
+                <Skeleton className="h-4 w-10" />
+              </TableHead>
+              <TableHead>
+                <Skeleton className="h-4 w-20" />
+              </TableHead>
+              <TableHead className="hidden md:table-cell">
+                <Skeleton className="h-4 w-24" />
+              </TableHead>
+              <TableHead>
+                <Skeleton className="h-4 w-16" />
+              </TableHead>
+              <TableHead className="hidden lg:table-cell">
+                <Skeleton className="h-4 w-16" />
+              </TableHead>
+              <TableHead className="hidden sm:table-cell">
+                <Skeleton className="h-4 w-20" />
+              </TableHead>
+              <TableHead>
+                <Skeleton className="h-4 w-16" />
+              </TableHead>
+              <TableHead>
+                <Skeleton className="h-4 w-16" />
+              </TableHead>
+              <TableHead className="text-right">
+                <Skeleton className="h-4 w-16 ml-auto" />
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {Array(6)
+              .fill(0)
+              .map((_, i) => (
+                <TableRow key={i} className="h-[72px]">
+                  <TableCell>
+                    <Skeleton className="h-10 w-10 rounded-full" />
+                  </TableCell>
+                  <TableCell>
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-24" />
+                      <Skeleton className="h-3 w-16" />
+                    </div>
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell">
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-32" />
+                      <Skeleton className="h-3 w-24" />
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-6 w-16 rounded-full" />
+                  </TableCell>
+                  <TableCell className="hidden lg:table-cell">
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-20" />
+                      <Skeleton className="h-3 w-16" />
+                    </div>
+                  </TableCell>
+                  <TableCell className="hidden sm:table-cell">
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-16" />
+                      <Skeleton className="h-3 w-24" />
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-6 w-20 rounded-full" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-6 w-20 rounded-full" />
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex items-center justify-end gap-1">
+                      <Skeleton className="h-8 w-20 rounded-md" />
+                      <Skeleton className="h-8 w-8 rounded-md" />
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+          </TableBody>
+        </Table>
       </div>
     </div>
   );

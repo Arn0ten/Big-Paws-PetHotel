@@ -490,6 +490,19 @@ export default function PetOwnerRequestsPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+          {searchQuery && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="absolute right-1 top-1/2 -translate-y-1/2 h-7 px-2 text-xs font-medium"
+              onClick={() => {
+                setSearchQuery("");
+              }}
+              aria-label="Clear search"
+            >
+              Clear
+            </Button>
+          )}
         </div>
 
         <div className="w-auto min-w-[140px]">

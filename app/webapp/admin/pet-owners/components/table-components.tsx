@@ -200,11 +200,14 @@ export function PetOwnerTableRow({
     <TableRow
       className="hover:bg-muted/30 transition-colors cursor-pointer"
       onClick={(e) => {
-        // Prevent row click when clicking on buttons or pet badges
-        if ((e.target as HTMLElement).closest('button, [role="button"]')) {
-          return;
+        // Prevent row click when clicking on buttons or interactive elements
+        if (
+          !(e.target as HTMLElement).closest(
+            'button, [role="button"], a, input, select, textarea',
+          )
+        ) {
+          onRowClick(owner.id);
         }
-        onRowClick(owner.id);
       }}
     >
       <TableCell>
@@ -264,7 +267,10 @@ export function PetOwnerTableRow({
                   variant="outline"
                   size="sm"
                   className="bg-green-600 text-white hover:bg-green-700 border-green-600 dark:bg-green-700 dark:border-green-700 dark:hover:bg-green-600"
-                  onClick={() => onAddPet(owner.id)}
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent row click
+                    onAddPet(owner.id);
+                  }}
                 >
                   <PlusCircle className="h-4 w-4 mr-1.5" />
                   <span>Add Pet</span>
@@ -283,7 +289,10 @@ export function PetOwnerTableRow({
                   variant="outline"
                   size="sm"
                   className="bg-amber-600 text-white hover:bg-amber-700 border-amber-600 dark:bg-amber-700 dark:border-amber-700 dark:hover:bg-amber-600"
-                  onClick={() => onBoardPet(owner.id)}
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent row click
+                    onBoardPet(owner.id);
+                  }}
                 >
                   <Hotel className="h-4 w-4 mr-1.5" />
                   <span>Board Pet</span>
@@ -297,21 +306,34 @@ export function PetOwnerTableRow({
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon" className="h-9 w-9">
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-9 w-9"
+                onClick={(e) => e.stopPropagation()} // Prevent row click
+              >
                 <MoreHorizontal className="h-4 w-4" />
                 <span className="sr-only">More options</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => onEditOwner(owner.id)}>
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent row click
+                  onEditOwner(owner.id);
+                }}
+              >
                 <Edit className="mr-2 h-4 w-4 text-blue-500" />
                 Edit Details
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 className="text-destructive focus:text-destructive"
-                onClick={() => onDeleteOwner(owner.id)}
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent row click
+                  onDeleteOwner(owner.id);
+                }}
               >
                 <Trash2 className="mr-2 h-4 w-4" />
                 Delete

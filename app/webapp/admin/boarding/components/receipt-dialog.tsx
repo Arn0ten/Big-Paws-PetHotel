@@ -1,5 +1,24 @@
 "use client"
 
+/**
+ * BACKEND INTEGRATION NOTES:
+ *
+ * This component generates and displays receipts for completed boardings.
+ *
+ * Integration points:
+ * - Receipt generation should match your backend's receipt format
+ * - Email functionality should connect to your email service API
+ * - Print and download functionality should use the same template as your backend
+ *
+ * Data requirements:
+ * - Complete BoardingOrder object with pricing details
+ * - Payment information
+ * - Timestamps for check-in, check-out, and release
+ */
+
+// The receipt dialog doesn't have explicit vaccination requirements sections,
+// but make sure any templates used for printing or downloading don't include them
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import type { BoardingOrder } from "../types"

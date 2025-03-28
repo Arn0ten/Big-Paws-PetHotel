@@ -282,6 +282,25 @@ export default function NotificationsPage() {
             }, 300);
           }}
         />
+        {searchQuery && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="absolute right-1 top-1/2 -translate-y-1/2 h-7 px-2 text-xs font-medium"
+            onClick={() => {
+              setSearchQuery("");
+              setIsSearching(false);
+              // Simulate clearing search results
+              setIsLoading(true);
+              setTimeout(() => {
+                setIsLoading(false);
+              }, 300);
+            }}
+            aria-label="Clear search"
+          >
+            Clear
+          </Button>
+        )}
       </motion.div>
 
       {/* Tabs */}

@@ -166,7 +166,16 @@ export function PetsTable({
                 <TableRow
                   key={pet.id}
                   className="cursor-pointer hover:bg-muted/50 transition-colors"
-                  onClick={() => onEdit(pet)}
+                  onClick={(e) => {
+                    // Only trigger row click if not clicking on a button or interactive element
+                    if (
+                      !(e.target as HTMLElement).closest(
+                        'button, [role="button"], a, input, select, textarea',
+                      )
+                    ) {
+                      onEdit(pet);
+                    }
+                  }}
                 >
                   <TableCell>
                     <Avatar className="h-9 w-9 border">
@@ -243,7 +252,10 @@ export function PetsTable({
                         <Button
                           className="mr-2 bg-red-500 hover:bg-red-600 text-white"
                           size="sm"
-                          onClick={() => onEndBoarding(pet)}
+                          onClick={(e) => {
+                            e.stopPropagation(); // Prevent row click
+                            onEndBoarding(pet);
+                          }}
                         >
                           <CheckCircle className="h-4 w-4 mr-1" />
                           End Boarding
@@ -252,7 +264,10 @@ export function PetsTable({
                         <Button
                           className="mr-2 bg-green-500 hover:bg-green-600 text-white"
                           size="sm"
-                          onClick={() => onBoard(pet)}
+                          onClick={(e) => {
+                            e.stopPropagation(); // Prevent row click
+                            onBoard(pet);
+                          }}
                         >
                           <Hotel className="h-4 w-4 mr-1" />
                           Board Pet
@@ -264,17 +279,26 @@ export function PetsTable({
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8"
+                            onClick={(e) => e.stopPropagation()} // Prevent row click
                           >
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => onEdit(pet)}>
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              e.stopPropagation(); // Prevent row click
+                              onEdit(pet);
+                            }}
+                          >
                             <Edit className="mr-2 h-4 w-4 text-blue-500" />
                             Edit Details
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            onClick={() => onDelete(pet)}
+                            onClick={(e) => {
+                              e.stopPropagation(); // Prevent row click
+                              onDelete(pet);
+                            }}
                             className="text-destructive focus:text-destructive"
                           >
                             <Trash2 className="h-4 w-4 mr-2" />

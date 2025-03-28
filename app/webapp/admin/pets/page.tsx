@@ -118,6 +118,11 @@ export default function PetsPage() {
   // Show confirmation dialog
   const showConfirmation = useCallback(
     (type: "delete" | "edit" | "board" | "endBoarding", title: string, description: string, onConfirm: () => void) => {
+      // Close any open dialogs first
+      setShowPetDetailsDialog(false)
+      setIsEditDialogOpen(false)
+      setIsBoardDialogOpen(false)
+
       setConfirmationDialog({
         isOpen: true,
         type,
@@ -154,6 +159,15 @@ export default function PetsPage() {
       setSearchQuery(value)
       setIsSearching(false)
     }, 300) // 300ms debounce
+  }, [])
+
+  // Clear search input
+  const handleClearSearch = useCallback(() => {
+    setSearchInputValue("")
+    setSearchQuery("")
+    if (searchInputRef.current) {
+      searchInputRef.current.focus()
+    }
   }, [])
 
   // Clean up timeout on unmount
@@ -311,6 +325,69 @@ export default function PetsPage() {
   // Determine if we should show the skeleton loader
   const showSkeletonLoader = isLoading || isRefreshing || isSearching
 
+  // Handle pet row click - show details dialog
+  const handlePetRowClick = useCallback((pet: Pet) => {
+    // Close any other open dialogs first
+    setConfirmationDialog((prev) => ({ ...prev, isOpen: false }))
+    setIsEditDialogOpen(false)
+    setIsBoardDialogOpen(false)
+
+    setSelectedPet(pet)
+    setShowPetDetailsDialog(true)
+  }, [])
+
+  // Add a new function specifically for edit action:
+  const handleEditPetClick = useCallback((pet: Pet) => {
+    // Close any other open dialogs first
+    setShowPetDetailsDialog(false)
+    setConfirmationDialog((prev) => ({ ...prev, isOpen: false }))
+    setIsBoardDialogOpen(false)
+
+    setSelectedPet(pet)
+    setIsEditDialogOpen(true)
+  }, [])
+
+  // Handle board pet button click
+  const handleBoardPetClick = useCallback((pet: Pet) => {
+    // Close any other open dialogs first
+    setShowPetDetailsDialog(false)
+    setConfirmationDialog((prev) => ({ ...prev, isOpen: false }))
+
+    setSelectedPet(pet)
+    setIsBoardDialogOpen(true)
+  }, [])
+
+  // Handle end boarding button click
+  const handleEndBoardingClick = useCallback(
+    (pet: Pet) => {
+      setSelectedPet(pet)
+      // Close pet details dialog if open
+      setShowPetDetailsDialog(false)
+
+      showConfirmation("endBoarding", "End Boarding", `Are you sure you want to end boarding for ${pet.name}?`, () =>
+        handleToggleBoardingStatus(pet.id),
+      )
+    },
+    [handleToggleBoardingStatus, showConfirmation],
+  )
+
+  // Handle delete pet button click
+  const handleDeletePetClick = useCallback(
+    (pet: Pet) => {
+      setSelectedPet(pet)
+      // Close pet details dialog if open
+      setShowPetDetailsDialog(false)
+
+      showConfirmation(
+        "delete",
+        "Delete Pet",
+        `Are you sure you want to delete ${pet.name}? This action cannot be undone.`,
+        () => handleDeletePet(),
+      )
+    },
+    [handleDeletePet, showConfirmation],
+  )
+
   return (
     <motion.div className="space-y-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
       <motion.div
@@ -365,6 +442,17 @@ export default function PetsPage() {
                         <Search className="h-4 w-4 text-muted-foreground" />
                       )}
                     </div>
+                    {searchInputValue && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="absolute right-1 top-1/2 -translate-y-1/2 h-7 px-2 text-xs font-medium"
+                        onClick={handleClearSearch}
+                        aria-label="Clear search"
+                      >
+                        Clear
+                      </Button>
+                    )}
                   </div>
                   <div className="flex gap-2">
                     <Button
@@ -552,32 +640,11 @@ export default function PetsPage() {
                     <PetsTable
                       pets={currentPets}
                       petOwners={petOwners}
-                      onEdit={(pet) => {
-                        handleSelectPet(pet)
-                        setShowPetDetailsDialog(true)
-                      }}
-                      onDelete={(pet) => {
-                        handleSelectPet(pet)
-                        showConfirmation(
-                          "delete",
-                          "Delete Pet",
-                          `Are you sure you want to delete ${pet.name}? This action cannot be undone.`,
-                          () => handleDeletePet(),
-                        )
-                      }}
-                      onBoard={(pet) => {
-                        handleSelectPet(pet)
-                        setShowPetDetailsDialog(true)
-                      }}
-                      onEndBoarding={(pet) => {
-                        handleSelectPet(pet)
-                        showConfirmation(
-                          "endBoarding",
-                          "End Boarding",
-                          `Are you sure you want to end boarding for ${pet.name}?`,
-                          () => handleToggleBoardingStatus(pet.id),
-                        )
-                      }}
+                      onEdit={handlePetRowClick}
+                      onEditDetails={handleEditPetClick} // Add this new prop
+                      onDelete={handleDeletePetClick}
+                      onBoard={handleBoardPetClick}
+                      onEndBoarding={handleEndBoardingClick}
                       currentPage={currentPage}
                       totalPages={totalPages}
                       goToPage={goToPage}
@@ -650,14 +717,17 @@ export default function PetsPage() {
         onOpenChange={setShowPetDetailsDialog}
         onEditPet={(pet) => {
           setShowPetDetailsDialog(false)
+          setSelectedPet(pet)
           setIsEditDialogOpen(true)
         }}
         onBoardPet={(pet) => {
           setShowPetDetailsDialog(false)
+          setSelectedPet(pet)
           setIsBoardDialogOpen(true)
         }}
         onEndBoarding={(pet) => {
           setShowPetDetailsDialog(false)
+          setSelectedPet(pet)
           showConfirmation(
             "endBoarding",
             "End Boarding",

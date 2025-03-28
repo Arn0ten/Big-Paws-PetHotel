@@ -1,25 +1,51 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import type { BoardingOrder } from "../types"
-import { formatCurrency } from "../utils/helpers"
-import { CalendarClock, CheckCircle, AlertTriangle } from "lucide-react"
-import { Skeleton } from "@/components/ui/skeleton"
+"use client";
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import type { BoardingOrder } from "../types";
+import {
+  CalendarClock,
+  CheckCircle,
+  AlertTriangle,
+  LogOut,
+} from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface StatsCardsProps {
-  boardingOrders: BoardingOrder[]
-  isLoading?: boolean
+  boardingOrders: BoardingOrder[];
+  isLoading?: boolean;
+  onCardClick?: (tabValue: string) => void; // Add this prop for card click handling
 }
 
-export function StatsCards({ boardingOrders, isLoading = false }: StatsCardsProps) {
+export function StatsCards({
+  boardingOrders,
+  isLoading = false,
+  onCardClick,
+}: StatsCardsProps) {
   // Calculate statistics
-  const totalBoardings = boardingOrders.length
+  const totalBoardings = boardingOrders.length;
 
-  const activeBoardings = boardingOrders.filter((order) => order.boardingStatus === "Boarding").length
+  const activeBoardings = boardingOrders.filter(
+    (order) => order.boardingStatus === "Boarding",
+  ).length;
 
-  const totalRevenue = boardingOrders
-    .filter((order) => order.paymentStatus === "Paid")
-    .reduce((sum, order) => sum + order.totalPrice, 0)
+  const completedBoardings = boardingOrders.filter(
+    (order) => order.boardingStatus === "Done Boarding",
+  ).length;
 
-  const overduePickups = boardingOrders.filter((order) => order.isOverdue).length
+  const releasedPets = boardingOrders.filter(
+    (order) => order.boardingStatus === "Released",
+  ).length;
+
+  const overduePickups = boardingOrders.filter(
+    (order) => order.isOverdue,
+  ).length;
+
+  // Handle card click
+  const handleCardClick = (tabValue: string) => {
+    if (onCardClick) {
+      onCardClick(tabValue);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -39,52 +65,74 @@ export function StatsCards({ boardingOrders, isLoading = false }: StatsCardsProp
             </Card>
           ))}
       </div>
-    )
+    );
   }
 
   return (
     <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-      <Card className="bg-white dark:bg-gray-950 border-blue-100 dark:border-blue-900/30">
+      <Card
+        className="bg-blue-50 dark:bg-blue-950/30 border-blue-100 dark:border-blue-900/30 transition-all hover:shadow-md cursor-pointer"
+        onClick={() => handleCardClick("all")}
+      >
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-blue-700 dark:text-blue-400">Total Boardings</CardTitle>
+          <CardTitle className="text-sm font-medium text-blue-700 dark:text-blue-400">
+            Total Boardings
+          </CardTitle>
           <CalendarClock className="h-4 w-4 text-blue-500 dark:text-blue-400" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-blue-700 dark:text-blue-400">{totalBoardings}</div>
+          <div className="text-2xl font-bold text-blue-700 dark:text-blue-400">
+            {totalBoardings}
+          </div>
           <p className="text-xs text-blue-600/70 dark:text-blue-400/70">
-            {boardingOrders.filter((order) => order.boardingStatus === "Released").length} pets released
-          </p>
-        </CardContent>
-      </Card>
-
-      <Card className="bg-white dark:bg-gray-950 border-green-100 dark:border-green-900/30">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-green-700 dark:text-green-400">Active Boardings</CardTitle>
-          <CheckCircle className="h-4 w-4 text-green-500 dark:text-green-400" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-green-700 dark:text-green-400">{activeBoardings}</div>
-          <p className="text-xs text-green-600/70 dark:text-green-400/70">
-            {boardingOrders.filter((order) => order.boardingStatus === "Done Boarding").length} ready for pickup
-          </p>
-        </CardContent>
-      </Card>
-
-      <Card className="bg-white dark:bg-gray-950 border-purple-100 dark:border-purple-900/30">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-purple-700 dark:text-purple-400">Total Revenue</CardTitle>
-          <span className="text-purple-500 dark:text-purple-400 text-sm font-bold">₱</span>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-purple-700 dark:text-purple-400">{formatCurrency(totalRevenue)}</div>
-          <p className="text-xs text-purple-600/70 dark:text-purple-400/70">
-            {boardingOrders.filter((order) => order.paymentStatus === "Paid").length} paid boardings
+            All boarding records
           </p>
         </CardContent>
       </Card>
 
       <Card
-        className={`bg-white dark:bg-gray-950 ${overduePickups > 0 ? "border-red-200 dark:border-red-800/50" : "border-gray-100 dark:border-gray-800"}`}
+        className="bg-green-50 dark:bg-green-950/30 border-green-100 dark:border-green-900/30 transition-all hover:shadow-md cursor-pointer"
+        onClick={() => handleCardClick("active")}
+      >
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium text-green-700 dark:text-green-400">
+            Active Boardings
+          </CardTitle>
+          <CheckCircle className="h-4 w-4 text-green-500 dark:text-green-400" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold text-green-700 dark:text-green-400">
+            {activeBoardings}
+          </div>
+          <p className="text-xs text-green-600/70 dark:text-green-400/70">
+            {completedBoardings} ready for pickup
+          </p>
+        </CardContent>
+      </Card>
+
+      <Card
+        className="bg-purple-50 dark:bg-purple-950/30 border-purple-100 dark:border-purple-900/30 transition-all hover:shadow-md cursor-pointer"
+        onClick={() => handleCardClick("released")}
+      >
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium text-purple-700 dark:text-purple-400">
+            Released Pets
+          </CardTitle>
+          <LogOut className="h-4 w-4 text-purple-500 dark:text-purple-400" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold text-purple-700 dark:text-purple-400">
+            {releasedPets}
+          </div>
+          <p className="text-xs text-purple-600/70 dark:text-purple-400/70">
+            Completed boardings
+          </p>
+        </CardContent>
+      </Card>
+
+      <Card
+        className={`bg-red-50 dark:bg-red-950/30 ${overduePickups > 0 ? "border-red-200 dark:border-red-800/50" : "border-gray-100 dark:border-gray-800"} transition-all hover:shadow-md cursor-pointer`}
+        onClick={() => handleCardClick("overdue")}
       >
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle
@@ -103,11 +151,12 @@ export function StatsCards({ boardingOrders, isLoading = false }: StatsCardsProp
             {overduePickups}
           </div>
           <p className="text-xs text-muted-foreground">
-            {overduePickups > 0 ? "Requires immediate attention" : "No overdue pickups"}
+            {overduePickups > 0
+              ? "Requires immediate attention"
+              : "No overdue pickups"}
           </p>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
-
