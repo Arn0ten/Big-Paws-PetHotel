@@ -17,6 +17,7 @@ import {
   Pause,
   Volume2,
   VolumeX,
+  AlertCircle,
 } from "lucide-react";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { cn } from "@/lib/utils";
@@ -58,6 +59,11 @@ export function VideoUpload({
   const audioRef = useRef<HTMLAudioElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isMobile = useMediaQuery("(max-width: 640px)");
+  const [showDurationError, setShowDurationError] = useState(false);
+  const [originalVolume, setOriginalVolume] = useState(0); // Start muted
+  const [backgroundVolume, setBackgroundVolume] = useState(1); // Full volume
+  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null);
 
   // Audio options with the provided MP3 files
   const audioOptions = [
@@ -123,6 +129,36 @@ export function VideoUpload({
     },
   ];
 
+  // Handle volume changes
+  const handleOriginalVolumeChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const newVolume = Number.parseFloat(e.target.value);
+    setOriginalVolume(newVolume);
+    if (videoRef.current) {
+      videoRef.current.volume = newVolume;
+
+      // Automatically unmute if volume is adjusted
+      if (newVolume > 0 && isMuted) {
+        videoRef.current.muted = false;
+        setIsMuted(false);
+      } else if (newVolume === 0 && !isMuted) {
+        videoRef.current.muted = true;
+        setIsMuted(true);
+      }
+    }
+  };
+
+  const handleBackgroundVolumeChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const newVolume = Number.parseFloat(e.target.value);
+    setBackgroundVolume(newVolume);
+    if (audioRef.current) {
+      audioRef.current.volume = newVolume;
+    }
+  };
+
   // Check video duration when preview URL changes
   useEffect(() => {
     if (previewUrl && videoRef.current) {
@@ -130,7 +166,15 @@ export function VideoUpload({
 
       const handleLoadedMetadata = () => {
         setDuration(video.duration);
-        setIsDurationValid(video.duration <= maxDuration);
+        const valid = video.duration <= maxDuration;
+        setIsDurationValid(valid);
+
+        // Show error dialog if duration exceeds limit
+        if (!valid) {
+          setShowDurationError(true);
+          // Automatically hide after 5 seconds
+          setTimeout(() => setShowDurationError(false), 5000);
+        }
       };
 
       video.addEventListener("loadedmetadata", handleLoadedMetadata);
@@ -149,6 +193,10 @@ export function VideoUpload({
   // Handle file input click
   const handleFileInputClick = () => {
     if (fileInputRef.current) {
+      // Reset the file input value to ensure onChange fires even if selecting the same file
+      if (fileInputRef.current.value) {
+        fileInputRef.current.value = "";
+      }
       fileInputRef.current.click();
     }
   };
@@ -290,6 +338,8 @@ export function VideoUpload({
     const handlePlay = () => {
       setIsVideoPlaying(true);
       audioElement.currentTime = videoElement.currentTime;
+      audioElement.volume = backgroundVolume;
+      videoElement.volume = originalVolume;
       audioElement.play().catch((error) => {
         console.error("Error playing audio:", error);
       });
@@ -324,7 +374,7 @@ export function VideoUpload({
       videoElement.removeEventListener("timeupdate", handleTimeUpdate);
       videoElement.removeEventListener("ended", handleEnded);
     };
-  }, [selectedAudio]);
+  }, [selectedAudio, backgroundVolume, originalVolume]);
 
   // Cleanup audio when component unmounts
   useEffect(() => {
@@ -357,12 +407,93 @@ export function VideoUpload({
         onAudioSelect(selectedAudio, selectedAudioName);
       }
 
-      // Show success message or notification
-      // In a real implementation, you would show a toast or notification
-      console.log(
-        "Video audio successfully replaced. This version will be sent to the pet owner.",
-      );
+      // Add a comment explaining how audio merging works
+      console.log(`
+      Audio Merging Process:
+      1. Original video audio volume is set to ${originalVolume * 100}%
+      2. Background music volume is set to ${backgroundVolume * 100}%
+      3. Both audio tracks are mixed together in the final output
+      4. In a production environment, this would use a server-side process to create a new video file
+      5. The merged video will be sent to the pet owner with both audio tracks combined
+    `);
     }, 2000);
+  };
+
+  const handleVideoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+
+      // Validate file type
+      if (!file.type.startsWith("video/")) {
+        alert("Please select a valid video file");
+        return;
+      }
+
+      setIsLoading(true);
+
+      // Create a temporary video element to check duration
+      const tempVideo = document.createElement("video");
+      tempVideo.preload = "metadata";
+
+      tempVideo.onloadedmetadata = () => {
+        // Check if video exceeds maximum duration
+        if (tempVideo.duration > maxDuration) {
+          // Show error dialog
+          setShowDurationError(true);
+          setTimeout(() => setShowDurationError(false), 5000);
+          setIsLoading(false);
+
+          // Revoke the temporary URL
+          URL.revokeObjectURL(tempVideo.src);
+
+          // Reset the file input to allow selecting the same file again
+          if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+          }
+
+          return;
+        }
+
+        // If duration is valid, set the video
+        const url = URL.createObjectURL(file);
+
+        // If there was a previous video, clean it up
+        if (videoPreviewUrl) {
+          URL.revokeObjectURL(videoPreviewUrl);
+        }
+
+        setVideoFile(file);
+        setVideoPreviewUrl(url);
+        setDuration(tempVideo.duration);
+        setIsDurationValid(true);
+        setIsLoading(false);
+
+        // Also update the parent component's state for form submission
+        const event = {
+          target: {
+            files: [file],
+          },
+        } as unknown as React.ChangeEvent<HTMLInputElement>;
+
+        onFileSelect(event);
+
+        // Revoke the temporary URL
+        URL.revokeObjectURL(tempVideo.src);
+      };
+
+      tempVideo.onerror = () => {
+        alert("Error loading video. Please try another file.");
+        setIsLoading(false);
+
+        // Reset the file input
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+      };
+
+      // Set the source to check metadata
+      tempVideo.src = URL.createObjectURL(file);
+    }
   };
 
   return (
@@ -380,7 +511,7 @@ export function VideoUpload({
             <input
               type="file"
               accept="video/*"
-              onChange={onFileSelect}
+              onChange={handleVideoSelect}
               className="hidden"
               ref={fileInputRef}
             />
@@ -479,15 +610,25 @@ export function VideoUpload({
               )}
             </div>
 
+            {showDurationError && (
+              <div className="mt-2 p-3 bg-destructive/10 border border-destructive rounded-md">
+                <p className="text-sm text-destructive font-medium flex items-center">
+                  <AlertCircle className="h-4 w-4 mr-2" />
+                  Video exceeds maximum duration of {maxDuration} seconds.
+                  Please upload a shorter video.
+                </p>
+              </div>
+            )}
+
             <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center justify-between">
               <div className="text-sm">
                 <p className="font-medium break-all">
-                  {selectedFile.name.length > 30
+                  {selectedFile?.name?.length > 30
                     ? selectedFile.name.substring(0, 30) + "..."
-                    : selectedFile.name}
+                    : selectedFile?.name}
                 </p>
                 <p className="text-muted-foreground">
-                  {selectedFile.size
+                  {selectedFile?.size
                     ? `${(selectedFile.size / 1024 / 1024).toFixed(2)} MB`
                     : ""}
                   {duration ? ` • ${Math.floor(duration)}s` : ""}
@@ -590,6 +731,48 @@ export function VideoUpload({
 
             {selectedAudio && selectedAudio !== audioOptions[9].url && (
               <div className="space-y-3 mt-4">
+                <div className="flex flex-col gap-2">
+                  <Label className="text-sm font-medium">
+                    Audio Volume Controls
+                  </Label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <Label className="text-xs">Original Audio</Label>
+                        <span className="text-xs">
+                          {Math.round(originalVolume * 100)}%
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.01"
+                        value={originalVolume}
+                        onChange={handleOriginalVolumeChange}
+                        className="w-full"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <Label className="text-xs">Background Music</Label>
+                        <span className="text-xs">
+                          {Math.round(backgroundVolume * 100)}%
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.01"
+                        value={backgroundVolume}
+                        onChange={handleBackgroundVolumeChange}
+                        className="w-full"
+                      />
+                    </div>
+                  </div>
+                </div>
+
                 <div className="flex items-center justify-between">
                   <Label className="text-sm font-medium">
                     Save with Selected Audio

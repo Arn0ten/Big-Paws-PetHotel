@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
@@ -33,8 +32,10 @@ import {
   ArrowLeft,
   ArrowRight,
   DollarSign,
-  Sparkles,
-  RefreshCw,
+  Play,
+  Pause,
+  Music,
+  CheckCircle,
 } from "lucide-react";
 import {
   Card,
@@ -49,12 +50,7 @@ import { useMediaQuery } from "@/hooks/use-media-query";
 import { PhotoUpload } from "./media-upload/photo-upload";
 import { VideoUpload } from "./media-upload/video-upload";
 import { Progress } from "@/components/ui/progress";
-
-// Import the note generation utilities
-import { generateNote, analyzeMedia } from "../data/note-templates";
-
-// Import the MediaAnalysis component
-import { MediaAnalysis } from "./media-analysis";
+import { NoteGenerator } from "./note-generator";
 
 // Define fallback rate constants if they're not imported
 const BOARDING_RATES = {
@@ -146,45 +142,7 @@ export function EnhancedRequestDialog({
     undefined,
   );
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const [isGeneratingNote, setIsGeneratingNote] = useState(false);
-  const [hasGeneratedNote, setHasGeneratedNote] = useState(false);
-
-  // Add this state variable inside the EnhancedRequestDialog component
-  const [mediaAnalysisResult, setMediaAnalysisResult] = useState<string | null>(
-    null,
-  );
-
-  // Add this function inside the EnhancedRequestDialog component
-  const handleMediaAnalysisComplete = (analysis: string) => {
-    setMediaAnalysisResult(analysis);
-  };
-
-  // Update the handleGenerateNote function to use the media analysis result
-  // Replace the existing handleGenerateNote function with this updated version:
-
-  const handleGenerateNote = () => {
-    if (!request) return;
-
-    setIsGeneratingNote(true);
-
-    // Simulate AI processing delay
-    setTimeout(() => {
-      // Use the media analysis result if available, otherwise generate a new one
-      const mediaDescription =
-        mediaAnalysisResult || analyzeMedia(request, selectedFiles);
-
-      // Generate the complete note
-      const generatedNote = generateNote(request, mediaDescription);
-
-      // Update the processing notes with the generated text
-      setProcessingNotes(generatedNote);
-
-      // Update state to show the Regenerate button
-      setHasGeneratedNote(true);
-      setIsGeneratingNote(false);
-    }, 1000);
-  };
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
 
   // Reset state when dialog opens/closes or request changes
   useEffect(() => {
@@ -289,6 +247,23 @@ export function EnhancedRequestDialog({
     }
   }, [open, request]);
 
+  // Update play state when video plays/pauses
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const handlePlay = () => setIsVideoPlaying(true);
+    const handlePause = () => setIsVideoPlaying(false);
+
+    video.addEventListener("play", handlePlay);
+    video.addEventListener("pause", handlePause);
+
+    return () => {
+      video.removeEventListener("play", handlePlay);
+      video.removeEventListener("pause", handlePause);
+    };
+  }, [videoRef.current]);
+
   // Handle photo file selection with max limit enforcement
   const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -323,19 +298,63 @@ export function EnhancedRequestDialog({
         return;
       }
 
-      // Create preview URL
-      const url = URL.createObjectURL(file);
-      setVideoFile(file);
-      setVideoPreviewUrl(url);
+      // Create a temporary video element to check duration
+      const tempVideo = document.createElement("video");
+      tempVideo.preload = "metadata";
 
-      // Also update the parent component's state for form submission
-      const event = {
-        target: {
-          files: [file],
-        },
-      } as unknown as React.ChangeEvent<HTMLInputElement>;
+      tempVideo.onloadedmetadata = () => {
+        // Check if video exceeds maximum duration
+        if (tempVideo.duration > 60) {
+          alert(
+            "Video exceeds maximum duration of 60 seconds. Please select a shorter video.",
+          );
 
-      handleMultipleFileSelect(event);
+          // Revoke the temporary URL
+          URL.revokeObjectURL(tempVideo.src);
+
+          // Reset the file input
+          if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+          }
+
+          return;
+        }
+
+        // If duration is valid, set the video
+        const url = URL.createObjectURL(file);
+
+        // If there was a previous video, clean it up
+        if (videoPreviewUrl) {
+          URL.revokeObjectURL(videoPreviewUrl);
+        }
+
+        setVideoFile(file);
+        setVideoPreviewUrl(url);
+
+        // Also update the parent component's state for form submission
+        const event = {
+          target: {
+            files: [file],
+          },
+        } as unknown as React.ChangeEvent<HTMLInputElement>;
+
+        handleMultipleFileSelect(event);
+
+        // Revoke the temporary URL
+        URL.revokeObjectURL(tempVideo.src);
+      };
+
+      tempVideo.onerror = () => {
+        alert("Error loading video. Please try another file.");
+
+        // Reset the file input
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+      };
+
+      // Set the source to check metadata
+      tempVideo.src = URL.createObjectURL(file);
     }
   };
 
@@ -1108,70 +1127,13 @@ export function EnhancedRequestDialog({
                     visible to the pet owner.
                   </CardDescription>
                 </CardHeader>
-                {/* Find the Processing Notes section and add the MediaAnalysis component above the Textarea */}
-                {/* Look for the Card that contains the processing notes Textarea */}
-                <CardContent className="pt-4 space-y-4">
-                  {/* Media Analysis Component - only show for photo, video, and grooming requests with files */}
-                  {(request.type === "photo" ||
-                    request.type === "video" ||
-                    (request.type === "grooming" &&
-                      selectedFiles.length > 0)) &&
-                    selectedFiles.length > 0 && (
-                      <MediaAnalysis
-                        files={selectedFiles}
-                        requestType={request.type}
-                        petName={request.petName}
-                        onAnalysisComplete={handleMediaAnalysisComplete}
-                      />
-                    )}
-
-                  <Textarea
-                    id="processing-notes"
-                    placeholder="Enter processing notes..."
+                <CardContent className="pt-4">
+                  <NoteGenerator
+                    request={request}
+                    selectedFiles={selectedFiles}
                     value={processingNotes}
-                    onChange={(e) => setProcessingNotes(e.target.value)}
-                    rows={5}
-                    className="resize-none"
+                    onChange={setProcessingNotes}
                   />
-
-                  <div className="flex justify-end">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={handleGenerateNote}
-                      disabled={isGeneratingNote}
-                      className={`${hasGeneratedNote ? "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100 hover:text-amber-800 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-800 dark:hover:bg-amber-900/30" : "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 hover:text-blue-800 dark:bg-blue-950/20 dark:text-blue-400 dark:border-blue-800 dark:hover:bg-blue-900/30"}`}
-                    >
-                      {isGeneratingNote ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Generating...
-                        </>
-                      ) : hasGeneratedNote ? (
-                        <>
-                          <RefreshCw className="mr-2 h-4 w-4" />
-                          Regenerate Note
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles className="mr-2 h-4 w-4" />
-                          Generate Note
-                        </>
-                      )}
-                    </Button>
-                  </div>
-
-                  {hasGeneratedNote && (
-                    <div className="p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-md">
-                      <p className="text-xs text-blue-700 dark:text-blue-400">
-                        <span className="font-medium">Note:</span> The generated
-                        text is based on AI analysis of the media content and
-                        request details. Feel free to edit it to better match
-                        your specific needs.
-                      </p>
-                    </div>
-                  )}
                 </CardContent>
               </Card>
             </div>
@@ -1312,6 +1274,101 @@ export function EnhancedRequestDialog({
                       </>
                     )}
                   </div>
+
+                  {/* Video preview in final step */}
+                  {request.type === "video" && videoFile && (
+                    <div className="col-span-2 mt-2">
+                      <Label className="text-xs text-muted-foreground uppercase tracking-wider mb-2 block">
+                        Video Preview
+                      </Label>
+                      <div className="relative rounded-md overflow-hidden bg-muted/30 w-full">
+                        <video
+                          ref={videoRef}
+                          src={
+                            audioMerged && mergedVideoUrl
+                              ? mergedVideoUrl
+                              : videoPreviewUrl || undefined
+                          }
+                          className="w-full h-auto max-h-[200px] object-contain"
+                          muted={false}
+                          // Remove controls attribute to hide default controls
+                        >
+                          Your browser does not support the video tag.
+                        </video>
+
+                        {selectedAudioUrl && !audioMerged && (
+                          <div className="absolute top-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded-md flex items-center">
+                            <Music className="h-3 w-3 mr-1" />
+                            <span>
+                              {selectedAudioName || "Background Music"}
+                            </span>
+                          </div>
+                        )}
+
+                        {audioMerged && (
+                          <div className="absolute top-2 left-2 bg-green-500/70 text-white text-xs px-2 py-1 rounded-md flex items-center">
+                            <CheckCircle className="h-3 w-3 mr-1" />
+                            <span>Audio Merged</span>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex justify-center mt-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            if (videoRef.current) {
+                              if (isVideoPlaying) {
+                                videoRef.current.pause();
+                              } else {
+                                videoRef.current.play().catch((err) => {
+                                  console.error("Error playing video:", err);
+                                  alert(
+                                    "Error playing video. Please try again.",
+                                  );
+                                });
+                              }
+                            }
+                          }}
+                          className="mx-auto"
+                        >
+                          {isVideoPlaying ? (
+                            <>
+                              <Pause className="h-4 w-4 mr-1" /> Pause
+                            </>
+                          ) : (
+                            <>
+                              <Play className="h-4 w-4 mr-1" /> Play
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Photo preview in final step */}
+                  {request.type === "photo" && selectedFiles.length > 0 && (
+                    <div className="col-span-2 mt-2">
+                      <Label className="text-xs text-muted-foreground uppercase tracking-wider mb-2 block">
+                        Photo Preview
+                      </Label>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        {previewUrls.map((url, index) => (
+                          <div
+                            key={index}
+                            className="relative aspect-square rounded-md overflow-hidden bg-muted/30"
+                          >
+                            <img
+                              src={url || "/placeholder.svg"}
+                              alt={`Preview ${index + 1}`}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
                   {processingNotes && (
                     <div>

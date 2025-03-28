@@ -28,6 +28,24 @@ import {
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { ChatBubble } from "./chat-bubble";
 
+interface ChatBubbleProps {
+  sender: string;
+  message: string;
+  timestamp: string;
+  avatar: string;
+  isAdmin: boolean;
+  type?: string;
+  media?: {
+    url: string;
+    type: "image" | "video";
+    urls?: string[];
+    audioUrl?: string;
+    audioName?: string;
+    audioMerged?: boolean;
+    mergedVideoUrl?: string;
+  };
+}
+
 interface CompletedRequestCardProps {
   request: any;
 }
@@ -342,7 +360,7 @@ export function CompletedRequestCard({ request }: CompletedRequestCardProps) {
                   type={request.type}
                 />
 
-                {/* Admin response message */}
+                {/* Admin response message - Use processingNotes instead of static text */}
                 <ChatBubble
                   sender={request.completedBy || "Admin"}
                   message={
@@ -357,13 +375,13 @@ export function CompletedRequestCard({ request }: CompletedRequestCardProps) {
                 {request.mediaFiles && (
                   <ChatBubble
                     sender={request.completedBy || "Admin"}
-                    message={`Here's the ${
+                    message={`Here ${request.mediaFiles.count > 1 ? "are" : "is"} the ${
                       request.type === "photo"
                         ? request.mediaFiles.count > 1
                           ? "photos"
                           : "photo"
                         : "video"
-                    } of ${request.petName} as requested.`}
+                    } of ${request.petName}.`}
                     timestamp={request.completedAt}
                     avatar="A"
                     isAdmin={true}
@@ -375,32 +393,15 @@ export function CompletedRequestCard({ request }: CompletedRequestCardProps) {
                       urls: request.mediaFiles.urls,
                       audioUrl: request.mediaFiles.audioUrl,
                       audioName: request.mediaFiles.audioName,
+                      audioMerged: request.mediaFiles.audioMerged,
+                      mergedVideoUrl:
+                        request.mediaFiles.mergedVideoUrl ||
+                        request.mediaFiles.urls?.[0],
                     }}
                   />
                 )}
 
-                {/* Conditional confirmation message for boarding extension */}
-                {request.type === "boarding-extension" &&
-                  request.newEndDate && (
-                    <ChatBubble
-                      sender={request.completedBy || "Admin"}
-                      message={`The boarding extension has been approved. The new end date is ${formatDate(request.newEndDate)}.`}
-                      timestamp={request.completedAt}
-                      avatar="A"
-                      isAdmin={true}
-                    />
-                  )}
-
-                {/* Conditional confirmation message for grooming */}
-                {request.type === "grooming" && (
-                  <ChatBubble
-                    sender={request.completedBy || "Admin"}
-                    message={`The grooming service (${request.groomingService.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}) has been completed for ${request.petName}.`}
-                    timestamp={request.completedAt}
-                    avatar="A"
-                    isAdmin={true}
-                  />
-                )}
+                {/* Remove the conditional confirmation messages since they're redundant with processingNotes */}
               </div>
 
               {/* Removed chat input area - no longer needed */}

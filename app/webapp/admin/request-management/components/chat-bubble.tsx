@@ -9,15 +9,7 @@ import { cn } from "@/lib/utils";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
-import {
-  Music,
-  CheckCircle,
-  X,
-  Maximize,
-  Volume2,
-  VolumeX,
-  Play,
-} from "lucide-react";
+import { Music, CheckCircle, X, Volume2, VolumeX } from "lucide-react";
 
 interface ChatBubbleProps {
   sender: string;
@@ -331,135 +323,43 @@ export function ChatBubble({
             <p className="whitespace-pre-wrap">{message}</p>
 
             {media && (
-              <div className="mt-3 rounded-md overflow-hidden">
-                {/* Handle multiple media files */}
-                {media.urls && media.urls.length > 0 ? (
+              <div className="mt-2">
+                {media.type === "image" &&
+                media.urls &&
+                media.urls.length > 0 ? (
                   <div
-                    className={`grid ${media.urls.length > 2 ? "grid-cols-2" : "grid-cols-1"} gap-2 mt-2`}
+                    className={`grid ${media.urls.length > 1 ? "grid-cols-2 gap-2" : "grid-cols-1"}`}
                   >
                     {media.urls.map((url, index) => (
                       <div
                         key={index}
-                        className="relative rounded-md overflow-hidden cursor-pointer group"
-                        onClick={() => openFullscreen(url, "image")}
+                        className="relative rounded-md overflow-hidden"
                       >
                         <img
-                          src={url || "/placeholder.svg?height=150&width=150"}
+                          src={url || "/placeholder.svg"}
                           alt={`Media ${index + 1}`}
-                          className="w-full h-[150px] object-cover transition-transform group-hover:scale-105"
+                          className="w-full h-auto object-cover rounded-md"
                         />
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
-                          <Maximize className="h-6 w-6 text-white drop-shadow-md" />
-                        </div>
                       </div>
                     ))}
                   </div>
-                ) : // Single media file
-                media.type === "image" ? (
-                  <div
-                    className="relative cursor-pointer group"
-                    onClick={() => openFullscreen(media.url, "image")}
-                  >
-                    <img
-                      src={media.url || "/placeholder.svg?height=300&width=400"}
-                      alt="Shared media"
-                      className="max-w-full h-auto rounded-md object-cover transition-transform group-hover:scale-[1.02]"
-                      style={{ maxHeight: "300px" }}
-                    />
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
-                      <Maximize className="h-6 w-6 text-white drop-shadow-md" />
-                    </div>
-                  </div>
-                ) : (
-                  <div
-                    className="relative rounded-md overflow-hidden"
-                    onMouseEnter={() => setIsHovering(true)}
-                    onMouseLeave={() => setIsHovering(false)}
-                  >
-                    {/* Video thumbnail with play button overlay */}
-                    <div
-                      className="relative cursor-pointer group"
-                      onClick={() =>
-                        openFullscreen(
-                          media.audioMerged && media.mergedVideoUrl
-                            ? media.mergedVideoUrl
-                            : media.url,
-                          "video",
-                        )
-                      }
+                ) : media.type === "video" ? (
+                  <div className="relative rounded-md overflow-hidden">
+                    <video
+                      src={media.mergedVideoUrl || media.url}
+                      className="w-full h-auto rounded-md"
+                      controls
                     >
-                      {videoThumbnail ? (
-                        <>
-                          <img
-                            src={videoThumbnail || "/placeholder.svg"}
-                            alt="Video thumbnail"
-                            className="w-full h-auto rounded-md object-cover transition-transform group-hover:scale-[1.02]"
-                            style={{ maxHeight: "300px" }}
-                          />
-                          <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-                            <div className="h-12 w-12 rounded-full bg-white/80 flex items-center justify-center">
-                              <Play className="h-6 w-6 text-primary ml-1" />
-                            </div>
-                          </div>
-                        </>
-                      ) : (
-                        <video
-                          ref={videoRef}
-                          src={
-                            media.audioMerged && media.mergedVideoUrl
-                              ? media.mergedVideoUrl
-                              : media.url
-                          }
-                          preload="metadata"
-                          className="max-w-full h-auto rounded-md"
-                          style={{ maxHeight: "300px" }}
-                          muted={true}
-                          playsInline
-                        >
-                          Your browser does not support the video tag.
-                        </video>
-                      )}
-                    </div>
-
-                    {/* Audio element for background music - only show if audio is not merged */}
-                    {media.audioUrl && !media.audioMerged && (
-                      <>
-                        <audio
-                          ref={audioRef}
-                          src={media.audioUrl}
-                          loop={false}
-                          hidden
-                        />
-                        <div className="absolute top-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded-md flex items-center">
-                          <Music className="h-3 w-3 mr-1" />
-                          <span>{media.audioName || "Background Music"}</span>
-                        </div>
-                      </>
-                    )}
-
-                    {/* Show indicator for merged audio */}
+                      Your browser does not support the video tag.
+                    </video>
                     {media.audioMerged && (
                       <div className="absolute top-2 left-2 bg-green-500/70 text-white text-xs px-2 py-1 rounded-md flex items-center">
-                        <CheckCircle className="h-3 w-3 mr-1" />
-                        <span>Audio Merged</span>
+                        <Music className="h-3 w-3 mr-1" />
+                        <span>{media.audioName || "Background Music"}</span>
                       </div>
                     )}
-
-                    {/* Volume control */}
-                    {isHovering && (
-                      <button
-                        className="absolute bottom-2 right-2 bg-black/50 text-white p-1.5 rounded-full"
-                        onClick={toggleMute}
-                      >
-                        {isMuted ? (
-                          <VolumeX className="h-4 w-4" />
-                        ) : (
-                          <Volume2 className="h-4 w-4" />
-                        )}
-                      </button>
-                    )}
                   </div>
-                )}
+                ) : null}
               </div>
             )}
           </div>

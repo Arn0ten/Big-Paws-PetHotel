@@ -36,6 +36,10 @@ export function PhotoUpload({
   // Handle file input click
   const handleFileInputClick = () => {
     if (fileInputRef.current) {
+      // Reset the file input value to ensure onChange fires even if selecting the same file
+      if (fileInputRef.current.value) {
+        fileInputRef.current.value = "";
+      }
       fileInputRef.current.click();
     }
   };
@@ -226,7 +230,11 @@ export function PhotoUpload({
             {selectedFiles.length < maxFiles && (
               <div
                 className="relative aspect-square rounded-md overflow-hidden bg-muted/30 border-2 border-dashed border-muted-foreground/30 flex flex-col items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors"
-                onClick={handleFileInputClick}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleFileInputClick();
+                }}
               >
                 <ImageIcon className="h-6 w-6 text-muted-foreground mb-1" />
                 <p className="text-xs text-muted-foreground">Add More</p>
@@ -244,7 +252,11 @@ export function PhotoUpload({
               </Button>
               <Button
                 size="sm"
-                onClick={handleFileInputClick}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleFileInputClick();
+                }}
                 disabled={selectedFiles.length >= maxFiles}
               >
                 <Upload className="h-4 w-4 mr-1" /> Add More
