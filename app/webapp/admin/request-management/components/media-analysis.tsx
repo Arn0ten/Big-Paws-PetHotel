@@ -1,79 +1,103 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Loader2, Image, Video, Sparkles } from "lucide-react"
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Loader2, Image, Video, Sparkles } from "lucide-react";
 
 interface MediaAnalysisProps {
-  files: File[]
-  requestType: string
-  petName: string
-  onAnalysisComplete?: (analysis: string) => void
+  files: File[];
+  requestType: string;
+  petName: string;
+  onAnalysisComplete?: (analysis: string) => void;
 }
 
-export function MediaAnalysis({ files, requestType, petName, onAnalysisComplete }: MediaAnalysisProps) {
-  const [isAnalyzing, setIsAnalyzing] = useState(false)
-  const [analysis, setAnalysis] = useState<string | null>(null)
-  const [mediaType, setMediaType] = useState<"image" | "video" | null>(null)
-  const [tags, setTags] = useState<string[]>([])
+export function MediaAnalysis({
+  files,
+  requestType,
+  petName,
+  onAnalysisComplete,
+}: MediaAnalysisProps) {
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysis, setAnalysis] = useState<string | null>(null);
+  const [mediaType, setMediaType] = useState<"image" | "video" | null>(null);
+  const [tags, setTags] = useState<string[]>([]);
 
   // Simulate AI analysis of media files
   useEffect(() => {
     if (files.length === 0) {
-      setAnalysis(null)
-      setMediaType(null)
-      setTags([])
-      return
+      setAnalysis(null);
+      setMediaType(null);
+      setTags([]);
+      return;
     }
 
-    setIsAnalyzing(true)
+    setIsAnalyzing(true);
 
     // Determine media type
-    const isVideo = files.some((file) => file.type.startsWith("video/"))
-    setMediaType(isVideo ? "video" : "image")
+    const isVideo = files.some((file) => file.type.startsWith("video/"));
+    setMediaType(isVideo ? "video" : "image");
 
     // Simulate AI processing delay
     const timer = setTimeout(() => {
       // Generate mock analysis based on file type and request type
-      let analysisText = ""
-      let generatedTags: string[] = []
+      let analysisText = "";
+      let generatedTags: string[] = [];
 
       if (isVideo) {
-        analysisText = `This video shows ${petName} ${getRandomActivity("video")}. ${petName} appears ${getRandomMood()} and ${getRandomBehavior()}.`
-        generatedTags = ["video", getRandomMood(), getRandomBehavior(), getRandomActivity("video")]
+        analysisText = `This video shows ${petName} ${getRandomActivity("video")}. ${petName} appears ${getRandomMood()} and ${getRandomBehavior()}.`;
+        generatedTags = [
+          "video",
+          getRandomMood(),
+          getRandomBehavior(),
+          getRandomActivity("video"),
+        ];
       } else {
         if (files.length === 1) {
-          analysisText = `This photo shows ${petName} ${getRandomActivity("photo")}. ${petName} looks ${getRandomMood()} and ${getRandomBehavior()}.`
+          analysisText = `This photo shows ${petName} ${getRandomActivity("photo")}. ${petName} looks ${getRandomMood()} and ${getRandomBehavior()}.`;
         } else {
-          analysisText = `These ${files.length} photos show ${petName} ${getRandomActivity("photo")}. In the images, ${petName} appears ${getRandomMood()} and ${getRandomBehavior()}.`
+          analysisText = `These ${files.length} photos show ${petName} ${getRandomActivity("photo")}. In the images, ${petName} appears ${getRandomMood()} and ${getRandomBehavior()}.`;
         }
-        generatedTags = ["photo", getRandomMood(), getRandomBehavior(), getRandomActivity("photo")]
+        generatedTags = [
+          "photo",
+          getRandomMood(),
+          getRandomBehavior(),
+          getRandomActivity("photo"),
+        ];
       }
 
       // Add request-specific analysis
       if (requestType === "grooming") {
-        analysisText += ` The grooming session has left ${petName} looking clean and well-groomed with a shiny coat.`
-        generatedTags.push("groomed", "clean")
+        analysisText += ` The grooming session has left ${petName} looking clean and well-groomed with a shiny coat.`;
+        generatedTags.push("groomed", "clean");
       }
 
-      setAnalysis(analysisText)
-      setTags([...new Set(generatedTags)])
-      setIsAnalyzing(false)
+      setAnalysis(analysisText);
+      setTags([...new Set(generatedTags)]);
+      setIsAnalyzing(false);
 
       // Notify parent component of analysis completion
       if (onAnalysisComplete) {
-        onAnalysisComplete(analysisText)
+        onAnalysisComplete(analysisText);
       }
-    }, 2000)
+    }, 2000);
 
-    return () => clearTimeout(timer)
-  }, [files, requestType, petName, onAnalysisComplete])
+    return () => clearTimeout(timer);
+  }, [files, requestType, petName, onAnalysisComplete]);
 
   // Helper functions to generate random descriptions
   function getRandomMood(): string {
-    const moods = ["happy", "relaxed", "content", "calm", "playful", "curious", "energetic", "peaceful"]
-    return moods[Math.floor(Math.random() * moods.length)]
+    const moods = [
+      "happy",
+      "relaxed",
+      "content",
+      "calm",
+      "playful",
+      "curious",
+      "energetic",
+      "peaceful",
+    ];
+    return moods[Math.floor(Math.random() * moods.length)];
   }
 
   function getRandomBehavior(): string {
@@ -86,8 +110,8 @@ export function MediaAnalysis({ files, requestType, petName, onAnalysisComplete 
       "adapting well to the boarding routine",
       "enjoying the amenities we provide",
       "responding well to attention",
-    ]
-    return behaviors[Math.floor(Math.random() * behaviors.length)]
+    ];
+    return behaviors[Math.floor(Math.random() * behaviors.length)];
   }
 
   function getRandomActivity(type: "photo" | "video"): string {
@@ -100,7 +124,7 @@ export function MediaAnalysis({ files, requestType, petName, onAnalysisComplete 
       "after playtime, looking content",
       "with a healthy appearance and bright eyes",
       "in our specially designed pet spaces",
-    ]
+    ];
 
     const videoActivities = [
       "playing with toys",
@@ -111,14 +135,14 @@ export function MediaAnalysis({ files, requestType, petName, onAnalysisComplete 
       "enjoying outdoor time",
       "during socialization with other pets",
       "during feeding time, showing good appetite",
-    ]
+    ];
 
-    const activities = type === "photo" ? photoActivities : videoActivities
-    return activities[Math.floor(Math.random() * activities.length)]
+    const activities = type === "photo" ? photoActivities : videoActivities;
+    return activities[Math.floor(Math.random() * activities.length)];
   }
 
   if (files.length === 0) {
-    return null
+    return null;
   }
 
   return (
@@ -133,7 +157,9 @@ export function MediaAnalysis({ files, requestType, petName, onAnalysisComplete 
         {isAnalyzing ? (
           <div className="flex items-center justify-center py-4">
             <Loader2 className="h-5 w-5 animate-spin text-blue-600 dark:text-blue-400 mr-2" />
-            <span className="text-sm text-blue-700 dark:text-blue-400">Analyzing media content...</span>
+            <span className="text-sm text-blue-700 dark:text-blue-400">
+              Analyzing media content...
+            </span>
           </div>
         ) : analysis ? (
           <div className="space-y-3">
@@ -161,6 +187,5 @@ export function MediaAnalysis({ files, requestType, petName, onAnalysisComplete 
         ) : null}
       </CardContent>
     </Card>
-  )
+  );
 }
-
