@@ -52,7 +52,7 @@ import { VideoUpload } from "./media-upload/video-upload";
 import { Progress } from "@/components/ui/progress";
 import { NoteGenerator } from "./note-generator";
 
-// Define fallback rate constants if they're not imported
+// Define fallback rate constants if they're not importeds
 const BOARDING_RATES = {
   hourly: {
     Small: 5,
