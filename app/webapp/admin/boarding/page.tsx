@@ -590,37 +590,6 @@ function BoardingTableSkeleton() {
     <div className="rounded-md border shadow-sm overflow-hidden">
       <div className="overflow-x-auto">
         <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[80px]">
-                <Skeleton className="h-4 w-10" />
-              </TableHead>
-              <TableHead>
-                <Skeleton className="h-4 w-20" />
-              </TableHead>
-              <TableHead className="hidden md:table-cell">
-                <Skeleton className="h-4 w-24" />
-              </TableHead>
-              <TableHead>
-                <Skeleton className="h-4 w-16" />
-              </TableHead>
-              <TableHead className="hidden lg:table-cell">
-                <Skeleton className="h-4 w-16" />
-              </TableHead>
-              <TableHead className="hidden sm:table-cell">
-                <Skeleton className="h-4 w-20" />
-              </TableHead>
-              <TableHead>
-                <Skeleton className="h-4 w-16" />
-              </TableHead>
-              <TableHead>
-                <Skeleton className="h-4 w-16" />
-              </TableHead>
-              <TableHead className="text-right">
-                <Skeleton className="h-4 w-16 ml-auto" />
-              </TableHead>
-            </TableRow>
-          </TableHeader>
           <TableBody>
             {Array(6)
               .fill(0)
