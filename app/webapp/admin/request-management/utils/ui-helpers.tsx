@@ -62,11 +62,7 @@ export const getCardBorderColor = (type: string, isUrgent: boolean) => {
   return "";
 };
 
-export const getCardBgColor = (type: string, isUrgent: boolean) => {
-  if (isUrgent) {
-    return "bg-red-50 dark:bg-red-950/20"; // Pastel red for urgent requests
-  }
-
+export const getCardBgColor = (type: string) => {
   switch (type) {
     case "photo":
       return "bg-blue-50 dark:bg-blue-950/20"; // Pastel blue

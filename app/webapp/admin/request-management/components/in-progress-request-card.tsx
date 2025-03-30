@@ -1,68 +1,67 @@
 "use client";
 
+import type React from "react";
+
 import { motion } from "framer-motion";
 import {
   Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { RotateCcw } from "lucide-react";
 import {
-  formatCurrency,
-  formatDate,
   getRequestTypeIcon,
   getRequestTypeLabel,
   getCardBgColor,
+  formatDate,
 } from "../utils/ui-helpers";
-import { useMediaQuery } from "@/hooks/use-media-query";
 
 interface InProgressRequestCardProps {
   request: any;
   onProcess: () => void;
-  onUndoAccept: () => void;
   onViewDetails: () => void;
+  onUndoAccept: () => void;
 }
 
 export function InProgressRequestCard({
   request,
   onProcess,
-  onUndoAccept,
   onViewDetails,
+  onUndoAccept,
 }: InProgressRequestCardProps) {
-  const isMobile = useMediaQuery("(max-width: 640px)");
-  const isSmallCard = useMediaQuery("(max-width: 400px)");
+  const handleProcess = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card click event
+    onProcess();
+  };
+
+  const handleUndoAccept = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card click event
+    onUndoAccept();
+  };
 
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-      transition={{
-        duration: 0.3,
-      }}
+      transition={{ duration: 0.3 }}
       whileHover={{ scale: 1.02 }}
       className="h-full"
     >
       <Card
-        className={`w-full h-full flex flex-col ${getCardBgColor(request.type, request.isUrgent)} cursor-pointer hover:shadow-md transition-shadow`}
+        className={`w-full h-[280px] flex flex-col cursor-pointer ${getCardBgColor(request.type, request.isUrgent)}`}
         onClick={onViewDetails}
       >
         <CardHeader className="p-4 pb-2">
           <div className="flex justify-between items-start">
             <div className="flex items-center space-x-2">
               <div
-                className={`
-                p-2 rounded-full 
-                ${request.type === "photo" ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300" : ""}
-                ${request.type === "video" ? "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300" : ""}
-                ${request.type === "grooming" ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300" : ""}
-                ${request.type === "boarding-extension" ? "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300" : ""}
-                ${request.type === "custom" ? "bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300" : ""}
-              `}
+                className={`p-2 rounded-full ${getIconBgColorClass(request.type)}`}
               >
                 {getRequestTypeIcon(request.type)}
               </div>
@@ -78,102 +77,84 @@ export function InProgressRequestCard({
                 </CardDescription>
               </div>
             </div>
+            <div className="flex flex-col items-end gap-1">
+              {request.isUrgent && (
+                <Badge variant="destructive" className="ml-auto">
+                  Urgent
+                </Badge>
+              )}
+              {request.isReconsidered && (
+                <Badge
+                  variant="outline"
+                  className="bg-amber-100 text-amber-700 border-amber-200 ml-auto"
+                >
+                  <RotateCcw className="h-3 w-3 mr-1" />
+                  Reconsidered
+                </Badge>
+              )}
+            </div>
           </div>
         </CardHeader>
-        <CardContent className="p-4 pt-2 flex-grow">
-          <p className="text-sm line-clamp-3 text-foreground/90 dark:text-foreground/80">
+        <CardContent className="p-4 pt-2 flex-grow overflow-hidden">
+          <p className="text-sm line-clamp-2 text-foreground/90 dark:text-foreground/80">
             {request.description}
           </p>
 
-          {request.type === "boarding-extension" &&
-            request.extensionDetails && (
-              <div className="mt-3 flex flex-col gap-1">
-                <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-                  Extension
-                </span>
-                <div className="flex items-center justify-between">
-                  <span className="text-base font-medium text-amber-700 dark:text-amber-400">
-                    {request.extensionDetails.duration}{" "}
-                    {request.extensionDetails.unit}
-                  </span>
-                  {request.price && (
-                    <span className="text-base font-medium text-green-600 dark:text-green-400">
-                      {formatCurrency(request.price)}
-                    </span>
-                  )}
-                </div>
-              </div>
-            )}
-
-          {request.type === "grooming" && request.groomingService && (
-            <div className="mt-3 flex flex-col gap-1">
-              <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-                Service
-              </span>
-              <div className="flex items-center justify-between">
-                <span className="text-base font-medium text-green-700 dark:text-green-400">
-                  {request.groomingService
-                    .replace(/-/g, " ")
-                    .replace(/\b\w/g, (l) => l.toUpperCase())}
-                </span>
-                {request.price && (
-                  <span className="text-base font-medium text-green-600 dark:text-green-400">
-                    {formatCurrency(request.price)}
-                  </span>
-                )}
-              </div>
-            </div>
-          )}
-
           <div className="mt-3">
             <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-              Submitted
+              Approved
             </span>
             <div className="text-sm font-medium mt-0.5">
-              {formatDate(request.createdAt)}
+              {formatDate(request.approvedAt || request.createdAt)}
             </div>
           </div>
 
-          {/* Show undo reason if this was previously completed and undone */}
-          {request.undoReason && (
-            <div className="mt-3 p-2 bg-amber-50 border border-amber-100 rounded-md dark:bg-amber-950/20 dark:border-amber-800">
-              <p className="text-xs uppercase tracking-wide text-amber-700 dark:text-amber-300 font-medium">
-                Returned to In-Progress
-              </p>
-              <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
-                {request.undoReason}
-              </p>
-              <p className="text-xs text-amber-600/70 dark:text-amber-400/70 mt-1">
-                {request.undoTimestamp ? formatDate(request.undoTimestamp) : ""}
-              </p>
-            </div>
-          )}
+          {request.type === "boarding-extension" &&
+            request.extensionDetails && (
+              <div className="mt-3">
+                <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+                  Extension
+                </span>
+                <div className="text-sm font-medium mt-0.5 text-amber-700 dark:text-amber-400">
+                  {request.extensionDetails.duration}{" "}
+                  {request.extensionDetails.unit}
+                </div>
+              </div>
+            )}
         </CardContent>
-        <CardFooter className={`p-4 pt-0 mt-auto flex flex-col gap-2`}>
-          <Button
-            className="w-full"
-            onClick={(e) => {
-              e.stopPropagation(); // Prevent card click event
-              onProcess(); // Use the passed prop instead of direct state manipulation
-            }}
-            size={isSmallCard ? "sm" : "default"}
-          >
-            Process Request
+        <CardFooter className="p-4 pt-0 mt-auto flex flex-col sm:flex-row gap-2">
+          <Button className="w-full sm:flex-1" onClick={handleProcess}>
+            Complete Request
           </Button>
           <Button
             variant="outline"
-            className="w-full text-amber-600 border-amber-200 hover:bg-amber-50 hover:text-amber-700 dark:border-amber-800 dark:text-amber-400 dark:hover:bg-amber-950/50"
-            onClick={(e) => {
-              e.stopPropagation(); // Prevent card click event
-              onUndoAccept && onUndoAccept();
-            }}
-            size={isSmallCard ? "sm" : "default"}
+            size="icon"
+            className="sm:w-10"
+            onClick={handleUndoAccept}
+            title="Undo Accept"
           >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Return to New
+            <RotateCcw className="h-4 w-4" />
           </Button>
         </CardFooter>
       </Card>
     </motion.div>
   );
+}
+
+// Helper function to get icon background color class
+function getIconBgColorClass(type: string) {
+  switch (type) {
+    case "photo":
+      return "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300";
+    case "video":
+      return "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300";
+    case "grooming":
+      return "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300";
+    case "boarding-extension":
+      return "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300";
+    case "custom":
+      return "bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300";
+    default:
+      return "bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300";
+  }
 }

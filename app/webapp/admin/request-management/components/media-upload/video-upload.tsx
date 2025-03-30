@@ -64,6 +64,8 @@ export function VideoUpload({
   const [backgroundVolume, setBackgroundVolume] = useState(1); // Full volume
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [durationError, setDurationError] = useState<string | null>(null);
 
   // Audio options with the provided MP3 files
   const audioOptions = [
@@ -128,6 +130,52 @@ export function VideoUpload({
       description: "Original video audio only",
     },
   ];
+
+  // Handle drag events
+  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      // Get the first file (only one video at a time)
+      const file = e.dataTransfer.files[0];
+
+      // Validate file type
+      if (!file.type.startsWith("video/")) {
+        setDurationError("Please select a valid video file");
+        setTimeout(() => setDurationError(null), 5000);
+        return;
+      }
+
+      // Create a synthetic event to reuse the existing handler
+      const event = {
+        target: {
+          files: [file],
+        },
+      } as unknown as React.ChangeEvent<HTMLInputElement>;
+
+      handleVideoSelect(event);
+    }
+  };
 
   // Handle volume changes
   const handleOriginalVolumeChange = (
@@ -425,7 +473,8 @@ export function VideoUpload({
 
       // Validate file type
       if (!file.type.startsWith("video/")) {
-        alert("Please select a valid video file");
+        setDurationError("Please select a valid video file");
+        setTimeout(() => setDurationError(null), 5000);
         return;
       }
 
@@ -438,9 +487,10 @@ export function VideoUpload({
       tempVideo.onloadedmetadata = () => {
         // Check if video exceeds maximum duration
         if (tempVideo.duration > maxDuration) {
-          // Show error dialog
-          setShowDurationError(true);
-          setTimeout(() => setShowDurationError(false), 5000);
+          setDurationError(
+            `Video exceeds maximum duration of ${maxDuration} seconds. Please select a shorter video.`,
+          );
+          setTimeout(() => setDurationError(null), 5000);
           setIsLoading(false);
 
           // Revoke the temporary URL
@@ -482,7 +532,8 @@ export function VideoUpload({
       };
 
       tempVideo.onerror = () => {
-        alert("Error loading video. Please try another file.");
+        setDurationError("Error loading video. Please try another file.");
+        setTimeout(() => setDurationError(null), 5000);
         setIsLoading(false);
 
         // Reset the file input
@@ -496,6 +547,33 @@ export function VideoUpload({
     }
   };
 
+  // Modify the onRemoveFile function to also open file explorer
+  const handleRemoveVideo = () => {
+    if (videoPreviewUrl) {
+      URL.revokeObjectURL(videoPreviewUrl);
+    }
+
+    setVideoFile(null);
+    setVideoPreviewUrl(null);
+    setSelectedAudio(null);
+    setSelectedAudioName(null);
+    setAudioMerged(false);
+
+    // Also update the parent component's state
+    const event = {
+      target: {
+        files: [],
+      },
+    } as unknown as React.ChangeEvent<HTMLInputElement>;
+
+    onFileSelect(event);
+
+    // Automatically open file explorer after removing
+    setTimeout(() => {
+      handleFileInputClick();
+    }, 100);
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -506,7 +584,20 @@ export function VideoUpload({
       </div>
 
       {!selectedFile ? (
-        <Card className="border-dashed border-2">
+        <Card
+          className={cn(
+            "border-dashed border-2 transition-colors",
+            isDragging
+              ? "border-primary bg-primary/5"
+              : durationError
+                ? "border-destructive bg-destructive/5"
+                : "border-border",
+          )}
+          onDragEnter={handleDragEnter}
+          onDragLeave={handleDragLeave}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
+        >
           <CardContent className="flex flex-col items-center justify-center py-6">
             <input
               type="file"
@@ -516,10 +607,19 @@ export function VideoUpload({
               ref={fileInputRef}
             />
             <Upload className="h-8 w-8 text-muted-foreground mb-2" />
-            <p className="text-sm font-medium mb-1">Click to upload a video</p>
+            <p className="text-sm font-medium mb-1">
+              Drag and drop video here or click to browse
+            </p>
             <p className="text-xs text-muted-foreground text-center mb-4">
               MP4, MOV, or WebM format (max {maxDuration} seconds)
             </p>
+            {durationError && (
+              <div className="mb-3 p-2 bg-destructive/10 border border-destructive rounded-md w-full">
+                <p className="text-xs text-destructive text-center">
+                  {durationError}
+                </p>
+              </div>
+            )}
             <Button onClick={handleFileInputClick} className="mt-2">
               Select Video
             </Button>
@@ -639,7 +739,7 @@ export function VideoUpload({
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={onRemoveFile}
+                  onClick={handleRemoveVideo}
                   className="w-full sm:w-auto"
                 >
                   <X className="h-4 w-4 mr-1" /> Remove
@@ -664,6 +764,126 @@ export function VideoUpload({
               </div>
             </div>
           </div>
+
+          {durationError && (
+            <div className="mt-4 p-4 bg-destructive/10 border border-destructive rounded-md flex items-start gap-3">
+              <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-medium text-destructive">
+                  {durationError}
+                </p>
+                <p className="text-xs text-destructive/80 mt-1">
+                  Please select a video that is {maxDuration} seconds or
+                  shorter.
+                </p>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  className="mt-2"
+                  onClick={handleFileInputClick}
+                >
+                  Select Another Video
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Audio Volume Controls - Moved here */}
+          {selectedAudio && selectedAudio !== audioOptions[9].url && (
+            <div className="space-y-3 p-4 border rounded-md bg-muted/10">
+              <div className="flex flex-col gap-2">
+                <Label className="text-sm font-medium">
+                  Audio Volume Controls
+                </Label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <Label className="text-xs">Original Audio</Label>
+                      <span className="text-xs">
+                        {Math.round(originalVolume * 100)}%
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.01"
+                      value={originalVolume}
+                      onChange={handleOriginalVolumeChange}
+                      className="w-full"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <Label className="text-xs">Background Music</Label>
+                      <span className="text-xs">
+                        {Math.round(backgroundVolume * 100)}%
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.01"
+                      value={backgroundVolume}
+                      onChange={handleBackgroundVolumeChange}
+                      className="w-full"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium">
+                  Save with Selected Audio
+                </Label>
+                {!audioMerged && (
+                  <Button
+                    size="sm"
+                    onClick={handleMergeAudio}
+                    disabled={audioMerging}
+                  >
+                    {audioMerging ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-1 animate-spin" />{" "}
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="h-4 w-4 mr-1" /> Save with Audio
+                      </>
+                    )}
+                  </Button>
+                )}
+
+                {audioMerged && (
+                  <div className="flex items-center text-green-600 dark:text-green-400">
+                    <CheckCircle className="h-4 w-4 mr-1" />
+                    <span className="text-sm font-medium">Audio Merged</span>
+                  </div>
+                )}
+              </div>
+
+              {!audioMerged && (
+                <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-md p-3">
+                  <p className="text-sm text-amber-700 dark:text-amber-400">
+                    Click "Save with Audio" to merge the audio with the video.
+                    This will replace the original audio and will be sent to the
+                    pet owner.
+                  </p>
+                </div>
+              )}
+
+              {audioMerged && (
+                <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-md p-3">
+                  <p className="text-sm text-green-700 dark:text-green-400">
+                    Audio has been successfully merged with the video. This
+                    version will be sent to the pet owner.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Background Audio Section */}
           <div className="space-y-4">
@@ -728,102 +948,6 @@ export function VideoUpload({
                 ))}
               </div>
             </ScrollArea>
-
-            {selectedAudio && selectedAudio !== audioOptions[9].url && (
-              <div className="space-y-3 mt-4">
-                <div className="flex flex-col gap-2">
-                  <Label className="text-sm font-medium">
-                    Audio Volume Controls
-                  </Label>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <Label className="text-xs">Original Audio</Label>
-                        <span className="text-xs">
-                          {Math.round(originalVolume * 100)}%
-                        </span>
-                      </div>
-                      <input
-                        type="range"
-                        min="0"
-                        max="1"
-                        step="0.01"
-                        value={originalVolume}
-                        onChange={handleOriginalVolumeChange}
-                        className="w-full"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <Label className="text-xs">Background Music</Label>
-                        <span className="text-xs">
-                          {Math.round(backgroundVolume * 100)}%
-                        </span>
-                      </div>
-                      <input
-                        type="range"
-                        min="0"
-                        max="1"
-                        step="0.01"
-                        value={backgroundVolume}
-                        onChange={handleBackgroundVolumeChange}
-                        className="w-full"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <Label className="text-sm font-medium">
-                    Save with Selected Audio
-                  </Label>
-                  {!audioMerged && (
-                    <Button
-                      size="sm"
-                      onClick={handleMergeAudio}
-                      disabled={audioMerging}
-                    >
-                      {audioMerging ? (
-                        <>
-                          <Loader2 className="h-4 w-4 mr-1 animate-spin" />{" "}
-                          Processing...
-                        </>
-                      ) : (
-                        <>
-                          <Save className="h-4 w-4 mr-1" /> Save with Audio
-                        </>
-                      )}
-                    </Button>
-                  )}
-
-                  {audioMerged && (
-                    <div className="flex items-center text-green-600 dark:text-green-400">
-                      <CheckCircle className="h-4 w-4 mr-1" />
-                      <span className="text-sm font-medium">Audio Merged</span>
-                    </div>
-                  )}
-                </div>
-
-                {!audioMerged && (
-                  <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-md p-3">
-                    <p className="text-sm text-amber-700 dark:text-amber-400">
-                      Click "Save with Audio" to merge the audio with the video.
-                      This will replace the original audio and will be sent to
-                      the pet owner.
-                    </p>
-                  </div>
-                )}
-
-                {audioMerged && (
-                  <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-md p-3">
-                    <p className="text-sm text-green-700 dark:text-green-400">
-                      Audio has been successfully merged with the video. This
-                      version will be sent to the pet owner.
-                    </p>
-                  </div>
-                )}
-              </div>
-            )}
           </div>
         </div>
       )}

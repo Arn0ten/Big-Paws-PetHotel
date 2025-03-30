@@ -148,6 +148,11 @@ export function PhotoUpload({
     }
   };
 
+  // Handle adding more photos
+  const handleAddMorePhotos = () => {
+    handleFileInputClick();
+  };
+
   return (
     <div className="space-y-4">
       <div>
@@ -185,8 +190,8 @@ export function PhotoUpload({
             <input
               type="file"
               accept="image/*"
-              multiple
-              onChange={handleFileSelect}
+              multiple={maxFiles > 1}
+              onChange={onFileSelect}
               className="hidden"
               ref={fileInputRef}
             />
@@ -230,11 +235,7 @@ export function PhotoUpload({
             {selectedFiles.length < maxFiles && (
               <div
                 className="relative aspect-square rounded-md overflow-hidden bg-muted/30 border-2 border-dashed border-muted-foreground/30 flex flex-col items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  handleFileInputClick();
-                }}
+                onClick={handleAddMorePhotos}
               >
                 <ImageIcon className="h-6 w-6 text-muted-foreground mb-1" />
                 <p className="text-xs text-muted-foreground">Add More</p>
@@ -252,14 +253,11 @@ export function PhotoUpload({
               </Button>
               <Button
                 size="sm"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  handleFileInputClick();
-                }}
+                onClick={handleFileInputClick}
+                className="w-full sm:w-auto"
                 disabled={selectedFiles.length >= maxFiles}
               >
-                <Upload className="h-4 w-4 mr-1" /> Add More
+                <Upload className="h-4 w-4 mr-1" /> Replace
               </Button>
             </div>
           </div>
