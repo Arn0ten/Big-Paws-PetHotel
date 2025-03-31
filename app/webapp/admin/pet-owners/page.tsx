@@ -13,15 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  Users,
-  UserPlus,
-  Filter,
-  X,
-  RefreshCw,
-  Search,
-  Loader2,
-} from "lucide-react";
+import { Users, UserPlus, Filter, X, Search, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import {
@@ -588,33 +580,11 @@ export default function PetOwnersPage() {
           <CardContent>
             <div className="space-y-4">
               {/* Filters */}
-              <div className="flex flex-wrap gap-2">
-                <Select value={filterHasPets} onValueChange={setFilterHasPets}>
-                  <SelectTrigger className="w-[150px]">
-                    <div className="flex items-center">
-                      <Filter className="mr-2 h-4 w-4 text-muted-foreground" />
-                      <span>Pets: </span>
-                    </div>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Owners</SelectItem>
-                    <SelectItem value="with-pets">With Pets</SelectItem>
-                    <SelectItem value="no-pets">No Pets</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                {(searchQuery || filterHasPets !== "all") && (
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={clearFilters}
-                    title="Clear filters"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                )}
-                <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-2">
-                  <div className="relative flex-1 sm:w-[300px]">
+              {/* Filters and Search Section */}
+              <div className="flex flex-row justify-between items-center gap-4 flex-wrap md:flex-nowrap">
+                {/* Left side - Search and Filters */}
+                <div className="flex flex-wrap gap-2 items-center order-1 md:order-1 w-full md:w-auto">
+                  <div className="relative flex-1 min-w-0 md:w-[300px]">
                     <Input
                       ref={searchInputRef}
                       type="search"
@@ -632,7 +602,7 @@ export default function PetOwnersPage() {
                     </div>
                     {searchInputValue && (
                       <Button
-                        variant="outline"
+                        variant="ghost"
                         size="sm"
                         className="absolute right-1 top-1/2 -translate-y-1/2 h-7 px-2 text-xs font-medium"
                         onClick={handleClearSearch}
@@ -642,24 +612,45 @@ export default function PetOwnersPage() {
                       </Button>
                     )}
                   </div>
-                  <div className="flex gap-10">
-                    {/* <Button
+
+                  <Select
+                    value={filterHasPets}
+                    onValueChange={setFilterHasPets}
+                  >
+                    <SelectTrigger className="w-[150px]">
+                      <div className="flex items-center">
+                        <Filter className="mr-2 h-4 w-4 text-muted-foreground" />
+                        <span>Pets: </span>
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Owners</SelectItem>
+                      <SelectItem value="with-pets">With Pets</SelectItem>
+                      <SelectItem value="no-pets">No Pets</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  {(searchQuery || filterHasPets !== "all") && (
+                    <Button
                       variant="outline"
                       size="icon"
-                      onClick={refreshPetOwners}
-                      disabled={isRefreshing}
-                      title="Refresh data"
+                      onClick={clearFilters}
+                      title="Clear filters"
                     >
-                      <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
-                    </Button> */}
-                    <Button
-                      onClick={handleAddPetOwner}
-                      className="bg-green-600 hover:bg-green-700 text-white"
-                    >
-                      <UserPlus className="mr-2 h-4 w-4" />
-                      Add New Owner
+                      <X className="h-4 w-4" />
                     </Button>
-                  </div>
+                  )}
+                </div>
+
+                {/* Right side - Add New */}
+                <div className="flex justify-end order-2 md:order-2 w-full md:w-auto">
+                  <Button
+                    onClick={handleAddPetOwner}
+                    className="bg-green-600 hover:bg-green-700 text-white whitespace-nowrap"
+                  >
+                    <UserPlus className="mr-2 h-4 w-4" />
+                    Add New Owner
+                  </Button>
                 </div>
               </div>
 

@@ -7,7 +7,6 @@ import { motion } from "framer-motion";
 import {
   PawPrint,
   Search,
-  RefreshCw,
   Plus,
   Dog,
   Cat,
@@ -502,59 +501,11 @@ export default function PetsPage() {
           <CardContent>
             <div className="space-y-4">
               {/* Filters */}
-              <div className="flex flex-wrap gap-2">
-                <Select value={filterType} onValueChange={setFilterType}>
-                  <SelectTrigger className="w-[130px]">
-                    <div className="flex items-center">
-                      <Filter className="mr-2 h-4 w-4 text-muted-foreground" />
-                      <span>Type: </span>
-                    </div>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Types</SelectItem>
-                    <SelectItem value="Dog">
-                      <div className="flex items-center">
-                        <Dog className="mr-2 h-4 w-4 text-primary" />
-                        Dogs
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="Cat">
-                      <div className="flex items-center">
-                        <Cat className="mr-2 h-4 w-4 text-secondary" />
-                        Cats
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-
-                <Select value={filterStatus} onValueChange={setFilterStatus}>
-                  <SelectTrigger className="w-[150px]">
-                    <div className="flex items-center">
-                      <Filter className="mr-2 h-4 w-4 text-muted-foreground" />
-                      <span>Status: </span>
-                    </div>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Statuses</SelectItem>
-                    <SelectItem value="boarding">Currently Boarding</SelectItem>
-                    <SelectItem value="not-boarding">Not Boarding</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                {(searchQuery ||
-                  filterType !== "all" ||
-                  filterStatus !== "all") && (
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={clearFilters}
-                    title="Clear filters"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                )}
-                <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-2">
-                  <div className="relative flex-1 sm:w-[300px]">
+              {/* Filters and Search Section */}
+              <div className="flex flex-row justify-between items-center gap-4 flex-wrap md:flex-nowrap">
+                {/* Left side - Search and Filters */}
+                <div className="flex flex-wrap gap-2 items-center order-1 md:order-1 w-full md:w-auto">
+                  <div className="relative flex-1 min-w-0 md:w-[300px]">
                     <Input
                       ref={searchInputRef}
                       type="search"
@@ -572,7 +523,7 @@ export default function PetsPage() {
                     </div>
                     {searchInputValue && (
                       <Button
-                        variant="outline"
+                        variant="ghost"
                         size="sm"
                         className="absolute right-1 top-1/2 -translate-y-1/2 h-7 px-2 text-xs font-medium"
                         onClick={handleClearSearch}
@@ -582,24 +533,70 @@ export default function PetsPage() {
                       </Button>
                     )}
                   </div>
-                  <div className="flex gap-2 items-center">
-                    {/* <Button
+
+                  <Select value={filterType} onValueChange={setFilterType}>
+                    <SelectTrigger className="w-[130px]">
+                      <div className="flex items-center">
+                        <Filter className="mr-2 h-4 w-4 text-muted-foreground" />
+                        <span>Type: </span>
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Types</SelectItem>
+                      <SelectItem value="Dog">
+                        <div className="flex items-center">
+                          <Dog className="mr-2 h-4 w-4 text-primary" />
+                          Dogs
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="Cat">
+                        <div className="flex items-center">
+                          <Cat className="mr-2 h-4 w-4 text-secondary" />
+                          Cats
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  <Select value={filterStatus} onValueChange={setFilterStatus}>
+                    <SelectTrigger className="w-[150px]">
+                      <div className="flex items-center">
+                        <Filter className="mr-2 h-4 w-4 text-muted-foreground" />
+                        <span>Status: </span>
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Statuses</SelectItem>
+                      <SelectItem value="boarding">
+                        Currently Boarding
+                      </SelectItem>
+                      <SelectItem value="not-boarding">Not Boarding</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  {(searchQuery ||
+                    filterType !== "all" ||
+                    filterStatus !== "all") && (
+                    <Button
                       variant="outline"
                       size="icon"
-                      onClick={refreshPets}
-                      disabled={isRefreshing}
-                      title="Refresh data"
+                      onClick={clearFilters}
+                      title="Clear filters"
                     >
-                      <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
-                    </Button> */}
-                    <Button
-                      onClick={() => setIsAddDialogOpen(true)}
-                      className="bg-green-600 hover:bg-green-700 text-white"
-                    >
-                      <Plus className="mr-2 h-4 w-4" />
-                      Add New Pet
+                      <X className="h-4 w-4" />
                     </Button>
-                  </div>
+                  )}
+                </div>
+
+                {/* Right side - Add New */}
+                <div className="flex justify-end order-2 md:order-2 w-full md:w-auto">
+                  <Button
+                    onClick={() => setIsAddDialogOpen(true)}
+                    className="bg-green-600 hover:bg-green-700 text-white whitespace-nowrap"
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add New Pet
+                  </Button>
                 </div>
               </div>
 

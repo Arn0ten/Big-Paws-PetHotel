@@ -17,40 +17,41 @@ import {
 } from "./utils/helpers";
 import { SuccessDialog } from "./components/success-dialog";
 import { Input } from "@/components/ui/input";
-import { Loader2, RefreshCw, Search } from "lucide-react";
+import { Loader2, Search, Filter, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PaginationControls } from "@/app/webapp/admin/components/pagination-controls";
 import { ActionConfirmationDialog } from "@/components/ui/action-confirmation-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from "@/components/ui/select";
 
-// In the FilterBar component props
+// Find the FilterBar component and update it:
+
+// Update the FilterBar component props
 interface FilterBarProps {
   onSearch: (term: string) => void;
   onFilterBoardingStatus: (status: string) => void;
   onFilterPaymentStatus: (status: string) => void;
-  onRefresh: () => void;
   isLoading?: boolean;
-  isRefreshing?: boolean;
   isSearching?: boolean;
+  boardingStatusFilter: string;
+  paymentStatusFilter: string;
 }
 
-// Add isSearching to the props destructuring
+// Update the FilterBar component implementation
 export function FilterBar({
   onSearch,
   onFilterBoardingStatus,
   onFilterPaymentStatus,
-  onRefresh,
   isLoading = false,
-  isRefreshing = false,
   isSearching = false,
+  boardingStatusFilter,
+  paymentStatusFilter,
 }: FilterBarProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -81,13 +82,44 @@ export function FilterBar({
     };
   }, []);
 
-  // Remove the handleSearchKeyDown function as it's no longer needed
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    onSearch("");
+    if (searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  };
 
-  // Update the search input implementation
+  const clearFilters = () => {
+    setSearchTerm("");
+    onSearch("");
+    onFilterBoardingStatus("all");
+    onFilterPaymentStatus("all");
+    if (searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex-1 flex gap-2">
+          <Skeleton className="h-10 flex-1" />
+          <Skeleton className="h-10 w-10" />
+        </div>
+        <div className="flex gap-2">
+          <Skeleton className="h-10 w-[150px]" />
+          <Skeleton className="h-10 w-[150px]" />
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col sm:flex-row gap-4">
-      <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-2">
-        <div className="relative flex-1 sm:w-[300px]">
+    <div className="flex flex-row justify-between items-center gap-4 flex-wrap md:flex-nowrap">
+      {/* Left side - Search and Filters */}
+      <div className="flex flex-wrap gap-2 items-center order-1 md:order-1 w-full md:w-auto">
+        <div className="relative flex-1 min-w-0 md:w-[300px]">
           <Input
             placeholder="Search by pet or owner name..."
             className="pl-8"
@@ -107,37 +139,57 @@ export function FilterBar({
               variant="ghost"
               size="sm"
               className="absolute right-1 top-1/2 -translate-y-1/2 h-7 px-2 text-xs font-medium"
-              onClick={() => {
-                setSearchTerm("");
-                onSearch("");
-                if (searchInputRef.current) {
-                  searchInputRef.current.focus();
-                }
-              }}
+              onClick={handleClearSearch}
               aria-label="Clear search"
             >
               Clear
             </Button>
           )}
         </div>
-        {/* <Button
-          variant="outline"
-          size="icon"
-          onClick={() => {
-            onRefresh();
-            setSearchTerm("");
-          }}
-          disabled={isRefreshing}
-          className="h-10 w-10 flex-shrink-0"
-          title="Refresh data"
-        >
-          <RefreshCw
-            className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
-          />
-          <span className="sr-only">Refresh</span>
-        </Button> */}
+
+        <Select onValueChange={onFilterBoardingStatus} defaultValue="all">
+          <SelectTrigger className="w-[180px]">
+            <div className="flex items-center">
+              <Filter className="mr-2 h-4 w-4 text-muted-foreground" />
+              <span>Boarding Status</span>
+            </div>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Statuses</SelectItem>
+            <SelectItem value="Boarding">Boarding</SelectItem>
+            <SelectItem value="Done Boarding">Done Boarding</SelectItem>
+            <SelectItem value="Released">Released</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select onValueChange={onFilterPaymentStatus} defaultValue="all">
+          <SelectTrigger className="w-[180px]">
+            <div className="flex items-center">
+              <Filter className="mr-2 h-4 w-4 text-muted-foreground" />
+              <span>Payment Status</span>
+            </div>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Payments</SelectItem>
+            <SelectItem value="Paid">Paid</SelectItem>
+            <SelectItem value="Not Paid">Not Paid</SelectItem>
+            <SelectItem value="Pending">Pending</SelectItem>
+          </SelectContent>
+        </Select>
+
+        {(searchTerm ||
+          boardingStatusFilter !== "all" ||
+          paymentStatusFilter !== "all") && (
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={clearFilters}
+            title="Clear filters"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        )}
       </div>
-      {/* Rest of the component remains the same */}
     </div>
   );
 }
@@ -166,8 +218,8 @@ export default function BoardingManagementPage() {
 
   // Filter states
   const [searchTerm, setSearchTerm] = useState("");
-  const [boardingStatusFilter, setBoardingStatusFilter] = useState("");
-  const [paymentStatusFilter, setPaymentStatusFilter] = useState("");
+  const [boardingStatusFilter, setBoardingStatusFilter] = useState("all");
+  const [paymentStatusFilter, setPaymentStatusFilter] = useState("all");
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10; // Standardized to 10 items per page
@@ -409,10 +461,10 @@ export default function BoardingManagementPage() {
         onSearch={handleSearch}
         onFilterBoardingStatus={handleFilterBoardingStatus}
         onFilterPaymentStatus={handleFilterPaymentStatus}
-        onRefresh={handleRefresh}
         isLoading={isLoading}
-        isRefreshing={isRefreshing}
         isSearching={isSearching}
+        boardingStatusFilter={boardingStatusFilter}
+        paymentStatusFilter={paymentStatusFilter}
       />
 
       <div className="overflow-x-auto pb-2">

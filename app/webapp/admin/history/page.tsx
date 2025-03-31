@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -64,7 +64,6 @@ import {
   Image,
   Loader2,
   MoreHorizontal,
-  RefreshCw,
   Search,
   Trash2,
   User,
@@ -77,6 +76,7 @@ import {
   ChevronRight,
   Dog,
   Cat,
+  X,
 } from "lucide-react";
 import { formatCurrency, formatDate } from "./utils/helpers";
 import { HistoryTableSkeleton } from "./components/history-table-skeleton";
@@ -260,6 +260,9 @@ export default function HistoryPage() {
   // Add after the other state declarations in the HistoryPage component
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10; // Standardized to 10 items per page
+  // Add isSearching state and searchTimeoutRef
+  const [isSearching, setIsSearching] = useState(false);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const { toast } = useToast();
   const isMobile = useMediaQuery("(max-width: 640px)");
@@ -655,6 +658,14 @@ export default function HistoryPage() {
     );
   };
 
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, []);
+
   return (
     <div className="space-y-6">
       <div>
@@ -685,15 +696,96 @@ export default function HistoryPage() {
         {/* Activity Log Tab */}
         <TabsContent value="activity" className="space-y-4">
           {/* Filters */}
-          <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-            <div className="w-full flex flex-col sm:flex-row gap-3">
-              <div className="relative flex-1 min-w-0">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <div className="flex flex-row justify-between items-center gap-4 flex-wrap md:flex-nowrap">
+            {/* Left side - Search and Filters */}
+            <div className="flex flex-wrap gap-2 items-center order-1 md:order-1 w-full md:w-auto">
+              <div className="relative flex-1 min-w-0 md:w-[300px]">
+                <div className="absolute left-3 top-1/2 -translate-y-1/2">
+                  {isSearching ? (
+                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                  ) : (
+                    <Search className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </div>
                 <Input
                   placeholder="Search by pet, owner, or description..."
                   className="pl-9 h-10"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => {
+                    const query = e.target.value;
+                    setSearchQuery(query);
+                    setIsSearching(true);
+
+                    // Clear any existing timeout
+                    if (searchTimeoutRef.current) {
+                      clearTimeout(searchTimeoutRef.current);
+                    }
+
+                    // Set a new timeout for the search
+                    searchTimeoutRef.current = setTimeout(() => {
+                      // In a real implementation, you would call your API here
+                      setIsLoading(true);
+
+                      // Simulate API call
+                      setTimeout(() => {
+                        // Apply filters
+                        if (activeTab === "activity") {
+                          let filtered = [...historyData];
+                          if (query) {
+                            const searchLower = query.toLowerCase();
+                            filtered = filtered.filter(
+                              (entry) =>
+                                (entry.description &&
+                                  entry.description
+                                    .toLowerCase()
+                                    .includes(searchLower)) ||
+                                (entry.petName &&
+                                  entry.petName
+                                    .toLowerCase()
+                                    .includes(searchLower)) ||
+                                (entry.ownerName &&
+                                  entry.ownerName
+                                    .toLowerCase()
+                                    .includes(searchLower)) ||
+                                (entry.performedBy &&
+                                  entry.performedBy
+                                    .toLowerCase()
+                                    .includes(searchLower)),
+                            );
+                          }
+                          setFilteredHistory(filtered);
+                        } else {
+                          let filtered = [...mediaData];
+                          if (query) {
+                            const searchLower = query.toLowerCase();
+                            filtered = filtered.filter(
+                              (entry) =>
+                                (entry.description &&
+                                  entry.description
+                                    .toLowerCase()
+                                    .includes(searchLower)) ||
+                                (entry.petName &&
+                                  entry.petName
+                                    .toLowerCase()
+                                    .includes(searchLower)) ||
+                                (entry.ownerName &&
+                                  entry.ownerName
+                                    .toLowerCase()
+                                    .includes(searchLower)) ||
+                                (entry.completedBy &&
+                                  entry.completedBy
+                                    .toLowerCase()
+                                    .includes(searchLower)),
+                            );
+                          }
+                          setFilteredMedia(filtered);
+                        }
+
+                        setIsLoading(false);
+                        setIsSearching(false);
+                      }, 800);
+                    }, 300);
+                  }}
                 />
                 {searchQuery && (
                   <Button
@@ -702,6 +794,19 @@ export default function HistoryPage() {
                     className="absolute right-1 top-1/2 -translate-y-1/2 h-7 px-2 text-xs font-medium"
                     onClick={() => {
                       setSearchQuery("");
+                      setIsSearching(true);
+                      setIsLoading(true);
+
+                      // Simulate clearing search
+                      setTimeout(() => {
+                        if (activeTab === "activity") {
+                          setFilteredHistory(historyData);
+                        } else {
+                          setFilteredMedia(mediaData);
+                        }
+                        setIsLoading(false);
+                        setIsSearching(false);
+                      }, 300);
                     }}
                     aria-label="Clear search"
                   >
@@ -710,100 +815,100 @@ export default function HistoryPage() {
                 )}
               </div>
 
-              <div className="flex flex-wrap gap-2 sm:flex-nowrap">
-                <Select value={moduleFilter} onValueChange={setModuleFilter}>
-                  <SelectTrigger className="w-full sm:w-[140px] h-10">
-                    <div className="flex items-center gap-1.5 text-sm">
-                      <Filter className="h-3.5 w-3.5" />
-                      <span className="truncate">
-                        {moduleFilter === "all"
-                          ? "All Modules"
-                          : getModuleLabel(moduleFilter)}
-                      </span>
-                    </div>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Modules</SelectItem>
-                    <SelectItem value="pet-owner">
-                      Pet Owner Management
-                    </SelectItem>
-                    <SelectItem value="pet">Pet Management</SelectItem>
-                    <SelectItem value="boarding">
-                      Boarding Management
-                    </SelectItem>
-                    <SelectItem value="request">Requests</SelectItem>
-                    <SelectItem value="request-management">
-                      Request Management
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
+              <Select value={moduleFilter} onValueChange={setModuleFilter}>
+                <SelectTrigger className="w-[140px] h-10">
+                  <div className="flex items-center gap-1.5 text-sm">
+                    <Filter className="h-3.5 w-3.5" />
+                    <span className="truncate">
+                      {moduleFilter === "all"
+                        ? "All Modules"
+                        : getModuleLabel(moduleFilter)}
+                    </span>
+                  </div>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Modules</SelectItem>
+                  <SelectItem value="pet-owner">
+                    Pet Owner Management
+                  </SelectItem>
+                  <SelectItem value="pet">Pet Management</SelectItem>
+                  <SelectItem value="boarding">Boarding Management</SelectItem>
+                  <SelectItem value="request">Requests</SelectItem>
+                  <SelectItem value="request-management">
+                    Request Management
+                  </SelectItem>
+                </SelectContent>
+              </Select>
 
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-full sm:w-[140px] h-10">
-                    <div className="flex items-center gap-1.5 text-sm">
-                      <Filter className="h-3.5 w-3.5" />
-                      <span className="truncate">
-                        {statusFilter === "all" ? "All Status" : statusFilter}
-                      </span>
-                    </div>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="completed">Completed</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="active">Active</SelectItem>
-                  </SelectContent>
-                </Select>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-[140px] h-10">
+                  <div className="flex items-center gap-1.5 text-sm">
+                    <Filter className="h-3.5 w-3.5" />
+                    <span className="truncate">
+                      {statusFilter === "all" ? "All Status" : statusFilter}
+                    </span>
+                  </div>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="completed">Completed</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                </SelectContent>
+              </Select>
 
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full sm:w-[140px] h-10 justify-start text-left font-normal",
-                        !dateFilter && "text-muted-foreground",
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {dateFilter
-                        ? format(dateFilter, "PPP")
-                        : "Filter by date"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={dateFilter}
-                      onSelect={setDateFilter}
-                      initialFocus
-                    />
-                    {dateFilter && (
-                      <div className="p-3 border-t border-border">
-                        <Button
-                          variant="ghost"
-                          className="w-full"
-                          onClick={() => setDateFilter(undefined)}
-                        >
-                          Clear
-                        </Button>
-                      </div>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-[140px] h-10 justify-start text-left font-normal",
+                      !dateFilter && "text-muted-foreground",
                     )}
-                  </PopoverContent>
-                </Popover>
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dateFilter ? format(dateFilter, "PPP") : "Filter by date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={dateFilter}
+                    onSelect={setDateFilter}
+                    initialFocus
+                  />
+                  {dateFilter && (
+                    <div className="p-3 border-t border-border">
+                      <Button
+                        variant="ghost"
+                        className="w-full"
+                        onClick={() => setDateFilter(undefined)}
+                      >
+                        Clear
+                      </Button>
+                    </div>
+                  )}
+                </PopoverContent>
+              </Popover>
 
+              {(searchQuery ||
+                moduleFilter !== "all" ||
+                statusFilter !== "all" ||
+                dateFilter) && (
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={handleRefresh}
-                  disabled={isLoading}
-                  className="h-10 w-10 flex-shrink-0"
-                  title="Refresh data"
+                  onClick={() => {
+                    setSearchQuery("");
+                    setModuleFilter("all");
+                    setStatusFilter("all");
+                    setDateFilter(undefined);
+                  }}
+                  title="Clear filters"
                 >
-                  <RefreshCw
-                    className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
-                  />
+                  <X className="h-4 w-4" />
                 </Button>
-              </div>
+              )}
             </div>
           </div>
 
@@ -917,15 +1022,96 @@ export default function HistoryPage() {
         {/* Media Archive Tab */}
         <TabsContent value="media" className="space-y-4">
           {/* Filters */}
-          <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-            <div className="w-full flex flex-col sm:flex-row gap-3">
-              <div className="relative flex-1 min-w-0">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <div className="flex flex-row justify-between items-center gap-4 flex-wrap md:flex-nowrap">
+            {/* Left side - Search and Filters */}
+            <div className="flex flex-wrap gap-2 items-center order-1 md:order-1 w-full md:w-auto">
+              <div className="relative flex-1 min-w-0 md:w-[300px]">
+                <div className="absolute left-3 top-1/2 -translate-y-1/2">
+                  {isSearching ? (
+                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                  ) : (
+                    <Search className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </div>
                 <Input
                   placeholder="Search by pet, owner, or description..."
                   className="pl-9 h-10"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => {
+                    const query = e.target.value;
+                    setSearchQuery(query);
+                    setIsSearching(true);
+
+                    // Clear any existing timeout
+                    if (searchTimeoutRef.current) {
+                      clearTimeout(searchTimeoutRef.current);
+                    }
+
+                    // Set a new timeout for the search
+                    searchTimeoutRef.current = setTimeout(() => {
+                      // In a real implementation, you would call your API here
+                      setIsLoading(true);
+
+                      // Simulate API call
+                      setTimeout(() => {
+                        // Apply filters
+                        if (activeTab === "activity") {
+                          let filtered = [...historyData];
+                          if (query) {
+                            const searchLower = query.toLowerCase();
+                            filtered = filtered.filter(
+                              (entry) =>
+                                (entry.description &&
+                                  entry.description
+                                    .toLowerCase()
+                                    .includes(searchLower)) ||
+                                (entry.petName &&
+                                  entry.petName
+                                    .toLowerCase()
+                                    .includes(searchLower)) ||
+                                (entry.ownerName &&
+                                  entry.ownerName
+                                    .toLowerCase()
+                                    .includes(searchLower)) ||
+                                (entry.performedBy &&
+                                  entry.performedBy
+                                    .toLowerCase()
+                                    .includes(searchLower)),
+                            );
+                          }
+                          setFilteredHistory(filtered);
+                        } else {
+                          let filtered = [...mediaData];
+                          if (query) {
+                            const searchLower = query.toLowerCase();
+                            filtered = filtered.filter(
+                              (entry) =>
+                                (entry.description &&
+                                  entry.description
+                                    .toLowerCase()
+                                    .includes(searchLower)) ||
+                                (entry.petName &&
+                                  entry.petName
+                                    .toLowerCase()
+                                    .includes(searchLower)) ||
+                                (entry.ownerName &&
+                                  entry.ownerName
+                                    .toLowerCase()
+                                    .includes(searchLower)) ||
+                                (entry.completedBy &&
+                                  entry.completedBy
+                                    .toLowerCase()
+                                    .includes(searchLower)),
+                            );
+                          }
+                          setFilteredMedia(filtered);
+                        }
+
+                        setIsLoading(false);
+                        setIsSearching(false);
+                      }, 800);
+                    }, 300);
+                  }}
                 />
                 {searchQuery && (
                   <Button
@@ -934,6 +1120,19 @@ export default function HistoryPage() {
                     className="absolute right-1 top-1/2 -translate-y-1/2 h-7 px-2 text-xs font-medium"
                     onClick={() => {
                       setSearchQuery("");
+                      setIsSearching(true);
+                      setIsLoading(true);
+
+                      // Simulate clearing search
+                      setTimeout(() => {
+                        if (activeTab === "activity") {
+                          setFilteredHistory(historyData);
+                        } else {
+                          setFilteredMedia(mediaData);
+                        }
+                        setIsLoading(false);
+                        setIsSearching(false);
+                      }, 300);
                     }}
                     aria-label="Clear search"
                   >
@@ -942,104 +1141,109 @@ export default function HistoryPage() {
                 )}
               </div>
 
-              <div className="flex flex-wrap gap-2 sm:flex-nowrap">
-                <Select
-                  value={mediaTypeFilter}
-                  onValueChange={setMediaTypeFilter}
-                >
-                  <SelectTrigger className="w-full sm:w-[140px] h-10">
-                    <div className="flex items-center gap-1.5 text-sm">
-                      <Filter className="h-3.5 w-3.5" />
-                      <span className="truncate">
-                        {mediaTypeFilter === "all"
-                          ? "All Media"
-                          : mediaTypeFilter === "photo"
-                            ? "Photos"
-                            : "Videos"}
-                      </span>
-                    </div>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Media</SelectItem>
-                    <SelectItem value="photo">Photos</SelectItem>
-                    <SelectItem value="video">Videos</SelectItem>
-                  </SelectContent>
-                </Select>
+              <Select
+                value={mediaTypeFilter}
+                onValueChange={setMediaTypeFilter}
+              >
+                <SelectTrigger className="w-[140px] h-10">
+                  <div className="flex items-center gap-1.5 text-sm">
+                    <Filter className="h-3.5 w-3.5" />
+                    <span className="truncate">
+                      {mediaTypeFilter === "all"
+                        ? "All Media"
+                        : mediaTypeFilter === "photo"
+                          ? "Photos"
+                          : "Videos"}
+                    </span>
+                  </div>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Media</SelectItem>
+                  <SelectItem value="photo">Photos</SelectItem>
+                  <SelectItem value="video">Videos</SelectItem>
+                </SelectContent>
+              </Select>
 
-                <Select
-                  value={petOwnerFilter}
-                  onValueChange={setPetOwnerFilter}
-                >
-                  <SelectTrigger className="w-full sm:w-[140px] h-10">
-                    <div className="flex items-center gap-1.5 text-sm">
-                      <Filter className="h-3.5 w-3.5" />
-                      <span className="truncate">
-                        {petOwnerFilter === "all"
-                          ? "All Owners"
-                          : petOwnerFilter}
-                      </span>
-                    </div>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Owners</SelectItem>
-                    {uniquePetOwners.map((owner) => (
-                      <SelectItem key={owner} value={owner}>
-                        {owner}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <Select value={petOwnerFilter} onValueChange={setPetOwnerFilter}>
+                <SelectTrigger className="w-[140px] h-10">
+                  <div className="flex items-center gap-1.5 text-sm">
+                    <Filter className="h-3.5 w-3.5" />
+                    <span className="truncate">
+                      {petOwnerFilter === "all" ? "All Owners" : petOwnerFilter}
+                    </span>
+                  </div>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Owners</SelectItem>
+                  {uniquePetOwners.map((owner) => (
+                    <SelectItem key={owner} value={owner}>
+                      {owner}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full sm:w-[140px] h-10 justify-start text-left font-normal",
-                        !dateFilter && "text-muted-foreground",
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {dateFilter
-                        ? format(dateFilter, "PPP")
-                        : "Filter by date"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={dateFilter}
-                      onSelect={setDateFilter}
-                      initialFocus
-                    />
-                    {dateFilter && (
-                      <div className="p-3 border-t border-border">
-                        <Button
-                          variant="ghost"
-                          className="w-full"
-                          onClick={() => setDateFilter(undefined)}
-                        >
-                          Clear
-                        </Button>
-                      </div>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-[140px] h-10 justify-start text-left font-normal",
+                      !dateFilter && "text-muted-foreground",
                     )}
-                  </PopoverContent>
-                </Popover>
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dateFilter ? format(dateFilter, "PPP") : "Filter by date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={dateFilter}
+                    onSelect={setDateFilter}
+                    initialFocus
+                  />
+                  {dateFilter && (
+                    <div className="p-3 border-t border-border">
+                      <Button
+                        variant="ghost"
+                        className="w-full"
+                        onClick={() => setDateFilter(undefined)}
+                      >
+                        Clear
+                      </Button>
+                    </div>
+                  )}
+                </PopoverContent>
+              </Popover>
 
+              {(searchQuery ||
+                mediaTypeFilter !== "all" ||
+                petOwnerFilter !== "all" ||
+                dateFilter) && (
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={handleRefresh}
-                  disabled={isLoading}
-                  className="h-10 w-10 flex-shrink-0"
-                  title="Refresh data"
+                  onClick={() => {
+                    setSearchQuery("");
+                    setMediaTypeFilter("all");
+                    setPetOwnerFilter("all");
+                    setDateFilter(undefined);
+                  }}
+                  title="Clear filters"
                 >
-                  <RefreshCw
-                    className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
-                  />
+                  <X className="h-4 w-4" />
                 </Button>
-              </div>
+              )}
             </div>
+
+            {/* Right side - Actions (if needed) */}
+            {/* <div className="flex justify-end order-2 md:order-2 w-full md:w-auto">
+              <Button variant="outline" onClick={handleRefresh} className="whitespace-nowrap">
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Refresh
+              </Button>
+            </div> */}
           </div>
 
           {/* Media Gallery */}

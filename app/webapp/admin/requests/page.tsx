@@ -26,7 +26,6 @@ import {
   Filter,
   Loader2,
   AlertCircle,
-  RefreshCw,
   Calendar,
   ArrowUpDown,
   X,
@@ -153,6 +152,24 @@ export default function RequestsPage() {
   const [successType, setSuccessType] = useState("");
   const [showApproveConfirmDialog, setShowApproveConfirmDialog] =
     useState(false);
+
+  // Update the search functionality to trigger refresh before displaying results
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    setIsLoading(true);
+    setIsSearching(true);
+
+    // Simulate refreshing data with the search query
+    setTimeout(() => {
+      // In a real implementation, you would call your API here
+      // For example: fetchRequests(query)
+
+      // For the mock implementation, we're just refreshing the existing data
+      resetRequests();
+      setIsLoading(false);
+      setIsSearching(false);
+    }, 800);
+  };
 
   const handleApproveRequest = (request: any) => {
     setSelectedRequest(request);
@@ -354,14 +371,11 @@ export default function RequestsPage() {
       </motion.div>
 
       {/* Enhanced Search, Filter, and Refresh Section */}
-      <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between mb-6">
-        <div className="w-full flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1 min-w-0">
-            {isSearching ? (
-              <Loader2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground animate-spin" />
-            ) : (
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            )}
+      <div className="flex flex-row items-center gap-4 flex-wrap md:flex-nowrap mb-6">
+        {/* Left side - Search and Filters */}
+        <div className="flex flex-wrap gap-2 items-center w-full">
+          {/* Standardize search bar position and size */}
+          <div className="relative flex-1 min-w-0 md:w-[300px]">
             <Input
               placeholder="Search by pet name, owner, or description..."
               className="pl-9 h-10"
@@ -378,10 +392,17 @@ export default function RequestsPage() {
 
                 // Set a new timeout for the search
                 searchTimeoutRef.current = setTimeout(() => {
-                  setIsSearching(false);
+                  handleSearch(query);
                 }, 300);
               }}
             />
+            <div className="absolute left-3 top-1/2 -translate-y-1/2">
+              {isSearching ? (
+                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+              ) : (
+                <Search className="h-4 w-4 text-muted-foreground" />
+              )}
+            </div>
             {searchQuery && (
               <Button
                 variant="ghost"
@@ -389,6 +410,7 @@ export default function RequestsPage() {
                 className="absolute right-1 top-1/2 -translate-y-1/2 h-7 px-2 text-xs font-medium"
                 onClick={() => {
                   setSearchQuery("");
+                  handleSearch("");
                   setIsSearching(false);
                 }}
                 aria-label="Clear search"
@@ -398,204 +420,230 @@ export default function RequestsPage() {
             )}
           </div>
 
-          <div className="flex flex-wrap gap-2 sm:flex-nowrap">
-            <Select value={filterType} onValueChange={setFilterType}>
-              <SelectTrigger className="w-full sm:w-[140px] h-10">
-                <div className="flex items-center gap-1.5 text-sm">
-                  <Filter className="h-3.5 w-3.5" />
-                  <span className="truncate">
-                    {filterType === "all"
-                      ? "All Types"
-                      : filterType === "photo"
-                        ? "Photos"
-                        : filterType === "video"
-                          ? "Videos"
-                          : filterType === "grooming"
-                            ? "Grooming"
-                            : filterType === "boarding-extension"
-                              ? "Extensions"
-                              : filterType === "custom"
-                                ? "Custom"
-                                : "Filter"}
-                  </span>
-                </div>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="photo">Photo Updates</SelectItem>
-                <SelectItem value="video">Video Requests</SelectItem>
-                <SelectItem value="grooming">Grooming</SelectItem>
-                <SelectItem value="boarding-extension">
-                  Boarding Extensions
-                </SelectItem>
-                <SelectItem value="custom">Custom Requests</SelectItem>
-              </SelectContent>
-            </Select>
+          <Select value={filterType} onValueChange={setFilterType}>
+            <SelectTrigger className="w-[140px] h-10">
+              <div className="flex items-center gap-1.5 text-sm">
+                <Filter className="h-3.5 w-3.5" />
+                <span className="truncate">
+                  {filterType === "all"
+                    ? "All Types"
+                    : filterType === "photo"
+                      ? "Photos"
+                      : filterType === "video"
+                        ? "Videos"
+                        : filterType === "grooming"
+                          ? "Grooming"
+                          : filterType === "boarding-extension"
+                            ? "Extensions"
+                            : filterType === "custom"
+                              ? "Custom"
+                              : "Filter"}
+                </span>
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Types</SelectItem>
+              <SelectItem value="photo">Photo Updates</SelectItem>
+              <SelectItem value="video">Video Requests</SelectItem>
+              <SelectItem value="grooming">Grooming</SelectItem>
+              <SelectItem value="boarding-extension">
+                Boarding Extensions
+              </SelectItem>
+              <SelectItem value="custom">Custom Requests</SelectItem>
+            </SelectContent>
+          </Select>
 
-            <Button
-              variant="outline"
-              className="flex items-center gap-1.5 h-10 px-3"
-              onClick={toggleSortOrder}
-              title={sortOrder === "desc" ? "Newest first" : "Oldest first"}
-            >
-              <Calendar className="h-3.5 w-3.5" />
-              <ArrowUpDown className="h-3 w-3" />
-              <span className="sr-only md:not-sr-only md:inline-block md:ml-1 text-xs">
-                {sortOrder === "desc" ? "Newest" : "Oldest"}
-              </span>
-            </Button>
+          <Button
+            variant="outline"
+            className="flex items-center gap-1.5 h-10 px-3"
+            onClick={toggleSortOrder}
+            title={sortOrder === "desc" ? "Newest first" : "Oldest first"}
+          >
+            <Calendar className="h-3.5 w-3.5" />
+            <ArrowUpDown className="h-3 w-3" />
+            <span className="sr-only md:not-sr-only md:inline-block md:ml-1 text-xs">
+              {sortOrder === "desc" ? "Newest" : "Oldest"}
+            </span>
+          </Button>
 
+          {(searchQuery || filterType !== "all") && (
             <Button
               variant="outline"
               size="icon"
-              onClick={handleRefresh}
-              disabled={isLoading}
-              className="h-10 w-10 flex-shrink-0"
-              title="Refresh data"
+              onClick={() => {
+                setSearchQuery("");
+                setFilterType("all");
+                setIsSearching(false);
+              }}
+              title="Clear filters"
             >
-              <RefreshCw
-                className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
-              />
+              <X className="h-4 w-4" />
             </Button>
-          </div>
+          )}
         </div>
       </div>
 
       {/* Enhanced Tab Interface */}
       <div className="bg-card rounded-lg shadow-sm border">
-        <Tabs
-          defaultValue="new"
-          className="w-full"
-          onValueChange={setActiveTab}
-        >
+        {isLoading || isSearching ? (
           <div className="px-4 pt-4">
-            <TabsList className="w-full grid grid-cols-2 h-14 p-1 bg-muted/30 dark:bg-muted/20 rounded-lg overflow-x-auto scrollbar-hide">
-              <TabsTrigger
-                value="new"
-                className={`flex items-center justify-center gap-2 rounded-md transition-all h-12 text-base ${
-                  activeTab === "new"
-                    ? "bg-background shadow-sm font-medium text-primary"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <FileText className="h-5 w-5" />
-                <span className="hidden sm:inline">New Requests</span>
-                <span className="sm:hidden">New</span>
-                <Badge
-                  variant={activeTab === "new" ? "default" : "secondary"}
-                  className="ml-1 text-xs px-2 py-0 h-5"
+            <Tabs defaultValue="new" className="w-full">
+              <TabsList className="w-full grid grid-cols-2 h-14 p-1 bg-muted/30 dark:bg-muted/20 rounded-lg overflow-x-auto scrollbar-hide">
+                <TabsTrigger
+                  value="new"
+                  className="flex items-center justify-center gap-2 rounded-md transition-all h-12 text-base"
                 >
-                  {requests.filter((r) => r.status === "new").length}
-                </Badge>
-                {/* Show indicator for reconsidered requests */}
-                {requests.some(
-                  (r) => r.status === "new" && r.isReconsidered,
-                ) && (
-                  <Badge
-                    variant="outline"
-                    className="ml-1 bg-amber-100 text-amber-700 border-amber-200 text-xs px-2 py-0 h-5"
-                  >
-                    <RotateCcw className="h-3 w-3 mr-1" />
-                    {
-                      requests.filter(
-                        (r) => r.status === "new" && r.isReconsidered,
-                      ).length
-                    }
-                  </Badge>
-                )}
-              </TabsTrigger>
-              <TabsTrigger
-                value="rejected"
-                className={`flex items-center justify-center gap-2 rounded-md transition-all h-12 text-base ${
-                  activeTab === "rejected"
-                    ? "bg-background shadow-sm font-medium text-primary"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <X className="h-5 w-5" />
-                <span className="hidden sm:inline">Rejected Requests</span>
-                <span className="sm:hidden">Rejected</span>
-                <Badge
-                  variant={activeTab === "rejected" ? "default" : "secondary"}
-                  className="ml-1 text-xs px-2 py-0 h-5"
+                  <FileText className="h-5 w-5" />
+                  <span className="hidden sm:inline">New Requests</span>
+                  <span className="sm:hidden">New</span>
+                  <Skeleton className="h-5 w-8 rounded-full" />
+                </TabsTrigger>
+                <TabsTrigger
+                  value="rejected"
+                  className="flex items-center justify-center gap-2 rounded-md transition-all h-12 text-base"
                 >
-                  {requests.filter((r) => r.status === "rejected").length}
-                </Badge>
-              </TabsTrigger>
-            </TabsList>
+                  <X className="h-5 w-5" />
+                  <span className="hidden sm:inline">Rejected Requests</span>
+                  <span className="sm:hidden">Rejected</span>
+                  <Skeleton className="h-5 w-8 rounded-full" />
+                </TabsTrigger>
+              </TabsList>
+              <div className="p-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {Array(6)
+                    .fill(0)
+                    .map((_, index) => (
+                      <RequestCardSkeleton key={index} />
+                    ))}
+                </div>
+              </div>
+            </Tabs>
           </div>
-
-          <TabsContent value="new" className="p-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 min-h-[600px]">
-              {isLoading ? (
-                // Skeleton loading for cards
-                Array.from({ length: 6 }).map((_, index) => (
-                  <RequestCardSkeleton key={index} />
-                ))
-              ) : filteredAndSortedRequests.length === 0 ? (
-                <div className="col-span-full">
-                  <EmptyState message="No new requests found" />
-                </div>
-              ) : (
-                <>
-                  <AnimatePresence>
-                    {filteredAndSortedRequests.map((request) => (
-                      <NewRequestCard
-                        key={request.id}
-                        request={request}
-                        onApprove={() => handleApproveRequest(request)}
-                        onReject={() => {
-                          setSelectedRequest(request);
-                          setRejectionReason("");
-                          setShowRejectDialog(true);
-                        }}
-                        onViewDetails={() => {
-                          setSelectedRequest(request);
-                          setShowDetailsDialog(true);
-                        }}
-                      />
-                    ))}
-                  </AnimatePresence>
-                </>
-              )}
+        ) : (
+          <Tabs
+            defaultValue="new"
+            className="w-full"
+            onValueChange={setActiveTab}
+          >
+            <div className="px-4 pt-4">
+              <TabsList className="w-full grid grid-cols-2 h-14 p-1 bg-muted/30 dark:bg-muted/20 rounded-lg overflow-x-auto scrollbar-hide">
+                <TabsTrigger
+                  value="new"
+                  className={`flex items-center justify-center gap-2 rounded-md transition-all h-12 text-base ${
+                    activeTab === "new"
+                      ? "bg-background shadow-sm font-medium text-primary"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <FileText className="h-5 w-5" />
+                  <span className="hidden sm:inline">New Requests</span>
+                  <span className="sm:hidden">New</span>
+                  <Badge
+                    variant={activeTab === "new" ? "default" : "secondary"}
+                    className="ml-1 text-xs px-2 py-0 h-5"
+                  >
+                    {requests.filter((r) => r.status === "new").length}
+                  </Badge>
+                  {/* Show indicator for reconsidered requests */}
+                  {requests.some(
+                    (r) => r.status === "new" && r.isReconsidered,
+                  ) && (
+                    <Badge
+                      variant="outline"
+                      className="ml-1 bg-amber-100 text-amber-700 border-amber-200 text-xs px-2 py-0 h-5"
+                    >
+                      <RotateCcw className="h-3 w-3 mr-1" />
+                      {
+                        requests.filter(
+                          (r) => r.status === "new" && r.isReconsidered,
+                        ).length
+                      }
+                    </Badge>
+                  )}
+                </TabsTrigger>
+                <TabsTrigger
+                  value="rejected"
+                  className={`flex items-center justify-center gap-2 rounded-md transition-all h-12 text-base ${
+                    activeTab === "rejected"
+                      ? "bg-background shadow-sm font-medium text-primary"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <X className="h-5 w-5" />
+                  <span className="hidden sm:inline">Rejected Requests</span>
+                  <span className="sm:hidden">Rejected</span>
+                  <Badge
+                    variant={activeTab === "rejected" ? "default" : "secondary"}
+                    className="ml-1 text-xs px-2 py-0 h-5"
+                  >
+                    {requests.filter((r) => r.status === "rejected").length}
+                  </Badge>
+                </TabsTrigger>
+              </TabsList>
             </div>
-          </TabsContent>
 
-          <TabsContent value="rejected" className="p-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 min-h-[600px]">
-              {isLoading ? (
-                // Skeleton loading for cards
-                Array.from({ length: 6 }).map((_, index) => (
-                  <RequestCardSkeleton key={index} />
-                ))
-              ) : filteredAndSortedRequests.length === 0 ? (
-                <div className="col-span-full">
-                  <EmptyState message="No rejected requests found" />
-                </div>
-              ) : (
-                <>
-                  <AnimatePresence>
-                    {filteredAndSortedRequests.map((request) => (
-                      <RejectedRequestCard
-                        key={request.id}
-                        request={request}
-                        onViewDetails={() => {
-                          setSelectedRequest(request);
-                          setShowDetailsDialog(true);
-                        }}
-                        onReconsider={() => {
-                          setSelectedRequest(request);
-                          setReconsiderationReason("");
-                          setShowReconsiderDialog(true);
-                        }}
-                      />
-                    ))}
-                  </AnimatePresence>
-                </>
-              )}
-            </div>
-          </TabsContent>
-        </Tabs>
+            <TabsContent value="new" className="p-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 min-h-[600px]">
+                {filteredAndSortedRequests.length === 0 ? (
+                  <div className="col-span-full">
+                    <EmptyState message="No new requests found" />
+                  </div>
+                ) : (
+                  <>
+                    <AnimatePresence>
+                      {filteredAndSortedRequests.map((request) => (
+                        <NewRequestCard
+                          key={request.id}
+                          request={request}
+                          onApprove={() => handleApproveRequest(request)}
+                          onReject={() => {
+                            setSelectedRequest(request);
+                            setRejectionReason("");
+                            setShowRejectDialog(true);
+                          }}
+                          onViewDetails={() => {
+                            setSelectedRequest(request);
+                            setShowDetailsDialog(true);
+                          }}
+                        />
+                      ))}
+                    </AnimatePresence>
+                  </>
+                )}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="rejected" className="p-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 min-h-[600px]">
+                {filteredAndSortedRequests.length === 0 ? (
+                  <div className="col-span-full">
+                    <EmptyState message="No rejected requests found" />
+                  </div>
+                ) : (
+                  <>
+                    <AnimatePresence>
+                      {filteredAndSortedRequests.map((request) => (
+                        <RejectedRequestCard
+                          key={request.id}
+                          request={request}
+                          onViewDetails={() => {
+                            setSelectedRequest(request);
+                            setShowDetailsDialog(true);
+                          }}
+                          onReconsider={() => {
+                            setSelectedRequest(request);
+                            setReconsiderationReason("");
+                            setShowReconsiderDialog(true);
+                          }}
+                        />
+                      ))}
+                    </AnimatePresence>
+                  </>
+                )}
+              </div>
+            </TabsContent>
+          </Tabs>
+        )}
       </div>
 
       {/* Request Details Dialog */}
