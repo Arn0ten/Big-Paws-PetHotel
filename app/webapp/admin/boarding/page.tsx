@@ -86,8 +86,8 @@ export function FilterBar({
   // Update the search input implementation
   return (
     <div className="flex flex-col sm:flex-row gap-4">
-      <div className="relative flex-1 flex gap-2">
-        <div className="relative flex-1">
+      <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-2">
+        <div className="relative flex-1 sm:w-[300px]">
           <Input
             placeholder="Search by pet or owner name..."
             className="pl-8"
@@ -120,7 +120,7 @@ export function FilterBar({
             </Button>
           )}
         </div>
-        <Button
+        {/* <Button
           variant="outline"
           size="icon"
           onClick={() => {
@@ -135,7 +135,7 @@ export function FilterBar({
             className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
           />
           <span className="sr-only">Refresh</span>
-        </Button>
+        </Button> */}
       </div>
       {/* Rest of the component remains the same */}
     </div>

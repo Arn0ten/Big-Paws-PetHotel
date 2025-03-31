@@ -1,28 +1,59 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect, useCallback, useRef } from "react"
-import { motion } from "framer-motion"
-import { PawPrint, Search, RefreshCw, Plus, Dog, Cat, Filter, X, Loader2 } from "lucide-react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
-import { useToast } from "@/hooks/use-toast"
-import { PetsTable } from "./components/pets-table"
-import { AddPetDialog, EditPetDialog } from "./components/dialogs"
-import { ConfirmationDialog, SuccessDialog } from "./components/confirmation-dialog"
-import { usePets, usePagination } from "./hooks"
-import { filterPets } from "./utils/helpers"
-import type { Pet } from "./utils/types"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { PaginationControls } from "@/app/webapp/admin/components/pagination-controls"
-import { PetDetailsDialog } from "./components/pet-details-dialog"
+import { useState, useEffect, useCallback, useRef } from "react";
+import { motion } from "framer-motion";
+import {
+  PawPrint,
+  Search,
+  RefreshCw,
+  Plus,
+  Dog,
+  Cat,
+  Filter,
+  X,
+  Loader2,
+} from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { PetsTable } from "./components/pets-table";
+import { AddPetDialog, EditPetDialog } from "./components/dialogs";
+import {
+  ConfirmationDialog,
+  SuccessDialog,
+} from "./components/confirmation-dialog";
+import { usePets, usePagination } from "./hooks";
+import { filterPets } from "./utils/helpers";
+import type { Pet } from "./utils/types";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { PaginationControls } from "@/app/webapp/admin/components/pagination-controls";
+import { PetDetailsDialog } from "./components/pet-details-dialog";
 // Import the unified board pet dialog
-import { UnifiedBoardPetDialog } from "@/app/webapp/admin/components/unified-board-pet-dialog"
+import { UnifiedBoardPetDialog } from "@/app/webapp/admin/components/unified-board-pet-dialog";
 
 /**
  * BACKEND INTEGRATION NOTES:
@@ -48,23 +79,23 @@ import { UnifiedBoardPetDialog } from "@/app/webapp/admin/components/unified-boa
  */
 
 export default function PetsPage() {
-  const { toast } = useToast()
+  const { toast } = useToast();
   // Search state
-  const [searchQuery, setSearchQuery] = useState("")
-  const [isSearching, setIsSearching] = useState(false)
-  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const [searchInputValue, setSearchInputValue] = useState("")
-  const [filterType, setFilterType] = useState<string>("all")
-  const [filterStatus, setFilterStatus] = useState<string>("all")
-  const [selectedPet, setSelectedPet] = useState<Pet | null>(null)
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const [isBoardDialogOpen, setIsBoardDialogOpen] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const searchInputRef = useRef<HTMLInputElement>(null)
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [searchInputValue, setSearchInputValue] = useState("");
+  const [filterType, setFilterType] = useState<string>("all");
+  const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isBoardDialogOpen, setIsBoardDialogOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   // Add state for the pet details dialog
-  const [showPetDetailsDialog, setShowPetDetailsDialog] = useState(false)
+  const [showPetDetailsDialog, setShowPetDetailsDialog] = useState(false);
 
   // Confirmation dialog state
   const [confirmationDialog, setConfirmationDialog] = useState({
@@ -73,7 +104,7 @@ export default function PetsPage() {
     title: "",
     description: "",
     onConfirm: () => {},
-  })
+  });
 
   // Success dialog state
   const [successDialog, setSuccessDialog] = useState({
@@ -82,46 +113,69 @@ export default function PetsPage() {
     description: "",
     actionLabel: "",
     onAction: () => {},
-  })
+  });
 
   // BACKEND INTEGRATION: Replace this with actual API calls
   // Fetch pets data
-  const { pets, petOwners, isLoading, isRefreshing, refreshPets, addPet, updatePet, removePet, toggleBoardingStatus } =
-    usePets()
+  const {
+    pets,
+    petOwners,
+    isLoading,
+    isRefreshing,
+    refreshPets,
+    addPet,
+    updatePet,
+    removePet,
+    toggleBoardingStatus,
+  } = usePets();
 
   // Apply filters
   const filteredPets = filterPets(pets, {
     searchQuery,
     type: filterType !== "all" ? (filterType as "Dog" | "Cat") : undefined,
     status: filterStatus !== "all" ? filterStatus === "boarding" : undefined,
-  })
+  });
 
   // Pagination
-  const { currentPage, totalPages, goToPage, nextPage, prevPage, resetPage, startIndex, endIndex } = usePagination({
+  const {
+    currentPage,
+    totalPages,
+    goToPage,
+    nextPage,
+    prevPage,
+    resetPage,
+    startIndex,
+    endIndex,
+  } = usePagination({
     totalItems: filteredPets.length,
     itemsPerPage: 6, // Changed from 10 to 6 to match Pet Owner Management
-  })
+  });
 
   // Reset pagination when filters change
   useEffect(() => {
-    resetPage()
-  }, [searchQuery, filterType, filterStatus, resetPage])
+    resetPage();
+  }, [searchQuery, filterType, filterStatus, resetPage]);
 
   // Current page data
-  const currentPets = filteredPets.slice(startIndex, endIndex)
+  const currentPets = filteredPets.slice(startIndex, endIndex);
 
   // Handle pet selection for actions
   const handleSelectPet = useCallback((pet: Pet) => {
-    setSelectedPet(pet)
-  }, [])
+    setSelectedPet(pet);
+  }, []);
 
   // Show confirmation dialog
   const showConfirmation = useCallback(
-    (type: "delete" | "edit" | "board" | "endBoarding", title: string, description: string, onConfirm: () => void) => {
+    (
+      type: "delete" | "edit" | "board" | "endBoarding",
+      title: string,
+      description: string,
+      onConfirm: () => void,
+    ) => {
       // Close any open dialogs first
-      setShowPetDetailsDialog(false)
-      setIsEditDialogOpen(false)
-      setIsBoardDialogOpen(false)
+      setShowPetDetailsDialog(false);
+      setIsEditDialogOpen(false);
+      setIsBoardDialogOpen(false);
 
       setConfirmationDialog({
         isOpen: true,
@@ -129,66 +183,69 @@ export default function PetsPage() {
         title,
         description,
         onConfirm,
-      })
+      });
     },
     [],
-  )
+  );
 
   // Close confirmation dialog
   const closeConfirmation = useCallback(() => {
-    setConfirmationDialog((prev) => ({ ...prev, isOpen: false }))
-  }, [])
+    setConfirmationDialog((prev) => ({ ...prev, isOpen: false }));
+  }, []);
 
   // Handle search input change with debounce
-  const handleSearchInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    setSearchInputValue(value)
+  const handleSearchInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      setSearchInputValue(value);
 
-    // Clear any existing timeout
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current)
-    }
+      // Clear any existing timeout
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
 
-    // Set searching state immediately for UI feedback
-    if (value.length > 0) {
-      setIsSearching(true)
-    }
+      // Set searching state immediately for UI feedback
+      if (value.length > 0) {
+        setIsSearching(true);
+      }
 
-    // Debounce the actual search query update
-    searchTimeoutRef.current = setTimeout(() => {
-      setSearchQuery(value)
-      setIsSearching(false)
-    }, 300) // 300ms debounce
-  }, [])
+      // Debounce the actual search query update
+      searchTimeoutRef.current = setTimeout(() => {
+        setSearchQuery(value);
+        setIsSearching(false);
+      }, 300); // 300ms debounce
+    },
+    [],
+  );
 
   // Clear search input
   const handleClearSearch = useCallback(() => {
-    setSearchInputValue("")
-    setSearchQuery("")
+    setSearchInputValue("");
+    setSearchQuery("");
     if (searchInputRef.current) {
-      searchInputRef.current.focus()
+      searchInputRef.current.focus();
     }
-  }, [])
+  }, []);
 
   // Clean up timeout on unmount
   useEffect(() => {
     return () => {
       if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current)
+        clearTimeout(searchTimeoutRef.current);
       }
-    }
-  }, [])
+    };
+  }, []);
 
   // Handle add pet
   const handleAddPet = useCallback(
     async (petData: Partial<Pet>, ownerId: string) => {
-      setIsSubmitting(true)
+      setIsSubmitting(true);
       try {
         // BACKEND INTEGRATION: Replace with actual API call to add a pet
-        await addPet(petData, ownerId)
-        setIsAddDialogOpen(false)
+        await addPet(petData, ownerId);
+        setIsAddDialogOpen(false);
         // Refresh pets with loading effect
-        refreshPets()
+        refreshPets();
 
         // Show success dialog
         setSuccessDialog({
@@ -197,32 +254,32 @@ export default function PetsPage() {
           description: `${petData.name} has been added to the system.`,
           actionLabel: "",
           onAction: () => {},
-        })
+        });
       } catch (error) {
         toast({
           title: "Error",
           description: "Failed to add pet. Please try again.",
           variant: "destructive",
-        })
+        });
       } finally {
-        setIsSubmitting(false)
+        setIsSubmitting(false);
       }
     },
     [addPet, refreshPets, toast],
-  )
+  );
 
   // Handle edit pet
   const handleEditPet = useCallback(
     async (petData: Partial<Pet>) => {
-      if (!selectedPet) return
+      if (!selectedPet) return;
 
-      setIsSubmitting(true)
+      setIsSubmitting(true);
       try {
         // BACKEND INTEGRATION: Replace with actual API call to update a pet
-        await updatePet(selectedPet.id, petData)
-        setIsEditDialogOpen(false)
+        await updatePet(selectedPet.id, petData);
+        setIsEditDialogOpen(false);
         // Refresh pets with loading effect
-        refreshPets()
+        refreshPets();
 
         // Show success dialog
         setSuccessDialog({
@@ -231,31 +288,31 @@ export default function PetsPage() {
           description: `${petData.name || selectedPet.name} has been successfully updated.`,
           actionLabel: "",
           onAction: () => {},
-        })
+        });
       } catch (error) {
         toast({
           title: "Error",
           description: "Failed to update pet. Please try again.",
           variant: "destructive",
-        })
+        });
       } finally {
-        setIsSubmitting(false)
+        setIsSubmitting(false);
       }
     },
     [selectedPet, updatePet, refreshPets, toast],
-  )
+  );
 
   // Handle delete pet
   const handleDeletePet = useCallback(async () => {
-    if (!selectedPet) return
+    if (!selectedPet) return;
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
       // BACKEND INTEGRATION: Replace with actual API call to delete a pet
-      await removePet(selectedPet.id)
-      closeConfirmation()
+      await removePet(selectedPet.id);
+      closeConfirmation();
       // Refresh pets with loading effect
-      refreshPets()
+      refreshPets();
 
       // Show success dialog
       setSuccessDialog({
@@ -264,30 +321,30 @@ export default function PetsPage() {
         description: `${selectedPet.name} has been removed from the system.`,
         actionLabel: "",
         onAction: () => {},
-      })
+      });
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to delete pet. Please try again.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }, [selectedPet, removePet, refreshPets, toast, closeConfirmation])
+  }, [selectedPet, removePet, refreshPets, toast, closeConfirmation]);
 
   // Handle boarding status toggle
   const handleToggleBoardingStatus = useCallback(
     async (petId: string, boardingDetails?: any) => {
-      if (!selectedPet) return false
+      if (!selectedPet) return false;
 
-      setIsSubmitting(true)
+      setIsSubmitting(true);
       try {
         // BACKEND INTEGRATION: Replace with actual API call to toggle boarding status
-        await toggleBoardingStatus(petId, boardingDetails)
-        closeConfirmation()
+        await toggleBoardingStatus(petId, boardingDetails);
+        closeConfirmation();
         // Refresh pets with loading effect
-        refreshPets()
+        refreshPets();
 
         // Show success dialog
         setSuccessDialog({
@@ -298,98 +355,106 @@ export default function PetsPage() {
             : `${selectedPet.name} has been successfully boarded.`,
           actionLabel: "",
           onAction: () => {},
-        })
-        return true
+        });
+        return true;
       } catch (error) {
         toast({
           title: "Error",
           description: "Failed to update boarding status. Please try again.",
           variant: "destructive",
-        })
-        return false
+        });
+        return false;
       } finally {
-        setIsSubmitting(false)
+        setIsSubmitting(false);
       }
     },
     [selectedPet, toggleBoardingStatus, refreshPets, toast, closeConfirmation],
-  )
+  );
 
   // Clear filters
   const clearFilters = useCallback(() => {
-    setSearchQuery("")
-    setSearchInputValue("")
-    setFilterType("all")
-    setFilterStatus("all")
-  }, [])
+    setSearchQuery("");
+    setSearchInputValue("");
+    setFilterType("all");
+    setFilterStatus("all");
+  }, []);
 
   // Determine if we should show the skeleton loader
-  const showSkeletonLoader = isLoading || isRefreshing || isSearching
+  const showSkeletonLoader = isLoading || isRefreshing || isSearching;
 
   // Handle pet row click - show details dialog
   const handlePetRowClick = useCallback((pet: Pet) => {
     // Close any other open dialogs first
-    setConfirmationDialog((prev) => ({ ...prev, isOpen: false }))
-    setIsEditDialogOpen(false)
-    setIsBoardDialogOpen(false)
+    setConfirmationDialog((prev) => ({ ...prev, isOpen: false }));
+    setIsEditDialogOpen(false);
+    setIsBoardDialogOpen(false);
 
-    setSelectedPet(pet)
-    setShowPetDetailsDialog(true)
-  }, [])
+    setSelectedPet(pet);
+    setShowPetDetailsDialog(true);
+  }, []);
 
   // Add a new function specifically for edit action:
   const handleEditPetClick = useCallback((pet: Pet) => {
     // Close any other open dialogs first
-    setShowPetDetailsDialog(false)
-    setConfirmationDialog((prev) => ({ ...prev, isOpen: false }))
-    setIsBoardDialogOpen(false)
+    setShowPetDetailsDialog(false);
+    setConfirmationDialog((prev) => ({ ...prev, isOpen: false }));
+    setIsBoardDialogOpen(false);
 
-    setSelectedPet(pet)
-    setIsEditDialogOpen(true)
-  }, [])
+    setSelectedPet(pet);
+    setIsEditDialogOpen(true);
+  }, []);
 
   // Handle board pet button click
   const handleBoardPetClick = useCallback((pet: Pet) => {
     // Close any other open dialogs first
-    setShowPetDetailsDialog(false)
-    setConfirmationDialog((prev) => ({ ...prev, isOpen: false }))
+    setShowPetDetailsDialog(false);
+    setConfirmationDialog((prev) => ({ ...prev, isOpen: false }));
 
-    setSelectedPet(pet)
-    setIsBoardDialogOpen(true)
-  }, [])
+    setSelectedPet(pet);
+    setIsBoardDialogOpen(true);
+  }, []);
 
   // Handle end boarding button click
   const handleEndBoardingClick = useCallback(
     (pet: Pet) => {
-      setSelectedPet(pet)
+      setSelectedPet(pet);
       // Close pet details dialog if open
-      setShowPetDetailsDialog(false)
+      setShowPetDetailsDialog(false);
 
-      showConfirmation("endBoarding", "End Boarding", `Are you sure you want to end boarding for ${pet.name}?`, () =>
-        handleToggleBoardingStatus(pet.id),
-      )
+      showConfirmation(
+        "endBoarding",
+        "End Boarding",
+        `Are you sure you want to end boarding for ${pet.name}?`,
+        () => handleToggleBoardingStatus(pet.id),
+      );
     },
     [handleToggleBoardingStatus, showConfirmation],
-  )
+  );
 
   // Handle delete pet button click
   const handleDeletePetClick = useCallback(
     (pet: Pet) => {
-      setSelectedPet(pet)
+      setSelectedPet(pet);
       // Close pet details dialog if open
-      setShowPetDetailsDialog(false)
+      setShowPetDetailsDialog(false);
 
       showConfirmation(
         "delete",
         "Delete Pet",
         `Are you sure you want to delete ${pet.name}? This action cannot be undone.`,
         () => handleDeletePet(),
-      )
+      );
     },
     [handleDeletePet, showConfirmation],
-  )
+  );
 
   return (
-    <motion.div className="space-y-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+    <motion.div
+      className="space-y-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
       <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -399,8 +464,12 @@ export default function PetsPage() {
           stiffness: 300,
         }}
       >
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">Pet Management</h1>
-        <p className="text-muted-foreground">Manage all pets currently registered in the system.</p>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">
+          Pet Management
+        </h1>
+        <p className="text-muted-foreground">
+          Manage all pets currently registered in the system.
+        </p>
       </motion.div>
 
       <motion.div
@@ -424,55 +493,9 @@ export default function PetsPage() {
                 <CardTitle>Pet Registry</CardTitle>
               </div>
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <CardDescription className="mt-0">View and manage all registered pets.</CardDescription>
-                <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-2">
-                  <div className="relative flex-1 sm:w-[300px]">
-                    <Input
-                      ref={searchInputRef}
-                      type="search"
-                      placeholder="Search pets..."
-                      className="pl-8"
-                      value={searchInputValue}
-                      onChange={handleSearchInputChange}
-                    />
-                    <div className="absolute left-0 top-0 h-full px-2 flex items-center">
-                      {isSearching ? (
-                        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                      ) : (
-                        <Search className="h-4 w-4 text-muted-foreground" />
-                      )}
-                    </div>
-                    {searchInputValue && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="absolute right-1 top-1/2 -translate-y-1/2 h-7 px-2 text-xs font-medium"
-                        onClick={handleClearSearch}
-                        aria-label="Clear search"
-                      >
-                        Clear
-                      </Button>
-                    )}
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={refreshPets}
-                      disabled={isRefreshing}
-                      title="Refresh data"
-                    >
-                      <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
-                    </Button>
-                    <Button
-                      onClick={() => setIsAddDialogOpen(true)}
-                      className="bg-green-600 hover:bg-green-700 text-white"
-                    >
-                      <Plus className="mr-2 h-4 w-4" />
-                      Add New Pet
-                    </Button>
-                  </div>
-                </div>
+                <CardDescription className="mt-0">
+                  View and manage all registered pets.
+                </CardDescription>
               </div>
             </div>
           </CardHeader>
@@ -518,38 +541,113 @@ export default function PetsPage() {
                   </SelectContent>
                 </Select>
 
-                {(searchQuery || filterType !== "all" || filterStatus !== "all") && (
-                  <Button variant="outline" size="icon" onClick={clearFilters} title="Clear filters">
+                {(searchQuery ||
+                  filterType !== "all" ||
+                  filterStatus !== "all") && (
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={clearFilters}
+                    title="Clear filters"
+                  >
                     <X className="h-4 w-4" />
                   </Button>
                 )}
+                <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-2">
+                  <div className="relative flex-1 sm:w-[300px]">
+                    <Input
+                      ref={searchInputRef}
+                      type="search"
+                      placeholder="Search pets..."
+                      className="pl-8"
+                      value={searchInputValue}
+                      onChange={handleSearchInputChange}
+                    />
+                    <div className="absolute left-0 top-0 h-full px-2 flex items-center">
+                      {isSearching ? (
+                        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                      ) : (
+                        <Search className="h-4 w-4 text-muted-foreground" />
+                      )}
+                    </div>
+                    {searchInputValue && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="absolute right-1 top-1/2 -translate-y-1/2 h-7 px-2 text-xs font-medium"
+                        onClick={handleClearSearch}
+                        aria-label="Clear search"
+                      >
+                        Clear
+                      </Button>
+                    )}
+                  </div>
+                  <div className="flex gap-2 items-center">
+                    {/* <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={refreshPets}
+                      disabled={isRefreshing}
+                      title="Refresh data"
+                    >
+                      <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
+                    </Button> */}
+                    <Button
+                      onClick={() => setIsAddDialogOpen(true)}
+                      className="bg-green-600 hover:bg-green-700 text-white"
+                    >
+                      <Plus className="mr-2 h-4 w-4" />
+                      Add New Pet
+                    </Button>
+                  </div>
+                </div>
               </div>
 
               {/* Active filters display */}
-              {(searchQuery || filterType !== "all" || filterStatus !== "all") && (
+              {(searchQuery ||
+                filterType !== "all" ||
+                filterStatus !== "all") && (
                 <div className="flex flex-wrap gap-2">
                   {searchQuery && (
-                    <Badge variant="secondary" className="flex items-center gap-1">
+                    <Badge
+                      variant="secondary"
+                      className="flex items-center gap-1"
+                    >
                       Search: {searchQuery}
                       <X
                         className="h-3 w-3 cursor-pointer"
                         onClick={() => {
-                          setSearchQuery("")
-                          setSearchInputValue("")
+                          setSearchQuery("");
+                          setSearchInputValue("");
                         }}
                       />
                     </Badge>
                   )}
                   {filterType !== "all" && (
-                    <Badge variant="secondary" className="flex items-center gap-1">
+                    <Badge
+                      variant="secondary"
+                      className="flex items-center gap-1"
+                    >
                       Type: {filterType}
-                      <X className="h-3 w-3 cursor-pointer" onClick={() => setFilterType("all")} />
+                      <X
+                        className="h-3 w-3 cursor-pointer"
+                        onClick={() => setFilterType("all")}
+                      />
                     </Badge>
                   )}
                   {filterStatus !== "all" && (
-                    <Badge variant="secondary" className="flex items-center gap-1">
-                      Status: {filterStatus === "boarding" ? "Boarding" : "Not Boarding"}
-                      <X className="h-3 w-3 cursor-pointer" onClick={() => setFilterStatus("all")} />
+                    <Badge
+                      variant="secondary"
+                      className="flex items-center gap-1"
+                    >
+                      Status:{" "}
+                      {filterStatus === "boarding"
+                        ? "Boarding"
+                        : "Not Boarding"}
+                      <X
+                        className="h-3 w-3 cursor-pointer"
+                        onClick={() => setFilterStatus("all")}
+                      />
                     </Badge>
                   )}
                 </div>
@@ -655,7 +753,11 @@ export default function PetsPage() {
                   </div>
 
                   {/* Standardized Pagination Controls */}
-                  <PaginationControls currentPage={currentPage} totalPages={totalPages} onPageChange={goToPage} />
+                  <PaginationControls
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={goToPage}
+                  />
                 </>
               )}
             </div>
@@ -687,7 +789,9 @@ export default function PetsPage() {
         pet={selectedPet}
         isOpen={isBoardDialogOpen}
         onOpenChange={setIsBoardDialogOpen}
-        onSubmit={(details) => handleToggleBoardingStatus(selectedPet?.id || "", details)}
+        onSubmit={(details) =>
+          handleToggleBoardingStatus(selectedPet?.id || "", details)
+        }
       />
 
       {/* Confirmation Dialog */}
@@ -716,27 +820,26 @@ export default function PetsPage() {
         isOpen={showPetDetailsDialog}
         onOpenChange={setShowPetDetailsDialog}
         onEditPet={(pet) => {
-          setShowPetDetailsDialog(false)
-          setSelectedPet(pet)
-          setIsEditDialogOpen(true)
+          setShowPetDetailsDialog(false);
+          setSelectedPet(pet);
+          setIsEditDialogOpen(true);
         }}
         onBoardPet={(pet) => {
-          setShowPetDetailsDialog(false)
-          setSelectedPet(pet)
-          setIsBoardDialogOpen(true)
+          setShowPetDetailsDialog(false);
+          setSelectedPet(pet);
+          setIsBoardDialogOpen(true);
         }}
         onEndBoarding={(pet) => {
-          setShowPetDetailsDialog(false)
-          setSelectedPet(pet)
+          setShowPetDetailsDialog(false);
+          setSelectedPet(pet);
           showConfirmation(
             "endBoarding",
             "End Boarding",
             `Are you sure you want to end boarding for ${pet.name}?`,
             () => handleToggleBoardingStatus(pet.id),
-          )
+          );
         }}
       />
     </motion.div>
-  )
+  );
 }
-
