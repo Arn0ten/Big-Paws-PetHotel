@@ -1708,8 +1708,7 @@ function RejectedRequestCard({
             ) : isUndoAvailable ? (
               <>
                 <RotateCcw className="mr-2 h-4 w-4" />
-                Undo{" "}
-                {remainingTime > 0 && <span>({formatRemainingTime()})</span>}
+                Undo {/*{" "} {remainingTime > 0 && <span>({formatRemainingTime()})</span>} */} 
               </>
             ) : (
               <>
