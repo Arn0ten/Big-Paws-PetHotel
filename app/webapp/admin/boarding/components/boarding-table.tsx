@@ -29,6 +29,8 @@ import {
   Trash2,
   DollarSign,
   Loader2,
+  AlertCircle,
+  PhilippinePesoIcon,
 } from "lucide-react";
 import type { BoardingOrder, PaymentStatus } from "../types";
 import {
@@ -166,16 +168,24 @@ export function BoardingTable({
     }
   };
 
+  // Format duration to show both days and hours
   const formatDuration = (order: BoardingOrder) => {
-    const duration = calculateDuration(
+    const durationInHours = calculateDuration(
       order.startDate,
       order.endDate,
-      order.boardingType,
+      "Daycare",
     );
+    const durationInDays = calculateDuration(
+      order.startDate,
+      order.endDate,
+      "LongStay",
+    );
+
     if (order.boardingType === "Daycare") {
-      return `${duration} hour${duration !== 1 ? "s" : ""}`;
+      return `${durationInHours} hour${durationInHours !== 1 ? "s" : ""}`;
     }
-    return `${duration} day${duration !== 1 ? "s" : ""}`;
+
+    return `${durationInDays} day${durationInDays !== 1 ? "s" : ""}`;
   };
 
   // Create an array of 6 items, filled with actual data or empty placeholder rows
@@ -250,7 +260,7 @@ export function BoardingTable({
                             </span>
                             {order.isOverdue && (
                               <div className="flex items-center text-xs text-red-600 mt-1">
-                                <AlertTriangle className="h-3 w-3 mr-1 flex-shrink-0" />{" "}
+                                <AlertCircle className="h-3 w-3 mr-1 flex-shrink-0" />{" "}
                                 Overdue
                               </div>
                             )}
@@ -258,7 +268,7 @@ export function BoardingTable({
                               order.additionalServices.length > 0 &&
                               order.paymentStatus === "Pending" && (
                                 <div className="flex items-center text-xs text-amber-600 mt-1">
-                                  <DollarSign className="h-3 w-3 mr-1 flex-shrink-0" />{" "}
+                                  <PhilippinePesoIcon className="h-3 w-3 mr-1 flex-shrink-0" />{" "}
                                   Additional charges
                                 </div>
                               )}
@@ -391,48 +401,57 @@ export function BoardingTable({
                                     >
                                       View Boarding Details
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem
-                                      onClick={() =>
-                                        onUpdatePaymentStatus(order.id, "Paid")
-                                      }
-                                      className="text-green-600 dark:text-green-400"
-                                      disabled={isProcessing}
-                                    >
-                                      {isProcessing && (
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                      )}
-                                      Mark as Paid
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem
-                                      onClick={() =>
-                                        onUpdatePaymentStatus(
-                                          order.id,
-                                          "Pending",
-                                        )
-                                      }
-                                      className="text-yellow-600 dark:text-yellow-400"
-                                      disabled={isProcessing}
-                                    >
-                                      {isProcessing && (
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                      )}
-                                      Mark as Pending
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem
-                                      onClick={() =>
-                                        onUpdatePaymentStatus(
-                                          order.id,
-                                          "Not Paid",
-                                        )
-                                      }
-                                      className="text-red-600 dark:text-red-400"
-                                      disabled={isProcessing}
-                                    >
-                                      {isProcessing && (
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                      )}
-                                      Mark as Not Paid
-                                    </DropdownMenuItem>
+                                    {order.paymentStatus !== "Paid" && (
+                                      <DropdownMenuItem
+                                        onClick={() =>
+                                          onUpdatePaymentStatus(
+                                            order.id,
+                                            "Paid",
+                                          )
+                                        }
+                                        className="text-green-600 dark:text-green-400"
+                                        disabled={isProcessing}
+                                      >
+                                        {isProcessing && (
+                                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        )}
+                                        Mark as Paid
+                                      </DropdownMenuItem>
+                                    )}
+                                    {order.paymentStatus !== "Pending" && (
+                                      <DropdownMenuItem
+                                        onClick={() =>
+                                          onUpdatePaymentStatus(
+                                            order.id,
+                                            "Pending",
+                                          )
+                                        }
+                                        className="text-yellow-600 dark:text-yellow-400"
+                                        disabled={isProcessing}
+                                      >
+                                        {isProcessing && (
+                                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        )}
+                                        Mark as Pending
+                                      </DropdownMenuItem>
+                                    )}
+                                    {order.paymentStatus !== "Not Paid" && (
+                                      <DropdownMenuItem
+                                        onClick={() =>
+                                          onUpdatePaymentStatus(
+                                            order.id,
+                                            "Not Paid",
+                                          )
+                                        }
+                                        className="text-red-600 dark:text-red-400"
+                                        disabled={isProcessing}
+                                      >
+                                        {isProcessing && (
+                                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        )}
+                                        Mark as Not Paid
+                                      </DropdownMenuItem>
+                                    )}
                                     {isEligibleForRelease(order) &&
                                       onReleasePet && (
                                         <DropdownMenuItem
@@ -477,6 +496,7 @@ export function BoardingTable({
             open={receiptDialogOpen}
             onOpenChange={setReceiptDialogOpen}
             boardingOrder={selectedOrder}
+            showBackButton={false}
           />
 
           <ConfirmationDialog

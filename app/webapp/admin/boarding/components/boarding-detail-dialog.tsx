@@ -38,7 +38,6 @@ import {
   formatCurrency,
   isEligibleForRelease,
   calculateDuration,
-  formatDuration,
   calculateAdditionalServicesTotal,
   calculateBasePrice,
 } from "../utils/helpers";
@@ -51,6 +50,13 @@ import {
   LogOut,
   AlertTriangle,
   Info,
+  Receipt,
+  Clock,
+  User,
+  DollarSign,
+  Calendar,
+  Tag,
+  PhilippinePesoIcon,
 } from "lucide-react";
 import { ReleaseConfirmationDialog } from "./release-confirmation-dialog";
 import { ReceiptDialog } from "./receipt-dialog";
@@ -62,6 +68,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { getIconBgColorClass } from "../../request-management/utils/ui-helpers";
 
 interface BoardingDetailDialogProps {
   open: boolean;
@@ -114,6 +121,18 @@ export function BoardingDetailDialog({
     }
   };
 
+  const handleViewReceipt = () => {
+    onOpenChange(false); // Close the boarding details dialog
+    setReceiptDialogOpen(true); // Open the receipt dialog
+  };
+
+  const handleReceiptDialogClose = (open: boolean) => {
+    setReceiptDialogOpen(open);
+    if (!open) {
+      onOpenChange(true); // Reopen the boarding details dialog when receipt is closed
+    }
+  };
+
   const getBoardingStatusColor = (status: string) => {
     switch (status) {
       case "Boarding":
@@ -140,6 +159,17 @@ export function BoardingDetailDialog({
     }
   };
 
+  const getPetTypeColor = (type: string) => {
+    switch (type.toLowerCase()) {
+      case "dog":
+        return "bg-blue-600 text-white dark:bg-blue-700 dark:text-white";
+      case "cat":
+        return "bg-purple-600 text-white dark:bg-purple-700 dark:text-white";
+      default:
+        return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
+    }
+  };
+
   const canReleasePet =
     (isEligibleForRelease(boardingOrder) ||
       (boardingOrder.isOverdue && boardingOrder.paymentStatus === "Paid")) &&
@@ -147,15 +177,26 @@ export function BoardingDetailDialog({
 
   const isOverdue = boardingOrder.isOverdue;
 
-  const duration = calculateDuration(
+  // Calculate duration in both days and hours
+  const durationInHours = calculateDuration(
     boardingOrder.startDate,
     boardingOrder.endDate,
-    boardingOrder.boardingType,
+    "Daycare",
   );
-  const formattedDuration = formatDuration(
-    duration,
-    boardingOrder.boardingType,
+  const durationInDays = calculateDuration(
+    boardingOrder.startDate,
+    boardingOrder.endDate,
+    "LongStay",
   );
+
+  // Format the duration based on boarding type
+  const formattedDuration =
+    boardingOrder.boardingType === "Daycare"
+      ? `${durationInHours} hour${durationInHours !== 1 ? "s" : ""}`
+      : `${durationInDays} day${durationInDays !== 1 ? "s" : ""}`;
+
+  // Combined duration display
+  const combinedDuration = `${durationInDays} day${durationInDays !== 1 ? "s" : ""} / ${durationInHours} hour${durationInHours !== 1 ? "s" : ""}`;
 
   const ACCOMMODATION_RATES = {
     Small: 25,
@@ -175,35 +216,29 @@ export function BoardingDetailDialog({
   const additionalChargesReason =
     boardingOrder.additionalChargesReason || "Additional services";
 
-  // Ensure only one dialog is open at a time
-  const handleOpenReceiptDialog = () => {
-    setReleaseConfirmOpen(false);
-    setReceiptDialogOpen(true);
-  };
-
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-[650px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-xl flex items-center gap-2">
-              <PawPrint className="h-5 w-5 text-primary" />
+              
               Boarding Details
             </DialogTitle>
           </DialogHeader>
 
-          <div className="grid gap-4 py-4">
+          <div className="grid gap-4 py-2">
             {/* Order Summary */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-muted/30 p-3 rounded-lg">
               <div>
-                <h3 className="text-lg font-medium">
+                <h3 className="text-lg font-semibold">
                   Order #{boardingOrder.id}
                 </h3>
                 <p className="text-sm text-muted-foreground">
                   Created on {formatDate(boardingOrder.createdAt)}
                 </p>
               </div>
-              <div className="flex flex-wrap gap-1">
+              <div className="flex flex-wrap gap-1.5">
                 <Badge
                   variant="outline"
                   className={getBoardingStatusColor(
@@ -229,163 +264,247 @@ export function BoardingDetailDialog({
               </div>
             </div>
 
-            <Separator />
-
-            {/* Pet Information */}
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base">Pet Information</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-col sm:flex-row items-start gap-4">
-                  <div className="w-full sm:w-auto flex justify-center">
-                    <Image
-                      src={
-                        boardingOrder.pet.imageUrl ||
-                        "/placeholder.svg?height=80&width=80"
-                      }
-                      alt={boardingOrder.pet.name}
-                      width={80}
-                      height={80}
-                      className="rounded-md object-cover"
-                    />
-                  </div>
-                  <div className="flex-1 w-full">
-                    <h4 className="font-medium text-center sm:text-left">
-                      {boardingOrder.pet.name}
-                    </h4>
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-2 mt-2">
-                      <div className="text-sm">
-                        <span className="text-muted-foreground">Type:</span>{" "}
-                        {boardingOrder.pet.type}
-                      </div>
-                      <div className="text-sm">
-                        <span className="text-muted-foreground">Breed:</span>{" "}
-                        {boardingOrder.pet.breed}
-                      </div>
-                      <div className="text-sm">
-                        <span className="text-muted-foreground">Size:</span>{" "}
-                        {boardingOrder.pet.size}
-                      </div>
-                      <div className="text-sm">
-                        <span className="text-muted-foreground">Age:</span>{" "}
-                        {boardingOrder.pet.age} years
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Pet Information */}
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <PawPrint className="h-4 w-4 text-primary" />
+                    PET INFORMATION
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0">
+                      <Image
+                        src={
+                          boardingOrder.pet.imageUrl ||
+                          "/placeholder.svg?height=80&width=80"
+                        }
+                        alt={boardingOrder.pet.name}
+                        width={80}
+                        height={80}
+                        className="rounded-md object-cover"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-base mb-2">
+                        {boardingOrder.pet.name}
+                      </h4>
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-muted-foreground">
+                            TYPE:
+                          </span>
+                          <Badge
+                            variant="outline"
+                            className={getPetTypeColor(boardingOrder.pet.type)}
+                          >
+                            {boardingOrder.pet.type}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-muted-foreground">
+                            BREED:
+                          </span>
+                          <span className="text-sm text-right">
+                            {boardingOrder.pet.breed}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-muted-foreground">
+                            SIZE:
+                          </span>
+                          <span className="text-sm">
+                            {boardingOrder.pet.size}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-muted-foreground">
+                            AGE:
+                          </span>
+                          <span className="text-sm">
+                            {boardingOrder.pet.age} years
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
 
-            {/* Owner Information */}
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base">Owner Information</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium">
-                      {boardingOrder.owner.name}
-                    </span>
+              {/* Owner Information */}
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <User className="h-4 w-4 text-primary" />
+                    OWNER INFORMATION
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-base">
+                        {boardingOrder.owner.name}
+                      </span>
+                    </div>
+                    <div className="space-y-1.5 mt-2">
+                      <div className="flex items-center gap-2 text-sm">
+                        <Mail className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                        <span className="truncate">
+                          {boardingOrder.owner.email}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <Phone className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                        <span>{boardingOrder.owner.phone}</span>
+                      </div>
+                      <div className="flex items-start gap-2 text-sm">
+                        <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                        <span className="break-words">
+                          {boardingOrder.owner.address}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <Mail className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                    <span className="truncate">
-                      {boardingOrder.owner.email}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <Phone className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                    <span>{boardingOrder.owner.phone}</span>
-                  </div>
-                  <div className="flex items-start gap-2 text-sm">
-                    <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                    <span className="break-words">
-                      {boardingOrder.owner.address}
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
 
             {/* Enhanced Boarding Details Section */}
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-base flex items-center gap-2">
                   <CalendarClock className="h-4 w-4 text-primary" />
-                  Boarding Details
+                  BOARDING DETAILS
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {/* Service Type */}
-                  <div className="flex justify-between items-start">
+                  {/* Service Type and Duration */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-muted/20 p-3 rounded-lg">
                     <div>
-                      <span className="text-sm font-medium">Service Type</span>
-                      <p className="text-xs text-muted-foreground">
-                        {boardingOrder.boardingType === "Daycare"
-                          ? "Hourly care (8:00 AM - 7:00 PM)"
-                          : boardingOrder.boardingType === "CatHotel"
-                            ? `Cat Hotel - ${boardingOrder.catRoomType} Room`
-                            : "24-Hour Accommodation"}
-                      </p>
+                      <div className="flex items-center gap-2 mb-1">
+                        <Tag className="h-4 w-4 text-primary" />
+                        <span className="text-sm font-semibold">
+                          SERVICE TYPE
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground">
+                          {boardingOrder.boardingType === "Daycare"
+                            ? "Hourly care (8:00 AM - 7:00 PM)"
+                            : boardingOrder.boardingType === "CatHotel"
+                              ? `Cat Hotel - ${boardingOrder.catRoomType} Room`
+                              : "24-Hour Accommodation"}
+                        </span>
+                        <Badge
+                          variant="outline"
+                          className={getIconBgColorClass(
+                            boardingOrder.boardingType.toLowerCase(),
+                          )}
+                        >
+                          {boardingOrder.boardingType}
+                        </Badge>
+                      </div>
                     </div>
-                    <Badge
-                      variant="outline"
-                      className="bg-primary/10 text-primary"
-                    >
-                      {boardingOrder.boardingType}
-                    </Badge>
-                  </div>
-
-                  {/* Duration and Timing */}
-                  <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <span className="text-sm font-medium">Duration</span>
-                      <p className="text-sm">{formattedDuration}</p>
-                    </div>
-                    <div>
-                      <span className="text-sm font-medium">Rate</span>
-                      <p className="text-sm">
-                        {boardingOrder.boardingType === "Daycare"
-                          ? `₱${DAYCARE_RATES[boardingOrder.pet.size]}/hour`
-                          : boardingOrder.boardingType === "CatHotel"
-                            ? `₱${CAT_HOTEL_RATES.Standard[boardingOrder.catAgeCategory || "Adult"]}/day`
-                            : `₱${ACCOMMODATION_RATES[boardingOrder.pet.size]}/day`}
-                      </p>
+                      <div className="flex items-center gap-2 mb-1">
+                        <Clock className="h-4 w-4 text-primary" />
+                        <span className="text-sm font-semibold">DURATION</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground">
+                          Total stay length
+                        </span>
+                        <span className="text-sm font-medium">
+                          {combinedDuration}
+                        </span>
+                      </div>
                     </div>
                   </div>
 
                   {/* Timing Details */}
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Check-in:</span>
-                      <span>{formatDate(boardingOrder.startDate)}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Check-out:</span>
-                      <span>{formatDate(boardingOrder.endDate)}</span>
-                    </div>
-                    {boardingOrder.releaseTimestamp && (
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Released:</span>
-                        <span>
-                          {formatDate(boardingOrder.releaseTimestamp)}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-muted/20 p-3 rounded-lg">
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <Calendar className="h-4 w-4 text-primary" />
+                        <span className="text-sm font-semibold">
+                          CHECK-IN / CHECK-OUT
                         </span>
                       </div>
-                    )}
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground font-medium">
+                            Check-in:
+                          </span>
+                          <span>{formatDate(boardingOrder.startDate)}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground font-medium">
+                            Check-out:
+                          </span>
+                          <span>{formatDate(boardingOrder.endDate)}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      {boardingOrder.releaseTimestamp ? (
+                        <>
+                          <div className="flex items-center gap-2 mb-1">
+                            <LogOut className="h-4 w-4 text-primary" />
+                            <span className="text-sm font-semibold">
+                              RELEASED
+                            </span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground font-medium">
+                              Released on:
+                            </span>
+                            <span>
+                              {formatDate(boardingOrder.releaseTimestamp)}
+                            </span>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="flex items-center gap-2 mb-1">
+                            <Tag className="h-4 w-4 text-primary" />
+                            <span className="text-sm font-semibold">RATE</span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground font-medium">
+                              Base Rate:
+                            </span>
+                            <span>
+                              {boardingOrder.boardingType === "Daycare"
+                                ? `₱${DAYCARE_RATES[boardingOrder.pet.size]}/hour`
+                                : boardingOrder.boardingType === "CatHotel"
+                                  ? `₱${CAT_HOTEL_RATES.Standard[boardingOrder.catAgeCategory || "Adult"]}/day`
+                                  : `₱${ACCOMMODATION_RATES[boardingOrder.pet.size]}/day`}
+                            </span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground font-medium">
+                              PET SIZE:
+                            </span>
+                            <span>{boardingOrder.pet.size}</span>
+                          </div>
+                        </>
+                      )}
+                    </div>
                   </div>
 
                   {/* Pricing Breakdown */}
-                  <div className="border-t pt-4 mt-4">
-                    <h4 className="text-sm font-medium mb-2">
-                      Pricing Breakdown
+                  <div className="border rounded-lg p-3 mt-4">
+                    <h4 className="text-sm font-semibold flex items-center gap-2 mb-3">
+                      <PhilippinePesoIcon className="h-4 w-4 text-primary" />
+                      PRICING BREAKDOWN
                     </h4>
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">
-                          Base Rate:
+                        <span className="text-muted-foreground font-medium">
+                          BOARDING PRICE:
                         </span>
                         <span>{formatCurrency(basePrice)}</span>
                       </div>
@@ -393,6 +512,10 @@ export function BoardingDetailDialog({
                       {boardingOrder.additionalServices &&
                         boardingOrder.additionalServices.length > 0 && (
                           <>
+                            <Separator className="my-2" />
+                            <h5 className="text-sm font-medium mb-2">
+                              Additional Services
+                            </h5>
                             {boardingOrder.additionalServices.map(
                               (service, index) => (
                                 <div
@@ -433,14 +556,14 @@ export function BoardingDetailDialog({
                               ),
                             )}
 
-                            <div className="flex justify-between text-sm font-medium">
+                            {/* <div className="flex justify-between text-sm font-medium">
                               <span className="text-muted-foreground">
                                 Additional Services Total:
                               </span>
                               <span>
                                 {formatCurrency(additionalServicesTotal)}
                               </span>
-                            </div>
+                            </div> */}
                           </>
                         )}
 
@@ -467,49 +590,72 @@ export function BoardingDetailDialog({
                         </div>
                       ))}
 
-                      <div className="border-t pt-2 mt-2">
-                        <div className="flex justify-between items-center">
-                          <span className="font-medium">Total Amount</span>
-                          <span className="text-lg font-bold text-green-600 dark:text-green-400">
-                            {formatCurrency(totalPrice)}
-                          </span>
-                        </div>
+                      <Separator className="my-2" />
+                      <div className="flex justify-between items-center">
+                        <span className="font-semibold">Total Amount</span>
+                        <span className="text-lg font-bold text-green-600 dark:text-green-400">
+                          {formatCurrency(totalPrice)}
+                        </span>
                       </div>
                     </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
+
+            {/* Payment History Section (if available) */}
+            {boardingOrder.paymentHistory &&
+              boardingOrder.paymentHistory.length > 0 && (
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-primary" />
+                      PAYMENT HISTORY
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      {boardingOrder.paymentHistory.map((entry, index) => (
+                        <div
+                          key={index}
+                          className="flex justify-between text-sm border-b pb-2 last:border-0"
+                        >
+                          <div>
+                            <Badge
+                              variant="outline"
+                              className={getPaymentStatusColor(entry.status)}
+                            >
+                              {entry.status}
+                            </Badge>
+                            <span className="ml-2 text-muted-foreground">
+                              {entry.modifiedBy}
+                            </span>
+                          </div>
+                          <span>{formatDate(entry.timestamp)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+            {/* Notes Section (if available) */}
+            {boardingOrder.notes && (
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Info className="h-4 w-4 text-primary" />
+                    NOTES
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm">{boardingOrder.notes}</p>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
-          <DialogFooter className="flex-col sm:flex-row gap-2">
-            <div className="grid grid-cols-3 gap-2 w-full sm:w-auto">
-              <Button
-                variant={paymentStatus === "Paid" ? "default" : "outline"}
-                onClick={() => handleUpdatePaymentStatus("Paid")}
-                className="col-span-1"
-                size="sm"
-              >
-                Paid
-              </Button>
-              <Button
-                variant={paymentStatus === "Not Paid" ? "default" : "outline"}
-                onClick={() => handleUpdatePaymentStatus("Not Paid")}
-                className="col-span-1"
-                size="sm"
-              >
-                Not Paid
-              </Button>
-              <Button
-                variant={paymentStatus === "Pending" ? "default" : "outline"}
-                onClick={() => handleUpdatePaymentStatus("Pending")}
-                className="col-span-1"
-                size="sm"
-              >
-                Pending
-              </Button>
-            </div>
-
+          <DialogFooter className="flex-col sm:flex-row gap-2 mt-4">
             <div className="flex gap-2 w-full sm:w-auto">
               {canReleasePet && (
                 <Button
@@ -524,10 +670,11 @@ export function BoardingDetailDialog({
 
               {boardingOrder.boardingStatus === "Released" && (
                 <Button
-                  onClick={handleOpenReceiptDialog}
+                  onClick={handleViewReceipt}
                   className="flex-1 sm:flex-none"
                   variant="outline"
                 >
+                  <Receipt className="mr-2 h-4 w-4" />
                   View Receipt
                 </Button>
               )}
@@ -553,8 +700,9 @@ export function BoardingDetailDialog({
 
       <ReceiptDialog
         open={receiptDialogOpen}
-        onOpenChange={setReceiptDialogOpen}
+        onOpenChange={handleReceiptDialogClose}
         boardingOrder={{ ...boardingOrder, totalPrice: totalPrice }}
+        showBackButton={true}
       />
 
       <ConfirmationDialog
