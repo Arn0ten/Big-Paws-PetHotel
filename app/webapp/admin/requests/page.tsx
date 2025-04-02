@@ -1045,10 +1045,10 @@ export default function RequestsPage() {
               <AlertCircle className="h-5 w-5 text-red-500" />
               Reject Request
             </DialogTitle>
-            <DialogDescription>
+            {/* <DialogDescription>
               Please provide a reason for rejecting this request. This will be
               visible to the pet owner.
-            </DialogDescription>
+            </DialogDescription> */}
           </DialogHeader>
 
           <div className="space-y-4 py-4">
@@ -1067,10 +1067,10 @@ export default function RequestsPage() {
                 rows={4}
                 className="resize-none"
               />
-              <p className="text-xs text-muted-foreground">
+              {/* <p className="text-xs text-muted-foreground">
                 Be clear and concise about why the request cannot be fulfilled
                 at this time.
-              </p>
+              </p> */}
             </div>
           </div>
 
@@ -1681,7 +1681,7 @@ function RejectedRequestCard({
               variant="outline"
               className="bg-red-100 text-red-700 border-red-200 dark:bg-red-900/50 dark:text-red-300 dark:border-red-800 ml-auto"
             >
-              <X className="h-3 w-3 mr-1" /> Rejected
+              {/* <X className="h-3 w-3 mr-1" /> */}Rejected
             </Badge>
           </div>
         </CardHeader>
