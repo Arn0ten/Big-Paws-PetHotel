@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+// Import the Trash2 icon
 import {
   Camera,
   Video,
@@ -35,6 +36,8 @@ import {
   CheckCircle,
   Dog,
   Cat,
+  Trash2,
+  Settings,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -58,6 +61,15 @@ import { useMediaQuery } from "@/hooks/use-media-query";
 import { Textarea } from "@/components/ui/textarea";
 import { formatDistanceToNow } from "date-fns";
 import { useRequestStore } from "@/lib/shared-request-data";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 // Utility functions for request management
 const getRequestTypeIcon = (type: string) => {
@@ -112,6 +124,12 @@ const getTimeAgo = (date: string) => {
   }
 };
 
+// Timer options for undo functionality
+const TIMER_OPTIONS = {
+  DEMO: 10000, // 10 seconds for demo
+  PRODUCTION: 300000, // 5 minutes for production
+};
+
 interface NewRequestCardProps {
   request: any;
   onApprove: () => void;
@@ -123,6 +141,7 @@ interface RejectedRequestCardProps {
   request: any;
   onViewDetails: () => void;
   onReconsider: () => void;
+  undoTimerDuration: number;
 }
 
 // Main component for the Requests page
@@ -137,11 +156,9 @@ export default function RequestsPage() {
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
   const [showRejectDialog, setShowRejectDialog] = useState(false);
-  const [showReconsiderDialog, setShowReconsiderDialog] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
-  const [reconsiderationReason, setReconsiderationReason] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Start with loading state
   const { toast } = useToast();
   const isMobile = useMediaQuery("(max-width: 640px)");
   const isSmallScreen = useMediaQuery("(max-width: 768px)");
@@ -152,6 +169,14 @@ export default function RequestsPage() {
   const [successType, setSuccessType] = useState("");
   const [showApproveConfirmDialog, setShowApproveConfirmDialog] =
     useState(false);
+  const [isUndoAvailable, setIsUndoAvailable] = useState(true);
+  const [showDeleteConfirmDialog, setShowDeleteConfirmDialog] = useState(false);
+  // Add isDeleting state in the main component
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showTimerSettingsDialog, setShowTimerSettingsDialog] = useState(false);
+  const [undoTimerDuration, setUndoTimerDuration] = useState(
+    TIMER_OPTIONS.DEMO,
+  );
 
   // Update the search functionality to trigger refresh before displaying results
   const handleSearch = (query: string) => {
@@ -189,7 +214,9 @@ export default function RequestsPage() {
       // Show success dialog
       setSuccessTitle("Request Approved");
       setSuccessMessage(
-        `The ${getRequestTypeLabel(request.type).toLowerCase()} for ${request.petName} has been approved and moved to In Progress.`,
+        `The ${getRequestTypeLabel(request.type).toLowerCase()} for ${
+          request.petName
+        } has been approved and moved to In Progress.`,
       );
       setSuccessType(request.type);
       setShowSuccessDialog(true);
@@ -220,58 +247,15 @@ export default function RequestsPage() {
       // Show success dialog
       setSuccessTitle("Request Rejected");
       setSuccessMessage(
-        `The ${getRequestTypeLabel(selectedRequest.type).toLowerCase()} for ${selectedRequest.petName} has been rejected.`,
+        `The ${getRequestTypeLabel(selectedRequest.type).toLowerCase()} for ${
+          selectedRequest.petName
+        } has been rejected.`,
       );
       setSuccessType(selectedRequest.type);
       setShowSuccessDialog(true);
 
       // Reset state
       setRejectionReason("");
-    }, 1500);
-  };
-
-  const handleReconsiderRequest = () => {
-    if (!selectedRequest || !reconsiderationReason.trim()) return;
-
-    setIsProcessing(true);
-
-    setTimeout(() => {
-      // Update the request status from "rejected" to "new" with reconsidered flag
-      updateRequest(selectedRequest.id, {
-        status: "new",
-        reconsideredAt: new Date().toISOString(),
-        reconsideredBy: "Admin",
-        reconsiderationReason: reconsiderationReason,
-        isReconsidered: true,
-        // Keep the original rejection data for reference
-        _previousRejection: {
-          rejectedAt: selectedRequest.rejectedAt,
-          rejectedBy: selectedRequest.rejectedBy,
-          rejectionReason: selectedRequest.rejectionReason,
-        },
-        // Add notification for pet owner
-        notification: {
-          type: "request-reconsidered",
-          message: `Your ${getRequestTypeLabel(selectedRequest.type).toLowerCase()} request has been reconsidered and is now pending review.`,
-          createdAt: new Date().toISOString(),
-          isRead: false,
-        },
-      });
-
-      setIsProcessing(false);
-      setShowReconsiderDialog(false);
-      setShowDetailsDialog(false);
-
-      // Show success dialog
-      setSuccessTitle("Request Reconsidered");
-      setSuccessMessage(
-        `The ${getRequestTypeLabel(selectedRequest.type).toLowerCase()} for ${selectedRequest.petName} has been moved back to New Requests.`,
-      );
-      setSuccessType(selectedRequest.type);
-      setShowSuccessDialog(true);
-
-      // Reset state
-      setReconsiderationReason("");
     }, 1500);
   };
 
@@ -351,6 +335,68 @@ export default function RequestsPage() {
     };
   }, []);
 
+  // Simulate initial data loading
+  useEffect(() => {
+    // Simulate API call to fetch data
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+
+    if (selectedRequest && selectedRequest.status === "rejected") {
+      setIsUndoAvailable(true);
+      timer = setTimeout(() => {
+        setIsUndoAvailable(false);
+      }, undoTimerDuration);
+    }
+
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [selectedRequest, undoTimerDuration]);
+
+  // Fix 1: Update the handleUndo function in the main component to not show success dialog
+  const handleUndo = (request: any) => {
+    // Update the request status from "rejected" to "new"
+    updateRequest(request.id, {
+      status: "new",
+      undoneAt: new Date().toISOString(),
+      undoneBy: "Admin",
+      // Keep the original rejection data for reference
+      _previousRejection: {
+        rejectedAt: request.rejectedAt,
+        rejectedBy: request.rejectedBy,
+        rejectionReason: request.rejectionReason,
+      },
+      // Add notification for pet owner
+      notification: {
+        type: "request-reconsidered",
+        message: `Your ${getRequestTypeLabel(request.type).toLowerCase()} request has been moved back to New Requests.`,
+        createdAt: new Date().toISOString(),
+        isRead: false,
+      },
+    });
+    setShowDetailsDialog(false);
+
+    // Remove success dialog display
+    // setSuccessTitle("Request Moved to New");
+    // setSuccessMessage(...);
+    // setSuccessType(request.type);
+    // setShowSuccessDialog(true);
+  };
+
+  // Format the timer duration for display
+  const formatTimerDuration = (ms: number) => {
+    if (ms === TIMER_OPTIONS.DEMO) return "10 seconds (Demo)";
+    if (ms === TIMER_OPTIONS.PRODUCTION) return "5 minutes (Production)";
+    return `${ms / 1000} seconds`;
+  };
+
   return (
     <div className="space-y-6">
       <motion.div
@@ -373,8 +419,7 @@ export default function RequestsPage() {
       {/* Enhanced Search, Filter, and Refresh Section */}
       <div className="flex flex-row items-center gap-4 flex-wrap md:flex-nowrap mb-6">
         {/* Left side - Search and Filters */}
-        <div className="flex flex-wrap gap-2 items-center w-full">
-          {/* Standardize search bar position and size */}
+        <div className="flex flex-wrap gap-2 items-center order-1 md:order-1 w-full md:w-auto">
           <div className="relative flex-1 min-w-0 md:w-[300px]">
             <Input
               placeholder="Search by pet name, owner, or description..."
@@ -569,15 +614,54 @@ export default function RequestsPage() {
                       : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  <X className="h-5 w-5" />
-                  <span className="hidden sm:inline">Rejected Requests</span>
-                  <span className="sm:hidden">Rejected</span>
-                  <Badge
-                    variant={activeTab === "rejected" ? "default" : "secondary"}
-                    className="ml-1 text-xs px-2 py-0 h-5"
-                  >
-                    {requests.filter((r) => r.status === "rejected").length}
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    <X className="h-5 w-5" />
+                    <span className="hidden sm:inline">Rejected Requests</span>
+                    <span className="sm:hidden">Rejected</span>
+                    <Badge
+                      variant={
+                        activeTab === "rejected" ? "default" : "secondary"
+                      }
+                      className="ml-1 text-xs px-2 py-0 h-5"
+                    >
+                      {requests.filter((r) => r.status === "rejected").length}
+                    </Badge>
+                  </div>
+
+                  {/* Settings button for rejected tab */}
+                  {activeTab === "rejected" && (
+                    <div className="ml-2">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                          >
+                            <Settings className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-56">
+                          <DropdownMenuLabel>Timer Settings</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            className="flex items-center justify-between"
+                            onClick={() => setShowTimerSettingsDialog(true)}
+                          >
+                            <span>Configure Undo Timer</span>
+                            <Badge
+                              variant="outline"
+                              className="ml-2 text-xs px-2 py-0"
+                            >
+                              {undoTimerDuration === TIMER_OPTIONS.DEMO
+                                ? "10s"
+                                : "5m"}
+                            </Badge>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  )}
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -632,9 +716,8 @@ export default function RequestsPage() {
                           }}
                           onReconsider={() => {
                             setSelectedRequest(request);
-                            setReconsiderationReason("");
-                            setShowReconsiderDialog(true);
                           }}
+                          undoTimerDuration={undoTimerDuration}
                         />
                       ))}
                     </AnimatePresence>
@@ -658,11 +741,31 @@ export default function RequestsPage() {
                   <span
                     className={`
                 p-1 rounded-full 
-                ${selectedRequest.type === "photo" ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300" : ""}
-                ${selectedRequest.type === "video" ? "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300" : ""}
-                ${selectedRequest.type === "grooming" ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300" : ""}
-                ${selectedRequest.type === "boarding-extension" ? "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300" : ""}
-                ${selectedRequest.type === "custom" ? "bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300" : ""}
+                ${
+                  selectedRequest.type === "photo"
+                    ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300"
+                    : ""
+                }
+                ${
+                  selectedRequest.type === "video"
+                    ? "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300"
+                    : ""
+                }
+                ${
+                  selectedRequest.type === "grooming"
+                    ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
+                    : ""
+                }
+                ${
+                  selectedRequest.type === "boarding-extension"
+                    ? "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300"
+                    : ""
+                }
+                ${
+                  selectedRequest.type === "custom"
+                    ? "bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300"
+                    : ""
+                }
               `}
                   >
                     {getRequestTypeIcon(selectedRequest.type)}
@@ -814,44 +917,109 @@ export default function RequestsPage() {
                 )}
               </div>
 
+              {/* Fix 2: Update the dialog footer to position text on left and buttons on right */}
               <DialogFooter
-                className={`${isMobile ? "flex-col space-y-2" : ""}`}
+                className={`${isMobile ? "flex-col space-y-2" : "justify-between"}`}
               >
-                {selectedRequest.status === "new" ? (
-                  <>
-                    <Button
-                      variant="destructive"
-                      onClick={() => {
-                        setRejectionReason("");
-                        setShowRejectDialog(true);
-                      }}
-                      disabled={isProcessing}
-                      className={`${isMobile ? "w-full" : ""}`}
-                    >
-                      <ThumbsDown className="mr-2 h-4 w-4 text" />
-                      Reject
-                    </Button>
-                    <Button
-                      onClick={() => handleApproveRequest(selectedRequest)}
-                      disabled={isProcessing}
-                      className={`${isMobile ? "w-full" : ""}`}
-                    >
-                      {isProcessing &&
-                      selectedRequest?.id === selectedRequest?.id ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Processing...
-                        </>
-                      ) : (
-                        <>
-                          <ThumbsUp className="mr-2 h-4 w-4" />
-                          Approve
-                        </>
-                      )}
-                    </Button>
-                  </>
-                ) : selectedRequest.status === "rejected" ? (
-                  <>
+                {selectedRequest?.status === "rejected" && (
+                  <p className="text-xs text-muted-foreground text-left">
+                    {(() => {
+                      const rejectionTime = new Date(
+                        selectedRequest.rejectedAt,
+                      ).getTime();
+                      const currentTime = new Date().getTime();
+                      const timeDiff = currentTime - rejectionTime;
+                      const isUndoStillAvailable = timeDiff < undoTimerDuration;
+
+                      return isUndoStillAvailable
+                        ? `Undo button will change to Delete after ${
+                            undoTimerDuration === TIMER_OPTIONS.DEMO
+                              ? "10 seconds"
+                              : "5 minutes"
+                          }`
+                        : "This action cannot be undone";
+                    })()}
+                  </p>
+                )}
+                <div
+                  className={`flex ${isMobile ? "flex-col w-full space-y-2" : "space-x-2"}`}
+                >
+                  {selectedRequest?.status === "new" ? (
+                    <>
+                      <Button
+                        variant="destructive"
+                        onClick={() => {
+                          setRejectionReason("");
+                          setShowRejectDialog(true);
+                        }}
+                        disabled={isProcessing}
+                        className={`${isMobile ? "w-full" : ""}`}
+                      >
+                        <ThumbsDown className="mr-2 h-4 w-4 text" />
+                        Reject
+                      </Button>
+                      <Button
+                        onClick={() => handleApproveRequest(selectedRequest)}
+                        disabled={isProcessing}
+                        className={`${isMobile ? "w-full" : ""}`}
+                      >
+                        {isProcessing &&
+                        selectedRequest?.id === selectedRequest?.id ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Processing...
+                          </>
+                        ) : (
+                          <>
+                            <ThumbsUp className="mr-2 h-4 w-4" />
+                            Approve
+                          </>
+                        )}
+                      </Button>
+                    </>
+                  ) : selectedRequest?.status === "rejected" ? (
+                    <>
+                      <Button
+                        variant="outline"
+                        onClick={() => setShowDetailsDialog(false)}
+                        className={`${isMobile ? "w-full" : ""}`}
+                      >
+                        Close
+                      </Button>
+                      {(() => {
+                        // Calculate if undo is still available based on rejection timestamp
+                        const rejectionTime = new Date(
+                          selectedRequest.rejectedAt,
+                        ).getTime();
+                        const currentTime = new Date().getTime();
+                        const timeDiff = currentTime - rejectionTime;
+                        const isUndoStillAvailable =
+                          timeDiff < undoTimerDuration;
+
+                        return isUndoStillAvailable ? (
+                          <Button
+                            variant="default"
+                            onClick={() => handleUndo(selectedRequest)}
+                            className={`${isMobile ? "w-full" : ""} bg-amber-600 hover:bg-amber-700 text-white`}
+                          >
+                            <RotateCcw className="mr-2 h-4 w-4" />
+                            Undo Rejection
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="destructive"
+                            onClick={() => {
+                              setShowDeleteConfirmDialog(true);
+                            }}
+                            className={`${isMobile ? "w-full" : ""}`}
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete Request
+                          </Button>
+                        );
+                      })()}
+                    </>
+                  ) : (
                     <Button
                       variant="outline"
                       onClick={() => setShowDetailsDialog(false)}
@@ -859,41 +1027,22 @@ export default function RequestsPage() {
                     >
                       Close
                     </Button>
-                    <Button
-                      variant="default"
-                      onClick={() => {
-                        setReconsiderationReason("");
-                        setShowReconsiderDialog(true);
-                      }}
-                      className={`${isMobile ? "w-full" : ""} bg-amber-600 hover:bg-amber-700 text-white`}
-                    >
-                      <RotateCcw className="mr-2 h-4 w-4" />
-                      Reconsider
-                    </Button>
-                  </>
-                ) : (
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowDetailsDialog(false)}
-                    className={`${isMobile ? "w-full" : ""}`}
-                  >
-                    Close
-                  </Button>
-                )}
+                  )}
+                </div>
               </DialogFooter>
             </>
           )}
         </DialogContent>
       </Dialog>
 
-      {/* Reject Request Dialog - Update styling */}
+      {/* Reject Request Dialog */}
       <Dialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
         <DialogContent
           className={`${isMobile ? "max-w-[95%]" : "sm:max-w-md"}`}
         >
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <X className="h-5 w-5 text-red-500" />
+              <AlertCircle className="h-5 w-5 text-red-500" />
               Reject Request
             </DialogTitle>
             <DialogDescription>
@@ -953,75 +1102,6 @@ export default function RequestsPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Reconsider Request Dialog - Update styling */}
-      <Dialog
-        open={showReconsiderDialog}
-        onOpenChange={setShowReconsiderDialog}
-      >
-        <DialogContent
-          className={`${isMobile ? "max-w-[95%]" : "sm:max-w-md"}`}
-        >
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <RotateCcw className="h-5 w-5 text-amber-500" />
-              Reconsider Request
-            </DialogTitle>
-            <DialogDescription>
-              This will move the request back to the New Requests tab for
-              reconsideration. Please provide a reason for this change.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label
-                htmlFor="reconsideration-reason"
-                className="text-xs uppercase tracking-wide text-muted-foreground font-medium"
-              >
-                Reconsideration Reason
-              </Label>
-              <Textarea
-                id="reconsideration-reason"
-                placeholder="Enter the reason for reconsidering this request..."
-                value={reconsiderationReason}
-                onChange={(e) => setReconsiderationReason(e.target.value)}
-                rows={4}
-                className="resize-none"
-              />
-              <p className="text-xs text-muted-foreground">
-                Explain why this request is being reconsidered. This message
-                will be visible to the pet owner.
-              </p>
-            </div>
-          </div>
-
-          <DialogFooter className={`${isMobile ? "flex-col space-y-2" : ""}`}>
-            <Button
-              variant="outline"
-              onClick={() => setShowReconsiderDialog(false)}
-              disabled={isProcessing}
-              className={`${isMobile ? "w-full" : ""}`}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="default"
-              onClick={handleReconsiderRequest}
-              disabled={!reconsiderationReason.trim() || isProcessing}
-              className={`${isMobile ? "w-full" : ""} bg-amber-600 hover:bg-amber-700 text-white`}
-            >
-              {isProcessing ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Processing...
-                </>
-              ) : (
-                "Confirm Reconsideration"
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
       {/* Success Dialog */}
       <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
         <DialogContent className="sm:max-w-md">
@@ -1071,6 +1151,147 @@ export default function RequestsPage() {
               className="w-full"
             >
               Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={showDeleteConfirmDialog}
+        onOpenChange={setShowDeleteConfirmDialog}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 text-red-500" />
+              Confirm Delete
+            </DialogTitle>
+            <DialogDescription>
+              Are you sure you want to permanently delete this request? This
+              action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteConfirmDialog(false)}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                setIsDeleting(true);
+                // In a real implementation, this would call an API to delete the request
+                setTimeout(() => {
+                  updateRequest(selectedRequest.id, {
+                    status: "deleted",
+                    deletedAt: new Date().toISOString(),
+                    deletedBy: "Admin",
+                  });
+
+                  setIsDeleting(false);
+                  setShowDeleteConfirmDialog(false);
+                  setShowDetailsDialog(false);
+
+                  // Show success dialog
+                  setSuccessTitle("Request Deleted");
+                  setSuccessMessage(
+                    `The ${getRequestTypeLabel(selectedRequest.type).toLowerCase()} for ${
+                      selectedRequest.petName
+                    } has been permanently deleted.`,
+                  );
+                  setSuccessType(selectedRequest.type);
+                  setShowSuccessDialog(true);
+                }, 1000);
+              }}
+              disabled={isDeleting}
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete Permanently
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Timer Settings Dialog */}
+      <Dialog
+        open={showTimerSettingsDialog}
+        onOpenChange={setShowTimerSettingsDialog}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Clock className="h-5 w-5 text-blue-500" />
+              Configure Undo Timer
+            </DialogTitle>
+            <DialogDescription>
+              Select how long the Undo option should be available after
+              rejecting a request.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="py-4">
+            <RadioGroup
+              value={undoTimerDuration.toString()}
+              onValueChange={(value) =>
+                setUndoTimerDuration(Number.parseInt(value))
+              }
+              className="space-y-4"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem
+                  value={TIMER_OPTIONS.DEMO.toString()}
+                  id="timer-demo"
+                />
+                <Label
+                  htmlFor="timer-demo"
+                  className="flex flex-col cursor-pointer"
+                >
+                  <span className="font-medium">10 seconds</span>
+                  <span className="text-sm text-muted-foreground">
+                    Demo mode - Quick testing of the undo functionality
+                  </span>
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem
+                  value={TIMER_OPTIONS.PRODUCTION.toString()}
+                  id="timer-production"
+                />
+                <Label
+                  htmlFor="timer-production"
+                  className="flex flex-col cursor-pointer"
+                >
+                  <span className="font-medium">5 minutes</span>
+                  <span className="text-sm text-muted-foreground">
+                    Production mode - Realistic time for staff to undo mistakes
+                  </span>
+                </Label>
+              </div>
+            </RadioGroup>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowTimerSettingsDialog(false)}
+            >
+              Cancel
+            </Button>
+            <Button onClick={() => setShowTimerSettingsDialog(false)}>
+              Save Settings
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1160,9 +1381,21 @@ function NewRequestCard({
                 className={`
                 p-2 rounded-full 
                 ${request.type === "photo" ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300" : ""}
-                ${request.type === "video" ? "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300" : ""}
-                ${request.type === "grooming" ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300" : ""}
-                ${request.type === "boarding-extension" ? "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300" : ""}
+                ${
+                  request.type === "video"
+                    ? "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300"
+                    : ""
+                }
+                ${
+                  request.type === "grooming"
+                    ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
+                    : ""
+                }
+                ${
+                  request.type === "boarding-extension"
+                    ? "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300"
+                    : ""
+                }
                 ${request.type === "custom" ? "bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300" : ""}
               `}
               >
@@ -1277,18 +1510,119 @@ function NewRequestCard({
   );
 }
 
-// Rejected Request Card Component with Reconsider button
+// Rejected Request Card Component with timer configuration
 function RejectedRequestCard({
   request,
   onViewDetails,
   onReconsider,
+  undoTimerDuration,
 }: RejectedRequestCardProps) {
   const isMobile = useMediaQuery("(max-width: 640px)");
   const isSmallCard = useMediaQuery("(max-width: 400px)");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const { updateRequest } = useRequestStore();
 
-  const handleReconsider = (e: React.MouseEvent) => {
+  // Replace useMemo with useState to allow updating
+  const [isUndoAvailable, setIsUndoAvailable] = useState(true);
+  const [remainingTime, setRemainingTime] = useState(0);
+
+  // Add useEffect to update the button after configured time
+  useEffect(() => {
+    // Calculate initial state
+    const rejectionTime = new Date(request.rejectedAt).getTime();
+    const currentTime = new Date().getTime();
+    const timeDiff = currentTime - rejectionTime;
+    const isStillAvailable = timeDiff < undoTimerDuration;
+
+    setIsUndoAvailable(isStillAvailable);
+
+    // Set timer to update button after remaining time
+    let remainingMs = undoTimerDuration - timeDiff;
+    if (remainingMs < 0) remainingMs = 0;
+
+    setRemainingTime(Math.floor(remainingMs / 1000));
+
+    if (isStillAvailable) {
+      // Update countdown every second
+      const countdownInterval = setInterval(() => {
+        setRemainingTime((prev) => {
+          if (prev <= 1) {
+            clearInterval(countdownInterval);
+            setIsUndoAvailable(false);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      // Set final timer to change button
+      const timer = setTimeout(() => {
+        setIsUndoAvailable(false);
+        clearInterval(countdownInterval);
+      }, remainingMs);
+
+      return () => {
+        clearTimeout(timer);
+        clearInterval(countdownInterval);
+      };
+    }
+  }, [request.rejectedAt, undoTimerDuration]);
+
+  const handleUndo = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent card click event
-    onReconsider();
+
+    // Update the request status from "rejected" to "new"
+    updateRequest(request.id, {
+      status: "new",
+      undoneAt: new Date().toISOString(),
+      undoneBy: "Admin",
+      // Keep the original rejection data for reference
+      _previousRejection: {
+        rejectedAt: request.rejectedAt,
+        rejectedBy: request.rejectedBy,
+        rejectionReason: request.rejectionReason,
+      },
+      // Add notification for pet owner
+      notification: {
+        type: "request-reconsidered",
+        message: `Your ${getRequestTypeLabel(request.type).toLowerCase()} request has been moved back to New Requests.`,
+        createdAt: new Date().toISOString(),
+        isRead: false,
+      },
+    });
+  };
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card click event
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = () => {
+    // Set deleting state to show loading indicator
+    setIsDeleting(true);
+
+    // In a real implementation, this would call an API to delete the request
+    // For now, we'll just remove it from the local state after a short delay
+    setTimeout(() => {
+      updateRequest(request.id, {
+        status: "deleted",
+        deletedAt: new Date().toISOString(),
+        deletedBy: "Admin",
+      });
+      setIsDeleting(false);
+      setShowDeleteConfirm(false);
+    }, 1000);
+  };
+
+  // Format remaining time for display
+  const formatRemainingTime = () => {
+    if (undoTimerDuration === TIMER_OPTIONS.PRODUCTION) {
+      const minutes = Math.floor(remainingTime / 60);
+      const seconds = remainingTime % 60;
+      return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+    }
+    return `${remainingTime}s`;
   };
 
   return (
@@ -1311,9 +1645,21 @@ function RejectedRequestCard({
                 className={`
                 p-2 rounded-full 
                 ${request.type === "photo" ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300" : ""}
-                ${request.type === "video" ? "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300" : ""}
-                ${request.type === "grooming" ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300" : ""}
-                ${request.type === "boarding-extension" ? "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300" : ""}
+                ${
+                  request.type === "video"
+                    ? "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300"
+                    : ""
+                }
+                ${
+                  request.type === "grooming"
+                    ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
+                    : ""
+                }
+                ${
+                  request.type === "boarding-extension"
+                    ? "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300"
+                    : ""
+                }
                 ${request.type === "custom" ? "bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300" : ""}
               `}
               >
@@ -1344,48 +1690,96 @@ function RejectedRequestCard({
             {request.description}
           </p>
 
-          <div className="mt-3">
-            <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-              Rejected
-            </span>
-            <div className="text-sm font-medium mt-0.5">
-              {formatDate(request.rejectedAt)}
-            </div>
-          </div>
-
-          {/* Show rejection reason preview */}
-          <div className="mt-3">
-            <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-              Rejection Reason
-            </span>
-            <div className="mt-1 p-2 bg-red-50 border border-red-100 rounded-md dark:bg-red-950/20 dark:border-red-800">
-              <p className="text-sm text-red-700 dark:text-red-300 line-clamp-2">
-                {request.rejectionReason}
-              </p>
-            </div>
-          </div>
+          {/* Removed rejected date and reason as requested */}
         </CardContent>
-        <CardFooter className={`p-4 pt-0 mt-auto`}>
+        <CardFooter className={`p-4 pt-0 mt-auto flex flex-col gap-1`}>
           <Button
-            variant="default"
-            className="w-full bg-amber-600 hover:bg-amber-700 text-white"
-            onClick={handleReconsider}
+            variant={isUndoAvailable ? "default" : "destructive"}
+            className={`w-full ${isUndoAvailable ? "bg-amber-600 hover:bg-amber-700 text-white" : ""}`}
+            onClick={isUndoAvailable ? handleUndo : handleDelete}
             size={isSmallCard ? "sm" : "default"}
+            disabled={isDeleting}
           >
-            <RotateCcw className="mr-2 h-4 w-4" />
-            Reconsider
+            {isDeleting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Deleting...
+              </>
+            ) : isUndoAvailable ? (
+              <>
+                <RotateCcw className="mr-2 h-4 w-4" />
+                Undo{" "}
+                {remainingTime > 0 && <span>({formatRemainingTime()})</span>}
+              </>
+            ) : (
+              <>
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete
+              </>
+            )}
           </Button>
+          <p className="text-xs text-muted-foreground text-center mt-1">
+            {isUndoAvailable
+              ? `Undo button will change to Delete after ${
+                  undoTimerDuration === TIMER_OPTIONS.DEMO
+                    ? "10 seconds"
+                    : "5 minutes"
+                }`
+              : "This action cannot be undone"}
+          </p>
         </CardFooter>
       </Card>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 text-red-500" />
+              Confirm Delete
+            </DialogTitle>
+            <DialogDescription>
+              Are you sure you want to permanently delete this request? This
+              action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteConfirm(false)}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete Permanently
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 }
 
-// Skeleton component for loading state
+// Improved Skeleton component for loading state that matches the actual UI layout
 function RequestCardSkeleton() {
   return (
     <div className="h-full">
-      <Card className="w-full h-full flex flex-col">
+      <Card className="w-full h-[280px] flex flex-col">
         <CardHeader className="p-4 pb-2">
           <div className="flex justify-between items-start">
             <div className="flex items-center space-x-2">
@@ -1402,10 +1796,17 @@ function RequestCardSkeleton() {
           <Skeleton className="h-4 w-full mb-2 animate-pulse" />
           <Skeleton className="h-4 w-3/4 mb-2 animate-pulse" />
           <Skeleton className="h-4 w-1/2 mb-4 animate-pulse" />
-          <Skeleton className="h-3 w-32 mt-auto animate-pulse" />
+
+          <div className="mt-3">
+            <Skeleton className="h-3 w-24 mb-1 animate-pulse" />
+            <Skeleton className="h-4 w-32 animate-pulse" />
+          </div>
         </CardContent>
-        <CardFooter className="p-4 pt-0 mt-auto">
-          <Skeleton className="h-9 w-full animate-pulse" />
+        <CardFooter className="p-4 pt-0 mt-auto flex flex-col gap-2">
+          <div className="flex flex-col sm:flex-row gap-2 w-full">
+            <Skeleton className="h-9 w-full animate-pulse" />
+            <Skeleton className="h-9 w-full animate-pulse" />
+          </div>
         </CardFooter>
       </Card>
     </div>
