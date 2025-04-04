@@ -1,8 +1,5 @@
-import {
-  DEFAULT_IMAGES,
-  getPetImageByType,
-} from "@/app/webapp/constants/image-constants";
-import type { Pet, PetOwner } from "../utils/types";
+import { DEFAULT_IMAGES } from "@/app/webapp/constants/image-constants"
+import type { Pet, PetOwner } from "../utils/types"
 
 // Dog breeds
 export const DOG_BREEDS = [
@@ -30,7 +27,7 @@ export const DOG_BREEDS = [
   "Corgi",
   "Aspin", // Local Philippine breed
   "Mixed Breed",
-];
+]
 
 // Cat breeds
 export const CAT_BREEDS = [
@@ -55,7 +52,7 @@ export const CAT_BREEDS = [
   "Exotic Shorthair",
   "Tonkinese",
   "Mixed Breed",
-];
+]
 
 // Mock pet owners data
 export const MOCK_PET_OWNERS: PetOwner[] = [
@@ -99,7 +96,7 @@ export const MOCK_PET_OWNERS: PetOwner[] = [
     address: "202 Cedar Ln, Anywhere, USA",
     avatar: DEFAULT_IMAGES.USER_AVATAR,
   },
-];
+]
 
 // Mock pets data
 export const MOCK_PETS: Pet[] = [
@@ -112,8 +109,7 @@ export const MOCK_PETS: Pet[] = [
     age: 3,
     size: "Large",
     isBoarding: true,
-    notes:
-      "Friendly and energetic. Loves to play fetch and needs daily exercise.",
+    notes: "Friendly and energetic. Loves to play fetch and needs daily exercise.",
     image: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=200&auto=format&fit=crop",
   },
   {
@@ -137,8 +133,7 @@ export const MOCK_PETS: Pet[] = [
     age: 5,
     size: "Large",
     isBoarding: true,
-    notes:
-      "Very friendly with other dogs and children. Has a special diet for allergies.",
+    notes: "Very friendly with other dogs and children. Has a special diet for allergies.",
     image: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=200&auto=format&fit=crop",
   },
   {
@@ -150,8 +145,7 @@ export const MOCK_PETS: Pet[] = [
     age: 4,
     size: "Large",
     isBoarding: false,
-    notes:
-      "Loves to be brushed and petted. Needs regular grooming due to long fur.",
+    notes: "Loves to be brushed and petted. Needs regular grooming due to long fur.",
     image: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=200&auto=format&fit=crop",
   },
   {
@@ -175,8 +169,7 @@ export const MOCK_PETS: Pet[] = [
     age: 1,
     size: "Medium",
     isBoarding: true,
-    notes:
-      "Very active and playful. Needs lots of toys and climbing opportunities.",
+    notes: "Very active and playful. Needs lots of toys and climbing opportunities.",
     image: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=200&auto=format&fit=crop",
   },
   {
@@ -212,8 +205,7 @@ export const MOCK_PETS: Pet[] = [
     age: 4,
     size: "Large",
     isBoarding: true,
-    notes:
-      "High energy and needs lots of exercise. Can be escape-prone if not properly contained.",
+    notes: "High energy and needs lots of exercise. Can be escape-prone if not properly contained.",
     image: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=200&auto=format&fit=crop",
   },
   {
@@ -249,8 +241,8 @@ export const MOCK_PETS: Pet[] = [
     age: 6,
     size: "Medium",
     isBoarding: true,
-    notes:
-      "Requires daily grooming to prevent matting. Prefers quiet environments.",
+    notes: "Requires daily grooming to prevent matting. Prefers quiet environments.",
     image: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=200&auto=format&fit=crop",
   },
-];
+]
+

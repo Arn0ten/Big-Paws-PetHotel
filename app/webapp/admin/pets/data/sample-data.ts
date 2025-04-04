@@ -1,8 +1,5 @@
-import {
-  DEFAULT_IMAGES,
-  getPetImageByType,
-} from "@/app/webapp/constants/image-constants";
-import type { Pet, PetOwner } from "../utils/types";
+import { DEFAULT_IMAGES, getPetImageByType } from "@/app/webapp/constants/image-constants"
+import type { Pet, PetOwner } from "../utils/types"
 
 /**
  * PET MANAGEMENT MODULE - SAMPLE DATA
@@ -59,7 +56,7 @@ export const DOG_BREEDS = [
   "Corgi",
   "Aspin", // Local Philippine breed
   "Mixed Breed",
-];
+]
 
 // Cat breeds
 export const CAT_BREEDS = [
@@ -84,7 +81,7 @@ export const CAT_BREEDS = [
   "Exotic Shorthair",
   "Tonkinese",
   "Mixed Breed",
-];
+]
 
 // Mock pet owners data
 export const MOCK_PET_OWNERS: PetOwner[] = [
@@ -128,7 +125,7 @@ export const MOCK_PET_OWNERS: PetOwner[] = [
     address: "202 Cedar Ln, Anywhere, USA",
     avatar: DEFAULT_IMAGES.USER_AVATAR,
   },
-];
+]
 
 // Mock pets data
 export const MOCK_PETS: Pet[] = [
@@ -141,8 +138,7 @@ export const MOCK_PETS: Pet[] = [
     age: 3,
     size: "Large",
     isBoarding: true,
-    notes:
-      "Friendly and energetic. Loves to play fetch and needs daily exercise.",
+    notes: "Friendly and energetic. Loves to play fetch and needs daily exercise.",
     image: getPetImageByType("Dog"),
   },
   {
@@ -166,8 +162,7 @@ export const MOCK_PETS: Pet[] = [
     age: 5,
     size: "Large",
     isBoarding: true,
-    notes:
-      "Very friendly with other dogs and children. Has a special diet for allergies.",
+    notes: "Very friendly with other dogs and children. Has a special diet for allergies.",
     image: getPetImageByType("Dog"),
   },
   {
@@ -179,8 +174,7 @@ export const MOCK_PETS: Pet[] = [
     age: 4,
     size: "Large",
     isBoarding: false,
-    notes:
-      "Loves to be brushed and petted. Needs regular grooming due to long fur.",
+    notes: "Loves to be brushed and petted. Needs regular grooming due to long fur.",
     image: getPetImageByType("Cat"),
   },
   {
@@ -204,8 +198,7 @@ export const MOCK_PETS: Pet[] = [
     age: 1,
     size: "Medium",
     isBoarding: true,
-    notes:
-      "Very active and playful. Needs lots of toys and climbing opportunities.",
+    notes: "Very active and playful. Needs lots of toys and climbing opportunities.",
     image: getPetImageByType("Cat"),
   },
   {
@@ -241,8 +234,7 @@ export const MOCK_PETS: Pet[] = [
     age: 4,
     size: "Large",
     isBoarding: true,
-    notes:
-      "High energy and needs lots of exercise. Can be escape-prone if not properly contained.",
+    notes: "High energy and needs lots of exercise. Can be escape-prone if not properly contained.",
     image: getPetImageByType("Dog"),
   },
   {
@@ -278,11 +270,10 @@ export const MOCK_PETS: Pet[] = [
     age: 6,
     size: "Medium",
     isBoarding: true,
-    notes:
-      "Requires daily grooming to prevent matting. Prefers quiet environments.",
+    notes: "Requires daily grooming to prevent matting. Prefers quiet environments.",
     image: getPetImageByType("Cat"),
   },
-];
+]
 
 /**
  * Generate a unique pet ID
@@ -290,5 +281,6 @@ export const MOCK_PETS: Pet[] = [
  * @returns A unique pet ID string
  */
 export const generatePetId = (): string => {
-  return `pet-${Math.floor(Math.random() * 10000)}`;
-};
+  return `pet-${Math.floor(Math.random() * 10000)}`
+}
+

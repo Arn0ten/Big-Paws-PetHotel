@@ -39,6 +39,7 @@ interface PetsTableProps {
   pets: Pet[];
   petOwners: PetOwner[];
   onEdit: (pet: Pet) => void;
+  onEditDetails: (pet: Pet) => void; // Add this new prop
   onDelete: (pet: Pet) => void;
   onBoard: (pet: Pet) => void;
   onEndBoarding: (pet: Pet) => void;
@@ -54,6 +55,7 @@ export function PetsTable({
   pets,
   petOwners,
   onEdit,
+  onEditDetails, // Add this new prop
   onDelete,
   onBoard,
   onEndBoarding,
@@ -70,7 +72,7 @@ export function PetsTable({
     return owner ? owner.name : "Unknown Owner";
   };
 
-  // Add a loading state renderer
+  //Add a loading state renderer
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -193,11 +195,11 @@ export function PetsTable({
                   <TableCell>{getOwnerName(pet.ownerId)}</TableCell>
                   <TableCell>
                     <Badge
-                      className={
+                      className={`whitespace-nowrap justify-center ${
                         pet.type === "Dog"
                           ? "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-700 dark:text-white dark:hover:bg-blue-600"
                           : "bg-purple-600 text-white hover:bg-purple-700 dark:bg-purple-700 dark:text-white dark:hover:bg-purple-600"
-                      }
+                      }`}
                     >
                       {pet.type === "Dog" ? (
                         <Dog className="mr-1 h-3 w-3" />
@@ -237,11 +239,7 @@ export function PetsTable({
                   </TableCell>
                   <TableCell>
                     <Badge
-                      className={
-                        pet.isBoarding
-                          ? "bg-green-500 text-white"
-                          : "bg-red-500 text-white"
-                      }
+                      className={`whitespace-nowrap min-w-[110px] text-center justify-center ${pet.isBoarding ? "bg-green-500  hover:bg-green-600 text-white" : "bg-red-500 hover:bg-red-600 text-white"}`}
                     >
                       {pet.isBoarding ? "Boarding" : "Not Boarding"}
                     </Badge>
@@ -250,7 +248,7 @@ export function PetsTable({
                     <div className="flex justify-end">
                       {pet.isBoarding ? (
                         <Button
-                          className="mr-2 bg-red-500 hover:bg-red-600 text-white"
+                          className="mr-2 bg-red-500 hover:bg-red-600 text-white min-w-[140px]"
                           size="sm"
                           onClick={(e) => {
                             e.stopPropagation(); // Prevent row click
@@ -262,7 +260,7 @@ export function PetsTable({
                         </Button>
                       ) : (
                         <Button
-                          className="mr-2 bg-green-500 hover:bg-green-600 text-white"
+                          className="mr-2 bg-green-500 hover:bg-green-600 text-white min-w-[140px]"
                           size="sm"
                           onClick={(e) => {
                             e.stopPropagation(); // Prevent row click
@@ -288,7 +286,7 @@ export function PetsTable({
                           <DropdownMenuItem
                             onClick={(e) => {
                               e.stopPropagation(); // Prevent row click
-                              onEdit(pet);
+                              onEditDetails(pet); // Use the new function instead of onEdit
                             }}
                           >
                             <Edit className="mr-2 h-4 w-4 text-blue-500" />

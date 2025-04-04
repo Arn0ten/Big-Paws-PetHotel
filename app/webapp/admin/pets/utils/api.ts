@@ -1,7 +1,7 @@
 // API functions for the Pet Management module
-import type { Pet, PetOwner } from "./types";
-import { MOCK_PETS, MOCK_PET_OWNERS } from "./constants";
-import { generatePetId } from "./helpers";
+import type { Pet, PetOwner } from "./types"
+import { MOCK_PETS, MOCK_PET_OWNERS } from "./constants"
+import { generatePetId } from "./helpers"
 
 // Update the API functions with proper comments for backend integration
 
@@ -23,7 +23,7 @@ import { generatePetId } from "./helpers";
  */
 
 // Simulate API delay
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 /**
  * Fetch all pets
@@ -31,8 +31,8 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
  */
 export async function fetchPets(): Promise<Pet[]> {
   // Simulate API call
-  await delay(1500);
-  return [...MOCK_PETS];
+  await delay(1500)
+  return [...MOCK_PETS]
 }
 
 /**
@@ -41,8 +41,8 @@ export async function fetchPets(): Promise<Pet[]> {
  */
 export async function fetchPetOwners(): Promise<PetOwner[]> {
   // Simulate API call
-  await delay(1000);
-  return [...MOCK_PET_OWNERS];
+  await delay(1000)
+  return [...MOCK_PET_OWNERS]
 }
 
 /**
@@ -51,7 +51,7 @@ export async function fetchPetOwners(): Promise<PetOwner[]> {
  */
 export async function addNewPet(petData: Partial<Pet>): Promise<Pet> {
   // Simulate API call
-  await delay(1500);
+  await delay(1500)
 
   const newPet: Pet = {
     id: generatePetId(),
@@ -64,9 +64,9 @@ export async function addNewPet(petData: Partial<Pet>): Promise<Pet> {
     isBoarding: false,
     notes: petData.notes,
     image: "/placeholder.svg?height=200&width=200",
-  };
+  }
 
-  return newPet;
+  return newPet
 }
 
 // Enhance the updatePetData function with more detailed comments
@@ -104,26 +104,23 @@ export async function addNewPet(petData: Partial<Pet>): Promise<Pet> {
  *   image?: string
  * }
  */
-export async function updatePetData(
-  id: string,
-  petData: Partial<Pet>,
-): Promise<Pet> {
+export async function updatePetData(id: string, petData: Partial<Pet>): Promise<Pet> {
   // Simulate API call
-  await delay(1000);
+  await delay(1000)
 
   // Find the pet to update
-  const petIndex = MOCK_PETS.findIndex((pet) => pet.id === id);
+  const petIndex = MOCK_PETS.findIndex((pet) => pet.id === id)
   if (petIndex === -1) {
-    throw new Error("Pet not found");
+    throw new Error("Pet not found")
   }
 
   // Create updated pet
   const updatedPet: Pet = {
     ...MOCK_PETS[petIndex],
     ...petData,
-  };
+  }
 
-  return updatedPet;
+  return updatedPet
 }
 
 /**
@@ -132,32 +129,30 @@ export async function updatePetData(
  */
 export async function deletePet(id: string): Promise<boolean> {
   // Simulate API call
-  await delay(1000);
-  return true;
+  await delay(1000)
+  return true
 }
 
 /**
  * Toggle pet boarding status
  * BACKEND INTEGRATION POINT: Replace with actual API call
  */
-export async function togglePetBoardingStatus(
-  id: string,
-  boardingDetails?: any,
-): Promise<Pet> {
+export async function togglePetBoardingStatus(id: string, boardingDetails?: any): Promise<Pet> {
   // Simulate API call
-  await delay(1000);
+  await delay(1000)
 
   // Find the pet to update
-  const petIndex = MOCK_PETS.findIndex((pet) => pet.id === id);
+  const petIndex = MOCK_PETS.findIndex((pet) => pet.id === id)
   if (petIndex === -1) {
-    throw new Error("Pet not found");
+    throw new Error("Pet not found")
   }
 
   // Toggle boarding status
   const updatedPet: Pet = {
     ...MOCK_PETS[petIndex],
     isBoarding: !MOCK_PETS[petIndex].isBoarding,
-  };
+  }
 
-  return updatedPet;
+  return updatedPet
 }
+

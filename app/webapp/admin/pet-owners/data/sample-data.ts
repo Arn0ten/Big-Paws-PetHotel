@@ -1,59 +1,37 @@
 import { DEFAULT_IMAGES, getPetImageByType } from "@/app/webapp/constants/image-constants"
+import type { PetOwner } from "../utils/types"
 
-// Dog breeds
-export const DOG_BREEDS = [
-  "Golden Retriever",
-  "German Shepherd",
-  "Labrador",
-  "Beagle",
-  "Poodle",
-  "Bulldog",
-  "Husky",
-  "Pomeranian",
-  "Dachshund",
-  "Boxer",
-  "Shih Tzu",
-  "Chihuahua",
-  "Border Collie",
-  "Rottweiler",
-  "Great Dane",
-  "Doberman",
-  "Corgi",
-  "Dalmatian",
-  "Pug",
-  "Mixed Breed",
-]
-
-// Cat breeds
-export const CAT_BREEDS = [
-  "Siamese",
-  "Persian",
-  "Maine Coon",
-  "Ragdoll",
-  "Bengal",
-  "Sphynx",
-  "British Shorthair",
-  "Abyssinian",
-  "Scottish Fold",
-  "Burmese",
-  "Russian Blue",
-  "Norwegian Forest Cat",
-  "Siberian",
-  "American Shorthair",
-  "Oriental",
-  "Devon Rex",
-  "Himalayan",
-  "Exotic Shorthair",
-  "Munchkin",
-  "Mixed Breed",
-]
-
-// Items per page for pagination
-export const ITEMS_PER_PAGE = 6
+/**
+ * PET OWNER MANAGEMENT MODULE - SAMPLE DATA
+ *
+ * This file contains sample data for the Pet Owner Management module.
+ * In a production environment, this data would be fetched from the backend API.
+ *
+ * BACKEND INTEGRATION NOTES:
+ *
+ * 1. API Endpoints Required:
+ *    - GET /api/pet-owners - Fetch all pet owners with optional filters
+ *      Parameters: search, city, hasPets, page, limit, sortBy, sortOrder
+ *    - GET /api/pet-owners/:id - Fetch a single pet owner by ID
+ *    - POST /api/pet-owners - Create a new pet owner
+ *    - PUT /api/pet-owners/:id - Update an existing pet owner
+ *    - DELETE /api/pet-owners/:id - Delete a pet owner
+ *    - POST /api/pet-owners/:id/pets - Add a pet to a pet owner
+ *    - POST /api/boarding - Create a new boarding record
+ *
+ * 2. Data Models:
+ *    - PetOwner: id, name, email, phone, address, avatar, pets[]
+ *    - Pet: id, name, type, breed, age, size, isBoarding, notes, image, ownerId
+ *    - BoardingDetails: petIds[], startDate, endDate, notes, services[]
+ *
+ * 3. Data Transformation:
+ *    - Convert ISO date strings to Date objects if needed
+ *    - Format address for display
+ *    - Calculate pet counts and boarding status
+ */
 
 // Mock data for pet owners
-// BACKEND INTEGRATION POINT: Replace this with API call to fetch pet owners
-export const MOCK_PET_OWNERS = [
+export const MOCK_PET_OWNERS: PetOwner[] = [
   {
     id: "PO-001",
     name: "John Doe",

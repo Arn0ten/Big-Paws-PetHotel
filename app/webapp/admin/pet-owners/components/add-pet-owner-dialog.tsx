@@ -1,8 +1,6 @@
 "use client"
 
-import type React from "react"
-
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -16,47 +14,27 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
-import { PawPrint, Loader2, User, Mail, Phone, MapPin, Upload } from "lucide-react"
+import { PlusCircle, Loader2, User, Mail, Phone, MapPin, Upload } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import type { PetOwner } from "../utils/types"
 import { DEFAULT_IMAGES } from "@/app/webapp/constants/image-constants"
 
-export interface EditPetOwnerDialogProps {
-  owner: PetOwner | null
-  isOpen: boolean
-  onOpenChange: (open: boolean) => void
-  onSubmit: (ownerData: Partial<PetOwner>) => Promise<void>
-  isSubmitting: boolean
-}
-
-export function EditPetOwnerDialog({ owner, isOpen, onOpenChange, onSubmit, isSubmitting }: EditPetOwnerDialogProps) {
+export function AddPetOwnerDialog({ isOpen, onOpenChange, onSubmit }) {
   const { toast } = useToast()
-  const [formData, setFormData] = useState<Partial<PetOwner>>({})
-  const [formErrors, setFormErrors] = useState<Record<string, string>>({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // Initialize form data when owner changes or dialog opens
-  useEffect(() => {
-    if (owner && isOpen) {
-      setFormData({
-        id: owner.id,
-        name: owner.name,
-        email: owner.email,
-        phone: owner.phone,
-        address: {
-          street: owner.address?.street || "",
-          city: owner.address?.city || "",
-          state: owner.address?.state || "",
-          zipCode: owner.address?.zipCode || "",
-        },
-        notes: owner.notes || "",
-        avatar: owner.avatar,
-      })
-      setFormErrors({})
-    }
-  }, [owner, isOpen])
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    address: "",
+    notes: "",
+    avatar: DEFAULT_IMAGES.USER_AVATAR, // Default avatar
+  })
+
+  const [formErrors, setFormErrors] = useState({})
 
   // Handle form input change
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (e) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
 
@@ -71,7 +49,7 @@ export function EditPetOwnerDialog({ owner, isOpen, onOpenChange, onSubmit, isSu
   }
 
   // Handle avatar upload
-  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarUpload = (e) => {
     const file = e.target.files?.[0]
     if (!file) return
 
@@ -107,8 +85,8 @@ export function EditPetOwnerDialog({ owner, isOpen, onOpenChange, onSubmit, isSu
 
   // Validate form
   const validateForm = () => {
-    const errors: Record<string, string> = {}
-    const requiredFields: (keyof PetOwner)[] = ["name", "email", "phone"]
+    const errors = {}
+    const requiredFields = ["name", "email", "phone"]
 
     requiredFields.forEach((field) => {
       if (!formData[field]) {
@@ -129,44 +107,95 @@ export function EditPetOwnerDialog({ owner, isOpen, onOpenChange, onSubmit, isSu
   const handleSubmit = async () => {
     if (!validateForm()) return
 
+    setIsSubmitting(true)
+
     try {
-      await onSubmit(formData)
+      // BACKEND INTEGRATION POINT:
+      // This should call your API to create a new pet owner
+      // Example API call:
+      // const response = await fetch('/api/admin/pet-owners', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //     'Authorization': `Bearer ${localStorage.getItem('token')}`
+      //   },
+      //   body: JSON.stringify(formData)
+      // })
+      // if (!response.ok) throw new Error('Failed to create pet owner')
+      // const data = await response.json()
+
+      // Simulate API delay
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+
+      // Generate a mock ID for the new pet owner
+      const newPetOwner = {
+        ...formData,
+        id: `owner-${Date.now()}`,
+        createdAt: new Date().toISOString(),
+        pets: [],
+      }
+
+      await onSubmit(newPetOwner)
+
+      // Reset form
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        address: "",
+        notes: "",
+        avatar: DEFAULT_IMAGES.USER_AVATAR,
+      })
+
+      onOpenChange(false)
+
+      toast({
+        title: "Pet owner added",
+        description: "The pet owner has been added successfully.",
+      })
     } catch (error) {
-      console.error("Failed to update pet owner:", error)
+      console.error("Failed to add pet owner:", error)
       toast({
         title: "Error",
-        description: "Failed to update pet owner. Please try again.",
+        description: "Failed to add pet owner. Please try again.",
         variant: "destructive",
       })
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
   // Reset form when dialog closes
-  const handleOpenChange = (open: boolean) => {
+  const handleOpenChange = (open) => {
     if (!open) {
-      setFormData({})
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        address: "",
+        notes: "",
+        avatar: DEFAULT_IMAGES.USER_AVATAR,
+      })
       setFormErrors({})
     }
     onOpenChange(open)
   }
-
-  if (!owner) return null
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="w-full max-w-md md:max-w-lg p-4 md:p-6 overflow-y-auto max-h-[80vh]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-primary">
-            <PawPrint className="h-5 w-5" />
-            Edit Pet Owner
+            <PlusCircle className="h-5 w-5" />
+            Add New Pet Owner
           </DialogTitle>
-          <DialogDescription>Update information for {owner.name}</DialogDescription>
+          <DialogDescription>Register a new pet owner in the system</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <div className="flex flex-col items-center mb-4">
             <Avatar className="h-24 w-24 mb-2">
-              <AvatarImage src={formData.avatar || DEFAULT_IMAGES.USER_AVATAR} alt="Profile" />
+              <AvatarImage src={formData.avatar} alt="Profile" />
               <AvatarFallback>{formData.name ? formData.name.charAt(0) : "U"}</AvatarFallback>
             </Avatar>
 
@@ -177,7 +206,7 @@ export function EditPetOwnerDialog({ owner, isOpen, onOpenChange, onSubmit, isSu
               </div>
               <Input id="avatar-upload" type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
             </Label>
-            <p className="text-xs text-muted-foreground mt-1">Optional: Upload a profile picture</p>
+            <p className="text-xs text-muted-foreground mt-1">Optional: Upload a profile picture or use the default</p>
           </div>
 
           <div className="space-y-2">
@@ -190,7 +219,7 @@ export function EditPetOwnerDialog({ owner, isOpen, onOpenChange, onSubmit, isSu
                 id="name"
                 name="name"
                 placeholder="Enter full name"
-                value={formData.name || ""}
+                value={formData.name}
                 onChange={handleInputChange}
                 className={`pl-9 ${formErrors.name ? "border-red-500 focus-visible:ring-red-500" : ""}`}
               />
@@ -209,7 +238,7 @@ export function EditPetOwnerDialog({ owner, isOpen, onOpenChange, onSubmit, isSu
                 name="email"
                 type="email"
                 placeholder="Enter email address"
-                value={formData.email || ""}
+                value={formData.email}
                 onChange={handleInputChange}
                 className={`pl-9 ${formErrors.email ? "border-red-500 focus-visible:ring-red-500" : ""}`}
               />
@@ -227,7 +256,7 @@ export function EditPetOwnerDialog({ owner, isOpen, onOpenChange, onSubmit, isSu
                 id="phone"
                 name="phone"
                 placeholder="Enter phone number"
-                value={formData.phone || ""}
+                value={formData.phone}
                 onChange={handleInputChange}
                 className={`pl-9 ${formErrors.phone ? "border-red-500 focus-visible:ring-red-500" : ""}`}
               />
@@ -236,57 +265,18 @@ export function EditPetOwnerDialog({ owner, isOpen, onOpenChange, onSubmit, isSu
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="address.street" className="text-sm font-medium">
-              Street Address <span className="text-xs text-muted-foreground">(optional)</span>
+            <Label htmlFor="address" className="text-sm font-medium">
+              Address <span className="text-xs text-muted-foreground">(optional)</span>
             </Label>
             <div className="relative">
               <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                id="address.street"
-                name="address.street"
-                placeholder="Enter street address"
-                value={formData.address?.street || ""}
+                id="address"
+                name="address"
+                placeholder="Enter address"
+                value={formData.address}
                 onChange={handleInputChange}
                 className="pl-9"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="address.city" className="text-sm font-medium">
-                City
-              </Label>
-              <Input
-                id="address.city"
-                name="address.city"
-                placeholder="Enter city"
-                value={formData.address?.city || ""}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="address.state" className="text-sm font-medium">
-                State
-              </Label>
-              <Input
-                id="address.state"
-                name="address.state"
-                placeholder="Enter state"
-                value={formData.address?.state || ""}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="address.zipCode" className="text-sm font-medium">
-                ZIP Code
-              </Label>
-              <Input
-                id="address.zipCode"
-                name="address.zipCode"
-                placeholder="Enter ZIP code"
-                value={formData.address?.zipCode || ""}
-                onChange={handleInputChange}
               />
             </div>
           </div>
@@ -299,7 +289,7 @@ export function EditPetOwnerDialog({ owner, isOpen, onOpenChange, onSubmit, isSu
               id="notes"
               name="notes"
               placeholder="Enter any additional notes"
-              value={formData.notes || ""}
+              value={formData.notes}
               onChange={handleInputChange}
               className="min-h-[80px]"
             />
@@ -307,27 +297,19 @@ export function EditPetOwnerDialog({ owner, isOpen, onOpenChange, onSubmit, isSu
         </div>
 
         <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-4">
-          <Button
-            variant="outline"
-            onClick={() => handleOpenChange(false)}
-            className="border-red-300 bg-red-50 hover:bg-red-100 text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:hover:bg-red-800/50 dark:text-red-400"
-          >
+          <Button variant="outline" onClick={() => handleOpenChange(false)}>
             Cancel
           </Button>
-          <Button
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-            className="bg-green-600 hover:bg-green-700 text-white dark:bg-green-700 dark:hover:bg-green-800 dark:text-white"
-          >
+          <Button onClick={handleSubmit} disabled={isSubmitting}>
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Updating...
+                Adding...
               </>
             ) : (
               <>
-                <PawPrint className="mr-2 h-4 w-4" />
-                Update Pet Owner
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Add Pet Owner
               </>
             )}
           </Button>

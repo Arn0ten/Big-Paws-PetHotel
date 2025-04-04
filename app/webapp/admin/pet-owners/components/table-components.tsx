@@ -149,7 +149,7 @@ function PetBadge({ pet, onClick }: PetBadgeProps) {
         }
       `}
       onClick={(e) => {
-        e.stopPropagation(); // Add this to prevent row click from triggering
+        e.stopPropagation(); // Prevent row click from triggering
         onClick();
       }}
     >
@@ -175,11 +175,12 @@ function PetBadge({ pet, onClick }: PetBadgeProps) {
 export interface PetOwnerTableRowProps {
   owner: PetOwner;
   expandedPetsList: string[];
+  petOwners: PetOwner[];
   onToggleExpandPets: (id: string) => void;
   onPetClick: (pet: Pet) => void;
   onAddPet: (id: string) => void;
   onBoardPet: (id: string) => void;
-  onEditOwner: (id: string) => void;
+  onEditOwner: (id: PetOwner) => void;
   onDeleteOwner: (id: string) => void;
 }
 
@@ -255,7 +256,10 @@ export function PetOwnerTableRow({
           ownerId={owner.id}
           expandedIds={expandedPetsList}
           onToggleExpand={onToggleExpandPets}
-          onPetClick={onPetClick}
+          onPetClick={(pet) => {
+            // Ensure this properly passes the pet to the parent handler
+            onPetClick(pet);
+          }}
         />
       </TableCell>
       <TableCell className="text-right">

@@ -12,7 +12,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogClose,
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
@@ -24,20 +23,25 @@ import {
   Loader2,
   Dog,
   Cat,
-  Calendar,
   Ruler,
   CheckCircle2,
-  XCircle,
   Edit,
   Hotel,
   Upload,
   PawPrint,
   Dna,
   CalendarDays,
+  Trash2,
+  FileText,
+  User,
+  X,
+  CalendarIcon,
 } from "lucide-react"
 import type { Pet, PetOwner, FormErrors } from "../utils/types"
 import { DOG_BREEDS, CAT_BREEDS } from "../utils/constants"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 /**
  * Component for displaying success message
@@ -91,15 +95,6 @@ function GlobalSuccessDialog({
 /**
  * Component for displaying pet details
  */
-export interface PetDetailsDialogProps {
-  pet: Pet | null
-  isOpen: boolean
-  onOpenChange: (open: boolean) => void
-  onEditPet?: (pet: Pet) => void
-  onBoardPet?: (pet: Pet) => void
-  onEndBoarding?: (pet: Pet) => void
-}
-
 export function PetDetailsDialog({
   pet,
   isOpen,
@@ -107,137 +102,205 @@ export function PetDetailsDialog({
   onEditPet,
   onBoardPet,
   onEndBoarding,
-}: PetDetailsDialogProps) {
+  onDeletePet,
+}: {
+  pet: Pet | null
+  isOpen: boolean
+  onOpenChange: (open: boolean) => void
+  onEditPet?: (pet: Pet) => void
+  onBoardPet?: (pet: Pet) => void
+  onEndBoarding?: (pet: Pet) => void
+  onDeletePet?: (pet: Pet) => void
+}) {
+  const [activeTab, setActiveTab] = useState("details")
+
   if (!pet) return null
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="w-full max-w-md md:max-w-lg p-4 md:p-6 overflow-y-auto max-h-[80vh]">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            {pet.type === "Dog" ? (
-              <Dog className="h-5 w-5 text-blue-500" />
-            ) : (
-              <Cat className="h-5 w-5 text-purple-500" />
-            )}
-            Pet Details
-          </DialogTitle>
-          <DialogDescription>Detailed information about {pet.name}</DialogDescription>
-        </DialogHeader>
-
-        <div className="space-y-3 md:space-y-4">
-          <div className="flex flex-col items-center">
-            <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-primary/20 mb-2">
-              <img
-                src={pet.image || "/placeholder.svg?height=200&width=200"}
-                alt={pet.name}
-                className="object-cover w-full h-full"
-              />
-              {pet.isBoarding && (
-                <div className="absolute bottom-0 left-0 right-0 bg-green-500 text-white text-xs py-1 text-center">
-                  Currently Boarding
-                </div>
+      <DialogContent className="w-full max-w-md md:max-w-lg p-0 overflow-hidden max-h-[90vh] rounded-xl">
+        <div className="flex flex-col h-full overflow-hidden">
+          {/* Header with title and close button */}
+          <div className="flex items-center justify-between p-4 border-b">
+            <DialogTitle className="text-xl font-bold flex items-center gap-2">
+              {pet.type === "Dog" ? (
+                <Dog className="h-5 w-5 text-blue-500" />
+              ) : (
+                <Cat className="h-5 w-5 text-purple-500" />
               )}
+              Pet Profile
+            </DialogTitle>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" className="h-8" onClick={() => onEditPet?.(pet)}>
+                <Edit className="h-4 w-4 mr-1" />
+                Edit
+              </Button>
+              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" onClick={() => onOpenChange(false)}>
+                <X className="h-4 w-4" />
+              </Button>
             </div>
-            <h3 className="text-xl font-bold">{pet.name}</h3>
-            <p className="text-muted-foreground">{pet.breed}</p>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="flex items-center gap-2 p-3 rounded-lg border">
-              <div className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-full">
-                <Dog className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-              </div>
-              <div>
-                <p className="text-sm font-medium">Type</p>
-                <p className="text-lg">{pet.type}</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 p-3 rounded-lg border">
-              <div className="bg-amber-100 dark:bg-amber-900/30 p-2 rounded-full">
-                <Calendar className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-              </div>
-              <div>
-                <p className="text-sm font-medium">Age</p>
-                <p className="text-lg">
-                  {pet.age} {pet.age === 1 ? "year" : "years"}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 p-3 rounded-lg border">
-              <div className="bg-purple-100 dark:bg-purple-900/30 p-2 rounded-full">
-                <Ruler className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-              </div>
-              <div>
-                <p className="text-sm font-medium">Size</p>
-                <p className="text-lg">{pet.size}</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 p-3 rounded-lg border">
-              <div
-                className={`${pet.isBoarding ? "bg-green-100 dark:bg-green-900/30" : "bg-red-100 dark:bg-red-900/30"} p-2 rounded-full`}
-              >
-                {pet.isBoarding ? (
-                  <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
+          {/* Scrollable content area */}
+          <div className="flex-1 overflow-y-auto">
+            {/* Pet image */}
+            <div className="p-4 border-b">
+              <div className="aspect-video w-full rounded-lg overflow-hidden bg-muted flex items-center justify-center">
+                {pet.image ? (
+                  <img src={pet.image || "/placeholder.svg"} alt={pet.name} className="w-full h-full object-cover" />
                 ) : (
-                  <XCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
+                  <div className="flex flex-col items-center justify-center text-muted-foreground">
+                    {pet.type === "Dog" ? <Dog className="h-16 w-16 mb-2" /> : <Cat className="h-16 w-16 mb-2" />}
+                    <span>No image available</span>
+                  </div>
                 )}
               </div>
+            </div>
+
+            {/* Status banner */}
+            {pet.isBoarding && (
+              <div className="bg-green-100 dark:bg-green-900/30 p-3 text-center text-green-800 dark:text-green-300 font-medium border-b">
+                Currently Boarding
+              </div>
+            )}
+
+            {/* Pet name and primary info */}
+            <div className="p-4 flex justify-between items-start border-b">
               <div>
-                <p className="text-sm font-medium">Boarding Status</p>
-                <p className="text-lg">{pet.isBoarding ? "Currently Boarding" : "Not Boarding"}</p>
+                <h2 className="text-3xl font-bold mb-2">{pet.name}</h2>
+                <div className="flex flex-wrap gap-2 mb-2">
+                  <Badge variant="secondary" className="text-sm px-3 py-1">
+                    {pet.type}
+                  </Badge>
+                  <Badge variant="outline" className="text-sm px-3 py-1">
+                    {pet.breed}
+                  </Badge>
+                </div>
+                <div className="flex items-center text-muted-foreground">
+                  <User className="h-4 w-4 mr-1" />
+                  <span>Owner: {pet.ownerName || "Unknown"}</span>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                {!pet.isBoarding ? (
+                  <Button
+                    size="sm"
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                    onClick={() => onBoardPet?.(pet)}
+                  >
+                    <Hotel className="mr-1 h-3.5 w-3.5" />
+                    Start Boarding
+                  </Button>
+                ) : (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="border-red-300 bg-red-50 hover:bg-red-100 text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:hover:bg-red-800/50 dark:text-red-400"
+                    onClick={() => onEndBoarding?.(pet)}
+                  >
+                    <CheckCircle2 className="mr-1 h-3.5 w-3.5" />
+                    End Boarding
+                  </Button>
+                )}
+                <Button size="sm" variant="outline">
+                  <FileText className="mr-1 h-3.5 w-3.5" />
+                  Request (0)
+                </Button>
               </div>
             </div>
-          </div>
 
-          {pet.notes && (
-            <div className="p-3 rounded-lg border">
-              <p className="text-sm font-medium mb-1">Additional Notes</p>
-              <p className="text-sm text-muted-foreground">{pet.notes}</p>
+            {/* Tabs for different sections */}
+            <div className="border-b">
+              <Tabs defaultValue="details" value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <TabsList className="grid grid-cols-3 w-full rounded-none border-b">
+                  <TabsTrigger value="details" className="rounded-none">
+                    Details
+                  </TabsTrigger>
+                  <TabsTrigger value="boarding-history" className="rounded-none">
+                    Boarding History
+                  </TabsTrigger>
+                  <TabsTrigger value="request-history" className="rounded-none">
+                    Request History
+                  </TabsTrigger>
+                </TabsList>
+
+                {/* Details Tab Content */}
+                <TabsContent value="details" className="p-0 m-0">
+                  <div className="p-4 border-b">
+                    <div className="grid grid-cols-3 gap-3 mb-4">
+                      <div className="border rounded-lg p-3 flex flex-col items-center justify-center">
+                        <div className="text-sm text-muted-foreground mb-1">Size</div>
+                        <div className="font-semibold flex items-center">
+                          <Ruler className="h-4 w-4 mr-1 text-blue-500" />
+                          {pet.size}
+                        </div>
+                      </div>
+                      <div className="border rounded-lg p-3 flex flex-col items-center justify-center">
+                        <div className="text-sm text-muted-foreground mb-1">Age</div>
+                        <div className="font-semibold flex items-center">
+                          <CalendarDays className="h-4 w-4 mr-1 text-amber-500" />
+                          {pet.age} {pet.age === 1 ? "Year" : "Years"}
+                        </div>
+                      </div>
+                      <div className="border rounded-lg p-3 flex flex-col items-center justify-center">
+                        <div className="text-sm text-muted-foreground mb-1">Gender</div>
+                        <div className="font-semibold flex items-center">
+                          <User className="h-4 w-4 mr-1 text-purple-500" />
+                          Male
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="font-semibold mb-2">Additional Notes:</h3>
+                      <p className="text-muted-foreground text-sm">
+                        {pet.notes || "No additional notes available for this pet."}
+                      </p>
+                    </div>
+                  </div>
+                </TabsContent>
+
+                {/* Boarding History Tab Content */}
+                <TabsContent value="boarding-history" className="p-0 m-0">
+                  <div className="p-4">
+                    <div className="flex items-center justify-center h-32 border rounded-md bg-muted/30">
+                      <div className="text-center">
+                        <CalendarIcon className="h-10 w-10 text-muted-foreground mx-auto mb-2" />
+                        <p className="text-muted-foreground">No boarding history available</p>
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+
+                {/* Request History Tab Content */}
+                <TabsContent value="request-history" className="p-0 m-0">
+                  <div className="p-4">
+                    <div className="flex items-center justify-center h-32 border rounded-md bg-muted/30">
+                      <div className="text-center">
+                        <FileText className="h-10 w-10 text-muted-foreground mx-auto mb-2" />
+                        <p className="text-muted-foreground">No request history available</p>
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+              </Tabs>
             </div>
-          )}
 
-          <div className="flex justify-between pt-2">
-            <Button
-              variant="outline"
-              className="border-primary/20 hover:bg-primary/10 hover:text-primary dark:border-primary/30 dark:hover:bg-primary/20 dark:hover:text-primary-foreground"
-              onClick={() => onEditPet?.(pet)}
-            >
-              <Edit className="mr-2 h-4 w-4" />
-              Edit Pet
-            </Button>
-
-            {!pet.isBoarding ? (
-              <Button
-                className="bg-green-600 hover:bg-green-700 text-white dark:bg-green-700 dark:hover:bg-green-800 dark:text-white"
-                onClick={() => onBoardPet?.(pet)}
-              >
-                <Hotel className="mr-2 h-4 w-4" />
-                Start Boarding
-              </Button>
-            ) : (
+            {/* Delete Pet Button */}
+            <div className="p-4">
               <Button
                 variant="outline"
-                className="border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-700 dark:border-amber-700 dark:bg-amber-900/30 dark:hover:bg-amber-800/50 dark:text-amber-400"
-                onClick={() => onEndBoarding?.(pet)}
+                className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+                size="lg"
+                onClick={() => onDeletePet?.(pet)}
               >
-                <CheckCircle2 className="mr-2 h-4 w-4" />
-                End Boarding
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete Pet
               </Button>
-            )}
+            </div>
           </div>
         </div>
-
-        <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-4">
-          <DialogClose asChild>
-            <Button variant="outline" className="w-full">
-              Close
-            </Button>
-          </DialogClose>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   )

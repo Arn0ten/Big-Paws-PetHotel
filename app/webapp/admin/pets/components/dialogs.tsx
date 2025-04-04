@@ -506,7 +506,7 @@ export function EditPetDialog({
   pet: Pet | null
   isOpen: boolean
   onOpenChange: (open: boolean) => void
-  onSubmit: (petData: Partial<Pet>) => Promise<void>
+  onSubmit: (data: Partial<Pet>) => void
   isSubmitting: boolean
   petOwners: PetOwner[]
 }) {
@@ -671,13 +671,10 @@ export function EditPetDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="w-full max-w-md md:max-w-lg p-4 md:p-6 overflow-y-auto max-h-[80vh]">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-primary">
-            <PawPrint className="h-5 w-5" />
-            Edit Pet
-          </DialogTitle>
-          <DialogDescription>Update information for {pet.name}</DialogDescription>
+          <DialogTitle>Edit Pet</DialogTitle>
+          <DialogDescription>Update the pet's information. Click save when you're done.</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
