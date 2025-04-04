@@ -503,7 +503,7 @@ export function BoardingTable({
             open={deleteConfirmationOpen}
             onOpenChange={setDeleteConfirmationOpen}
             title="Delete Boarding Record"
-            description="Are you sure you want to delete this boarding record? This action cannot be undone. "
+            description="Are you sure you want to delete this boarding record? This action cannot be undone."
             onConfirm={confirmDelete}
           />
         </>
