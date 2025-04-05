@@ -416,7 +416,7 @@ export default function PetsPage() {
                         <div className="relative flex-1 min-w-0 md:w-[300px]">
                           <Input
                             ref={searchInputRef}
-                            type="search"
+                            type="text"
                             placeholder="Search pets..."
                             className="pl-8"
                             value={searchInputValue}
