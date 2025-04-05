@@ -289,13 +289,13 @@ export function PetOwnerTableRow({
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                className="text-destructive focus:text-destructive"
+                className="text-red-600 hover:text-red-700 focus:text-red-700 dark:text-red-500 dark:hover:text-red-400"
                 onClick={(e) => {
                   e.stopPropagation() // Prevent row click
                   onDeleteOwner(owner.id)
                 }}
               >
-                <Trash2 className="mr-2 h-4 w-4" />
+                <Trash2 className="mr-2 h-4 w-4 text-red-600 dark:text-red-500" />
                 Delete
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -357,12 +357,12 @@ export function PetOwnerTable({
       <Table>
         <TableHeader className="bg-muted/50">
           <TableRow>
-            <TableHead className="w-[50px] font-semibold">Avatar</TableHead>
-            <TableHead className="font-semibold">Name</TableHead>
-            <TableHead className="font-semibold">Contact Information</TableHead>
-            <TableHead className="hidden md:table-cell font-semibold">Address</TableHead>
-            <TableHead className="font-semibold">Pets</TableHead>
-            <TableHead className="text-right font-semibold">Actions</TableHead>
+            <TableHead className="w-[50px] font-semibold text-center whitespace-nowrap">Avatar</TableHead>
+            <TableHead className="font-semibold text-center whitespace-nowrap">Name</TableHead>
+            <TableHead className="font-semibold text-center whitespace-nowrap">Contact Information</TableHead>
+            <TableHead className="hidden md:table-cell font-semibold text-center whitespace-nowrap">Address</TableHead>
+            <TableHead className="font-semibold text-center whitespace-nowrap">Pets</TableHead>
+            <TableHead className="font-semibold text-center whitespace-nowrap">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody className="relative">
