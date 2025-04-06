@@ -484,7 +484,7 @@ export function PaginationControls({ currentPage, totalPages, onPageChange }: Pa
               )
             }
 
-            // Show ellipsis for gaps
+            // Show ellipsis for gaps 
             if ((page === 2 && currentPage > 3) || (page === totalPages - 1 && currentPage < totalPages - 2)) {
               return (
                 <PaginationItem key={page}>
