@@ -151,16 +151,9 @@ export const updateBoardingStatus = (
   const updatedOrder = {
     ...order,
     paymentStatus: newPaymentStatus,
-    // Add payment history entry
-    paymentHistory: [
-      ...(order.paymentHistory || []),
-      {
-        status: newPaymentStatus,
-        timestamp: new Date().toISOString(),
-        modifiedBy: "Admin",
-        reason: `Payment status updated to ${newPaymentStatus}`,
-      },
-    ],
+    updatedAt: new Date().toISOString(),
+    lastModifiedBy: "Admin",
+    lastModificationReason: `Payment status updated to ${newPaymentStatus}`,
   };
 
   // If the order is overdue and the new payment status is 'Paid', don't change the boarding status
@@ -272,19 +265,8 @@ export const releasePet = (order: BoardingOrder): BoardingOrder => {
     receiptGenerated: true,
     notificationSent: true,
     isOverdue: false, // Reset the overdue status when releasing
-    // Add payment history entry if payment status is being updated
-    paymentHistory:
-      order.paymentStatus !== "Paid"
-        ? [
-            ...(order.paymentHistory || []),
-            {
-              status: "Paid",
-              timestamp: now,
-              modifiedBy: "Admin",
-              reason: "Payment completed at pet release",
-            },
-          ]
-        : order.paymentHistory,
+    lastModifiedBy: "Admin",
+    lastModificationReason: "Payment completed at pet release",
     paymentStatus: "Paid", // Ensure payment status is set to Paid when releasing
   };
 };
@@ -308,19 +290,8 @@ export const forceReleasePet = (order: BoardingOrder): BoardingOrder => {
     receiptGenerated: true,
     notificationSent: true,
     isOverdue: false,
-    // Add payment history entry if payment status is being updated
-    paymentHistory:
-      order.paymentStatus !== "Paid"
-        ? [
-            ...(order.paymentHistory || []),
-            {
-              status: "Paid",
-              timestamp: now,
-              modifiedBy: "Admin",
-              reason: "Payment completed at force release",
-            },
-          ]
-        : order.paymentHistory,
+    lastModifiedBy: "Admin",
+    lastModificationReason: "Payment completed at force release",
     paymentStatus: "Paid", // Ensure payment status is set to Paid when force releasing
   };
 };

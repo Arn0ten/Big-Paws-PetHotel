@@ -53,10 +53,9 @@ import {
   Receipt,
   Clock,
   User,
-  DollarSign,
   Calendar,
   Tag,
-  PhilippinePesoIcon,
+  PoundSterlingIcon as PhilippinePesoIcon,
 } from "lucide-react";
 import { ReleaseConfirmationDialog } from "./release-confirmation-dialog";
 import { ReceiptDialog } from "./receipt-dialog";
@@ -222,7 +221,6 @@ export function BoardingDetailDialog({
         <DialogContent className="sm:max-w-[650px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-xl flex items-center gap-2">
-              
               Boarding Details
             </DialogTitle>
           </DialogHeader>
@@ -602,42 +600,6 @@ export function BoardingDetailDialog({
                 </div>
               </CardContent>
             </Card>
-
-            {/* Payment History Section (if available) */}
-            {boardingOrder.paymentHistory &&
-              boardingOrder.paymentHistory.length > 0 && (
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-base flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-primary" />
-                      PAYMENT HISTORY
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      {boardingOrder.paymentHistory.map((entry, index) => (
-                        <div
-                          key={index}
-                          className="flex justify-between text-sm border-b pb-2 last:border-0"
-                        >
-                          <div>
-                            <Badge
-                              variant="outline"
-                              className={getPaymentStatusColor(entry.status)}
-                            >
-                              {entry.status}
-                            </Badge>
-                            <span className="ml-2 text-muted-foreground">
-                              {entry.modifiedBy}
-                            </span>
-                          </div>
-                          <span>{formatDate(entry.timestamp)}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
 
             {/* Notes Section (if available) */}
             {boardingOrder.notes && (
