@@ -1,4 +1,4 @@
-import type { BoardingOrder, PaymentStatus, BoardingType } from "../types"
+import type { BoardingOrder, PaymentStatus, BoardingType } from "../types";
 
 /**
  * Format date to a readable string
@@ -9,33 +9,33 @@ import type { BoardingOrder, PaymentStatus, BoardingType } from "../types"
  * or server-side formatting for consistency across the application
  */
 export const formatDate = (dateString: string): string => {
-  const date = new Date(dateString)
+  const date = new Date(dateString);
   return date.toLocaleDateString("en-US", {
     year: "numeric",
     month: "short",
     day: "numeric",
     hour: "2-digit",
     minute: "2-digit",
-  })
-}
+  });
+};
 
 // Add the formatTime function if it doesn't exist
 export const formatTime = (timeString: string): string => {
   try {
-    const date = new Date(timeString)
+    const date = new Date(timeString);
     if (isNaN(date.getTime())) {
-      return "Invalid Time"
+      return "Invalid Time";
     }
     return date.toLocaleTimeString(undefined, {
       hour: "2-digit",
       minute: "2-digit",
       hour12: true,
-    })
+    });
   } catch (error) {
-    console.error("Error formatting time:", error)
-    return "Invalid Time"
+    console.error("Error formatting time:", error);
+    return "Invalid Time";
   }
-}
+};
 
 /**
  * Calculate boarding duration in days or hours
@@ -46,19 +46,23 @@ export const formatTime = (timeString: string): string => {
  *
  * @dev This calculation should match your business logic for billing periods
  */
-export const calculateDuration = (startDate: string, endDate: string, boardingType: BoardingType): number => {
-  const start = new Date(startDate)
-  const end = new Date(endDate)
+export const calculateDuration = (
+  startDate: string,
+  endDate: string,
+  boardingType: BoardingType,
+): number => {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
 
-  const diffTime = Math.abs(end.getTime() - start.getTime())
+  const diffTime = Math.abs(end.getTime() - start.getTime());
 
   if (boardingType === "Daycare") {
-    return Math.ceil(diffTime / (1000 * 60 * 60)) // Return hours for daycare
+    return Math.ceil(diffTime / (1000 * 60 * 60)); // Return hours for daycare
   }
 
   // For LongStay and CatHotel, return days
-  return Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-}
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+};
 
 /**
  * Format duration for display
@@ -66,12 +70,15 @@ export const calculateDuration = (startDate: string, endDate: string, boardingTy
  * @param boardingType Type of boarding (Daycare, LongStay, CatHotel)
  * @returns Formatted duration string
  */
-export const formatDuration = (duration: number, boardingType: BoardingType): string => {
+export const formatDuration = (
+  duration: number,
+  boardingType: BoardingType,
+): string => {
   if (boardingType === "Daycare") {
-    return `${duration} hour${duration !== 1 ? "s" : ""}`
+    return `${duration} hour${duration !== 1 ? "s" : ""}`;
   }
-  return `${duration} day${duration !== 1 ? "s" : ""}`
-}
+  return `${duration} day${duration !== 1 ? "s" : ""}`;
+};
 
 /**
  * Format price to Philippine Peso
@@ -86,8 +93,8 @@ export const formatCurrency = (amount: number): string => {
     style: "currency",
     currency: "PHP",
     minimumFractionDigits: 2,
-  }).format(amount)
-}
+  }).format(amount);
+};
 
 /**
  * Calculate the total of additional services
@@ -97,13 +104,18 @@ export const formatCurrency = (amount: number): string => {
  * @dev This function should be used consistently across the application
  * to ensure the same calculation logic is applied everywhere
  */
-export const calculateAdditionalServicesTotal = (order: BoardingOrder): number => {
+export const calculateAdditionalServicesTotal = (
+  order: BoardingOrder,
+): number => {
   if (!order.additionalServices || order.additionalServices.length === 0) {
-    return 0
+    return 0;
   }
 
-  return order.additionalServices.reduce((total, service) => total + service.price, 0)
-}
+  return order.additionalServices.reduce(
+    (total, service) => total + service.price,
+    0,
+  );
+};
 
 /**
  * Calculate the base boarding price without additional services
@@ -115,13 +127,13 @@ export const calculateAdditionalServicesTotal = (order: BoardingOrder): number =
 export const calculateBasePrice = (order: BoardingOrder): number => {
   // If baseAmount is explicitly set, use it
   if (order.baseAmount) {
-    return order.baseAmount
+    return order.baseAmount;
   }
 
   // Otherwise calculate from total price minus additional services
-  const additionalServicesTotal = calculateAdditionalServicesTotal(order)
-  return order.totalPrice - additionalServicesTotal
-}
+  const additionalServicesTotal = calculateAdditionalServicesTotal(order);
+  return order.totalPrice - additionalServicesTotal;
+};
 
 /**
  * Update boarding status based on payment status
@@ -132,7 +144,10 @@ export const calculateBasePrice = (order: BoardingOrder): number => {
  * @dev This function implements business logic for status transitions
  * and should be aligned with your application's workflow
  */
-export const updateBoardingStatus = (order: BoardingOrder, newPaymentStatus: PaymentStatus): BoardingOrder => {
+export const updateBoardingStatus = (
+  order: BoardingOrder,
+  newPaymentStatus: PaymentStatus,
+): BoardingOrder => {
   const updatedOrder = {
     ...order,
     paymentStatus: newPaymentStatus,
@@ -146,21 +161,21 @@ export const updateBoardingStatus = (order: BoardingOrder, newPaymentStatus: Pay
         reason: `Payment status updated to ${newPaymentStatus}`,
       },
     ],
-  }
+  };
 
   // If the order is overdue and the new payment status is 'Paid', don't change the boarding status
   if (order.isOverdue && newPaymentStatus === "Paid") {
-    return updatedOrder
+    return updatedOrder;
   }
 
   // Only update the boarding status if the current status is 'Done Boarding' and the new payment status is 'Paid'
   if (order.boardingStatus === "Done Boarding" && newPaymentStatus === "Paid") {
-    updatedOrder.boardingStatus = "Released"
-    updatedOrder.releaseTimestamp = new Date().toISOString()
+    updatedOrder.boardingStatus = "Released";
+    updatedOrder.releaseTimestamp = new Date().toISOString();
   }
 
-  return updatedOrder
-}
+  return updatedOrder;
+};
 
 /**
  * Filter boarding orders by status
@@ -178,11 +193,17 @@ export const filterOrdersByStatus = (
   paymentStatus?: string,
 ): BoardingOrder[] => {
   return orders.filter((order) => {
-    const matchesBoardingStatus = !boardingStatus || boardingStatus === "all" || order.boardingStatus === boardingStatus
-    const matchesPaymentStatus = !paymentStatus || paymentStatus === "all" || order.paymentStatus === paymentStatus
-    return matchesBoardingStatus && matchesPaymentStatus
-  })
-}
+    const matchesBoardingStatus =
+      !boardingStatus ||
+      boardingStatus === "all" ||
+      order.boardingStatus === boardingStatus;
+    const matchesPaymentStatus =
+      !paymentStatus ||
+      paymentStatus === "all" ||
+      order.paymentStatus === paymentStatus;
+    return matchesBoardingStatus && matchesPaymentStatus;
+  });
+};
 
 /**
  * Search boarding orders by pet name or owner name
@@ -192,17 +213,20 @@ export const filterOrdersByStatus = (
  *
  * @dev For production, implement server-side search with proper indexing
  */
-export const searchOrders = (orders: BoardingOrder[], searchTerm: string): BoardingOrder[] => {
-  if (!searchTerm) return orders
+export const searchOrders = (
+  orders: BoardingOrder[],
+  searchTerm: string,
+): BoardingOrder[] => {
+  if (!searchTerm) return orders;
 
-  const lowerCaseSearchTerm = searchTerm.toLowerCase()
+  const lowerCaseSearchTerm = searchTerm.toLowerCase();
 
   return orders.filter(
     (order) =>
       order.pet.name.toLowerCase().includes(lowerCaseSearchTerm) ||
       order.owner.name.toLowerCase().includes(lowerCaseSearchTerm),
-  )
-}
+  );
+};
 
 /**
  * Check if a pet is eligible for release
@@ -212,8 +236,23 @@ export const searchOrders = (orders: BoardingOrder[], searchTerm: string): Board
  * @dev This implements business logic for when pets can be released
  */
 export const isEligibleForRelease = (order: BoardingOrder): boolean => {
-  return order.paymentStatus === "Paid" && order.boardingStatus === "Done Boarding"
-}
+  return (
+    order.paymentStatus === "Paid" && order.boardingStatus === "Done Boarding"
+  );
+};
+
+/**
+ * Check if a pet is eligible for force release
+ * @param order BoardingOrder object
+ * @returns Boolean indicating if pet is eligible for force release
+ *
+ * @dev This implements business logic for when pets can be force released
+ * BACKEND INTEGRATION: This logic should match the backend validation
+ */
+export const isEligibleForForceRelease = (order: BoardingOrder): boolean => {
+  // Only pets with Paid status can be force released
+  return order.paymentStatus === "Paid" && order.boardingStatus === "Boarding";
+};
 
 /**
  * Release a pet
@@ -224,7 +263,7 @@ export const isEligibleForRelease = (order: BoardingOrder): boolean => {
  * In production, this should trigger notifications and receipt generation
  */
 export const releasePet = (order: BoardingOrder): BoardingOrder => {
-  const now = new Date().toISOString()
+  const now = new Date().toISOString();
   return {
     ...order,
     boardingStatus: "Released",
@@ -247,8 +286,44 @@ export const releasePet = (order: BoardingOrder): BoardingOrder => {
           ]
         : order.paymentHistory,
     paymentStatus: "Paid", // Ensure payment status is set to Paid when releasing
-  }
-}
+  };
+};
+
+/**
+ * Force release a pet regardless of its current boarding status
+ * @param order BoardingOrder object
+ * @returns Updated BoardingOrder object with release information
+ *
+ * @dev This function should be called when an admin force releases a pet
+ * In production, this should trigger notifications and receipt generation
+ * BACKEND INTEGRATION: This function should call the appropriate API endpoint
+ */
+export const forceReleasePet = (order: BoardingOrder): BoardingOrder => {
+  const now = new Date().toISOString();
+  return {
+    ...order,
+    boardingStatus: "Released",
+    releaseTimestamp: now,
+    updatedAt: now,
+    receiptGenerated: true,
+    notificationSent: true,
+    isOverdue: false,
+    // Add payment history entry if payment status is being updated
+    paymentHistory:
+      order.paymentStatus !== "Paid"
+        ? [
+            ...(order.paymentHistory || []),
+            {
+              status: "Paid",
+              timestamp: now,
+              modifiedBy: "Admin",
+              reason: "Payment completed at force release",
+            },
+          ]
+        : order.paymentHistory,
+    paymentStatus: "Paid", // Ensure payment status is set to Paid when force releasing
+  };
+};
 
 /**
  * Check if a pet pickup is overdue
@@ -258,17 +333,22 @@ export const releasePet = (order: BoardingOrder): BoardingOrder => {
  * @dev This should be run regularly to identify overdue pickups
  * Consider implementing as a scheduled job in production
  */
-export const checkOverduePickups = (orders: BoardingOrder[]): BoardingOrder[] => {
-  const now = new Date()
+export const checkOverduePickups = (
+  orders: BoardingOrder[],
+): BoardingOrder[] => {
+  const now = new Date();
 
   return orders.map((order) => {
     // If the pet is still boarding and the end date has passed
-    if (order.boardingStatus === "Done Boarding" && new Date(order.endDate) < now) {
-      return { ...order, isOverdue: true }
+    if (
+      order.boardingStatus === "Done Boarding" &&
+      new Date(order.endDate) < now
+    ) {
+      return { ...order, isOverdue: true };
     }
-    return { ...order, isOverdue: false }
-  })
-}
+    return { ...order, isOverdue: false };
+  });
+};
 
 /**
  * Generate a receipt for a released pet
@@ -278,10 +358,14 @@ export const checkOverduePickups = (orders: BoardingOrder[]): BoardingOrder[] =>
  * @dev In production, this should generate a proper PDF or HTML receipt
  */
 export const generateReceipt = (order: BoardingOrder): string => {
-  const duration = calculateDuration(order.startDate, order.endDate, order.boardingType)
-  const formattedPrice = formatCurrency(order.totalPrice)
-  const basePrice = calculateBasePrice(order)
-  const additionalServicesTotal = calculateAdditionalServicesTotal(order)
+  const duration = calculateDuration(
+    order.startDate,
+    order.endDate,
+    order.boardingType,
+  );
+  const formattedPrice = formatCurrency(order.totalPrice);
+  const basePrice = calculateBasePrice(order);
+  const additionalServicesTotal = calculateAdditionalServicesTotal(order);
 
   return `
     BOARDING RECEIPT
@@ -305,8 +389,8 @@ export const generateReceipt = (order: BoardingOrder): string => {
     Released on: ${order.releaseTimestamp ? formatDate(order.releaseTimestamp) : "N/A"}
     
     Thank you for choosing our services!
-  `
-}
+  `;
+};
 
 /**
  * Get boarding type description
@@ -316,15 +400,15 @@ export const generateReceipt = (order: BoardingOrder): string => {
 export const getBoardingTypeDescription = (type: string): string => {
   switch (type) {
     case "Daycare":
-      return "Hourly service (less than 24 hours)"
+      return "Hourly service (less than 24 hours)";
     case "LongStay":
-      return "Extended stay (overnight or longer)"
+      return "Extended stay (overnight or longer)";
     case "CatHotel":
-      return "Cat Hotel accommodation"
+      return "Cat Hotel accommodation";
     default:
-      return type
+      return type;
   }
-}
+};
 
 /**
  * Calculate new end date based on extension duration
@@ -335,18 +419,21 @@ export const getBoardingTypeDescription = (type: string): string => {
  *
  * @dev This function should match your business logic for extending stays
  */
-export const calculateNewEndDate = (currentEndDate: string, duration: string, unit: string): Date => {
-  const endDate = new Date(currentEndDate)
-  const durationNum = Number.parseInt(duration, 10)
+export const calculateNewEndDate = (
+  currentEndDate: string,
+  duration: string,
+  unit: string,
+): Date => {
+  const endDate = new Date(currentEndDate);
+  const durationNum = Number.parseInt(duration, 10);
 
   if (unit === "hours") {
-    endDate.setHours(endDate.getHours() + durationNum)
+    endDate.setHours(endDate.getHours() + durationNum);
   } else if (unit === "days") {
-    endDate.setDate(endDate.getDate() + durationNum)
+    endDate.setDate(endDate.getDate() + durationNum);
   } else if (unit === "weeks") {
-    endDate.setDate(endDate.getDate() + durationNum * 7)
+    endDate.setDate(endDate.getDate() + durationNum * 7);
   }
 
-  return endDate
-}
-
+  return endDate;
+};

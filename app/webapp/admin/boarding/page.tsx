@@ -37,7 +37,9 @@ interface FilterBarProps {
   onSearch: (term: string) => void;
   onFilterBoardingStatus: (status: string) => void;
   onFilterPaymentStatus: (status: string) => void;
+  onRefresh: () => void;
   isLoading?: boolean;
+  isRefreshing?: boolean;
   isSearching?: boolean;
   boardingStatusFilter: string;
   paymentStatusFilter: string;
@@ -48,7 +50,9 @@ export function FilterBar({
   onSearch,
   onFilterBoardingStatus,
   onFilterPaymentStatus,
+  onRefresh,
   isLoading = false,
+  isRefreshing = false,
   isSearching = false,
   boardingStatusFilter,
   paymentStatusFilter,
@@ -100,25 +104,10 @@ export function FilterBar({
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="flex-1 flex gap-2">
-          <Skeleton className="h-10 flex-1" />
-          <Skeleton className="h-10 w-10" />
-        </div>
-        <div className="flex gap-2">
-          <Skeleton className="h-10 w-[150px]" />
-          <Skeleton className="h-10 w-[150px]" />
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="flex flex-row justify-between items-center gap-4 flex-wrap md:flex-nowrap">
       {/* Left side - Search and Filters */}
-      <div className="flex flex-wrap gap-2 items-center order-1 md:order-1 w-full md:w-auto">
+      <div className="flex flex-wrap gap-2 items-center w-full">
         <div className="relative flex-1 min-w-0 md:w-[300px]">
           <Input
             placeholder="Search by pet or owner name..."
@@ -332,6 +321,21 @@ export default function BoardingManagementPage() {
     });
   };
 
+  // Update the BoardingManagementPage component to include the Force Release functionality
+  // Add the handleForceRelease function after the handleReleasePet function
+
+  const handleForceRelease = (orderId: string) => {
+    setActionDialog({
+      open: true,
+      title: "Confirm Force Release",
+      description:
+        "Are you sure you want to force release this pet? This action will immediately mark the pet as released regardless of its current boarding status.",
+      action: "forceRelease",
+      orderId,
+      status: "",
+    });
+  };
+
   const handleDeleteRecord = (orderId: string) => {
     setActionDialog({
       open: true,
@@ -389,6 +393,37 @@ export default function BoardingManagementPage() {
       setSuccessDialog({
         open: true,
         message: "Pet has been successfully released.",
+      });
+    }
+    // Update the handleConfirmAction function to include the forceRelease case
+    // Inside the handleConfirmAction function, add this case after the releasePet case:
+    else if (action === "forceRelease") {
+      // In production, this would be an API call
+      // await fetch(`/api/boarding/${orderId}/force-release`, { method: 'POST' });
+
+      const updatedOrders = boardingOrders.map((order) => {
+        if (order.id === orderId) {
+          const releasedOrder = {
+            ...order,
+            boardingStatus: "Released",
+            releaseTimestamp: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            receiptGenerated: true,
+            notificationSent: true,
+            isOverdue: false,
+            lastModifiedBy: "Admin",
+            lastModificationReason: "Pet force released",
+            paymentStatus: "Paid", // Ensure payment status is set to Paid when force releasing
+          };
+          return releasedOrder;
+        }
+        return order;
+      });
+
+      setBoardingOrders(updatedOrders);
+      setSuccessDialog({
+        open: true,
+        message: "Pet has been successfully force released.",
       });
     } else if (action === "deleteRecord") {
       const updatedOrders = boardingOrders.filter(
@@ -461,6 +496,7 @@ export default function BoardingManagementPage() {
         onSearch={handleSearch}
         onFilterBoardingStatus={handleFilterBoardingStatus}
         onFilterPaymentStatus={handleFilterPaymentStatus}
+        onRefresh={handleRefresh}
         isLoading={isLoading}
         isSearching={isSearching}
         boardingStatusFilter={boardingStatusFilter}
@@ -470,36 +506,48 @@ export default function BoardingManagementPage() {
       <div className="overflow-x-auto pb-2">
         <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
           <div className="overflow-x-auto pb-2">
-            <TabsList className="w-full sm:w-auto flex flex-nowrap justify-start overflow-x-auto">
+            <TabsList className="w-full sm:w-auto flex flex-nowrap justify-start overflow-x-auto bg-muted/30 p-1">
               <TabsTrigger
                 value="all"
-                className="flex-1 sm:flex-none whitespace-nowrap"
+                className="flex-1 sm:flex-none whitespace-nowrap rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:shadow-sm"
               >
                 All Boardings
               </TabsTrigger>
               <TabsTrigger
                 value="active"
-                className="flex-1 sm:flex-none whitespace-nowrap"
+                className="flex-1 sm:flex-none whitespace-nowrap rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:shadow-sm"
               >
-                Active
+                <div className="flex items-center gap-1">
+                  <span className="h-2 w-2 rounded-full bg-blue-500"></span>
+                  Active
+                </div>
               </TabsTrigger>
               <TabsTrigger
                 value="completed"
-                className="flex-1 sm:flex-none whitespace-nowrap"
+                className="flex-1 sm:flex-none whitespace-nowrap rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:shadow-sm"
               >
-                Completed
+                <div className="flex items-center gap-1">
+                  <span className="h-2 w-2 rounded-full bg-green-500"></span>
+                  Completed
+                </div>
               </TabsTrigger>
               <TabsTrigger
                 value="overdue"
-                className="flex-1 sm:flex-none whitespace-nowrap text-red-600 dark:text-red-400"
+                className="flex-1 sm:flex-none whitespace-nowrap rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:shadow-sm text-red-600 dark:text-red-400"
               >
-                Overdue
+                <div className="flex items-center gap-1">
+                  <span className="h-2 w-2 rounded-full bg-red-500"></span>
+                  Overdue
+                </div>
               </TabsTrigger>
               <TabsTrigger
                 value="released"
-                className="flex-1 sm:flex-none whitespace-nowrap bg-gradient-to-r from-purple-50 to-indigo-50 text-purple-700 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-100 data-[state=active]:to-indigo-100 data-[state=active]:text-purple-900 dark:from-purple-950/30 dark:to-indigo-950/30 dark:text-purple-300 dark:data-[state=active]:from-purple-900/50 dark:data-[state=active]:to-indigo-900/50 dark:data-[state=active]:text-purple-200"
+                className="flex-1 sm:flex-none whitespace-nowrap rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:shadow-sm text-purple-700 dark:text-purple-400"
               >
-                Released
+                <div className="flex items-center gap-1">
+                  <span className="h-2 w-2 rounded-full bg-purple-500"></span>
+                  Released
+                </div>
               </TabsTrigger>
             </TabsList>
           </div>
@@ -512,6 +560,7 @@ export default function BoardingManagementPage() {
                   boardingOrders={currentOrders}
                   onUpdatePaymentStatus={handleUpdatePaymentStatus}
                   onReleasePet={handleReleasePet}
+                  onForceRelease={handleForceRelease}
                   onDeleteRecord={handleDeleteRecord}
                   tabName="All Boardings"
                   isProcessing={isProcessing}
@@ -535,6 +584,8 @@ export default function BoardingManagementPage() {
                   boardingOrders={currentOrders}
                   onUpdatePaymentStatus={handleUpdatePaymentStatus}
                   onReleasePet={handleReleasePet}
+                  onForceRelease={handleForceRelease}
+                  onDeleteRecord={handleDeleteRecord}
                   tabName="Active"
                   isProcessing={isProcessing}
                 />
@@ -557,6 +608,8 @@ export default function BoardingManagementPage() {
                   boardingOrders={currentOrders}
                   onUpdatePaymentStatus={handleUpdatePaymentStatus}
                   onReleasePet={handleReleasePet}
+                  onForceRelease={handleForceRelease}
+                  onDeleteRecord={handleDeleteRecord}
                   tabName="Completed"
                   isProcessing={isProcessing}
                 />
@@ -579,6 +632,8 @@ export default function BoardingManagementPage() {
                   boardingOrders={currentOrders}
                   onUpdatePaymentStatus={handleUpdatePaymentStatus}
                   onReleasePet={handleReleasePet}
+                  onForceRelease={handleForceRelease}
+                  onDeleteRecord={handleDeleteRecord}
                   tabName="Overdue"
                   isProcessing={isProcessing}
                 />
@@ -601,6 +656,7 @@ export default function BoardingManagementPage() {
                   boardingOrders={currentOrders}
                   onUpdatePaymentStatus={handleUpdatePaymentStatus}
                   onDeleteRecord={handleDeleteRecord}
+                  onForceRelease={handleForceRelease}
                   isReadOnly={true}
                   tabName="Released"
                   isProcessing={isProcessing}

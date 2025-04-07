@@ -20,42 +20,49 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   MoreHorizontal,
-  AlertTriangle,
   Clock,
   Receipt,
   Dog,
   Cat,
   LogOut,
   Trash2,
-  DollarSign,
   Loader2,
   AlertCircle,
-  PhilippinePesoIcon,
+  PoundSterlingIcon as PhilippinePesoIcon,
+  Eye,
+  CheckCircle,
+  XCircle,
 } from "lucide-react";
 import type { BoardingOrder, PaymentStatus } from "../types";
+// Update the import section to include the isEligibleForForceRelease function
 import {
   formatDate,
   calculateDuration,
   isEligibleForRelease,
+  isEligibleForForceRelease,
 } from "../utils/helpers";
 import { BoardingDetailDialog } from "./boarding-detail-dialog";
 import { ReceiptDialog } from "./receipt-dialog";
 import { ConfirmationDialog } from "./confirmation-dialog";
 
+// Update the BoardingTable props interface to include onForceRelease
 interface BoardingTableProps {
   boardingOrders: BoardingOrder[];
   onUpdatePaymentStatus: (orderId: string, status: PaymentStatus) => void;
   onReleasePet?: (orderId: string) => void;
+  onForceRelease?: (orderId: string) => void;
   onDeleteRecord?: (orderId: string) => void;
   isReadOnly?: boolean;
   tabName: string;
   isProcessing?: boolean;
 }
 
+// Update the BoardingTable function parameters to include onForceRelease
 export function BoardingTable({
   boardingOrders,
   onUpdatePaymentStatus,
   onReleasePet,
+  onForceRelease,
   onDeleteRecord,
   isReadOnly = false,
   tabName = "",
@@ -64,6 +71,7 @@ export function BoardingTable({
   boardingOrders: BoardingOrder[];
   onUpdatePaymentStatus: (orderId: string, status: PaymentStatus) => void;
   onReleasePet?: (orderId: string) => void;
+  onForceRelease?: (orderId: string) => void;
   onDeleteRecord?: (orderId: string) => void;
   isReadOnly?: boolean;
   tabName?: string;
@@ -98,6 +106,13 @@ export function BoardingTable({
   const handleReleasePet = (orderId: string) => {
     if (onReleasePet && !isReadOnly) {
       onReleasePet(orderId);
+    }
+  };
+
+  // Add a handleForceRelease function after the handleReleasePet function
+  const handleForceRelease = (orderId: string) => {
+    if (onForceRelease && !isReadOnly) {
+      onForceRelease(orderId);
     }
   };
 
@@ -333,6 +348,8 @@ export function BoardingTable({
                             {order.paymentStatus}
                           </Badge>
                         </TableCell>
+                        {/* Update the TableCell with actions to include the Force Release button and enhance visual cues */}
+                        {/* Replace the TableCell with the actions column with this updated version: */}
                         <TableCell
                           className="text-right"
                           onClick={(e) => e.stopPropagation()}
@@ -344,14 +361,30 @@ export function BoardingTable({
                               onReleasePet &&
                               !isReadOnly && (
                                 <Button
-                                  variant="outline"
+                                  variant="default"
                                   size="sm"
                                   onClick={() => handleReleasePet(order.id)}
                                   title="Release Pet"
-                                  className="bg-green-50 text-green-700 border-green-200 hover:bg-green-100 hover:text-green-800 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800 dark:hover:bg-green-900/30"
+                                  className="bg-green-600 hover:bg-green-700 text-white"
                                 >
                                   <LogOut className="h-3.5 w-3.5 mr-1" />
                                   Release
+                                </Button>
+                              )}
+                            {/* Update the conditional rendering for the Force Release button in the TableCell */}
+                            {/* Replace the Force Release button condition with: */}
+                            {isEligibleForForceRelease(order) &&
+                              onForceRelease &&
+                              !isReadOnly && (
+                                <Button
+                                  variant="default"
+                                  size="sm"
+                                  onClick={() => handleForceRelease(order.id)}
+                                  title="Force Release Pet"
+                                  className="bg-amber-600 hover:bg-amber-700 text-white"
+                                >
+                                  <LogOut className="h-3.5 w-3.5 mr-1" />
+                                  Force
                                 </Button>
                               )}
                             <DropdownMenu>
@@ -371,6 +404,7 @@ export function BoardingTable({
                                     <DropdownMenuItem
                                       onClick={() => handleViewDetails(order)}
                                     >
+                                      <Eye className="h-4 w-4 mr-2 text-blue-600" />
                                       View Boarding Details
                                     </DropdownMenuItem>
                                     {order.boardingStatus === "Released" && (
@@ -380,13 +414,14 @@ export function BoardingTable({
                                             handleViewReceipt(order)
                                           }
                                         >
-                                          <Receipt className="h-4 w-4 mr-2" />
+                                          <Receipt className="h-4 w-4 mr-2 text-purple-600" />
                                           View Receipt
                                         </DropdownMenuItem>
                                         <DropdownMenuItem
                                           onClick={() =>
                                             handleDeleteRecord(order.id)
                                           }
+                                          className="text-red-600"
                                         >
                                           <Trash2 className="h-4 w-4 mr-2" />
                                           Delete Record
@@ -399,6 +434,7 @@ export function BoardingTable({
                                     <DropdownMenuItem
                                       onClick={() => handleViewDetails(order)}
                                     >
+                                      <Eye className="h-4 w-4 mr-2 text-blue-600" />
                                       View Boarding Details
                                     </DropdownMenuItem>
                                     {order.paymentStatus !== "Paid" && (
@@ -409,11 +445,13 @@ export function BoardingTable({
                                             "Paid",
                                           )
                                         }
-                                        className="text-green-600 dark:text-green-400"
+                                        className="text-green-600"
                                         disabled={isProcessing}
                                       >
-                                        {isProcessing && (
+                                        {isProcessing ? (
                                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        ) : (
+                                          <CheckCircle className="mr-2 h-4 w-4" />
                                         )}
                                         Mark as Paid
                                       </DropdownMenuItem>
@@ -426,11 +464,13 @@ export function BoardingTable({
                                             "Pending",
                                           )
                                         }
-                                        className="text-yellow-600 dark:text-yellow-400"
+                                        className="text-yellow-600"
                                         disabled={isProcessing}
                                       >
-                                        {isProcessing && (
+                                        {isProcessing ? (
                                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        ) : (
+                                          <Clock className="mr-2 h-4 w-4" />
                                         )}
                                         Mark as Pending
                                       </DropdownMenuItem>
@@ -443,11 +483,13 @@ export function BoardingTable({
                                             "Not Paid",
                                           )
                                         }
-                                        className="text-red-600 dark:text-red-400"
+                                        className="text-red-600"
                                         disabled={isProcessing}
                                       >
-                                        {isProcessing && (
+                                        {isProcessing ? (
                                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        ) : (
+                                          <XCircle className="mr-2 h-4 w-4" />
                                         )}
                                         Mark as Not Paid
                                       </DropdownMenuItem>
@@ -459,7 +501,21 @@ export function BoardingTable({
                                             handleReleasePet(order.id)
                                           }
                                         >
+                                          <LogOut className="mr-2 h-4 w-4 text-green-600" />
                                           Release Pet
+                                        </DropdownMenuItem>
+                                      )}
+                                    {/* Also update the dropdown menu item for Force Release: */}
+                                    {isEligibleForForceRelease(order) &&
+                                      onForceRelease &&
+                                      !isReadOnly && (
+                                        <DropdownMenuItem
+                                          onClick={() =>
+                                            handleForceRelease(order.id)
+                                          }
+                                        >
+                                          <LogOut className="mr-2 h-4 w-4 text-amber-600" />
+                                          Force Release Pet
                                         </DropdownMenuItem>
                                       )}
                                   </>
