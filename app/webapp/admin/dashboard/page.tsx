@@ -138,6 +138,30 @@ interface DashboardData {
   }[];
 }
 
+// Update the getRequestStatusBadge function to use solid backgrounds
+const getRequestStatusBadge = (status) => {
+  switch (status) {
+    case "Confirmed":
+      return (
+        <span className="rounded-full px-2 py-1 text-xs bg-green-600 text-white">
+          {status}
+        </span>
+      );
+    case "Pending":
+      return (
+        <span className="rounded-full px-2 py-1 text-xs bg-yellow-600 text-white">
+          {status}
+        </span>
+      );
+    default:
+      return (
+        <span className="rounded-full px-2 py-1 text-xs bg-gray-600 text-white">
+          {status}
+        </span>
+      );
+  }
+};
+
 export default function AdminDashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(
@@ -642,11 +666,11 @@ export default function AdminDashboardPage() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem>
-                    <Download className="mr-2 h-4 w-4" />
+                    <Download className="mr-2 h-4 w-4 text-blue-500" />
                     Download CSV
                   </DropdownMenuItem>
                   <DropdownMenuItem>
-                    <Printer className="mr-2 h-4 w-4" />
+                    <Printer className="mr-2 h-4 w-4 text-purple-500" />
                     Print Chart
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -773,11 +797,11 @@ export default function AdminDashboardPage() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem>
-                      <Download className="mr-2 h-4 w-4" />
+                      <Download className="mr-2 h-4 w-4 text-blue-500" />
                       Download CSV
                     </DropdownMenuItem>
                     <DropdownMenuItem>
-                      <Printer className="mr-2 h-4 w-4" />
+                      <Printer className="mr-2 h-4 w-4 text-purple-500" />
                       Print Chart
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -1036,15 +1060,7 @@ export default function AdminDashboardPage() {
                         <div className="text-sm text-muted-foreground">
                           {booking.date}
                         </div>
-                        <span
-                          className={`rounded-full px-2 py-1 text-xs ${
-                            booking.status === "Confirmed"
-                              ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                              : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
-                          }`}
-                        >
-                          {booking.status}
-                        </span>
+                        {getRequestStatusBadge(booking.status)}
                       </div>
                     </div>
                   ))}

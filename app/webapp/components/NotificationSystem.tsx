@@ -214,31 +214,15 @@ export function NotificationSystem() {
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case NOTIFICATION_TYPES.REQUEST_STATUS_CHANGE:
-        return (
-          <Badge variant="outline" className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-            Status
-          </Badge>
-        )
+        return <Badge className="bg-blue-600 text-white">Status</Badge>
       case NOTIFICATION_TYPES.NEW_MESSAGE:
-        return (
-          <Badge variant="outline" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
-            Message
-          </Badge>
-        )
+        return <Badge className="bg-green-600 text-white">Message</Badge>
       case NOTIFICATION_TYPES.MEDIA_ADDED:
-        return (
-          <Badge variant="outline" className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
-            Media
-          </Badge>
-        )
+        return <Badge className="bg-purple-600 text-white">Media</Badge>
       case NOTIFICATION_TYPES.APPOINTMENT_REMINDER:
-        return (
-          <Badge variant="outline" className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
-            Reminder
-          </Badge>
-        )
+        return <Badge className="bg-amber-600 text-white">Reminder</Badge>
       default:
-        return <Badge variant="outline">System</Badge>
+        return <Badge className="bg-gray-600 text-white">System</Badge>
     }
   }
 
@@ -306,16 +290,7 @@ export function NotificationSystem() {
                           <p className="text-xs text-muted-foreground">{notification.message}</p>
                           <p className="text-xs text-muted-foreground">{formatDate(notification.timestamp)}</p>
                         </div>
-                        {!notification.isRead && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-6 w-6"
-                            onClick={() => markAsRead(notification.id)}
-                          >
-                            <Check className="h-3 w-3" />
-                          </Button>
-                        )}
+                        {!notification.isRead && <Badge className="bg-blue-600 text-white">New</Badge>}
                       </div>
                     </div>
                   ))

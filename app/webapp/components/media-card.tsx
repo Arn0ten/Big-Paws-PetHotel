@@ -1,65 +1,50 @@
-"use client";
+"use client"
 
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Image, Video } from "lucide-react";
-import { format } from "date-fns";
+import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Image, Video } from "lucide-react"
+import { format } from "date-fns"
 
 interface MediaCardProps {
-  id: string;
-  timestamp: string | Date;
-  petName: string;
-  requestType: "photo" | "video";
-  description?: string;
-  mediaUrls: string[];
-  onClick: () => void;
+  id: string
+  timestamp: string | Date
+  petName: string
+  requestType: "photo" | "video"
+  description?: string
+  mediaUrls: string[]
+  onClick: () => void
 }
 
-export function MediaCard({
-  id,
-  timestamp,
-  petName,
-  requestType,
-  description,
-  mediaUrls,
-  onClick,
-}: MediaCardProps) {
+export function MediaCard({ id, timestamp, petName, requestType, description, mediaUrls, onClick }: MediaCardProps) {
   // Get media type badge
   const getMediaTypeBadge = (type: string) => {
     switch (type) {
       case "photo":
         return (
-          <Badge
-            variant="outline"
-            className="bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-700/70 font-medium"
-          >
+          <Badge className="bg-blue-600 text-white font-medium">
             <Image className="h-3 w-3 mr-1" /> Photo
           </Badge>
-        );
+        )
       case "video":
         return (
-          <Badge
-            variant="outline"
-            className="bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/50 dark:text-purple-300 dark:border-purple-700/70 font-medium"
-          >
+          <Badge className="bg-purple-600 text-white font-medium">
             <Video className="h-3 w-3 mr-1" /> Video
           </Badge>
-        );
+        )
       default:
-        return <Badge variant="outline">{type}</Badge>;
+        return <Badge className="bg-gray-600 text-white">{type}</Badge>
     }
-  };
+  }
 
   // Format date for display
   const formatDate = (dateString: string | Date) => {
     try {
-      const date =
-        typeof dateString === "string" ? new Date(dateString) : dateString;
-      return format(date, "MMM d, yyyy 'at' h:mm a");
+      const date = typeof dateString === "string" ? new Date(dateString) : dateString
+      return format(date, "MMM d, yyyy 'at' h:mm a")
     } catch (error) {
-      return String(dateString);
+      return String(dateString)
     }
-  };
+  }
 
   return (
     <Card
@@ -111,11 +96,7 @@ export function MediaCard({
         )}
         {requestType === "video" && mediaUrls[0] && (
           <div className="relative w-full h-full bg-black flex items-center justify-center">
-            <video
-              src={mediaUrls[0]}
-              className="w-full h-full object-cover"
-              controls={false}
-            />
+            <video src={mediaUrls[0]} className="w-full h-full object-cover" controls={false} />
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="rounded-full bg-black/50 p-2">
                 <Video className="h-6 w-6 text-white" />
@@ -123,21 +104,14 @@ export function MediaCard({
             </div>
           </div>
         )}
-        <div className="absolute top-2 right-2">
-          {getMediaTypeBadge(requestType)}
-        </div>
+        <div className="absolute top-2 right-2">{getMediaTypeBadge(requestType)}</div>
       </div>
       <CardContent className="p-2">
         <div className="font-medium text-sm truncate">{petName}</div>
-        {description && (
-          <div className="text-xs text-muted-foreground truncate">
-            {description}
-          </div>
-        )}
-        <div className="text-xs text-muted-foreground mt-1">
-          {formatDate(timestamp)}
-        </div>
+        {description && <div className="text-xs text-muted-foreground truncate">{description}</div>}
+        <div className="text-xs text-muted-foreground mt-1">{formatDate(timestamp)}</div>
       </CardContent>
     </Card>
-  );
+  )
 }
+

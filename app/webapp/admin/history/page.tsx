@@ -127,111 +127,81 @@ const getModuleLabel = (module: string) => {
   }
 };
 
-// Helper function to render status badge
+// Update the getStatusBadge function to use solid backgrounds
 const getStatusBadge = (status: string | undefined) => {
   switch (status) {
     case "completed":
       return (
-        <Badge
-          variant="outline"
-          className="bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-700/50"
-        >
+        <Badge className="bg-green-600 text-white hover:bg-green-700">
           Completed
         </Badge>
       );
     case "pending":
       return (
-        <Badge
-          variant="outline"
-          className="bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-700/50"
-        >
+        <Badge className="bg-yellow-600 text-white hover:bg-yellow-700">
           Pending
         </Badge>
       );
     case "active":
       return (
-        <Badge
-          variant="outline"
-          className="bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-700/50"
-        >
+        <Badge className="bg-blue-600 text-white hover:bg-blue-700">
           Active
         </Badge>
       );
     case "deleted":
       return (
-        <Badge
-          variant="outline"
-          className="bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-700/50"
-        >
+        <Badge className="bg-red-600 text-white hover:bg-red-700">
           Deleted
         </Badge>
       );
     case "updated":
       return (
-        <Badge
-          variant="outline"
-          className="bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-700/50"
-        >
+        <Badge className="bg-purple-600 text-white hover:bg-purple-700">
           Updated
         </Badge>
       );
     default:
       return (
-        <Badge
-          variant="outline"
-          className="bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-900/30 dark:text-gray-400 dark:border-gray-700/50"
-        >
+        <Badge className="bg-gray-600 text-white hover:bg-gray-700">
           Unknown
         </Badge>
       );
   }
 };
 
-// Helper function to render media type badge
+// Update the getMediaTypeBadge function to use solid backgrounds
 const getMediaTypeBadge = (mediaType: string) => {
   switch (mediaType) {
     case "photo":
       return (
-        <Badge
-          variant="outline"
-          className="bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-700/50"
-        >
+        <Badge className="bg-blue-600 text-white">
           <Image className="h-3 w-3 mr-1" />
           Photo
         </Badge>
       );
     case "video":
       return (
-        <Badge
-          variant="outline"
-          className="bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-700/50"
-        >
+        <Badge className="bg-purple-600 text-white">
           <Video className="h-3 w-3 mr-1" />
           Video
         </Badge>
       );
     case "dog":
       return (
-        <Badge
-          variant="outline"
-          className="bg-blue-600 text-white border-blue-700 dark:bg-blue-700 dark:text-white dark:border-blue-800"
-        >
+        <Badge className="bg-blue-600 text-white">
           <Dog className="h-3 w-3 mr-1" />
           Dog
         </Badge>
       );
     case "cat":
       return (
-        <Badge
-          variant="outline"
-          className="bg-purple-600 text-white border-purple-700 dark:bg-purple-700 dark:text-white dark:border-purple-800"
-        >
+        <Badge className="bg-purple-600 text-white">
           <Cat className="h-3 w-3 mr-1" />
           Cat
         </Badge>
       );
     default:
-      return <Badge variant="outline">Unknown</Badge>;
+      return <Badge className="bg-gray-600 text-white">Unknown</Badge>;
   }
 };
 
@@ -990,12 +960,14 @@ export default function HistoryPage() {
                                   <DropdownMenuItem
                                     onClick={() => handleViewDetails(entry)}
                                   >
+                                    <FileText className="h-4 w-4 mr-2 text-blue-500" />
                                     View Details
                                   </DropdownMenuItem>
                                   <DropdownMenuItem
                                     onClick={() => handleDelete(entry.id)}
                                     className="text-red-600 dark:text-red-400"
                                   >
+                                    <Trash2 className="h-4 w-4 mr-2 text-red-500" />
                                     Delete
                                   </DropdownMenuItem>
                                 </DropdownMenuContent>

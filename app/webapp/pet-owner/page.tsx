@@ -1,16 +1,37 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { motion } from "framer-motion"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Camera, Video, Scissors, Clock, FileText, Plus, ArrowRight, Calendar, DollarSign, Info } from "lucide-react"
-import { formatDate } from "../utils/date-helpers"
-import { requests, notifications, getPetOwnerPets } from "../data/sample-data"
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Camera,
+  Video,
+  Scissors,
+  Clock,
+  FileText,
+  Plus,
+  ArrowRight,
+  Calendar,
+  DollarSign,
+  Info,
+  AlertCircle,
+  CheckCircle2,
+  XCircle,
+} from "lucide-react";
+import { formatDate } from "../utils/date-helpers";
+import { requests, notifications, getPetOwnerPets } from "../data/sample-data";
 
 /**
  * Pet Owner Dashboard Page
@@ -27,11 +48,11 @@ import { requests, notifications, getPetOwnerPets } from "../data/sample-data"
  *    - This would allow notifications to appear without page refresh
  */
 export default function PetOwnerHomePage() {
-  const [activeTab, setActiveTab] = useState("boarding")
-  const [isLoading, setIsLoading] = useState(true)
-  const [petsList, setPetsList] = useState([])
-  const [requestsList, setRequestsList] = useState([])
-  const [notificationsList, setNotificationsList] = useState([])
+  const [activeTab, setActiveTab] = useState("boarding");
+  const [isLoading, setIsLoading] = useState(true);
+  const [petsList, setPetsList] = useState([]);
+  const [requestsList, setRequestsList] = useState([]);
+  const [notificationsList, setNotificationsList] = useState([]);
 
   useEffect(() => {
     // BACKEND INTEGRATION:
@@ -69,66 +90,68 @@ export default function PetOwnerHomePage() {
 
     // Simulate API loading
     const fetchData = async () => {
-      setIsLoading(true)
+      setIsLoading(true);
 
       // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 500))
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       // For demo, use the sample data
-      setPetsList(getPetOwnerPets())
-      setRequestsList(requests.slice(0, 3))
-      setNotificationsList(notifications.filter((n) => !n.isRead).slice(0, 2))
+      setPetsList(getPetOwnerPets());
+      setRequestsList(requests.slice(0, 3));
+      setNotificationsList(notifications.filter((n) => !n.isRead).slice(0, 2));
 
-      setIsLoading(false)
-    }
+      setIsLoading(false);
+    };
 
-    fetchData()
-  }, [])
+    fetchData();
+  }, []);
 
   // Get the active boarding pet
-  const activeBoardingPet = petsList.find((pet) => pet.boarding?.status === "active")
+  const activeBoardingPet = petsList.find(
+    (pet) => pet.boarding?.status === "active",
+  );
 
   // Get recent requests (limit to 3)
-  const recentRequests = requestsList
+  const recentRequests = requestsList;
 
   // Get unread notifications (limit to 2)
-  const unreadNotifications = notificationsList
+  const unreadNotifications = notificationsList;
 
   // Get request type icon
   const getRequestTypeIcon = (type: string) => {
     switch (type) {
       case "photo":
-        return <Camera className="h-5 w-5" />
+        return <Camera className="h-5 w-5" />;
       case "video":
-        return <Video className="h-5 w-5" />
+        return <Video className="h-5 w-5" />;
       case "grooming":
-        return <Scissors className="h-5 w-5" />
+        return <Scissors className="h-5 w-5" />;
       case "boarding-extension":
-        return <Clock className="h-5 w-5" />
+        return <Clock className="h-5 w-5" />;
       case "custom":
-        return <FileText className="h-5 w-5" />
+        return <FileText className="h-5 w-5" />;
       default:
-        return <FileText className="h-5 w-5" />
+        return <FileText className="h-5 w-5" />;
     }
-  }
+  };
 
   // Get request type label
   const getRequestTypeLabel = (type: string) => {
     switch (type) {
       case "photo":
-        return "Photo Update"
+        return "Photo Update";
       case "video":
-        return "Video Request"
+        return "Video Request";
       case "grooming":
-        return "Grooming Service"
+        return "Grooming Service";
       case "boarding-extension":
-        return "Boarding Extension"
+        return "Boarding Extension";
       case "custom":
-        return "Custom Request"
+        return "Custom Request";
       default:
-        return "Request"
+        return "Request";
     }
-  }
+  };
 
   // Get request status badge
   const getRequestStatusBadge = (status: string) => {
@@ -136,44 +159,36 @@ export default function PetOwnerHomePage() {
       case "new":
       case "pending":
         return (
-          <Badge
-            variant="outline"
-            className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border-blue-200 dark:border-blue-800"
-          >
-            New
+          <Badge className="bg-yellow-600 text-white">
+            <Clock className="h-3 w-3 mr-1" /> Pending
           </Badge>
-        )
+        );
       case "in-progress":
         return (
-          <Badge
-            variant="outline"
-            className="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 border-amber-200 dark:border-amber-800"
-          >
-            In Progress
+          <Badge className="bg-blue-600 text-white">
+            <CheckCircle2 className="h-3 w-3 mr-1" /> In Progress
           </Badge>
-        )
+        );
       case "completed":
         return (
-          <Badge
-            variant="outline"
-            className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 border-green-200 dark:border-green-800"
-          >
-            Completed
+          <Badge className="bg-green-600 text-white">
+            <CheckCircle2 className="h-3 w-3 mr-1" /> Completed
           </Badge>
-        )
+        );
       case "rejected":
         return (
-          <Badge
-            variant="outline"
-            className="bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 border-red-200 dark:border-red-800"
-          >
-            Rejected
+          <Badge className="bg-red-600 text-white">
+            <XCircle className="h-3 w-3 mr-1" /> Rejected
           </Badge>
-        )
+        );
       default:
-        return <Badge variant="outline">{status}</Badge>
+        return (
+          <Badge className="bg-gray-600 text-white">
+            <AlertCircle className="h-3 w-3 mr-1" /> {status}
+          </Badge>
+        );
     }
-  }
+  };
 
   if (isLoading) {
     return (
@@ -190,22 +205,31 @@ export default function PetOwnerHomePage() {
           <div className="h-24 bg-muted animate-pulse rounded-md"></div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div className="space-y-6 pb-20">
-      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5 }}>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground dark:text-foreground">Welcome Back!</h1>
-        <p className="text-muted-foreground">Check on your pets and manage your requests.</p>
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <h1 className="text-2xl font-bold tracking-tight text-foreground dark:text-foreground">
+          Welcome Back!
+        </h1>
+        <p className="text-muted-foreground">
+          Check on your pets and manage your requests.
+        </p>
 
         <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
           <div className="flex items-start gap-2">
             <Info className="h-5 w-5 text-blue-500 dark:text-blue-400 flex-shrink-0 mt-0.5" />
             <div>
               <p className="text-sm text-blue-700 dark:text-blue-300">
-                <span className="font-medium">Suggested next steps:</span> Check your pet's boarding status, make a new
-                request, or view our pricing page for service rates.
+                <span className="font-medium">Suggested next steps:</span> Check
+                your pet's boarding status, make a new request, or view our
+                pricing page for service rates.
               </p>
             </div>
           </div>
@@ -225,31 +249,44 @@ export default function PetOwnerHomePage() {
                 <Calendar className="h-5 w-5 text-primary" />
                 Active Boarding
               </CardTitle>
-              <CardDescription>{activeBoardingPet.name}'s current boarding details</CardDescription>
+              <CardDescription>
+                {activeBoardingPet.name}'s current boarding details
+              </CardDescription>
             </CardHeader>
             <CardContent className="pb-2">
               <div className="flex items-center gap-4">
                 <Avatar className="h-16 w-16">
-                  <AvatarImage src={activeBoardingPet.avatar} alt={activeBoardingPet.name} />
-                  <AvatarFallback>{activeBoardingPet.name.charAt(0)}</AvatarFallback>
+                  <AvatarImage
+                    src={activeBoardingPet.avatar}
+                    alt={activeBoardingPet.name}
+                  />
+                  <AvatarFallback>
+                    {activeBoardingPet.name.charAt(0)}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="space-y-1">
                   <h3 className="font-semibold text-lg text-foreground dark:text-foreground">
                     {activeBoardingPet.name}
                   </h3>
-                  <p className="text-sm text-muted-foreground">{activeBoardingPet.breed}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {activeBoardingPet.breed}
+                  </p>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4 mt-4">
                 <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Check-in</p>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">
+                    Check-in
+                  </p>
                   <p className="font-medium text-foreground dark:text-foreground">
                     {formatDate(activeBoardingPet.boarding?.startDate || "")}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Check-out</p>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">
+                    Check-out
+                  </p>
                   <p className="font-medium text-foreground dark:text-foreground">
                     {formatDate(activeBoardingPet.boarding?.endDate || "")}
                   </p>
@@ -259,15 +296,22 @@ export default function PetOwnerHomePage() {
               <div className="mt-4 p-3 bg-background rounded-md border border-border dark:border-border/50">
                 <div className="flex justify-between items-center">
                   <div>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wide">Package</p>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide">
+                      Package
+                    </p>
                     <p className="font-medium text-foreground dark:text-foreground">
                       {activeBoardingPet.boarding?.package}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs text-muted-foreground uppercase tracking-wide">Total Price</p>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide">
+                      Total Price
+                    </p>
                     <p className="font-medium text-green-600 dark:text-green-400">
-                      ₱{(activeBoardingPet.boarding?.totalPrice || 0).toLocaleString()}
+                      ₱
+                      {(
+                        activeBoardingPet.boarding?.totalPrice || 0
+                      ).toLocaleString()}
                     </p>
                   </div>
                 </div>
@@ -285,7 +329,10 @@ export default function PetOwnerHomePage() {
                       </div>
                       <div className="text-right">
                         <p className="font-medium text-amber-600 dark:text-amber-400">
-                          ₱{(activeBoardingPet.boarding?.remainingAmount || 0).toLocaleString()}
+                          ₱
+                          {(
+                            activeBoardingPet.boarding?.remainingAmount || 0
+                          ).toLocaleString()}
                         </p>
                       </div>
                     </div>
@@ -294,9 +341,14 @@ export default function PetOwnerHomePage() {
               </div>
 
               <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-md">
-                <h4 className="text-sm font-medium text-amber-700 dark:text-amber-400">Additional Charges</h4>
+                <h4 className="text-sm font-medium text-amber-700 dark:text-amber-400">
+                  Additional Charges
+                </h4>
                 <ul className="mt-1 text-xs text-amber-600 dark:text-amber-300 space-y-1">
-                  <li>• Grooming services: ₱250-550 (based on pet size and service)</li>
+                  <li>
+                    • Grooming services: ₱250-550 (based on pet size and
+                    service)
+                  </li>
                   <li>• Boarding extension: ₱50-75/hour or ₱500-750/day</li>
                   <li>• Special diet/medication: ₱100-200/day</li>
                 </ul>
@@ -332,12 +384,22 @@ export default function PetOwnerHomePage() {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.2 }}
       >
-        <Tabs defaultValue="boarding" value={activeTab} onValueChange={setActiveTab}>
+        <Tabs
+          defaultValue="boarding"
+          value={activeTab}
+          onValueChange={setActiveTab}
+        >
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="boarding" className="text-foreground dark:text-foreground">
+            <TabsTrigger
+              value="boarding"
+              className="text-foreground dark:text-foreground"
+            >
               My Pets
             </TabsTrigger>
-            <TabsTrigger value="requests" className="text-foreground dark:text-foreground">
+            <TabsTrigger
+              value="requests"
+              className="text-foreground dark:text-foreground"
+            >
               Recent Requests
             </TabsTrigger>
           </TabsList>
@@ -353,23 +415,20 @@ export default function PetOwnerHomePage() {
                         <AvatarFallback>{pet.name.charAt(0)}</AvatarFallback>
                       </Avatar>
                       <div className="flex-1">
-                        <h3 className="font-semibold text-foreground dark:text-foreground">{pet.name}</h3>
+                        <h3 className="font-semibold text-foreground dark:text-foreground">
+                          {pet.name}
+                        </h3>
                         <p className="text-sm text-muted-foreground dark:text-muted-foreground/90">
-                          {pet.breed} • {pet.size || "Medium"} size • {pet.age} years old
+                          {pet.breed} • {pet.size || "Medium"} size • {pet.age}{" "}
+                          years old
                         </p>
 
                         {pet.boarding ? (
-                          <Badge
-                            variant="outline"
-                            className="mt-2 bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700"
-                          >
+                          <Badge className="mt-2 bg-green-600 text-white">
                             Currently Boarding
                           </Badge>
                         ) : (
-                          <Badge
-                            variant="outline"
-                            className="mt-2 bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700"
-                          >
+                          <Badge className="mt-2 bg-gray-600 text-white">
                             Not Boarding
                           </Badge>
                         )}
@@ -390,7 +449,10 @@ export default function PetOwnerHomePage() {
             {recentRequests.length > 0 ? (
               <>
                 {recentRequests.map((request) => (
-                  <Link href={`/webapp/pet-owner/requests/${request.id}`} key={request.id}>
+                  <Link
+                    href={`/webapp/pet-owner/requests/${request.id}`}
+                    key={request.id}
+                  >
                     <Card className="hover:bg-muted/50 dark:hover:bg-muted/20 transition-colors cursor-pointer">
                       <CardContent className="p-4">
                         <div className="flex items-start gap-3">
@@ -439,10 +501,13 @@ export default function PetOwnerHomePage() {
             ) : (
               <div className="text-center py-8 border rounded-lg bg-muted/20 dark:bg-muted/10 dark:border-muted/30">
                 <FileText className="h-12 w-12 mx-auto text-muted-foreground dark:text-muted-foreground/80 mb-3" />
-                <h3 className="text-lg font-medium text-foreground dark:text-foreground">No requests yet</h3>
+                <h3 className="text-lg font-medium text-foreground dark:text-foreground">
+                  No requests yet
+                </h3>
                 <p className="text-sm text-muted-foreground dark:text-muted-foreground/90 mt-1 max-w-md mx-auto">
-                  You haven't made any requests for your pets. Create a request to ask for photos, videos, grooming
-                  services, or boarding extensions.
+                  You haven't made any requests for your pets. Create a request
+                  to ask for photos, videos, grooming services, or boarding
+                  extensions.
                 </p>
               </div>
             )}
@@ -465,19 +530,29 @@ export default function PetOwnerHomePage() {
           transition={{ duration: 0.5, delay: 0.3 }}
         >
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-semibold text-foreground dark:text-foreground">Recent Notifications</h2>
-            <Link href="/webapp/pet-owner/notifications" className="text-sm text-primary hover:underline">
+            <h2 className="text-lg font-semibold text-foreground dark:text-foreground">
+              Recent Notifications
+            </h2>
+            <Link
+              href="/webapp/pet-owner/notifications"
+              className="text-sm text-primary hover:underline"
+            >
               View All
             </Link>
           </div>
 
           <div className="space-y-3">
             {unreadNotifications.map((notification) => (
-              <Link href={`/webapp/pet-owner/notifications/${notification.id}`} key={notification.id}>
+              <Link
+                href={`/webapp/pet-owner/notifications/${notification.id}`}
+                key={notification.id}
+              >
                 <Card className="hover:bg-muted/50 dark:hover:bg-muted/20 transition-colors cursor-pointer border-l-4 border-l-primary dark:border-l-primary">
                   <CardContent className="p-3">
                     <div className="flex justify-between items-start">
-                      <h3 className="font-medium text-foreground dark:text-foreground">{notification.title}</h3>
+                      <h3 className="font-medium text-foreground dark:text-foreground">
+                        {notification.title}
+                      </h3>
                       <Badge
                         variant="outline"
                         className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border-blue-200 dark:border-blue-800"
@@ -499,6 +574,5 @@ export default function PetOwnerHomePage() {
         </motion.div>
       )}
     </div>
-  )
+  );
 }
-

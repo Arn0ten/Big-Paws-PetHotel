@@ -46,91 +46,71 @@ export function StatsCards({
     }
   };
 
-
-
   return (
     <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
       <Card
-        className="bg-blue-50 dark:bg-blue-950/30 border-blue-100 dark:border-blue-900/30 transition-all hover:shadow-md cursor-pointer"
+        className="bg-blue-600 text-white border-blue-700 transition-all hover:shadow-md cursor-pointer"
         onClick={() => handleCardClick("all")}
       >
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-blue-700 dark:text-blue-400">
+          <CardTitle className="text-sm font-medium text-white">
             Total Boardings
           </CardTitle>
-          <CalendarClock className="h-4 w-4 text-blue-500 dark:text-blue-400" />
+          <CalendarClock className="h-4 w-4 text-white" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-blue-700 dark:text-blue-400">
-            {totalBoardings}
-          </div>
-          <p className="text-xs text-blue-600/70 dark:text-blue-400/70">
-            All boarding records
-          </p>
+          <div className="text-2xl font-bold text-white">{totalBoardings}</div>
+          <p className="text-xs text-blue-100">All boarding records</p>
         </CardContent>
       </Card>
 
       <Card
-        className="bg-green-50 dark:bg-green-950/30 border-green-100 dark:border-green-900/30 transition-all hover:shadow-md cursor-pointer"
+        className="bg-green-600 text-white border-green-700 transition-all hover:shadow-md cursor-pointer"
         onClick={() => handleCardClick("active")}
       >
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-green-700 dark:text-green-400">
+          <CardTitle className="text-sm font-medium text-white">
             Active Boardings
           </CardTitle>
-          <CheckCircle className="h-4 w-4 text-green-500 dark:text-green-400" />
+          <CheckCircle className="h-4 w-4 text-white" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-green-700 dark:text-green-400">
-            {activeBoardings}
-          </div>
-          <p className="text-xs text-green-600/70 dark:text-green-400/70">
+          <div className="text-2xl font-bold text-white">{activeBoardings}</div>
+          <p className="text-xs text-green-100">
             {completedBoardings} ready for pickup
           </p>
         </CardContent>
       </Card>
 
       <Card
-        className="bg-purple-50 dark:bg-purple-950/30 border-purple-100 dark:border-purple-900/30 transition-all hover:shadow-md cursor-pointer"
+        className="bg-purple-600 text-white border-purple-700 transition-all hover:shadow-md cursor-pointer"
         onClick={() => handleCardClick("released")}
       >
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-purple-700 dark:text-purple-400">
+          <CardTitle className="text-sm font-medium text-white">
             Released Pets
           </CardTitle>
-          <LogOut className="h-4 w-4 text-purple-500 dark:text-purple-400" />
+          <LogOut className="h-4 w-4 text-white" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-purple-700 dark:text-purple-400">
-            {releasedPets}
-          </div>
-          <p className="text-xs text-purple-600/70 dark:text-purple-400/70">
-            Completed boardings
-          </p>
+          <div className="text-2xl font-bold text-white">{releasedPets}</div>
+          <p className="text-xs text-purple-100">Completed boardings</p>
         </CardContent>
       </Card>
 
       <Card
-        className={`bg-red-50 dark:bg-red-950/30 ${overduePickups > 0 ? "border-red-200 dark:border-red-800/50" : "border-gray-100 dark:border-gray-800"} transition-all hover:shadow-md cursor-pointer`}
+        className={`${overduePickups > 0 ? "bg-red-600 text-white border-red-700" : "bg-gray-600 text-white border-gray-700"} transition-all hover:shadow-md cursor-pointer`}
         onClick={() => handleCardClick("overdue")}
       >
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle
-            className={`text-sm font-medium ${overduePickups > 0 ? "text-red-600 dark:text-red-400" : "text-gray-700 dark:text-gray-400"}`}
-          >
+          <CardTitle className="text-sm font-medium text-white">
             Overdue Pickups
           </CardTitle>
-          <AlertTriangle
-            className={`h-4 w-4 ${overduePickups > 0 ? "text-red-500 dark:text-red-400" : "text-gray-500 dark:text-gray-400"}`}
-          />
+          <AlertTriangle className="h-4 w-4 text-white" />
         </CardHeader>
         <CardContent>
-          <div
-            className={`text-2xl font-bold ${overduePickups > 0 ? "text-red-600 dark:text-red-400" : "text-gray-700 dark:text-gray-400"}`}
-          >
-            {overduePickups}
-          </div>
-          <p className="text-xs text-muted-foreground">
+          <div className="text-2xl font-bold text-white">{overduePickups}</div>
+          <p className="text-xs text-white/80">
             {overduePickups > 0
               ? "Requires immediate attention"
               : "No overdue pickups"}

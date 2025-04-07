@@ -54,12 +54,7 @@ export default function PricingPage() {
                     <div key={size} className="space-y-2">
                       <div className="flex justify-between items-center">
                         <span className="font-medium text-foreground dark:text-foreground capitalize">{size}</span>
-                        <Badge
-                          variant="outline"
-                          className="bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300"
-                        >
-                          {description}
-                        </Badge>
+                        <Badge className="bg-blue-600 text-white">{description}</Badge>
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         <div className="p-3 bg-muted/30 dark:bg-muted/10 rounded-md flex justify-between items-center">
@@ -111,12 +106,7 @@ export default function PricingPage() {
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
                         <span className="font-medium text-foreground dark:text-foreground">Kitten</span>
-                        <Badge
-                          variant="outline"
-                          className="bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300"
-                        >
-                          Under 1 year
-                        </Badge>
+                        <Badge className="bg-blue-600 text-white">Under 1 year</Badge>
                       </div>
                       <div className="p-3 bg-muted/30 dark:bg-muted/10 rounded-md flex justify-between items-center">
                         <span className="text-sm text-foreground dark:text-foreground">Standard Room</span>
@@ -126,12 +116,7 @@ export default function PricingPage() {
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
                         <span className="font-medium text-foreground dark:text-foreground">Adult Cat</span>
-                        <Badge
-                          variant="outline"
-                          className="bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300"
-                        >
-                          1+ years
-                        </Badge>
+                        <Badge className="bg-blue-600 text-white">1+ years</Badge>
                       </div>
                       <div className="p-3 bg-muted/30 dark:bg-muted/10 rounded-md flex justify-between items-center">
                         <span className="text-sm text-foreground dark:text-foreground">Standard Room</span>
@@ -239,9 +224,7 @@ export default function PricingPage() {
                     <div key={size} className="space-y-3">
                       <div className="flex justify-between items-center">
                         <h3 className="font-medium text-foreground dark:text-foreground capitalize">{size}</h3>
-                        <Badge variant="outline" className="text-xs">
-                          {description}
-                        </Badge>
+                        <Badge className="bg-blue-600 text-white">{description}</Badge>
                       </div>
                       <div className="grid gap-2">
                         <div className="p-3 bg-muted/30 dark:bg-muted/10 rounded-md">
