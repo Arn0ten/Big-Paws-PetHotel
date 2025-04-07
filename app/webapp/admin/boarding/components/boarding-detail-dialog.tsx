@@ -55,7 +55,7 @@ import {
   User,
   Calendar,
   Tag,
-  PoundSterlingIcon as PhilippinePesoIcon,
+  PhilippinePesoIcon,
 } from "lucide-react";
 import { ReleaseConfirmationDialog } from "./release-confirmation-dialog";
 import { ReceiptDialog } from "./receipt-dialog";

@@ -28,7 +28,7 @@ import {
   Trash2,
   Loader2,
   AlertCircle,
-  PoundSterlingIcon as PhilippinePesoIcon,
+  PhilippinePesoIcon,
   Eye,
   CheckCircle,
   XCircle,
