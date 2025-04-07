@@ -34,7 +34,6 @@ import {
   XCircle,
 } from "lucide-react";
 import type { BoardingOrder, PaymentStatus } from "../types";
-// Update the import section to include the isEligibleForForceRelease function
 import {
   formatDate,
   calculateDuration,
@@ -45,7 +44,6 @@ import { BoardingDetailDialog } from "./boarding-detail-dialog";
 import { ReceiptDialog } from "./receipt-dialog";
 import { ConfirmationDialog } from "./confirmation-dialog";
 
-// Update the BoardingTable props interface to include onForceRelease
 interface BoardingTableProps {
   boardingOrders: BoardingOrder[];
   onUpdatePaymentStatus: (orderId: string, status: PaymentStatus) => void;
@@ -57,7 +55,6 @@ interface BoardingTableProps {
   isProcessing?: boolean;
 }
 
-// Update the BoardingTable function parameters to include onForceRelease
 export function BoardingTable({
   boardingOrders,
   onUpdatePaymentStatus,
@@ -109,7 +106,6 @@ export function BoardingTable({
     }
   };
 
-  // Add a handleForceRelease function after the handleReleasePet function
   const handleForceRelease = (orderId: string) => {
     if (onForceRelease && !isReadOnly) {
       onForceRelease(orderId);
@@ -215,20 +211,25 @@ export function BoardingTable({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[80px]">Pet</TableHead>
-                <TableHead>Pet Name</TableHead>
-                <TableHead className="hidden md:table-cell">Owner</TableHead>
-                <TableHead>Pet Type</TableHead>
-                <TableHead className="hidden lg:table-cell">Type</TableHead>
-                <TableHead className="hidden sm:table-cell">
-                  <div className="flex items-center">
+                {/* Center-align all column header texts */}
+                <TableHead className="w-[80px] text-center">Pet</TableHead>
+                <TableHead className="text-center">Pet Name</TableHead>
+                <TableHead className="hidden md:table-cell text-center">
+                  Owner
+                </TableHead>
+                <TableHead className="text-center">Pet Type</TableHead>
+                <TableHead className="hidden lg:table-cell text-center">
+                  Type
+                </TableHead>
+                <TableHead className="hidden sm:table-cell text-center">
+                  <div className="flex items-center justify-center">
                     <Clock className="h-4 w-4 mr-1" />
                     <span>Duration</span>
                   </div>
                 </TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Payment</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead className="text-center">Status</TableHead>
+                <TableHead className="text-center">Payment</TableHead>
+                <TableHead className="text-center">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -328,28 +329,28 @@ export function BoardingTable({
                             </span>
                           </div>
                         </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant="outline"
-                            className={getBoardingStatusColor(
-                              order.boardingStatus,
-                            )}
-                          >
-                            {order.boardingStatus}
-                          </Badge>
+                        {/* Ensure status badges display on a single line */}
+                        <TableCell className="whitespace-nowrap">
+                          <div className="flex justify-center">
+                            <Badge
+                              variant="outline"
+                              className={`${getBoardingStatusColor(order.boardingStatus)} whitespace-nowrap`}
+                            >
+                              {order.boardingStatus}
+                            </Badge>
+                          </div>
                         </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant="outline"
-                            className={getPaymentStatusColor(
-                              order.paymentStatus,
-                            )}
-                          >
-                            {order.paymentStatus}
-                          </Badge>
+                        {/* Ensure payment status badges display on a single line */}
+                        <TableCell className="whitespace-nowrap">
+                          <div className="flex justify-center">
+                            <Badge
+                              variant="outline"
+                              className={`${getPaymentStatusColor(order.paymentStatus)} whitespace-nowrap`}
+                            >
+                              {order.paymentStatus}
+                            </Badge>
+                          </div>
                         </TableCell>
-                        {/* Update the TableCell with actions to include the Force Release button and enhance visual cues */}
-                        {/* Replace the TableCell with the actions column with this updated version: */}
                         <TableCell
                           className="text-right"
                           onClick={(e) => e.stopPropagation()}
@@ -371,8 +372,6 @@ export function BoardingTable({
                                   Release
                                 </Button>
                               )}
-                            {/* Update the conditional rendering for the Force Release button in the TableCell */}
-                            {/* Replace the Force Release button condition with: */}
                             {isEligibleForForceRelease(order) &&
                               onForceRelease &&
                               !isReadOnly && (
@@ -505,7 +504,6 @@ export function BoardingTable({
                                           Release Pet
                                         </DropdownMenuItem>
                                       )}
-                                    {/* Also update the dropdown menu item for Force Release: */}
                                     {isEligibleForForceRelease(order) &&
                                       onForceRelease &&
                                       !isReadOnly && (
