@@ -22,9 +22,22 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { toast } from "@/components/ui/use-toast"
+import { JSX } from "react/jsx-runtime"
+
+// Add these interfaces at the top of the file, before the component
+
+interface Notification {
+  id: string
+  title: string
+  message: string
+  timestamp: string
+  isRead: boolean
+  type: string
+  requestId?: string
+}
 
 // Local utility function to format dates
-const formatDate = (dateString: string) => {
+const formatDate = (dateString: string): string => {
   const date = new Date(dateString)
 
   // Check if date is today
@@ -61,15 +74,16 @@ const formatDate = (dateString: string) => {
 }
 
 export default function NotificationsPage() {
-  const [activeTab, setActiveTab] = useState("all")
-  const [searchQuery, setSearchQuery] = useState("")
-  const [notificationsList, setNotificationsList] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
+  // Update the useState declarations with proper types
+  const [activeTab, setActiveTab] = useState<string>("all")
+  const [searchQuery, setSearchQuery] = useState<string>("")
+  const [notificationsList, setNotificationsList] = useState<Notification[]>([])
+  const [isLoading, setIsLoading] = useState<boolean>(true)
   const [deletedNotificationIds, setDeletedNotificationIds] = useState<string[]>([])
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<boolean>(false)
   const [notificationToDelete, setNotificationToDelete] = useState<string | null>(null)
-  const [showDeleteAllReadConfirm, setShowDeleteAllReadConfirm] = useState(false)
-  const [isSearching, setIsSearching] = useState(false)
+  const [showDeleteAllReadConfirm, setShowDeleteAllReadConfirm] = useState<boolean>(false)
+  const [isSearching, setIsSearching] = useState<boolean>(false)
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const router = useRouter()
@@ -126,15 +140,15 @@ export default function NotificationsPage() {
     setNotificationsList(notificationsList.map((notif) => ({ ...notif, isRead: true })))
   }
 
-  // Mark notification as read when clicked
-  const handleNotificationClick = (notificationId: string) => {
+  // Update the handleNotificationClick function with proper typing
+  const handleNotificationClick = (notificationId: string): void => {
     setNotificationsList((prev) =>
       prev.map((notif) => (notif.id === notificationId ? { ...notif, isRead: true } : notif)),
     )
   }
 
-  // Delete a notification
-  const deleteNotification = (notificationId: string) => {
+  // Update the deleteNotification function with proper typing
+  const deleteNotification = (notificationId: string): void => {
     // In a real app, this would be an API call
     setDeletedNotificationIds((prev) => [...prev, notificationId])
     setNotificationToDelete(null)
@@ -186,8 +200,8 @@ export default function NotificationsPage() {
     return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
   })
 
-  // Update the notification icon function to be more descriptive:
-  const getNotificationIcon = (type: string) => {
+  // Update the getNotificationIcon function with proper typing
+  const getNotificationIcon = (type: string): JSX.Element => {
     switch (type) {
       case "request-completed":
         return <CheckCircle className="h-5 w-5 text-green-500 dark:text-green-400" />

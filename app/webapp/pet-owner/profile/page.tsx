@@ -10,28 +10,66 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { User, Mail, Phone, MapPin, Pencil, Info } from "lucide-react"
+import { User, Mail, Phone, MapPin, Pencil, Info, Lock, ChevronRight, LogOut } from "lucide-react"
 import Link from "next/link"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { Lock, ChevronRight, LogOut } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { getPetOwnerPets, getUserProfile } from "@/app/webapp/data/sample-data"
+import { JSX } from "react/jsx-runtime"
 
-export default function ProfilePage() {
-  const [activeTab, setActiveTab] = useState("profile")
-  const [isEditing, setIsEditing] = useState(false)
-  const [profile, setProfile] = useState(getUserProfile())
+// Define interfaces for our data structures
+interface EmergencyContact {
+  name: string
+  relationship: string
+  phone: string
+}
+
+interface Vaccination {
+  name: string
+  expiry: string
+}
+
+interface Pet {
+  id: string
+  name: string
+  avatar: string
+  type: string
+  breed: string
+  age: string
+  gender: string
+  size: string
+  boarding: boolean
+  medicalInfo: string
+  dietaryRestrictions: string
+  behavioralNotes: string
+  emergencyContact: EmergencyContact
+  vaccinations?: Vaccination[]
+}
+
+interface UserProfile {
+  id: string
+  name: string
+  email: string
+  phone: string
+  address: string
+  avatar: string
+}
+
+export default function ProfilePage(): JSX.Element {
+  const [activeTab, setActiveTab] = useState<string>("profile")
+  const [isEditing, setIsEditing] = useState<boolean>(false)
+  const [profile, setProfile] = useState<UserProfile>(getUserProfile())
 
   // BACKEND INTEGRATION POINT:
   // Fetch pet data from the API
   // This data should be read-only for pet owners
   // Only administrators can modify pet information
-  const [pets, setPets] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [pets, setPets] = useState<Pet[]>([])
+  const [isLoading, setIsLoading] = useState<boolean>(true)
 
   useEffect(() => {
     // Simulate API call to fetch pets
-    const fetchPets = async () => {
+    const fetchPets = async (): Promise<void> => {
       try {
         setIsLoading(true)
         // In a real app, this would be an API call
@@ -40,7 +78,7 @@ export default function ProfilePage() {
         // setPets(data);
 
         // For demo, use the sample data
-        const petsData = getPetOwnerPets()
+        const petsData = getPetOwnerPets() as Pet[]
         setPets(petsData)
       } catch (error) {
         console.error("Error fetching pets:", error)
@@ -53,17 +91,19 @@ export default function ProfilePage() {
   }, [])
 
   // Form state for editing
-  const [formData, setFormData] = useState({ ...profile })
+  const [formData, setFormData] = useState<UserProfile>({ ...profile })
 
   // Handle form input change
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target
-    setFormData({ ...formData, [name]: value })
+    setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
   // Handle form submission
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>): void => {
+    if (e.type === "submit") {
+      e.preventDefault()
+    }
     // In a real app, this would be an API call to update the profile
     // const updatedProfile = await updateUserProfile(formData);
     // setProfile(updatedProfile);
@@ -76,7 +116,7 @@ export default function ProfilePage() {
   const router = useRouter()
 
   // Add this function to handle logout
-  const handleLogout = () => {
+  const handleLogout = (): void => {
     // In a real app, you would call your auth service to sign out
     // For example: await authService.signOut();
 

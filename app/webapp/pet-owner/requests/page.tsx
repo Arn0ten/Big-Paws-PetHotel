@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -47,6 +49,22 @@ import {
 } from "@/components/ui/alert-dialog"
 import { useToast } from "@/hooks/use-toast"
 
+// Add these interfaces at the top of the file, before the component
+
+interface Request {
+  id: string
+  type: string
+  status: string
+  title: string
+  petName: string
+  description: string
+  createdAt: string
+  updatedAt?: string
+  completedAt?: string
+  rejectedAt?: string
+  rejectionReason?: string
+}
+
 // Add state for the confirmation dialog
 // Add these after the existing useState declarations
 
@@ -75,19 +93,21 @@ import { useToast } from "@/hooks/use-toast"
  *    - Monitor filter usage
  */
 export default function PetOwnerRequestsPage() {
-  const router = useRouter()
-  const [activeTab, setActiveTab] = useState("pending")
-  const [isLoading, setIsLoading] = useState(true)
-  const [requests, setRequests] = useState([])
-  const [error, setError] = useState("")
-  const [searchQuery, setSearchQuery] = useState("")
-  const [filterType, setFilterType] = useState("all")
+  // Update the useState declarations with proper types
+  const [activeTab, setActiveTab] = useState<string>("pending")
+  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [requests, setRequests] = useState<Request[]>([])
+  const [error, setError] = useState<string>("")
+  const [searchQuery, setSearchQuery] = useState<string>("")
+  const [filterType, setFilterType] = useState<string>("all")
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc")
 
   const { toast } = useToast()
-  const [requestToCancel, setRequestToCancel] = useState(null)
-  const [showCancelConfirm, setShowCancelConfirm] = useState(false)
-  const [isCancelling, setIsCancelling] = useState(false)
+  const [requestToCancel, setRequestToCancel] = useState<Request | null>(null)
+  const [showCancelConfirm, setShowCancelConfirm] = useState<boolean>(false)
+  const [isCancelling, setIsCancelling] = useState<boolean>(false)
+
+  const router = useRouter()
 
   // Add this CSS class to hide scrollbars
   useEffect(() => {
@@ -216,8 +236,8 @@ export default function PetOwnerRequestsPage() {
     }
   }
 
-  // Helper function to render requests list based on status
-  const renderRequestsList = (status) => {
+  // Update the renderRequestsList function with proper typing
+  const renderRequestsList = (status: string): JSX.Element => {
     const statusRequests = requests
       .filter((request) => {
         // Match the request status with the tab status
@@ -349,7 +369,8 @@ export default function PetOwnerRequestsPage() {
                         <Button
                           variant="destructive"
                           size="sm"
-                          onClick={(e) => {
+                          // Update event handlers with proper event types
+                          onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                             e.preventDefault()
                             e.stopPropagation()
                             setRequestToCancel(request)
@@ -382,8 +403,8 @@ export default function PetOwnerRequestsPage() {
     setSortOrder(sortOrder === "asc" ? "desc" : "asc")
   }
 
-  // Add the handleCancelRequest function here, outside of renderRequestsList
-  const handleCancelRequest = () => {
+  // Update the handleCancelRequest function with proper typing
+  const handleCancelRequest = (): void => {
     if (!requestToCancel) return
 
     setIsCancelling(true)

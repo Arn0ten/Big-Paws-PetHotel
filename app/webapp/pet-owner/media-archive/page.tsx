@@ -20,34 +20,36 @@ import type { DateRange } from "react-day-picker"
 import { motion } from "framer-motion"
 import { MediaCard } from "@/app/webapp/components/media-card"
 import { getMediaItems } from "@/app/webapp/data/sample-data"
+import { JSX } from "react/jsx-runtime"
+// Add these interfaces at the top of the file, before the component
 
-// BACKEND INTEGRATION: Implement this function to fetch media data from the API
-async function fetchMediaItems() {
-  // Example implementation:
-  // try {
-  //   const response = await fetch('/api/pet-owner/media');
-  //   if (!response.ok) throw new Error('Failed to fetch media data');
-  //   return await response.json();
-  // } catch (error) {
-  //   console.error('Error fetching media data:', error);
-  //   return [];
-  // }
+interface MediaItem {
+  id: string
+  petName: string
+  requestType: string
+  description?: string
+  timestamp: Date
+  mediaUrls: string[]
+}
 
-  // For development, return mock data
+// Update the fetchMediaItems function with proper typing
+async function fetchMediaItems(): Promise<MediaItem[]> {
+  // Function body remains the same
   return new Promise((resolve) => {
-    setTimeout(() => resolve(getMediaItems()), 500)
+    setTimeout(() => resolve(getMediaItems() as MediaItem[]), 500)
   })
 }
 
 export default function MediaArchivePage() {
-  const [items, setItems] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [selectedType, setSelectedType] = useState("all")
+  // Update the useState declarations with proper types
+  const [items, setItems] = useState<MediaItem[]>([])
+  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [searchQuery, setSearchQuery] = useState<string>("")
+  const [selectedType, setSelectedType] = useState<string>("all")
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
-  const [selectedMedia, setSelectedMedia] = useState(null)
-  const [currentImageIndex, setCurrentImageIndex] = useState(0)
-  const [isSearching, setIsSearching] = useState(false)
+  const [selectedMedia, setSelectedMedia] = useState<MediaItem | null>(null)
+  const [currentImageIndex, setCurrentImageIndex] = useState<number>(0)
+  const [isSearching, setIsSearching] = useState<boolean>(false)
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // Fetch media items on component mount
@@ -75,9 +77,10 @@ export default function MediaArchivePage() {
     }
   }, [])
 
-  const handleMediaClick = (item) => {
+  // Update the handleMediaClick function with proper typing
+  const handleMediaClick = (item: MediaItem): void => {
     setSelectedMedia(item)
-    setCurrentImageIndex(0) // Reset to first image when opening
+    setCurrentImageIndex(0)
   }
 
   const handleCloseMedia = () => {
@@ -85,7 +88,8 @@ export default function MediaArchivePage() {
   }
 
   // BACKEND INTEGRATION: Implement this function to download media
-  const handleDownload = (url: string, filename = "media") => {
+  // Update the handleDownload function with proper typing
+  const handleDownload = (url: string, filename = "media"): void => {
     // For client-side download of a single file:
     const link = document.createElement("a")
     link.href = url
@@ -99,7 +103,8 @@ export default function MediaArchivePage() {
   }
 
   // BACKEND INTEGRATION: Implement this function to download multiple media files as a zip
-  const handleDownloadAll = (urls: string[], mediaId: string) => {
+  // Update the handleDownloadAll function with proper typing
+  const handleDownloadAll = (urls: string[], mediaId: string): void => {
     // For multiple files, redirect to an API endpoint that will create a zip file
     // window.location.href = `/api/pet-owner/media/download-zip?id=${mediaId}`;
 
@@ -348,6 +353,7 @@ export default function MediaArchivePage() {
   )
 }
 
+// Update the Carousel component props interface
 interface CarouselProps {
   mediaUrls: string[]
   petName: string

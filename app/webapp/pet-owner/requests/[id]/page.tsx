@@ -19,14 +19,12 @@ import {
   XCircle,
   AlertCircle,
   Info,
+  Loader2,
 } from "lucide-react"
 import { requests } from "@/app/webapp/data/sample-data"
 import { formatDate } from "@/app/webapp/utils/date-utils"
 
-// Add a cancel button to the request details page
-// Add a confirmation dialog for cancellation
-
-// First, add the necessary imports
+// Add the necessary imports
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,7 +35,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { Loader2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import {
   Dialog,
@@ -47,6 +44,44 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { JSX } from "react/jsx-runtime"
+
+// Define interfaces for our data structures
+interface MediaFiles {
+  urls: string[]
+}
+
+interface ConversationMessage {
+  id: string
+  sender: "owner" | "admin"
+  content: string
+  timestamp: string
+}
+
+interface ExtensionDetails {
+  duration: number
+  unit: string
+}
+
+interface PetRequest {
+  id: string
+  type: "photo" | "video" | "grooming" | "boarding-extension" | string
+  title?: string
+  status: "pending" | "new" | "approved" | "in-progress" | "completed" | "rejected" | "cancelled" | string
+  description: string
+  petName: string
+  createdAt: string
+  updatedAt?: string
+  completedAt?: string
+  processingNotes?: string
+  rejectionReason?: string
+  mediaFiles?: MediaFiles
+  groomingService?: string
+  newEndDate?: string
+  extensionDetails?: ExtensionDetails
+  price?: number
+  conversation?: ConversationMessage[]
+}
 
 /**
  * Request Detail Page
@@ -57,24 +92,23 @@ import {
  *
  * 2. Add proper error handling and loading states
  */
-export default function RequestDetailPage() {
+export default function RequestDetailPage(): JSX.Element {
   const params = useParams()
   const router = useRouter()
   const requestId = params.id as string
 
-  const [request, setRequest] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState("")
+  const [request, setRequest] = useState<PetRequest | null>(null)
+  const [loading, setLoading] = useState<boolean>(true)
+  const [error, setError] = useState<string>("")
 
   // Add state for the confirmation dialog
-  // Add these after the existing useState declarations
   const { toast } = useToast()
-  const [showCancelConfirm, setShowCancelConfirm] = useState(false)
-  const [isCancelling, setIsCancelling] = useState(false)
-  const [showCancelSuccess, setShowCancelSuccess] = useState(false)
+  const [showCancelConfirm, setShowCancelConfirm] = useState<boolean>(false)
+  const [isCancelling, setIsCancelling] = useState<boolean>(false)
+  const [showCancelSuccess, setShowCancelSuccess] = useState<boolean>(false)
 
   useEffect(() => {
-    const fetchRequest = async () => {
+    const fetchRequest = async (): Promise<void> => {
       try {
         // In production, replace with actual API call
         // const response = await fetch(`/api/pet-owner/requests/${requestId}`)
@@ -82,7 +116,7 @@ export default function RequestDetailPage() {
         // const data = await response.json()
 
         // For demo, we'll use the local data
-        const foundRequest = requests.find((r) => r.id === requestId)
+        const foundRequest = requests.find((r) => r.id === requestId) as PetRequest | undefined
         if (!foundRequest) {
           console.log("Request not found for id:", requestId) // Log the request ID for debugging
           setError("Request not found")
@@ -103,7 +137,7 @@ export default function RequestDetailPage() {
   }, [requestId])
 
   // Get request type icon
-  const getRequestTypeIcon = (type) => {
+  const getRequestTypeIcon = (type: string): JSX.Element => {
     switch (type) {
       case "photo":
         return <Camera className="h-5 w-5" />
@@ -119,7 +153,7 @@ export default function RequestDetailPage() {
   }
 
   // Get status badge
-  const getStatusBadge = (status) => {
+  const getStatusBadge = (status: string): JSX.Element => {
     switch (status) {
       case "pending":
       case "new":
@@ -132,7 +166,7 @@ export default function RequestDetailPage() {
               <Clock className="h-3 w-3 mr-1" /> Pending
             </Badge>
           </div>
-        );
+        )
       case "approved":
       case "in-progress":
         return (
@@ -144,7 +178,7 @@ export default function RequestDetailPage() {
               <CheckCircle2 className="h-3 w-3 mr-1" /> In Progress
             </Badge>
           </div>
-        );
+        )
       case "completed":
         return (
           <div className="self-start">
@@ -155,7 +189,7 @@ export default function RequestDetailPage() {
               <CheckCircle2 className="h-3 w-3 mr-1" /> Completed
             </Badge>
           </div>
-        );
+        )
       case "rejected":
         return (
           <div className="self-start">
@@ -166,7 +200,7 @@ export default function RequestDetailPage() {
               <XCircle className="h-3 w-3 mr-1" /> Rejected
             </Badge>
           </div>
-        );
+        )
       default:
         return (
           <div className="self-start">
@@ -174,12 +208,12 @@ export default function RequestDetailPage() {
               <AlertCircle className="h-3 w-3 mr-1" /> {status}
             </Badge>
           </div>
-        );
+        )
     }
-  };
+  }
 
   // Get request type title
-  const getRequestTypeTitle = (type) => {
+  const getRequestTypeTitle = (type: string): string => {
     switch (type) {
       case "photo":
         return "Photo Update"
@@ -195,7 +229,7 @@ export default function RequestDetailPage() {
   }
 
   // Add a function to handle cancellation
-  const handleCancelRequest = () => {
+  const handleCancelRequest = (): void => {
     setIsCancelling(true)
 
     // Simulate API call
@@ -208,7 +242,7 @@ export default function RequestDetailPage() {
   }
 
   // Add a function to handle success dialog close
-  const handleSuccessClose = () => {
+  const handleSuccessClose = (): void => {
     setShowCancelSuccess(false)
 
     // Update the local request state to show it's cancelled
@@ -349,7 +383,7 @@ export default function RequestDetailPage() {
                           <p className="text-sm whitespace-pre-wrap">
                             {request.processingNotes || "Your request has been completed."}
                           </p>
-                          <p className="text-xs opacity-70 mt-1 text-right">{formatDate(request.completedAt)}</p>
+                          <p className="text-xs opacity-70 mt-1 text-right">{formatDate(request.completedAt || "")}</p>
                         </div>
                       </div>
 
@@ -389,7 +423,9 @@ export default function RequestDetailPage() {
                                 ))}
                               </div>
 
-                              <p className="text-xs opacity-70 mt-1 text-right">{formatDate(request.completedAt)}</p>
+                              <p className="text-xs opacity-70 mt-1 text-right">
+                                {formatDate(request.completedAt || "")}
+                              </p>
                             </div>
                           </div>
                         )}
@@ -406,7 +442,9 @@ export default function RequestDetailPage() {
                               {request.groomingService?.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())})
                               has been completed for {request.petName}.
                             </p>
-                            <p className="text-xs opacity-70 mt-1 text-right">{formatDate(request.completedAt)}</p>
+                            <p className="text-xs opacity-70 mt-1 text-right">
+                              {formatDate(request.completedAt || "")}
+                            </p>
                           </div>
                         </div>
                       )}
@@ -437,7 +475,9 @@ export default function RequestDetailPage() {
                                 ))}
                               </div>
 
-                              <p className="text-xs opacity-70 mt-1 text-right">{formatDate(request.completedAt)}</p>
+                              <p className="text-xs opacity-70 mt-1 text-right">
+                                {formatDate(request.completedAt || "")}
+                              </p>
                             </div>
                           </div>
                         )}
@@ -453,7 +493,9 @@ export default function RequestDetailPage() {
                               The boarding extension has been approved. The new end date is{" "}
                               {formatDate(request.newEndDate)}.
                             </p>
-                            <p className="text-xs opacity-70 mt-1 text-right">{formatDate(request.completedAt)}</p>
+                            <p className="text-xs opacity-70 mt-1 text-right">
+                              {formatDate(request.completedAt || "")}
+                            </p>
                           </div>
                         </div>
                       )}
@@ -463,7 +505,7 @@ export default function RequestDetailPage() {
                   {/* Include existing conversation messages if available */}
                   {request.conversation &&
                     request.conversation.length > 0 &&
-                    request.conversation.map((message, index) => (
+                    request.conversation.map((message) => (
                       <div key={message.id} className={`flex gap-3 ${message.sender === "owner" ? "justify-end" : ""}`}>
                         {message.sender !== "owner" && (
                           <div className="flex-shrink-0 h-8 w-8 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 flex items-center justify-center">

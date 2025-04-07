@@ -9,10 +9,25 @@ import { Button } from "@/components/ui/button"
 import { Scissors, Clock, Calendar, Info, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { getPricingData, petSizes } from "@/app/webapp/data/sample-data"
+import { JSX } from "react/jsx-runtime"
+// Add these interfaces at the top of the file, before the component
+
+interface PricingData {
+  boarding: {
+    dog: Record<string, number>
+    cat: Record<string, number>
+    dayCare: Record<string, number>
+  }
+  grooming: {
+    basic: Record<string, number>
+    full: Record<string, number>
+  }
+}
 
 export default function PricingPage() {
-  const [activeTab, setActiveTab] = useState("boarding")
-  const pricing = getPricingData()
+  // Update the useState declaration with proper type
+  const [activeTab, setActiveTab] = useState<"boarding" | "grooming">("boarding")
+  const pricing: PricingData = getPricingData() as PricingData
 
   return (
     <div className="space-y-6 pb-20">
