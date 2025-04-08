@@ -21,6 +21,7 @@ export interface Pet {
   avatar: string;
   boarding: {
     status: string;
+    boardingType?: string | undefined;
     startDate: string; // ISO date string
     endDate: string; // ISO date string
     package?: string;

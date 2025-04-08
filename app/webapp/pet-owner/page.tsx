@@ -24,14 +24,16 @@ import {
   Plus,
   ArrowRight,
   Calendar,
-  DollarSign,
   Info,
   AlertCircle,
   CheckCircle2,
   XCircle,
+  PoundSterlingIcon as PhilippinePesoIcon,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
-import { formatDate } from "../utils/date-helpers";
-import { requests, notifications, getPetOwnerPets } from "../data/sample-data";
+import { formatDate, formatTime } from "../utils/date-helpers";
+import { requests, notifications, getBoardingPets } from "../data/sample-data";
 import type { JSX } from "react/jsx-runtime";
 
 // Add these interfaces at the top of the file, before the component
@@ -40,8 +42,9 @@ interface BoardingInfo {
   status: string;
   startDate: string;
   endDate: string;
-  package: string;
+  boardingType: string;
   totalPrice: number;
+  paidAmount?: number;
   remainingAmount?: number;
 }
 
@@ -49,7 +52,7 @@ interface Pet {
   id: string;
   name: string;
   breed: string;
-  age: number;
+  age: string;
   size?: string;
   avatar: string;
   boarding?: BoardingInfo;
@@ -67,7 +70,7 @@ interface Request {
   updatedAt?: string;
   price?: number;
   extensionDetails?: {
-    duration: number;
+    duration: string;
     unit: "hours" | "days";
   };
 }
@@ -101,6 +104,8 @@ export default function PetOwnerHomePage() {
   const [activeTab, setActiveTab] = useState("boarding");
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [petsList, setPetsList] = useState<Pet[]>([]);
+  const [activeBoardingPets, setActiveBoardingPets] = useState<Pet[]>([]);
+  const [currentBoardingPetIndex, setCurrentBoardingPetIndex] = useState(0);
   const [requestsList, setRequestsList] = useState<Request[]>([]);
   const [notificationsList, setNotificationsList] = useState<Notification[]>(
     [],
@@ -147,9 +152,22 @@ export default function PetOwnerHomePage() {
       // Simulate API delay
       await new Promise((resolve) => setTimeout(resolve, 500));
 
+      // Get all active boarding pets
+      const boardingPets = getBoardingPets();
+      setActiveBoardingPets(boardingPets);
+
       // For demo, use the sample data
-      setPetsList(getPetOwnerPets());
-      setRequestsList(requests.slice(0, 3));
+      setPetsList(boardingPets);
+
+      // Update this line to specifically include in-progress requests for all active boarding pets
+      const inProgressRequests = requests.filter(
+        (req) =>
+          req.status === "in-progress" &&
+          (req.type === "grooming" || req.type === "boarding-extension") &&
+          boardingPets.some((pet) => pet.id === req.petId),
+      );
+
+      setRequestsList(inProgressRequests.concat(requests.slice(0, 3)));
       setNotificationsList(notifications.filter((n) => !n.isRead).slice(0, 2));
 
       setIsLoading(false);
@@ -158,16 +176,47 @@ export default function PetOwnerHomePage() {
     fetchData();
   }, []);
 
-  // Get the active boarding pet
-  const activeBoardingPet = petsList.find(
-    (pet) => pet.boarding?.status === "active",
-  );
+  // Get the current active boarding pet
+  const activeBoardingPet =
+    activeBoardingPets.length > 0
+      ? activeBoardingPets[currentBoardingPetIndex]
+      : null;
 
   // Get recent requests (limit to 3)
   const recentRequests = requestsList;
 
   // Get unread notifications (limit to 2)
   const unreadNotifications = notificationsList;
+
+  // Navigate to previous boarding pet
+  const goToPreviousPet = () => {
+    if (currentBoardingPetIndex > 0) {
+      setCurrentBoardingPetIndex(currentBoardingPetIndex - 1);
+    } else {
+      // Wrap around to the last pet
+      setCurrentBoardingPetIndex(activeBoardingPets.length - 1);
+    }
+  };
+
+  // Navigate to next boarding pet
+  const goToNextPet = () => {
+    if (currentBoardingPetIndex < activeBoardingPets.length - 1) {
+      setCurrentBoardingPetIndex(currentBoardingPetIndex + 1);
+    } else {
+      // Wrap around to the first pet
+      setCurrentBoardingPetIndex(0);
+    }
+  };
+
+  // Get pet-specific requests
+  const getPetRequests = (petId: string) => {
+    return requestsList.filter(
+      (req) =>
+        req.status === "in-progress" &&
+        (req.type === "grooming" || req.type === "boarding-extension") &&
+        req.petId === petId,
+    );
+  };
 
   // Get request type icon
   // Update the getRequestTypeIcon function with proper typing
@@ -300,10 +349,40 @@ export default function PetOwnerHomePage() {
         >
           <Card className="bg-primary/5 dark:bg-primary/10 border-primary/20 dark:border-primary/30">
             <CardHeader className="pb-2">
-              <CardTitle className="text-lg flex items-center gap-2 text-foreground dark:text-foreground">
-                <Calendar className="h-5 w-5 text-primary" />
-                Active Boarding
-              </CardTitle>
+              <div className="flex justify-between items-center">
+                <CardTitle className="text-lg flex items-center gap-2 text-foreground dark:text-foreground">
+                  <Calendar className="h-5 w-5 text-primary" />
+                  Active Boarding
+                </CardTitle>
+                {activeBoardingPets.length > 1 && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">
+                      {currentBoardingPetIndex + 1} of{" "}
+                      {activeBoardingPets.length}
+                    </span>
+                    <div className="flex gap-1">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={goToPreviousPet}
+                        aria-label="Previous pet"
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={goToNextPet}
+                        aria-label="Next pet"
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
               <CardDescription>
                 {activeBoardingPet.name}'s current boarding details
               </CardDescription>
@@ -330,44 +409,98 @@ export default function PetOwnerHomePage() {
               </div>
 
               <div className="grid grid-cols-2 gap-4 mt-4">
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide">
-                    Check-in
-                  </p>
-                  <p className="font-medium text-foreground dark:text-foreground">
-                    {formatDate(activeBoardingPet.boarding?.startDate || "")}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide">
-                    Check-out
-                  </p>
-                  <p className="font-medium text-foreground dark:text-foreground">
-                    {formatDate(activeBoardingPet.boarding?.endDate || "")}
-                  </p>
-                </div>
+                {activeBoardingPet.boarding?.boardingType === "Day Care" ? (
+                  <>
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wide">
+                        Start Time
+                      </p>
+                      <p className="font-medium text-foreground dark:text-foreground">
+                        {formatTime(
+                          activeBoardingPet.boarding?.startDate || "",
+                        )}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wide">
+                        End Time
+                      </p>
+                      <p className="font-medium text-foreground dark:text-foreground">
+                        {formatTime(activeBoardingPet.boarding?.endDate || "")}
+                      </p>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wide">
+                        Check-in Date
+                      </p>
+                      <p className="font-medium text-foreground dark:text-foreground">
+                        {formatDate(
+                          activeBoardingPet.boarding?.startDate || "",
+                        )}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wide">
+                        Check-out Date
+                      </p>
+                      <p className="font-medium text-foreground dark:text-foreground">
+                        {formatDate(activeBoardingPet.boarding?.endDate || "")}
+                      </p>
+                    </div>
+                  </>
+                )}
               </div>
 
               <div className="mt-4 p-3 bg-background rounded-md border border-border dark:border-border/50">
                 <div className="flex justify-between items-center">
                   <div>
                     <p className="text-xs text-muted-foreground uppercase tracking-wide">
-                      Package
+                      Boarding Type
                     </p>
                     <p className="font-medium text-foreground dark:text-foreground">
-                      {activeBoardingPet.boarding?.package}
+                      {activeBoardingPet.boarding?.boardingType}
                     </p>
                   </div>
                   <div className="text-right">
                     <p className="text-xs text-muted-foreground uppercase tracking-wide">
-                      Total Price
+                      Payment Status
                     </p>
-                    <p className="font-medium text-green-600 dark:text-green-400">
-                      ₱
-                      {(
-                        activeBoardingPet.boarding?.totalPrice || 0
-                      ).toLocaleString()}
-                    </p>
+                    {activeBoardingPet.boarding?.remainingAmount === 0 ? (
+                      <Badge className="bg-green-600 text-white">Paid</Badge>
+                    ) : activeBoardingPet.boarding?.remainingAmount &&
+                      activeBoardingPet.boarding?.remainingAmount > 0 &&
+                      getPetRequests(activeBoardingPet.id).length > 0 ? (
+                      <Badge className="bg-yellow-600 text-white">
+                        Pending
+                      </Badge>
+                    ) : (
+                      <Badge className="bg-red-600 text-white">Not Paid</Badge>
+                    )}
+                  </div>
+                </div>
+
+                <div className="mt-3 pt-3 border-t border-border dark:border-border/50">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wide">
+                        Boarding Fee
+                      </p>
+                      <p className="text-xs text-muted-foreground dark:text-muted-foreground/90">
+                        (Base rate for{" "}
+                        {activeBoardingPet.boarding?.boardingType})
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-medium text-foreground dark:text-foreground">
+                        ₱
+                        {(
+                          activeBoardingPet.boarding?.totalPrice || 0
+                        ).toLocaleString()}
+                      </p>
+                    </div>
                   </div>
                 </div>
 
@@ -376,7 +509,7 @@ export default function PetOwnerHomePage() {
                     <div className="flex justify-between items-center">
                       <div>
                         <p className="text-xs text-muted-foreground dark:text-muted-foreground/90 uppercase tracking-wide">
-                          Remaining Balance
+                          Additional Charges
                         </p>
                         <p className="text-xs text-muted-foreground dark:text-muted-foreground/90">
                           (To be paid during pickup)
@@ -396,61 +529,75 @@ export default function PetOwnerHomePage() {
               </div>
 
               {/* Additional Charges Section - Only shown for in-progress requests */}
-              {requestsList.some(
-                (req) =>
-                  req.status === "in-progress" &&
-                  (req.type === "grooming" ||
-                    req.type === "boarding-extension"),
-              ) && (
+              {getPetRequests(activeBoardingPet.id).length > 0 && (
                 <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-md">
                   <h4 className="text-sm font-medium text-amber-700 dark:text-amber-400">
-                    Additional Charges
+                    Pending Additional Charges
                   </h4>
                   <ul className="mt-1 text-xs text-amber-600 dark:text-amber-300 space-y-1">
-                    {requestsList
-                      .filter(
-                        (req) =>
-                          req.status === "in-progress" &&
-                          req.type === "grooming",
-                      )
+                    {getPetRequests(activeBoardingPet.id)
+                      .filter((req) => req.type === "grooming")
                       .map((req, index) => (
                         <li key={`grooming-${index}`}>
-                          • Grooming service for {req.petName}:
-                          {req.price ? ` ₱${req.price}` : " ₱250-550"}
+                          • Grooming service for {req.petName}:{" "}
+                          {req.price
+                            ? ` ₱${req.price.toLocaleString()}`
+                            : " ₱250-550"}
                           {!req.price && " (based on pet size and service)"}
                         </li>
                       ))}
-                    {requestsList
-                      .filter(
-                        (req) =>
-                          req.status === "in-progress" &&
-                          req.type === "boarding-extension",
-                      )
+                    {getPetRequests(activeBoardingPet.id)
+                      .filter((req) => req.type === "boarding-extension")
                       .map((req, index) => (
                         <li key={`extension-${index}`}>
                           • Boarding extension for {req.petName}:
                           {req.price
-                            ? ` ₱${req.price}`
+                            ? ` ₱${req.price.toLocaleString()}`
                             : req.extensionDetails?.unit === "hours"
                               ? " ₱50-75/hour"
                               : " ₱500-750/day"}
+                          {req.extensionDetails &&
+                            ` (${req.extensionDetails.duration} ${req.extensionDetails.unit})`}
                         </li>
                       ))}
                   </ul>
                   <p className="text-xs text-amber-600 dark:text-amber-300 mt-1 font-medium">
-                    All charges will be collected during pickup.
+                    These charges are pending approval and will be added to your
+                    final bill.
                   </p>
                   <div className="mt-2">
                     <Link
                       href="/webapp/pet-owner/pricing"
                       className="text-xs text-primary hover:underline inline-flex items-center dark:text-primary"
                     >
-                      <DollarSign className="h-3 w-3 mr-1" />
+                      <PhilippinePesoIcon className="h-3 w-3 mr-1" />
                       View full pricing details
                     </Link>
                   </div>
                 </div>
               )}
+
+              {/* Add a comment for backend developers about the data needed for this section */}
+              {/* 
+                BACKEND INTEGRATION NOTES FOR ADDITIONAL CHARGES:
+                
+                1. The additional charges section should display all in-progress requests that have associated costs:
+                   - Grooming services (with price based on pet size and service type)
+                   - Boarding extensions (with price based on pet size and duration)
+                
+                2. Data needed from API:
+                   - GET /api/requests?status=in-progress&types[]=grooming&types[]=boarding-extension&petId=:petId
+                   - Each request should include:
+                     * id: string
+                     * type: "grooming" | "boarding-extension"
+                     * petName: string
+                     * price: number (calculated on the server)
+                     * extensionDetails?: { duration: string, unit: "hours" | "days" } (for boarding-extension only)
+                
+                3. Price calculation should happen on the server based on:
+                   - For grooming: pet size, service type, and any add-ons
+                   - For boarding extension: pet size, duration, and current package
+              */}
             </CardContent>
             <CardFooter>
               <Link
@@ -508,8 +655,7 @@ export default function PetOwnerHomePage() {
                           {pet.name}
                         </h3>
                         <p className="text-sm text-muted-foreground dark:text-muted-foreground/90">
-                          {pet.breed} • {pet.size || "Medium"} size • {pet.age}{" "}
-                          years old
+                          {pet.breed} • {pet.size || "Medium"} size • {pet.age}
                         </p>
 
                         {pet.boarding ? (

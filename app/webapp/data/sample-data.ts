@@ -26,7 +26,7 @@
  * };
  */
 
-import type { Pet, Request, Notification, Pricing, MediaItem } from "./types";
+import type { Pet, Request, Notification, Pricing, MediaItem } from "./types"
 
 /**
  * SAMPLE PETS DATA
@@ -43,33 +43,23 @@ export const pets: Pet[] = [
     type: "Dog",
     breed: "Shih Tzu",
     age: "3 years",
-    weight: "65 lbs",
     gender: "Male",
-    microchip: "123456789012345",
-    avatar:
-      "https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=200&auto=format&fit=crop",
+    avatar: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=200&auto=format&fit=crop",
     boarding: {
       status: "active",
       startDate: "2025-03-05T10:00:00Z",
       endDate: "2025-03-15T18:00:00Z",
-      package: "Premium Care",
+      boardingType: "Long Stay",
       totalPrice: 550,
       paidAmount: 300,
       remainingAmount: 250,
     },
     size: "Large",
-    medicalInfo: "Allergic to chicken. Takes thyroid medication daily.",
-    vaccinations: [
-      { name: "Rabies", date: "2024-01-15", expiry: "2025-01-15" },
-      { name: "DHPP", date: "2024-02-10", expiry: "2025-02-10" },
-      { name: "Bordetella", date: "2024-03-05", expiry: "2024-09-05" },
-    ],
     emergencyContact: {
       name: "John Johnson",
       phone: "+1 (555) 987-6543",
       relationship: "Spouse",
     },
-    dietaryRestrictions: "Grain-free diet recommended",
     behavioralNotes: "Friendly with other dogs. Anxious during thunderstorms.",
   },
   {
@@ -78,27 +68,68 @@ export const pets: Pet[] = [
     type: "Cat",
     breed: "Siamese",
     age: "2 years",
-    weight: "8 lbs",
     gender: "Female",
-    microchip: "987654321098765",
-    avatar:
-      "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=200&auto=format&fit=crop",
+    avatar: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=200&auto=format&fit=crop",
     boarding: null,
     size: "Small",
-    medicalInfo: "No known medical issues",
-    vaccinations: [
-      { name: "Rabies", date: "2024-02-20", expiry: "2025-02-20" },
-      { name: "FVRCP", date: "2024-02-20", expiry: "2025-02-20" },
-    ],
     emergencyContact: {
       name: "John Johnson",
       phone: "+1 (555) 987-6543",
       relationship: "Spouse",
     },
-    dietaryRestrictions: "None",
     behavioralNotes: "Shy with strangers. Prefers quiet environments.",
   },
-];
+  {
+    id: "pet-3",
+    name: "Bella",
+    type: "Dog",
+    breed: "Beagle",
+    age: "1 year",
+    gender: "Female",
+    avatar: "https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?q=80&w=200&auto=format&fit=crop",
+    boarding: {
+      status: "active",
+      startDate: "2025-03-10T08:00:00Z",
+      endDate: "2025-03-10T18:00:00Z",
+      boardingType: "Day Care",
+      totalPrice: 50,
+      paidAmount: 50,
+      remainingAmount: 0,
+    },
+    size: "Medium",
+    emergencyContact: {
+      name: "Emily Johnson",
+      phone: "+1 (555) 123-4567",
+      relationship: "Owner",
+    },
+    behavioralNotes: "Friendly and energetic. Loves to play with other dogs.",
+  },
+  {
+    id: "pet-4",
+    name: "Rocky",
+    type: "Dog",
+    breed: "German Shepherd",
+    age: "4 years",
+    gender: "Male",
+    avatar: "https://images.unsplash.com/photo-1589941013453-ec89f33b5e95?q=80&w=200&auto=format&fit=crop",
+    boarding: {
+      status: "active",
+      startDate: "2025-03-07T09:00:00Z",
+      endDate: "2025-03-14T17:00:00Z",
+      boardingType: "Long Stay",
+      totalPrice: 385,
+      paidAmount: 200,
+      remainingAmount: 185,
+    },
+    size: "Large",
+    emergencyContact: {
+      name: "Michael Smith",
+      phone: "+1 (555) 456-7890",
+      relationship: "Owner",
+    },
+    behavioralNotes: "Well-trained and obedient. Protective but friendly.",
+  },
+]
 
 /**
  * SAMPLE REQUESTS DATA
@@ -119,6 +150,469 @@ export const pets: Pet[] = [
  * - custom: For any other custom requests
  */
 export const requests: Request[] = [
+  // PENDING REQUESTS - One of each type
+  {
+    id: "req-pending-photo",
+    type: "photo",
+    petName: "Max",
+    petId: "pet-1",
+    status: "pending",
+    createdAt: "2025-03-10T10:30:00Z",
+    description: "Would love to see how Max is doing today!",
+    conversation: [
+      {
+        id: "msg-001",
+        sender: "owner",
+        timestamp: "2025-03-10T10:30:00Z",
+        content: "Would love to see how Max is doing today!",
+      },
+    ],
+  },
+  {
+    id: "req-pending-video",
+    type: "video",
+    petName: "Max",
+    petId: "pet-1",
+    status: "pending",
+    createdAt: "2025-03-11T09:15:00Z",
+    description: "Please send a short video of Max playing with his toys.",
+    conversation: [
+      {
+        id: "msg-001",
+        sender: "owner",
+        timestamp: "2025-03-11T09:15:00Z",
+        content: "Please send a short video of Max playing with his toys.",
+      },
+    ],
+  },
+  {
+    id: "req-pending-grooming",
+    type: "grooming",
+    petName: "Max",
+    petId: "pet-1",
+    status: "pending",
+    createdAt: "2025-03-12T11:30:00Z",
+    description: "Max needs a bath and nail trimming.",
+    groomingService: "basic-wash",
+    price: 35, // BACKEND: This should be calculated based on pet size and service type
+    conversation: [
+      {
+        id: "msg-001",
+        sender: "owner",
+        timestamp: "2025-03-12T11:30:00Z",
+        content: "Max needs a bath and nail trimming.",
+      },
+    ],
+  },
+  {
+    id: "req-pending-extension",
+    type: "boarding-extension",
+    petName: "Max",
+    petId: "pet-1",
+    status: "pending",
+    createdAt: "2025-03-13T14:45:00Z",
+    description: "Need to extend Max's stay by 3 more days.",
+    extensionDetails: {
+      duration: "3",
+      unit: "days",
+    },
+    price: 165, // BACKEND: This should be calculated based on pet size and duration
+    currentEndDate: "2025-03-15T18:00:00Z",
+    conversation: [
+      {
+        id: "msg-001",
+        sender: "owner",
+        timestamp: "2025-03-13T14:45:00Z",
+        content: "Need to extend Max's stay by 3 more days.",
+      },
+    ],
+  },
+
+  // IN-PROGRESS REQUESTS - One of each type
+  {
+    id: "req-inprogress-photo",
+    type: "photo",
+    petName: "Max",
+    petId: "pet-1",
+    status: "in-progress",
+    createdAt: "2025-03-14T10:30:00Z",
+    updatedAt: "2025-03-14T11:15:00Z",
+    description: "Would like to see some photos of Max during playtime.",
+    conversation: [
+      {
+        id: "msg-001",
+        sender: "owner",
+        timestamp: "2025-03-14T10:30:00Z",
+        content: "Would like to see some photos of Max during playtime.",
+      },
+      {
+        id: "msg-002",
+        sender: "admin",
+        timestamp: "2025-03-14T11:15:00Z",
+        content: "We'll take some photos during Max's playtime today. Will update you soon!",
+      },
+    ],
+  },
+  {
+    id: "req-inprogress-video",
+    type: "video",
+    petName: "Max",
+    petId: "pet-1",
+    status: "in-progress",
+    createdAt: "2025-03-15T09:15:00Z",
+    updatedAt: "2025-03-15T10:00:00Z",
+    description: "Would like a video of Max's daily activities.",
+    conversation: [
+      {
+        id: "msg-001",
+        sender: "owner",
+        timestamp: "2025-03-15T09:15:00Z",
+        content: "Would like a video of Max's daily activities.",
+      },
+      {
+        id: "msg-002",
+        sender: "admin",
+        timestamp: "2025-03-15T10:00:00Z",
+        content: "We'll record a video of Max today. Will share it with you once ready.",
+      },
+    ],
+  },
+  {
+    id: "req-inprogress-grooming",
+    type: "grooming",
+    petName: "Max",
+    petId: "pet-1",
+    status: "in-progress", // Ensure this is "in-progress"
+    createdAt: "2025-03-16T11:30:00Z",
+    updatedAt: "2025-03-16T12:15:00Z",
+    description: "Max needs a full grooming service with haircut.",
+    groomingService: "full-grooming",
+    price: 65, // BACKEND: This should be calculated based on pet size and service type
+    conversation: [
+      {
+        id: "msg-001",
+        sender: "owner",
+        timestamp: "2025-03-16T11:30:00Z",
+        content: "Max needs a full grooming service with haircut.",
+      },
+      {
+        id: "msg-002",
+        sender: "admin",
+        timestamp: "2025-03-16T12:15:00Z",
+        content: "We've scheduled Max's grooming for this afternoon. We'll update you once it's completed.",
+      },
+    ],
+  },
+  {
+    id: "req-inprogress-extension",
+    type: "boarding-extension",
+    petName: "Max",
+    petId: "pet-1",
+    status: "in-progress", // Ensure this is "in-progress"
+    createdAt: "2025-03-17T14:45:00Z",
+    updatedAt: "2025-03-17T15:30:00Z",
+    description: "Need to extend Max's stay by 2 more days.",
+    extensionDetails: {
+      duration: "2",
+      unit: "days",
+    },
+    price: 110, // BACKEND: This should be calculated based on pet size and duration
+    currentEndDate: "2025-03-15T18:00:00Z",
+    conversation: [
+      {
+        id: "msg-001",
+        sender: "owner",
+        timestamp: "2025-03-17T14:45:00Z",
+        content: "Need to extend Max's stay by 2 more days.",
+      },
+      {
+        id: "msg-002",
+        sender: "admin",
+        timestamp: "2025-03-17T15:30:00Z",
+        content: "We're processing your extension request. We'll confirm once it's approved.",
+      },
+    ],
+  },
+
+  // Rocky's requests
+  {
+    id: "req-inprogress-grooming-rocky",
+    type: "grooming",
+    petName: "Rocky",
+    petId: "pet-4",
+    status: "in-progress",
+    createdAt: "2025-03-09T13:30:00Z",
+    updatedAt: "2025-03-09T14:15:00Z",
+    description: "Rocky needs a bath and nail trimming.",
+    groomingService: "premium-wash",
+    price: 55,
+    conversation: [
+      {
+        id: "msg-001",
+        sender: "owner",
+        timestamp: "2025-03-09T13:30:00Z",
+        content: "Rocky needs a bath and nail trimming.",
+      },
+      {
+        id: "msg-002",
+        sender: "admin",
+        timestamp: "2025-03-09T14:15:00Z",
+        content: "We've scheduled Rocky's grooming for tomorrow. We'll update you once it's completed.",
+      },
+    ],
+  },
+
+  // COMPLETED REQUESTS - One of each type
+  {
+    id: "req-completed-photo",
+    type: "photo",
+    petName: "Max",
+    petId: "pet-1",
+    status: "completed",
+    createdAt: "2025-03-18T10:30:00Z",
+    completedAt: "2025-03-18T14:45:00Z",
+    description: "Would love to see how Max is doing today!",
+    mediaFiles: {
+      type: "photo",
+      urls: [
+        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/475884722_1437552477217404_9052949441849644312_n.jpg-7uhDVp5OlcnO0bA2dRO3y4AJKWX7Eu.jpeg",
+        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/480958858_1347138986475614_3113605541324887048_n.jpg-CJzY6RUEoyVXERrDrst4UUZweYKNx2.jpeg",
+      ],
+      count: 2,
+    },
+    conversation: [
+      {
+        id: "msg-001",
+        sender: "owner",
+        timestamp: "2025-03-18T10:30:00Z",
+        content: "Would love to see how Max is doing today!",
+      },
+      {
+        id: "msg-002",
+        sender: "admin",
+        timestamp: "2025-03-18T14:45:00Z",
+        content: "Here are some photos of Max! He's been having a great time and is very well-behaved.",
+      },
+    ],
+  },
+  {
+    id: "req-completed-video",
+    type: "video",
+    petName: "Max",
+    petId: "pet-1",
+    status: "completed",
+    createdAt: "2025-03-19T09:15:00Z",
+    completedAt: "2025-03-19T13:30:00Z",
+    description: "Would like a short video of Max playing.",
+    mediaFiles: {
+      type: "video",
+      urls: [
+        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/481680804_28744805481832748_1861448157952924189_n-QhfRhcm35IvtWfk0Cr5xghpgSDfOH0.mp4",
+      ],
+      count: 1,
+    },
+    conversation: [
+      {
+        id: "msg-001",
+        sender: "owner",
+        timestamp: "2025-03-19T09:15:00Z",
+        content: "Would like a short video of Max playing.",
+      },
+      {
+        id: "msg-002",
+        sender: "admin",
+        timestamp: "2025-03-19T13:30:00Z",
+        content: "Here's a video of Max playing with his favorite toy! He's been very active today.",
+      },
+    ],
+  },
+  {
+    id: "req-completed-grooming",
+    type: "grooming",
+    petName: "Max",
+    petId: "pet-1",
+    status: "completed",
+    createdAt: "2025-03-20T11:30:00Z",
+    completedAt: "2025-03-20T15:45:00Z",
+    description: "Max needs a haircut, please make it short for the summer.",
+    groomingService: "full-grooming",
+    price: 65, // BACKEND: This should be calculated based on pet size and service type
+    mediaFiles: {
+      type: "photo",
+      urls: [
+        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/481341330_645628184644218_5977888978271770501_n.jpg-WAAmLbaijRIf2MdPbmpcKeIbTGXXnx.jpeg",
+        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/480064874_3971175603130199_8445389685285733814_n.jpg-4Br3hEVwqETCJBgdNUUynhTZ1pJ8ey.jpeg",
+      ],
+      count: 2,
+    },
+    conversation: [
+      {
+        id: "msg-001",
+        sender: "owner",
+        timestamp: "2025-03-20T11:30:00Z",
+        content: "Max needs a haircut, please make it short for the summer.",
+      },
+      {
+        id: "msg-002",
+        sender: "admin",
+        timestamp: "2025-03-20T13:15:00Z",
+        content: "We'll take care of Max's grooming. We'll send you photos once it's done.",
+      },
+      {
+        id: "msg-003",
+        sender: "admin",
+        timestamp: "2025-03-20T15:45:00Z",
+        content:
+          "Max's grooming is complete! Here are some photos of the finished result. He looks great with his summer cut!",
+      },
+    ],
+  },
+  {
+    id: "req-completed-extension",
+    type: "boarding-extension",
+    petName: "Max",
+    petId: "pet-1",
+    status: "completed",
+    createdAt: "2025-03-21T14:45:00Z",
+    completedAt: "2025-03-21T16:30:00Z",
+    description: "Need to extend Max's stay by 1 more day.",
+    extensionDetails: {
+      duration: "1",
+      unit: "days",
+    },
+    price: 55, // BACKEND: This should be calculated based on pet size and duration
+    currentEndDate: "2025-03-15T18:00:00Z",
+    newEndDate: "2025-03-16T18:00:00Z",
+    conversation: [
+      {
+        id: "msg-001",
+        sender: "owner",
+        timestamp: "2025-03-21T14:45:00Z",
+        content: "Need to extend Max's stay by 1 more day.",
+      },
+      {
+        id: "msg-002",
+        sender: "admin",
+        timestamp: "2025-03-21T16:30:00Z",
+        content: "Your extension request has been approved. Max's stay has been extended until March 16th.",
+      },
+    ],
+  },
+
+  // REJECTED REQUESTS - One of each type
+  {
+    id: "req-rejected-photo",
+    type: "photo",
+    petName: "Max",
+    petId: "pet-1",
+    status: "rejected",
+    createdAt: "2025-03-22T10:30:00Z",
+    updatedAt: "2025-03-22T11:45:00Z",
+    description: "Would love to get some photos of Max playing with other dogs.",
+    rejectionReason:
+      "We're unable to fulfill this request as Max prefers to play alone and gets anxious around other dogs.",
+    conversation: [
+      {
+        id: "msg-001",
+        sender: "owner",
+        timestamp: "2025-03-22T10:30:00Z",
+        content: "Would love to get some photos of Max playing with other dogs.",
+      },
+      {
+        id: "msg-002",
+        sender: "admin",
+        timestamp: "2025-03-22T11:45:00Z",
+        content:
+          "We're unable to fulfill this request as Max prefers to play alone and gets anxious around other dogs. We can provide photos of him playing alone if you'd like.",
+      },
+    ],
+  },
+  {
+    id: "req-rejected-video",
+    type: "video",
+    petName: "Max",
+    petId: "pet-1",
+    status: "rejected",
+    createdAt: "2025-03-23T09:15:00Z",
+    updatedAt: "2025-03-23T10:30:00Z",
+    description: "Would like a video of Max swimming in the pool.",
+    rejectionReason: "We don't have a pool facility at our location. We can offer videos of other activities instead.",
+    conversation: [
+      {
+        id: "msg-001",
+        sender: "owner",
+        timestamp: "2025-03-23T09:15:00Z",
+        content: "Would like a video of Max swimming in the pool.",
+      },
+      {
+        id: "msg-002",
+        sender: "admin",
+        timestamp: "2025-03-23T10:30:00Z",
+        content:
+          "We don't have a pool facility at our location. We can offer videos of other activities instead. Would you like a video of Max during playtime or relaxing in his kennel?",
+      },
+    ],
+  },
+  {
+    id: "req-rejected-grooming",
+    type: "grooming",
+    petName: "Max",
+    petId: "pet-1",
+    status: "rejected",
+    createdAt: "2025-03-24T11:30:00Z",
+    updatedAt: "2025-03-24T12:45:00Z",
+    description: "Max needs fur coloring for a special event.",
+    groomingService: "custom",
+    rejectionReason: "We don't offer fur coloring services. We can provide standard grooming services instead.",
+    conversation: [
+      {
+        id: "msg-001",
+        sender: "owner",
+        timestamp: "2025-03-24T11:30:00Z",
+        content: "Max needs fur coloring for a special event.",
+      },
+      {
+        id: "msg-002",
+        sender: "admin",
+        timestamp: "2025-03-24T12:45:00Z",
+        content:
+          "We don't offer fur coloring services. We can provide standard grooming services instead. Would you like to schedule a regular grooming appointment?",
+      },
+    ],
+  },
+  {
+    id: "req-rejected-extension",
+    type: "boarding-extension",
+    petName: "Max",
+    petId: "pet-1",
+    status: "rejected",
+    createdAt: "2025-03-25T14:45:00Z",
+    updatedAt: "2025-03-25T16:00:00Z",
+    description: "Need to extend Max's stay by 7 more days.",
+    extensionDetails: {
+      duration: "7",
+      unit: "days",
+    },
+    currentEndDate: "2025-03-15T18:00:00Z",
+    rejectionReason: "We're fully booked for the requested extension period. We can offer a shorter extension instead.",
+    conversation: [
+      {
+        id: "msg-001",
+        sender: "owner",
+        timestamp: "2025-03-25T14:45:00Z",
+        content: "Need to extend Max's stay by 7 more days.",
+      },
+      {
+        id: "msg-002",
+        sender: "admin",
+        timestamp: "2025-03-25T16:00:00Z",
+        content:
+          "We're fully booked for the requested extension period. We can offer a shorter extension of 3 days instead. Would that work for you?",
+      },
+    ],
+  },
+
+  // Keep a few of the original requests for backward compatibility
   {
     id: "req-001",
     type: "photo",
@@ -147,8 +641,7 @@ export const requests: Request[] = [
         id: "msg-002",
         sender: "admin",
         timestamp: "2025-03-10T14:45:00Z",
-        content:
-          "Here are some photos of Max! He's been having a great time and is very well-behaved.",
+        content: "Here are some photos of Max! He's been having a great time and is very well-behaved.",
       },
     ],
   },
@@ -173,191 +666,11 @@ export const requests: Request[] = [
         id: "msg-002",
         sender: "admin",
         timestamp: "2025-03-11T09:30:00Z",
-        content:
-          "We've scheduled Max's grooming for this afternoon. We'll update you once it's completed.",
+        content: "We've scheduled Max's grooming for this afternoon. We'll update you once it's completed.",
       },
     ],
   },
-  {
-    id: "req-003",
-    type: "boarding-extension",
-    petName: "Max",
-    petId: "pet-1",
-    status: "new",
-    createdAt: "2025-03-12T11:30:00Z",
-    description: "Need to extend Max's stay by 2 more days.",
-    extensionDetails: {
-      duration: "2",
-      unit: "days",
-    },
-    currentEndDate: "2025-03-15T18:00:00Z",
-    conversation: [
-      {
-        id: "msg-001",
-        sender: "owner",
-        timestamp: "2025-03-12T11:30:00Z",
-        content: "Need to extend Max's stay by 2 more days.",
-      },
-    ],
-  },
-  {
-    id: "req-004",
-    type: "video",
-    petName: "Max",
-    petId: "pet-1",
-    status: "completed",
-    createdAt: "2025-03-09T16:20:00Z",
-    completedAt: "2025-03-09T18:45:00Z",
-    description: "Would like a short video of Max playing.",
-    mediaFiles: {
-      type: "video",
-      urls: [
-        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/481680804_28744805481832748_1861448157952924189_n-QhfRhcm35IvtWfk0Cr5xghpgSDfOH0.mp4",
-      ],
-      count: 1,
-    },
-    conversation: [
-      {
-        id: "msg-001",
-        sender: "owner",
-        timestamp: "2025-03-09T16:20:00Z",
-        content: "Would like a short video of Max playing.",
-      },
-      {
-        id: "msg-002",
-        sender: "admin",
-        timestamp: "2025-03-09T18:45:00Z",
-        content:
-          "Here's a video of Max playing with his favorite toy! He's been very active today.",
-      },
-    ],
-  },
-  {
-    id: "req-005",
-    type: "grooming",
-    petName: "Max",
-    petId: "pet-1",
-    status: "completed",
-    createdAt: "2025-03-08T13:25:00Z",
-    completedAt: "2025-03-08T16:40:00Z",
-    description: "Max needs a haircut, please make it short for the summer.",
-    groomingService: "full-grooming",
-    price: 65,
-    mediaFiles: {
-      type: "photo",
-      urls: [
-        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/481341330_645628184644218_5977888978271770501_n.jpg-WAAmLbaijRIf2MdPbmpcKeIbTGXXnx.jpeg",
-        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/480064874_3971175603130199_8445389685285733814_n.jpg-4Br3hEVwqETCJBgdNUUynhTZ1pJ8ey.jpeg",
-      ],
-      count: 2,
-    },
-    conversation: [
-      {
-        id: "msg-001",
-        sender: "owner",
-        timestamp: "2025-03-08T13:25:00Z",
-        content: "Max needs a haircut, please make it short for the summer.",
-      },
-      {
-        id: "msg-002",
-        sender: "admin",
-        timestamp: "2025-03-08T14:30:00Z",
-        content:
-          "We'll take care of Max's grooming. We'll send you photos once it's done.",
-      },
-      {
-        id: "msg-003",
-        sender: "admin",
-        timestamp: "2025-03-08T16:40:00Z",
-        content:
-          "Max's grooming is complete! Here are some photos of the finished result. He looks great with his summer cut!",
-      },
-    ],
-  },
-  {
-    id: "req-006",
-    type: "photo",
-    petName: "Max",
-    petId: "pet-1",
-    status: "rejected",
-    createdAt: "2025-03-07T08:15:00Z",
-    updatedAt: "2025-03-07T10:30:00Z",
-    description:
-      "Would love to get some photos of Max playing with other dogs.",
-    rejectionReason:
-      "We're unable to fulfill this request as Max prefers to play alone and gets anxious around other dogs.",
-    conversation: [
-      {
-        id: "msg-001",
-        sender: "owner",
-        timestamp: "2025-03-07T08:15:00Z",
-        content:
-          "Would love to get some photos of Max playing with other dogs.",
-      },
-      {
-        id: "msg-002",
-        sender: "admin",
-        timestamp: "2025-03-07T10:30:00Z",
-        content:
-          "We're unable to fulfill this request as Max prefers to play alone and gets anxious around other dogs. We can provide photos of him playing alone if you'd like.",
-      },
-    ],
-  },
-  // Add in-progress samples
-  {
-    id: "req-in-prog-001",
-    type: "grooming",
-    petName: "Bella",
-    petId: "pet-2",
-    status: "in-progress",
-    title: "Bella - Grooming Service",
-    createdAt: "2025-03-15T14:15:00Z",
-    updatedAt: "2025-03-15T15:30:00Z",
-    description: "Please give Bella a bath and trim her nails.",
-    groomingService: "basic-wash",
-    conversation: [
-      {
-        id: "msg-001",
-        sender: "owner",
-        timestamp: "2025-03-15T14:15:00Z",
-        content: "Please give Bella a bath and trim her nails.",
-      },
-      {
-        id: "msg-002",
-        sender: "admin",
-        timestamp: "2025-03-15T15:30:00Z",
-        content:
-          "We've started the grooming process for Bella. We'll update you once it's completed.",
-      },
-    ],
-  },
-  {
-    id: "req-in-prog-002",
-    type: "photo",
-    petName: "Max",
-    petId: "pet-1",
-    status: "in-progress",
-    title: "Max - Photo Update",
-    createdAt: "2025-03-16T09:45:00Z",
-    updatedAt: "2025-03-16T10:20:00Z",
-    description: "Would love to see some photos of Max playing outside.",
-    conversation: [
-      {
-        id: "msg-001",
-        sender: "owner",
-        timestamp: "2025-03-16T09:45:00Z",
-        content: "Would love to see some photos of Max playing outside.",
-      },
-      {
-        id: "msg-002",
-        sender: "admin",
-        timestamp: "2025-03-16T10:20:00Z",
-        content:
-          "We'll take some photos of Max during his outdoor playtime today. Stay tuned!",
-      },
-    ],
-  },
-];
+]
 
 /**
  * SAMPLE PET OWNER REQUESTS DATA
@@ -369,6 +682,190 @@ export const requests: Request[] = [
  * - Response should match the structure below
  */
 export const petOwnerRequests = [
+  // PENDING REQUESTS
+  {
+    id: "req-pending-photo",
+    title: "Photo Update Request",
+    type: "photo",
+    petName: "Max",
+    petId: "pet-1",
+    status: "pending",
+    createdAt: "2025-03-10T10:30:00Z",
+    updatedAt: "2025-03-10T10:30:00Z",
+  },
+  {
+    id: "req-pending-video",
+    title: "Video Request",
+    type: "video",
+    petName: "Max",
+    petId: "pet-1",
+    status: "pending",
+    createdAt: "2025-03-11T09:15:00Z",
+    updatedAt: "2025-03-11T09:15:00Z",
+  },
+  {
+    id: "req-pending-grooming",
+    title: "Grooming Service",
+    type: "grooming",
+    petName: "Max",
+    petId: "pet-1",
+    status: "pending",
+    createdAt: "2025-03-12T11:30:00Z",
+    updatedAt: "2025-03-12T11:30:00Z",
+  },
+  {
+    id: "req-pending-extension",
+    title: "Boarding Extension",
+    type: "boarding-extension",
+    petName: "Max",
+    petId: "pet-1",
+    status: "pending",
+    createdAt: "2025-03-13T14:45:00Z",
+    updatedAt: "2025-03-13T14:45:00Z",
+  },
+
+  // IN-PROGRESS REQUESTS
+  {
+    id: "req-inprogress-photo",
+    title: "Photo Update Request",
+    type: "photo",
+    petName: "Max",
+    petId: "pet-1",
+    status: "in-progress",
+    createdAt: "2025-03-14T10:30:00Z",
+    updatedAt: "2025-03-14T11:15:00Z",
+  },
+  {
+    id: "req-inprogress-video",
+    title: "Video Request",
+    type: "video",
+    petName: "Max",
+    petId: "pet-1",
+    status: "in-progress",
+    createdAt: "2025-03-15T09:15:00Z",
+    updatedAt: "2025-03-15T10:00:00Z",
+  },
+  {
+    id: "req-inprogress-grooming",
+    title: "Grooming Service",
+    type: "grooming",
+    petName: "Max",
+    petId: "pet-1",
+    status: "in-progress",
+    createdAt: "2025-03-16T11:30:00Z",
+    updatedAt: "2025-03-16T12:15:00Z",
+  },
+  {
+    id: "req-inprogress-extension",
+    title: "Boarding Extension",
+    type: "boarding-extension",
+    petName: "Max",
+    petId: "pet-1",
+    status: "in-progress",
+    createdAt: "2025-03-17T14:45:00Z",
+    updatedAt: "2025-03-17T15:30:00Z",
+  },
+  {
+    id: "req-inprogress-grooming-rocky",
+    title: "Grooming Service",
+    type: "grooming",
+    petName: "Rocky",
+    petId: "pet-4",
+    status: "in-progress",
+    createdAt: "2025-03-09T13:30:00Z",
+    updatedAt: "2025-03-09T14:15:00Z",
+  },
+
+  // COMPLETED REQUESTS
+  {
+    id: "req-completed-photo",
+    title: "Photo Update Request",
+    type: "photo",
+    petName: "Max",
+    petId: "pet-1",
+    status: "completed",
+    createdAt: "2025-03-18T10:30:00Z",
+    updatedAt: "2025-03-18T14:45:00Z",
+  },
+  {
+    id: "req-completed-video",
+    title: "Video Request",
+    type: "video",
+    petName: "Max",
+    petId: "pet-1",
+    status: "completed",
+    createdAt: "2025-03-19T09:15:00Z",
+    updatedAt: "2025-03-19T13:30:00Z",
+  },
+  {
+    id: "req-completed-grooming",
+    title: "Grooming Service",
+    type: "grooming",
+    petName: "Max",
+    petId: "pet-1",
+    status: "completed",
+    createdAt: "2025-03-20T11:30:00Z",
+    updatedAt: "2025-03-20T15:45:00Z",
+  },
+  {
+    id: "req-completed-extension",
+    title: "Boarding Extension",
+    type: "boarding-extension",
+    petName: "Max",
+    petId: "pet-1",
+    status: "completed",
+    createdAt: "2025-03-21T14:45:00Z",
+    updatedAt: "2025-03-21T16:30:00Z",
+  },
+
+  // REJECTED REQUESTS
+  {
+    id: "req-rejected-photo",
+    title: "Photo Update Request",
+    type: "photo",
+    petName: "Max",
+    petId: "pet-1",
+    status: "rejected",
+    createdAt: "2025-03-22T10:30:00Z",
+    updatedAt: "2025-03-22T11:45:00Z",
+    rejectionReason:
+      "We're unable to fulfill this request as Max prefers to play alone and gets anxious around other dogs.",
+  },
+  {
+    id: "req-rejected-video",
+    title: "Video Request",
+    type: "video",
+    petName: "Max",
+    petId: "pet-1",
+    status: "rejected",
+    createdAt: "2025-03-23T09:15:00Z",
+    updatedAt: "2025-03-23T10:30:00Z",
+    rejectionReason: "We don't have a pool facility at our location. We can offer videos of other activities instead.",
+  },
+  {
+    id: "req-rejected-grooming",
+    title: "Grooming Service",
+    type: "grooming",
+    petName: "Max",
+    petId: "pet-1",
+    status: "rejected",
+    createdAt: "2025-03-24T11:30:00Z",
+    updatedAt: "2025-03-24T12:45:00Z",
+    rejectionReason: "We don't offer fur coloring services. We can provide standard grooming services instead.",
+  },
+  {
+    id: "req-rejected-extension",
+    title: "Boarding Extension",
+    type: "boarding-extension",
+    petName: "Max",
+    petId: "pet-1",
+    status: "rejected",
+    createdAt: "2025-03-25T14:45:00Z",
+    updatedAt: "2025-03-25T16:00:00Z",
+    rejectionReason: "We're fully booked for the requested extension period. We can offer a shorter extension instead.",
+  },
+
+  // Keep a few of the original requests for backward compatibility
   {
     id: "req-001",
     title: "Photo Update Request",
@@ -389,70 +886,7 @@ export const petOwnerRequests = [
     createdAt: "2025-03-11T09:15:00Z",
     updatedAt: "2025-03-11T09:30:00Z",
   },
-  {
-    id: "req-003",
-    title: "Boarding Extension",
-    type: "boarding-extension",
-    petName: "Max",
-    petId: "pet-1",
-    status: "pending",
-    createdAt: "2025-03-12T11:30:00Z",
-    updatedAt: "2025-03-12T11:30:00Z",
-  },
-  {
-    id: "req-004",
-    title: "Video Request",
-    type: "video",
-    petName: "Max",
-    petId: "pet-1",
-    status: "completed",
-    createdAt: "2025-03-09T16:20:00Z",
-    updatedAt: "2025-03-09T18:45:00Z",
-  },
-  {
-    id: "req-005",
-    title: "Grooming Service",
-    type: "grooming",
-    petName: "Max",
-    petId: "pet-1",
-    status: "completed",
-    createdAt: "2025-03-08T13:25:00Z",
-    updatedAt: "2025-03-08T16:40:00Z",
-  },
-  {
-    id: "req-006",
-    title: "Photos with Other Dogs",
-    type: "photo",
-    petName: "Max",
-    petId: "pet-1",
-    status: "rejected",
-    createdAt: "2025-03-07T08:15:00Z",
-    updatedAt: "2025-03-07T10:30:00Z",
-    rejectionReason:
-      "We're unable to fulfill this request as Max prefers to play alone and gets anxious around other dogs.",
-  },
-  // Add in-progress samples to petOwnerRequests
-  {
-    id: "req-in-prog-001",
-    title: "Bella - Grooming Service",
-    type: "grooming",
-    petName: "Bella",
-    petId: "pet-2",
-    status: "in-progress",
-    createdAt: "2025-03-15T14:15:00Z",
-    updatedAt: "2025-03-15T15:30:00Z",
-  },
-  {
-    id: "req-in-prog-002",
-    title: "Max - Photo Update",
-    type: "photo",
-    petName: "Max",
-    petId: "pet-1",
-    status: "in-progress",
-    createdAt: "2025-03-16T09:45:00Z",
-    updatedAt: "2025-03-16T10:20:00Z",
-  },
-];
+]
 
 /**
  * SAMPLE NOTIFICATIONS DATA
@@ -468,8 +902,7 @@ export const notifications: Notification[] = [
     id: "notif-001",
     type: "request-completed",
     title: "Photo Request Completed",
-    message:
-      "Your photo request for Max has been completed. You can view the photos now.",
+    message: "Your photo request for Max has been completed. You can view the photos now.",
     timestamp: "2025-03-10T14:45:00Z",
     isRead: false,
     requestId: "req-001",
@@ -478,8 +911,7 @@ export const notifications: Notification[] = [
     id: "notif-002",
     type: "request-in-progress",
     title: "Grooming Request In Progress",
-    message:
-      "Your grooming request for Max is now being processed. You'll be notified when it's completed.",
+    message: "Your grooming request for Max is now being processed. You'll be notified when it's completed.",
     timestamp: "2025-03-11T09:30:00Z",
     isRead: false,
     requestId: "req-002",
@@ -497,8 +929,7 @@ export const notifications: Notification[] = [
     id: "notif-004",
     type: "request-rejected",
     title: "Video Request Rejected",
-    message:
-      "Your video request for Max has been rejected. Please check the details for more information.",
+    message: "Your video request for Max has been rejected. Please check the details for more information.",
     timestamp: "2025-03-07T18:45:00Z",
     isRead: true,
     requestId: "req-004",
@@ -507,8 +938,7 @@ export const notifications: Notification[] = [
     id: "notif-005",
     type: "boarding-update",
     title: "Boarding Pickup Reminder",
-    message:
-      "Max's boarding period ends tomorrow. Please prepare for pickup between 8:00 AM and 6:00 PM.",
+    message: "Max's boarding period ends tomorrow. Please prepare for pickup between 8:00 AM and 6:00 PM.",
     timestamp: "2025-03-05T10:30:00Z",
     isRead: true,
   },
@@ -521,7 +951,7 @@ export const notifications: Notification[] = [
     isRead: false,
     requestId: "req-006",
   },
-];
+]
 
 /**
  * SAMPLE PRICING DATA
@@ -584,7 +1014,7 @@ export const pricing: Pricing = {
     blowDry: 10,
     woundTreatment: 20,
   },
-};
+}
 
 /**
  * SAMPLE USER PROFILE DATA
@@ -600,7 +1030,7 @@ export const userProfile = {
   address: "123 Main St, Anytown, CA 12345",
   avatar:
     "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/default-pic-TTy4UvlTr4nVP0etctSbFI1CUrupvH.png?height=200&width=200",
-};
+}
 
 /**
  * SAMPLE MEDIA ARCHIVE DATA
@@ -681,7 +1111,7 @@ export const mediaItems: MediaItem[] = [
       "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/476423370_1180780884058793_1895486931922885045_n.jpg-qRHW956GdINyfw6VoD6nITBdYG4QrV.jpeg",
     ],
   },
-];
+]
 
 /**
  * PRICING CONSTANTS
@@ -691,7 +1121,7 @@ export const petSizes = {
   medium: "Medium (Beagle, Cocker Spaniel)",
   large: "Large (Labrador, Golden Retriever)",
   xlarge: "Extra Large (Great Dane, St. Bernard)",
-};
+}
 
 /**
  * HELPER FUNCTIONS
@@ -709,8 +1139,8 @@ export const petSizes = {
  * - Replace with a fetch call to GET /api/pets/:id
  */
 export const getPetById = (id: string): Pet | undefined => {
-  return pets.find((pet) => pet.id === id);
-};
+  return pets.find((pet) => pet.id === id)
+}
 
 /**
  * Get all boarding pets
@@ -720,8 +1150,8 @@ export const getPetById = (id: string): Pet | undefined => {
  * - Replace with a fetch call to GET /api/pets?boarding=true
  */
 export const getBoardingPets = (): Pet[] => {
-  return pets.filter((pet) => pet.boarding !== null);
-};
+  return pets.filter((pet) => pet.boarding !== null && pet.boarding.status === "active")
+}
 
 /**
  * Get all pets for a pet owner
@@ -731,8 +1161,8 @@ export const getBoardingPets = (): Pet[] => {
  * - Replace with a fetch call to GET /api/pet-owner/pets
  */
 export const getPetOwnerPets = (): Pet[] => {
-  return pets;
-};
+  return pets
+}
 
 /**
  * Get requests for a specific pet
@@ -743,8 +1173,8 @@ export const getPetOwnerPets = (): Pet[] => {
  * - Replace with a fetch call to GET /api/requests?petId=:petId
  */
 export const getRequestsByPetId = (petId: string): Request[] => {
-  return requests.filter((request) => request.petId === petId);
-};
+  return requests.filter((request) => request.petId === petId)
+}
 
 /**
  * Get pet owner requests
@@ -754,8 +1184,8 @@ export const getRequestsByPetId = (petId: string): Request[] => {
  * - Replace with a fetch call to GET /api/pet-owner/requests
  */
 export const getPetOwnerRequests = () => {
-  return petOwnerRequests;
-};
+  return petOwnerRequests
+}
 
 /**
  * Get unread notifications count
@@ -765,8 +1195,8 @@ export const getPetOwnerRequests = () => {
  * - Replace with a fetch call to GET /api/notifications/unread/count
  */
 export const getUnreadNotificationsCount = (): number => {
-  return notifications.filter((notification) => !notification.isRead).length;
-};
+  return notifications.filter((notification) => !notification.isRead).length
+}
 
 /**
  * Mark a notification as read
@@ -778,11 +1208,11 @@ export const getUnreadNotificationsCount = (): number => {
 export const markNotificationAsRead = (id: string): void => {
   // In a real implementation, this would update the server
   // For now, we just update the local data
-  const notification = notifications.find((n) => n.id === id);
+  const notification = notifications.find((n) => n.id === id)
   if (notification) {
-    notification.isRead = true;
+    notification.isRead = true
   }
-};
+}
 
 /**
  * Create a new request
@@ -792,19 +1222,17 @@ export const markNotificationAsRead = (id: string): void => {
  * API Integration:
  * - Replace with a fetch call to POST /api/requests
  */
-export const createRequest = (
-  requestData: Omit<Request, "id" | "createdAt">,
-): Request => {
+export const createRequest = (requestData: Omit<Request, "id" | "createdAt">): Request => {
   // In a real implementation, this would send data to the server
   // and return the created request with an ID
   const newRequest: Request = {
     id: `req-${requests.length + 1}`,
     createdAt: new Date().toISOString(),
     ...requestData,
-  };
+  }
 
   // Add to sample data (in a real implementation, this would be handled by the server)
-  requests.push(newRequest);
+  requests.push(newRequest)
 
   // Also add to pet owner requests list
   petOwnerRequests.push({
@@ -816,10 +1244,10 @@ export const createRequest = (
     status: newRequest.status,
     createdAt: newRequest.createdAt,
     updatedAt: newRequest.createdAt,
-  });
+  })
 
-  return newRequest;
-};
+  return newRequest
+}
 
 /**
  * Format a date string
@@ -827,16 +1255,31 @@ export const createRequest = (
  * @returns Formatted date string
  */
 export const formatDate = (dateString: string): string => {
-  if (!dateString) return "";
-  const date = new Date(dateString);
+  if (!dateString) return ""
+  const date = new Date(dateString)
   return new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
     hour: "numeric",
     minute: "numeric",
     hour12: true,
-  }).format(date);
-};
+  }).format(date)
+}
+
+/**
+ * Format a time string
+ * @param dateString The ISO date string
+ * @returns Formatted time string
+ */
+export const formatTime = (dateString: string): string => {
+  if (!dateString) return ""
+  const date = new Date(dateString)
+  return new Intl.DateTimeFormat("en-US", {
+    hour: "numeric",
+    minute: "numeric",
+    hour12: true,
+  }).format(date)
+}
 
 /**
  * Get request type icon name
@@ -846,19 +1289,19 @@ export const formatDate = (dateString: string): string => {
 export const getRequestTypeIcon = (type: string): string => {
   switch (type) {
     case "photo":
-      return "Camera";
+      return "Camera"
     case "video":
-      return "Video";
+      return "Video"
     case "grooming":
-      return "Scissors";
+      return "Scissors"
     case "boarding-extension":
-      return "Clock";
+      return "Clock"
     case "custom":
-      return "FileText";
+      return "FileText"
     default:
-      return "FileText";
+      return "FileText"
   }
-};
+}
 
 /**
  * Get request type label
@@ -868,19 +1311,19 @@ export const getRequestTypeIcon = (type: string): string => {
 export const getRequestTypeLabel = (type: string): string => {
   switch (type) {
     case "photo":
-      return "Photo Update";
+      return "Photo Update"
     case "video":
-      return "Video Request";
+      return "Video Request"
     case "grooming":
-      return "Grooming Service";
+      return "Grooming Service"
     case "boarding-extension":
-      return "Boarding Extension";
+      return "Boarding Extension"
     case "custom":
-      return "Custom Request";
+      return "Custom Request"
     default:
-      return "Request";
+      return "Request"
   }
-};
+}
 
 /**
  * Get media items
@@ -890,8 +1333,8 @@ export const getRequestTypeLabel = (type: string): string => {
  * - Replace with a fetch call to GET /api/pet-owner/media
  */
 export const getMediaItems = (): MediaItem[] => {
-  return mediaItems;
-};
+  return mediaItems
+}
 
 /**
  * Get user profile
@@ -901,8 +1344,8 @@ export const getMediaItems = (): MediaItem[] => {
  * - Replace with a fetch call to GET /api/user/profile
  */
 export const getUserProfile = () => {
-  return userProfile;
-};
+  return userProfile
+}
 
 /**
  * Update user profile
@@ -915,8 +1358,8 @@ export const getUserProfile = () => {
 export const updateUserProfile = (profileData: typeof userProfile) => {
   // In a real implementation, this would update the server
   // For now, we just return the updated data
-  return profileData;
-};
+  return profileData
+}
 
 /**
  * Get pricing data
@@ -926,5 +1369,5 @@ export const updateUserProfile = (profileData: typeof userProfile) => {
  * - Replace with a fetch call to GET /api/pricing
  */
 export const getPricingData = (): Pricing => {
-  return pricing;
-};
+  return pricing
+}

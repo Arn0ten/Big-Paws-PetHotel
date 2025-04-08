@@ -3,33 +3,80 @@
  *
  * This file contains helper functions for working with dates.
  * Backend developers can modify these to work with actual API data.
+ *
+ * BACKEND INTEGRATION POINTS:
+ * 1. These functions can be used as-is with real API data
+ * 2. Consider adding timezone support for international users
+ * 3. Ensure consistent date formatting across the application
  */
 
 /**
- * Format a date string
- * @param dateString The ISO date string
+ * Format a date string or Date object into a human-readable format
+ * @param dateInput The ISO date string or Date object
+ * @param options Formatting options
  * @returns Formatted date string
  */
-export const formatDate = (dateString: string): string => {
-  if (!dateString) return ""
-  const date = new Date(dateString)
-  return new Intl.DateTimeFormat("en-US", {
+export const formatDate = (
+  dateInput: string | Date | undefined,
+  options?: Intl.DateTimeFormatOptions,
+): string => {
+  if (!dateInput) return "N/A";
+
+  const date = typeof dateInput === "string" ? new Date(dateInput) : dateInput;
+
+  // Default options if none provided
+  const defaultOptions: Intl.DateTimeFormatOptions = {
     month: "short",
     day: "numeric",
     hour: "numeric",
     minute: "numeric",
     hour12: true,
-  }).format(date)
-}
+  };
+
+  // Merge provided options with defaults
+  const formattingOptions = options
+    ? { ...defaultOptions, ...options }
+    : defaultOptions;
+
+  try {
+    return new Intl.DateTimeFormat("en-US", formattingOptions).format(date);
+  } catch (error) {
+    console.error("Error formatting date:", error);
+    return "Invalid Date";
+  }
+};
+
+/**
+ * Format a time string
+ * @param dateString The ISO date string
+ * @returns Formatted time string
+ */
+export const formatTime = (dateString: string): string => {
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      return "Invalid Time";
+    }
+    return new Intl.DateTimeFormat("en-US", {
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true,
+    }).format(date);
+  } catch (error) {
+    console.error("Error formatting time:", error);
+    return "Invalid Time";
+  }
+};
 
 /**
  * Format a date string with day of week
  * @param dateString The ISO date string
  * @returns Formatted date string with day of week
  */
-export const formatDateWithDay = (dateString: string): string => {
-  if (!dateString) return ""
-  const date = new Date(dateString)
+export const formatDateWithDay = (dateString: string | undefined): string => {
+  if (!dateString) return "N/A";
+
+  const date = new Date(dateString);
   return new Intl.DateTimeFormat("en-US", {
     weekday: "short",
     month: "short",
@@ -37,8 +84,8 @@ export const formatDateWithDay = (dateString: string): string => {
     hour: "numeric",
     minute: "numeric",
     hour12: true,
-  }).format(date)
-}
+  }).format(date);
+};
 
 /**
  * Format a date string as a date only
@@ -46,14 +93,15 @@ export const formatDateWithDay = (dateString: string): string => {
  * @returns Formatted date string without time
  */
 export const formatDateOnly = (dateString: string): string => {
-  if (!dateString) return ""
-  const date = new Date(dateString)
+  if (!dateString) return "N/A";
+
+  const date = new Date(dateString);
   return new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
-  }).format(date)
-}
+  }).format(date);
+};
 
 /**
  * Calculate the difference between two dates in days
@@ -61,14 +109,17 @@ export const formatDateOnly = (dateString: string): string => {
  * @param endDate The end date
  * @returns The difference in days
  */
-export const getDaysDifference = (startDate: string, endDate: string): number => {
-  if (!startDate || !endDate) return 0
-  const start = new Date(startDate)
-  const end = new Date(endDate)
-  const diffTime = Math.abs(end.getTime() - start.getTime())
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-  return diffDays
-}
+export const getDaysDifference = (
+  startDate: string,
+  endDate: string,
+): number => {
+  if (!startDate || !endDate) return 0;
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  const diffTime = Math.abs(end.getTime() - start.getTime());
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  return diffDays;
+};
 
 /**
  * Check if a date is in the past
@@ -76,11 +127,11 @@ export const getDaysDifference = (startDate: string, endDate: string): number =>
  * @returns True if the date is in the past
  */
 export const isDateInPast = (dateString: string): boolean => {
-  if (!dateString) return false
-  const date = new Date(dateString)
-  const now = new Date()
-  return date < now
-}
+  if (!dateString) return false;
+  const date = new Date(dateString);
+  const now = new Date();
+  return date < now;
+};
 
 /**
  * Check if a date is in the future
@@ -88,9 +139,8 @@ export const isDateInPast = (dateString: string): boolean => {
  * @returns True if the date is in the future
  */
 export const isDateInFuture = (dateString: string): boolean => {
-  if (!dateString) return false
-  const date = new Date(dateString)
-  const now = new Date()
-  return date > now
-}
-
+  if (!dateString) return false;
+  const date = new Date(dateString);
+  const now = new Date();
+  return date > now;
+};

@@ -1,13 +1,12 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useParams, useRouter, useSearchParams } from "next/navigation"
-import Link from "next/link"
-import { motion } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { useState, useEffect } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   ArrowLeft,
   Calendar,
@@ -24,9 +23,9 @@ import {
   Eye,
   ChevronLeft,
   ChevronRight,
-} from "lucide-react"
-import { requests } from "@/app/webapp/data/sample-data"
-import { formatDate } from "@/app/webapp/utils/date-utils"
+} from "lucide-react";
+import { requests, getPricingData } from "@/app/webapp/data/sample-data";
+import { formatDate } from "@/app/webapp/utils/date-utils";
 
 // Add the necessary imports
 import {
@@ -38,8 +37,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { useToast } from "@/hooks/use-toast"
+} from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
   DialogContent,
@@ -47,45 +46,108 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import type { JSX } from "react/jsx-runtime"
+} from "@/components/ui/dialog";
+import type { JSX } from "react/jsx-runtime";
 
 // Define interfaces for our data structures
 interface MediaFiles {
-  urls: string[]
+  urls: string[];
 }
 
 interface ConversationMessage {
-  id: string
-  sender: "owner" | "admin"
-  content: string
-  timestamp: string
+  id: string;
+  sender: "owner" | "admin";
+  content: string;
+  timestamp: string;
 }
 
 interface ExtensionDetails {
-  duration: number
-  unit: string
+  duration: number;
+  unit: string;
 }
 
 interface PetRequest {
-  id: string
-  type: "photo" | "video" | "grooming" | "boarding-extension" | string
-  title?: string
-  status: "pending" | "new" | "approved" | "in-progress" | "completed" | "rejected" | "cancelled" | string
-  description: string
-  petName: string
-  createdAt: string
-  updatedAt?: string
-  completedAt?: string
-  processingNotes?: string
-  rejectionReason?: string
-  mediaFiles?: MediaFiles
-  groomingService?: string
-  newEndDate?: string
-  extensionDetails?: ExtensionDetails
-  price?: number
-  conversation?: ConversationMessage[]
+  id: string;
+  type: "photo" | "video" | "grooming" | "boarding-extension" | string;
+  title?: string;
+  status:
+    | "pending"
+    | "new"
+    | "approved"
+    | "in-progress"
+    | "completed"
+    | "rejected"
+    | "cancelled"
+    | string;
+  description: string;
+  petName: string;
+  createdAt: string;
+  updatedAt?: string;
+  completedAt?: string;
+  processingNotes?: string;
+  rejectionReason?: string;
+  mediaFiles?: MediaFiles;
+  groomingService?: string;
+  newEndDate?: string;
+  extensionDetails?: ExtensionDetails;
+  price?: number;
+  conversation?: ConversationMessage[];
 }
+
+// Add a function to calculate price based on pet size and service type
+// Add this after the interface definitions but before the component
+const calculatePrice = (
+  type: string,
+  petSize = "medium",
+  service?: string,
+  duration?: number,
+  unit?: string,
+): number => {
+  const pricing = getPricingData();
+
+  switch (type) {
+    case "grooming":
+      if (!service) return 0;
+
+      // Convert service string to pricing key
+      const serviceKey =
+        service === "basic-wash"
+          ? "basicWash"
+          : service === "premium-wash"
+            ? "premiumWash"
+            : service === "premium-wash-and-cut"
+              ? "premiumWashAndCut"
+              : "fullGrooming";
+
+      // Get price based on pet size
+      const sizeKey = petSize.toLowerCase() as
+        | "small"
+        | "medium"
+        | "large"
+        | "xlarge";
+      return pricing.grooming.dogs[serviceKey][sizeKey];
+
+    case "boarding-extension":
+      if (!duration || !unit) return 0;
+
+      // Get daily rate based on pet size
+      const dailyRate =
+        pricing.boarding.dogs[
+          petSize.toLowerCase() as "small" | "medium" | "large" | "xlarge"
+        ];
+
+      // Calculate total based on duration and unit
+      if (unit === "days") {
+        return dailyRate * duration;
+      } else {
+        // For hours, use hourly rate
+        return pricing.boarding.daycare.hourly * duration;
+      }
+
+    default:
+      return 0;
+  }
+};
 
 /**
  * Request Detail Page
@@ -97,26 +159,28 @@ interface PetRequest {
  * 2. Add proper error handling and loading states
  */
 export default function RequestDetailPage(): JSX.Element {
-  const params = useParams()
-  const router = useRouter()
-  const requestId = params.id as string
+  const params = useParams();
+  const router = useRouter();
+  const requestId = params.id as string;
 
-  const [request, setRequest] = useState<PetRequest | null>(null)
-  const [loading, setLoading] = useState<boolean>(true)
-  const [error, setError] = useState<string>("")
+  const [request, setRequest] = useState<PetRequest | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>("");
 
   // Add state for the confirmation dialog
-  const { toast } = useToast()
-  const [showCancelConfirm, setShowCancelConfirm] = useState<boolean>(false)
-  const [isCancelling, setIsCancelling] = useState<boolean>(false)
-  const [showCancelSuccess, setShowCancelSuccess] = useState<boolean>(false)
+  const { toast } = useToast();
+  const [showCancelConfirm, setShowCancelConfirm] = useState<boolean>(false);
+  const [isCancelling, setIsCancelling] = useState<boolean>(false);
+  const [showCancelSuccess, setShowCancelSuccess] = useState<boolean>(false);
 
-  const [fullscreenMedia, setFullscreenMedia] = useState<string | null>(null)
-  const [fullscreenType, setFullscreenType] = useState<"image" | "video">("image")
-  const [currentMediaIndex, setCurrentMediaIndex] = useState<number>(0)
-  const searchParams = useSearchParams()
-  const fromPage = searchParams.get("from") || "requests"
-  const fromTab = searchParams.get("tab") || "pending"
+  const [fullscreenMedia, setFullscreenMedia] = useState<string | null>(null);
+  const [fullscreenType, setFullscreenType] = useState<"image" | "video">(
+    "image",
+  );
+  const [currentMediaIndex, setCurrentMediaIndex] = useState<number>(0);
+  const searchParams = useSearchParams();
+  const fromPage = searchParams.get("from") || "requests";
+  const fromTab = searchParams.get("tab") || "pending";
 
   useEffect(() => {
     const fetchRequest = async (): Promise<void> => {
@@ -127,41 +191,43 @@ export default function RequestDetailPage(): JSX.Element {
         // const data = await response.json()
 
         // For demo, we'll use the local data
-        const foundRequest = requests.find((r) => r.id === requestId) as PetRequest | undefined
+        const foundRequest = requests.find((r) => r.id === requestId) as
+          | PetRequest
+          | undefined;
         if (!foundRequest) {
-          console.log("Request not found for id:", requestId) // Log the request ID for debugging
-          setError("Request not found")
-          setLoading(false)
-          return
+          console.log("Request not found for id:", requestId); // Log the request ID for debugging
+          setError("Request not found");
+          setLoading(false);
+          return;
         }
 
-        setRequest(foundRequest)
+        setRequest(foundRequest);
       } catch (error) {
-        console.error("Error fetching request:", error)
-        setError("Request not found or could not be loaded")
+        console.error("Error fetching request:", error);
+        setError("Request not found or could not be loaded");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchRequest()
-  }, [requestId, searchParams])
+    fetchRequest();
+  }, [requestId, searchParams]);
 
   // Get request type icon
   const getRequestTypeIcon = (type: string): JSX.Element => {
     switch (type) {
       case "photo":
-        return <Camera className="h-5 w-5" />
+        return <Camera className="h-5 w-5" />;
       case "video":
-        return <Video className="h-5 w-5" />
+        return <Video className="h-5 w-5" />;
       case "grooming":
-        return <Scissors className="h-5 w-5" />
+        return <Scissors className="h-5 w-5" />;
       case "boarding-extension":
-        return <Clock className="h-5 w-5" />
+        return <Clock className="h-5 w-5" />;
       default:
-        return <Calendar className="h-5 w-5" />
+        return <Calendar className="h-5 w-5" />;
     }
-  }
+  };
 
   // Get status badge
   const getStatusBadge = (status: string): JSX.Element => {
@@ -174,7 +240,7 @@ export default function RequestDetailPage(): JSX.Element {
               <Clock className="h-3 w-3 mr-1" /> Pending
             </Badge>
           </div>
-        )
+        );
       case "approved":
       case "in-progress":
         return (
@@ -183,7 +249,7 @@ export default function RequestDetailPage(): JSX.Element {
               <CheckCircle2 className="h-3 w-3 mr-1" /> In Progress
             </Badge>
           </div>
-        )
+        );
       case "completed":
         return (
           <div className="self-start">
@@ -191,7 +257,7 @@ export default function RequestDetailPage(): JSX.Element {
               <CheckCircle2 className="h-3 w-3 mr-1" /> Completed
             </Badge>
           </div>
-        )
+        );
       case "rejected":
         return (
           <div className="self-start">
@@ -199,7 +265,7 @@ export default function RequestDetailPage(): JSX.Element {
               <XCircle className="h-3 w-3 mr-1" /> Rejected
             </Badge>
           </div>
-        )
+        );
       default:
         return (
           <div className="self-start">
@@ -207,76 +273,89 @@ export default function RequestDetailPage(): JSX.Element {
               <AlertCircle className="h-3 w-3 mr-1" /> {status}
             </Badge>
           </div>
-        )
+        );
     }
-  }
+  };
 
   // Get request type title
   const getRequestTypeTitle = (type: string): string => {
     switch (type) {
       case "photo":
-        return "Photo Update"
+        return "Photo Update";
       case "video":
-        return "Video Request"
+        return "Video Request";
       case "grooming":
-        return "Grooming Service"
+        return "Grooming Service";
       case "boarding-extension":
-        return "Boarding Extension"
+        return "Boarding Extension";
       default:
-        return "Service Request"
+        return "Service Request";
     }
-  }
+  };
 
   // Add a function to handle cancellation
   const handleCancelRequest = (): void => {
-    setIsCancelling(true)
+    setIsCancelling(true);
 
     // Simulate API call
     setTimeout(() => {
       // In a real app, you would call an API to cancel the request
-      setIsCancelling(false)
-      setShowCancelConfirm(false)
-      setShowCancelSuccess(true)
-    }, 1500)
-  }
+      setIsCancelling(false);
+      setShowCancelConfirm(false);
+      setShowCancelSuccess(true);
+    }, 1500);
+  };
 
   // Add a function to handle success dialog close
   const handleSuccessClose = (): void => {
-    setShowCancelSuccess(false)
+    setShowCancelSuccess(false);
 
     // Update the local request state to show it's cancelled
     if (request) {
       setRequest({
         ...request,
         status: "cancelled",
-      })
+      });
     }
 
     toast({
       title: "Request Cancelled",
       description: "Your request has been successfully cancelled.",
       duration: 5000,
-    })
+    });
 
     // Navigate back to the requests page with the correct tab
-    router.push(`/webapp/pet-owner/requests?activeTab=${fromTab || "pending"}`)
-  }
+    router.push(`/webapp/pet-owner/requests?activeTab=${fromTab}`);
+  };
+
+  // Function to handle back button click
+  const handleBackClick = () => {
+    if (fromPage === "notifications") {
+      router.push("/webapp/pet-owner/notifications");
+    } else {
+      // Ensure we're using the correct tab parameter
+      router.push(`/webapp/pet-owner/requests?activeTab=${fromTab}`);
+    }
+  };
 
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
         <p className="text-muted-foreground">Loading request details...</p>
       </div>
-    )
+    );
   }
 
   if (error || !request) {
     return (
       <div className="space-y-6">
-        <Button variant="ghost" size="icon" asChild className="mb-4">
-          <Link href="/webapp/pet-owner/requests">
-            <ArrowLeft className="h-5 w-5" />
-          </Link>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleBackClick}
+          className="mb-4"
+        >
+          <ArrowLeft className="h-5 w-5" />
         </Button>
 
         <Alert variant="destructive">
@@ -286,39 +365,45 @@ export default function RequestDetailPage(): JSX.Element {
         </Alert>
 
         <div className="flex justify-center">
-          <Button asChild>
-            <Link href="/webapp/pet-owner/requests">Return to Requests</Link>
+          <Button
+            onClick={() =>
+              router.push(`/webapp/pet-owner/requests?activeTab=${fromTab}`)
+            }
+          >
+            Return to Requests
           </Button>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center mb-6">
-        {/* Ensure the back button functionality works correctly
-        Find the back button link and ensure it uses the fromTab parameter */}
-        <Button variant="ghost" size="icon" asChild className="mr-4">
-          <Link
-            href={
-              fromPage === "notifications"
-                ? "/webapp/pet-owner/notifications"
-                : `/webapp/pet-owner/requests?activeTab=${fromTab}`
-            }
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Link>
+        {/* Use the handleBackClick function for the back button */}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleBackClick}
+          className="mr-4"
+        >
+          <ArrowLeft className="h-5 w-5" />
         </Button>
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground dark:text-foreground">Request Details</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground dark:text-foreground">
+            Request Details
+          </h1>
           <p className="text-base text-muted-foreground dark:text-muted-foreground/90">
             View details of your service request
           </p>
         </div>
       </div>
 
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         <Card>
           <CardHeader className="pb-3">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -347,10 +432,13 @@ export default function RequestDetailPage(): JSX.Element {
             {request.status === "pending" && (
               <Alert className="bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800 mb-4">
                 <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                <AlertTitle className="text-blue-800 dark:text-blue-300">Cancellation Policy</AlertTitle>
+                <AlertTitle className="text-blue-800 dark:text-blue-300">
+                  Cancellation Policy
+                </AlertTitle>
                 <AlertDescription className="text-blue-700 dark:text-blue-400">
-                  You can cancel this request while it remains in "Pending" status. Once our staff begins processing
-                  your request, it can no longer be cancelled.
+                  You can cancel this request while it remains in "Pending"
+                  status. Once our staff begins processing your request, it can
+                  no longer be cancelled.
                 </AlertDescription>
               </Alert>
             )}
@@ -373,8 +461,12 @@ export default function RequestDetailPage(): JSX.Element {
                   {/* Initial request message */}
                   <div className="flex gap-3 justify-end">
                     <div className="max-w-[80%] rounded-lg p-3 bg-primary text-primary-foreground ml-auto">
-                      <p className="text-sm whitespace-pre-wrap">{request.description}</p>
-                      <p className="text-xs opacity-70 mt-1 text-right">{formatDate(request.createdAt)}</p>
+                      <p className="text-sm whitespace-pre-wrap">
+                        {request.description}
+                      </p>
+                      <p className="text-xs opacity-70 mt-1 text-right">
+                        {formatDate(request.createdAt)}
+                      </p>
                     </div>
                   </div>
 
@@ -388,9 +480,12 @@ export default function RequestDetailPage(): JSX.Element {
                         </div>
                         <div className="max-w-[80%] rounded-lg p-3 bg-gray-100 dark:bg-gray-800 text-foreground dark:text-foreground">
                           <p className="text-sm whitespace-pre-wrap">
-                            {request.processingNotes || "Your request has been completed."}
+                            {request.processingNotes ||
+                              "Your request has been completed."}
                           </p>
-                          <p className="text-xs opacity-70 mt-1 text-right">{formatDate(request.completedAt || "")}</p>
+                          <p className="text-xs opacity-70 mt-1 text-right">
+                            {formatDate(request.completedAt || "")}
+                          </p>
                         </div>
                       </div>
 
@@ -416,7 +511,10 @@ export default function RequestDetailPage(): JSX.Element {
 
                               <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
                                 {request.mediaFiles.urls.map((url, index) => (
-                                  <div key={index} className="rounded-md overflow-hidden border relative group">
+                                  <div
+                                    key={index}
+                                    className="rounded-md overflow-hidden border relative group"
+                                  >
                                     {request.type === "photo" ? (
                                       <>
                                         <img
@@ -427,9 +525,9 @@ export default function RequestDetailPage(): JSX.Element {
                                         <div
                                           className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
                                           onClick={() => {
-                                            setFullscreenType("image")
-                                            setFullscreenMedia(url)
-                                            setCurrentMediaIndex(index)
+                                            setFullscreenType("image");
+                                            setFullscreenMedia(url);
+                                            setCurrentMediaIndex(index);
                                           }}
                                         >
                                           <Eye className="h-6 w-6 text-white" />
@@ -437,13 +535,17 @@ export default function RequestDetailPage(): JSX.Element {
                                       </>
                                     ) : (
                                       <div className="relative">
-                                        <video src={url} controls className="w-full h-32" />
+                                        <video
+                                          src={url}
+                                          controls
+                                          className="w-full h-32"
+                                        />
                                         <div
                                           className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
                                           onClick={() => {
-                                            setFullscreenType("video")
-                                            setFullscreenMedia(url)
-                                            setCurrentMediaIndex(index)
+                                            setFullscreenType("video");
+                                            setFullscreenMedia(url);
+                                            setCurrentMediaIndex(index);
                                           }}
                                         >
                                           <Eye className="h-6 w-6 text-white" />
@@ -470,8 +572,10 @@ export default function RequestDetailPage(): JSX.Element {
                           <div className="max-w-[80%] rounded-lg p-3 bg-gray-100 dark:bg-gray-800 text-foreground dark:text-foreground">
                             <p className="text-sm whitespace-pre-wrap">
                               The grooming service (
-                              {request.groomingService?.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())})
-                              has been completed for {request.petName}.
+                              {request.groomingService
+                                ?.replace(/-/g, " ")
+                                .replace(/\b\w/g, (l) => l.toUpperCase())}
+                              ) has been completed for {request.petName}.
                             </p>
                             <p className="text-xs opacity-70 mt-1 text-right">
                               {formatDate(request.completedAt || "")}
@@ -491,12 +595,16 @@ export default function RequestDetailPage(): JSX.Element {
                             </div>
                             <div className="max-w-[80%] rounded-lg p-3 bg-gray-100 dark:bg-gray-800 text-foreground dark:text-foreground">
                               <p className="text-sm whitespace-pre-wrap">
-                                Here are photos of {request.petName} after the grooming service.
+                                Here are photos of {request.petName} after the
+                                grooming service.
                               </p>
 
                               <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
                                 {request.mediaFiles.urls.map((url, index) => (
-                                  <div key={index} className="rounded-md overflow-hidden border relative group">
+                                  <div
+                                    key={index}
+                                    className="rounded-md overflow-hidden border relative group"
+                                  >
                                     <img
                                       src={url || "/placeholder.svg"}
                                       alt={`${request.petName} after grooming ${index + 1}`}
@@ -505,9 +613,9 @@ export default function RequestDetailPage(): JSX.Element {
                                     <div
                                       className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
                                       onClick={() => {
-                                        setFullscreenType("image")
-                                        setFullscreenMedia(url)
-                                        setCurrentMediaIndex(index)
+                                        setFullscreenType("image");
+                                        setFullscreenMedia(url);
+                                        setCurrentMediaIndex(index);
                                       }}
                                     >
                                       <Eye className="h-6 w-6 text-white" />
@@ -524,22 +632,24 @@ export default function RequestDetailPage(): JSX.Element {
                         )}
 
                       {/* Specific response for boarding extension */}
-                      {request.type === "boarding-extension" && request.newEndDate && (
-                        <div className="flex gap-3">
-                          <div className="flex-shrink-0 h-8 w-8 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 flex items-center justify-center">
-                            A
+                      {request.type === "boarding-extension" &&
+                        request.newEndDate && (
+                          <div className="flex gap-3">
+                            <div className="flex-shrink-0 h-8 w-8 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 flex items-center justify-center">
+                              A
+                            </div>
+                            <div className="max-w-[80%] rounded-lg p-3 bg-gray-100 dark:bg-gray-800 text-foreground dark:text-foreground">
+                              <p className="text-sm whitespace-pre-wrap">
+                                The boarding extension has been approved. The
+                                new end date is {formatDate(request.newEndDate)}
+                                .
+                              </p>
+                              <p className="text-xs opacity-70 mt-1 text-right">
+                                {formatDate(request.completedAt || "")}
+                              </p>
+                            </div>
                           </div>
-                          <div className="max-w-[80%] rounded-lg p-3 bg-gray-100 dark:bg-gray-800 text-foreground dark:text-foreground">
-                            <p className="text-sm whitespace-pre-wrap">
-                              The boarding extension has been approved. The new end date is{" "}
-                              {formatDate(request.newEndDate)}.
-                            </p>
-                            <p className="text-xs opacity-70 mt-1 text-right">
-                              {formatDate(request.completedAt || "")}
-                            </p>
-                          </div>
-                        </div>
-                      )}
+                        )}
                     </>
                   )}
 
@@ -547,7 +657,10 @@ export default function RequestDetailPage(): JSX.Element {
                   {request.conversation &&
                     request.conversation.length > 0 &&
                     request.conversation.map((message) => (
-                      <div key={message.id} className={`flex gap-3 ${message.sender === "owner" ? "justify-end" : ""}`}>
+                      <div
+                        key={message.id}
+                        className={`flex gap-3 ${message.sender === "owner" ? "justify-end" : ""}`}
+                      >
                         {message.sender !== "owner" && (
                           <div className="flex-shrink-0 h-8 w-8 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 flex items-center justify-center">
                             A
@@ -561,8 +674,12 @@ export default function RequestDetailPage(): JSX.Element {
                                 : "bg-gray-100 dark:bg-gray-800 text-foreground dark:text-foreground"
                             }`}
                         >
-                          <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                          <p className="text-xs opacity-70 mt-1 text-right">{formatDate(message.timestamp)}</p>
+                          <p className="text-sm whitespace-pre-wrap">
+                            {message.content}
+                          </p>
+                          <p className="text-xs opacity-70 mt-1 text-right">
+                            {formatDate(message.timestamp)}
+                          </p>
                         </div>
                       </div>
                     ))}
@@ -572,7 +689,11 @@ export default function RequestDetailPage(): JSX.Element {
 
             {request.status === "pending" && (
               <div className="flex justify-end mt-6">
-                <Button variant="destructive" onClick={() => setShowCancelConfirm(true)} className="w-full sm:w-auto">
+                <Button
+                  variant="destructive"
+                  onClick={() => setShowCancelConfirm(true)}
+                  className="w-full sm:w-auto"
+                >
                   Cancel Request
                 </Button>
               </div>
@@ -584,37 +705,65 @@ export default function RequestDetailPage(): JSX.Element {
                 <Card className="bg-muted/50 dark:bg-muted/20">
                   <CardContent className="p-4 space-y-3">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Request Type</p>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        Request Type
+                      </p>
                       <p className="text-sm text-foreground dark:text-foreground">
                         {getRequestTypeTitle(request.type)}
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Pet</p>
-                      <p className="text-sm text-foreground dark:text-foreground">{request.petName}</p>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        Pet
+                      </p>
+                      <p className="text-sm text-foreground dark:text-foreground">
+                        {request.petName}
+                      </p>
                     </div>
                     {request.type === "grooming" && request.groomingService && (
                       <div>
-                        <p className="text-sm font-medium text-muted-foreground">Grooming Service</p>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Grooming Service
+                        </p>
                         <p className="text-sm text-foreground dark:text-foreground">
-                          {request.groomingService.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+                          {request.groomingService
+                            .replace(/-/g, " ")
+                            .replace(/\b\w/g, (l) => l.toUpperCase())}
                         </p>
                       </div>
                     )}
-                    {request.type === "boarding-extension" && request.extensionDetails && (
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">Extension Details</p>
-                        <p className="text-sm text-foreground dark:text-foreground">
-                          {request.extensionDetails.duration} {request.extensionDetails.unit}
-                        </p>
-                      </div>
-                    )}
-                    {request.price && (
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">Price</p>
-                        <p className="text-sm text-foreground dark:text-foreground">₱{request.price}</p>
-                      </div>
-                    )}
+                    {request.type === "boarding-extension" &&
+                      request.extensionDetails && (
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">
+                            Extension Details
+                          </p>
+                          <p className="text-sm text-foreground dark:text-foreground">
+                            {request.extensionDetails.duration}{" "}
+                            {request.extensionDetails.unit}
+                          </p>
+                        </div>
+                      )}
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        Price
+                      </p>
+                      <p className="text-sm text-foreground dark:text-foreground">
+                        ₱
+                        {request.price ||
+                          calculatePrice(
+                            request.type,
+                            "medium", // You would ideally get the pet size from the pet data
+                            request.groomingService,
+                            request.extensionDetails?.duration
+                              ? Number.parseInt(
+                                  request.extensionDetails.duration,
+                                )
+                              : undefined,
+                            request.extensionDetails?.unit,
+                          )}
+                      </p>
+                    </div>
                   </CardContent>
                 </Card>
               </div>
@@ -628,7 +777,9 @@ export default function RequestDetailPage(): JSX.Element {
                         <Calendar className="h-3 w-3" />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-foreground dark:text-foreground">Request Submitted</p>
+                        <p className="text-sm font-medium text-foreground dark:text-foreground">
+                          Request Submitted
+                        </p>
                         <p className="text-xs text-muted-foreground dark:text-muted-foreground/90">
                           {formatDate(request.createdAt)}
                         </p>
@@ -641,7 +792,9 @@ export default function RequestDetailPage(): JSX.Element {
                           <CheckCircle2 className="h-3 w-3" />
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-foreground dark:text-foreground">In Progress</p>
+                          <p className="text-sm font-medium text-foreground dark:text-foreground">
+                            In Progress
+                          </p>
                           <p className="text-xs text-muted-foreground dark:text-muted-foreground/90">
                             Your request is being processed
                           </p>
@@ -655,7 +808,9 @@ export default function RequestDetailPage(): JSX.Element {
                           <CheckCircle2 className="h-3 w-3" />
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-foreground dark:text-foreground">Completed</p>
+                          <p className="text-sm font-medium text-foreground dark:text-foreground">
+                            Completed
+                          </p>
                           <p className="text-xs text-muted-foreground dark:text-muted-foreground/90">
                             {formatDate(request.completedAt)}
                           </p>
@@ -669,7 +824,9 @@ export default function RequestDetailPage(): JSX.Element {
                           <XCircle className="h-3 w-3" />
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-foreground dark:text-foreground">Rejected</p>
+                          <p className="text-sm font-medium text-foreground dark:text-foreground">
+                            Rejected
+                          </p>
                           <p className="text-xs text-muted-foreground dark:text-muted-foreground/90">
                             {formatDate(request.updatedAt || request.createdAt)}
                           </p>
@@ -695,43 +852,51 @@ export default function RequestDetailPage(): JSX.Element {
               size="icon"
               className="absolute top-4 right-4 text-white hover:bg-white/20 z-10 rounded-full bg-black/40"
               onClick={(e) => {
-                e.stopPropagation()
-                setFullscreenMedia(null)
+                e.stopPropagation();
+                setFullscreenMedia(null);
               }}
             >
               <X className="h-6 w-6" />
             </Button>
 
-            {fullscreenType === "image" && request?.mediaFiles?.urls && request.mediaFiles.urls.length > 1 && (
-              <>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 z-10 rounded-full bg-black/40"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    const newIndex = currentMediaIndex > 0 ? currentMediaIndex - 1 : request.mediaFiles!.urls.length - 1
-                    setCurrentMediaIndex(newIndex)
-                    setFullscreenMedia(request.mediaFiles!.urls[newIndex])
-                  }}
-                >
-                  <ChevronLeft className="h-8 w-8" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 z-10 rounded-full bg-black/40"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    const newIndex = currentMediaIndex < request.mediaFiles!.urls.length - 1 ? currentMediaIndex + 1 : 0
-                    setCurrentMediaIndex(newIndex)
-                    setFullscreenMedia(request.mediaFiles!.urls[newIndex])
-                  }}
-                >
-                  <ChevronRight className="h-8 w-8" />
-                </Button>
-              </>
-            )}
+            {fullscreenType === "image" &&
+              request?.mediaFiles?.urls &&
+              request.mediaFiles.urls.length > 1 && (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 z-10 rounded-full bg-black/40"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const newIndex =
+                        currentMediaIndex > 0
+                          ? currentMediaIndex - 1
+                          : request.mediaFiles!.urls.length - 1;
+                      setCurrentMediaIndex(newIndex);
+                      setFullscreenMedia(request.mediaFiles!.urls[newIndex]);
+                    }}
+                  >
+                    <ChevronLeft className="h-8 w-8" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 z-10 rounded-full bg-black/40"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const newIndex =
+                        currentMediaIndex < request.mediaFiles!.urls.length - 1
+                          ? currentMediaIndex + 1
+                          : 0;
+                      setCurrentMediaIndex(newIndex);
+                      setFullscreenMedia(request.mediaFiles!.urls[newIndex]);
+                    }}
+                  >
+                    <ChevronRight className="h-8 w-8" />
+                  </Button>
+                </>
+              )}
 
             {fullscreenType === "image" ? (
               <img
@@ -750,13 +915,15 @@ export default function RequestDetailPage(): JSX.Element {
               />
             )}
 
-            {fullscreenType === "image" && request?.mediaFiles?.urls && request.mediaFiles.urls.length > 1 && (
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/40 px-4 py-2 rounded-full">
-                <p className="text-white text-sm">
-                  {currentMediaIndex + 1} / {request.mediaFiles.urls.length}
-                </p>
-              </div>
-            )}
+            {fullscreenType === "image" &&
+              request?.mediaFiles?.urls &&
+              request.mediaFiles.urls.length > 1 && (
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/40 px-4 py-2 rounded-full">
+                  <p className="text-white text-sm">
+                    {currentMediaIndex + 1} / {request.mediaFiles.urls.length}
+                  </p>
+                </div>
+              )}
           </div>
         </div>
       )}
@@ -765,7 +932,8 @@ export default function RequestDetailPage(): JSX.Element {
           <AlertDialogHeader>
             <AlertDialogTitle>Cancel Request</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to cancel this request? This action cannot be undone.
+              Are you sure you want to cancel this request? This action cannot
+              be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -795,7 +963,9 @@ export default function RequestDetailPage(): JSX.Element {
               <CheckCircle2 className="h-5 w-5 text-green-500" />
               Request Cancelled Successfully
             </DialogTitle>
-            <DialogDescription>Your request has been successfully cancelled.</DialogDescription>
+            <DialogDescription>
+              Your request has been successfully cancelled.
+            </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button onClick={handleSuccessClose} className="w-full">
@@ -805,5 +975,5 @@ export default function RequestDetailPage(): JSX.Element {
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }
