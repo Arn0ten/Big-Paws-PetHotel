@@ -24,7 +24,6 @@ import {
   Eye,
   ChevronLeft,
   ChevronRight,
-  XCircle,
 } from "lucide-react";
 import { requests } from "@/app/webapp/data/sample-data";
 import { formatDate } from "@/app/webapp/utils/date-utils";
