@@ -28,7 +28,7 @@ import {
   AlertCircle,
   CheckCircle2,
   XCircle,
-  PoundSterlingIcon as PhilippinePesoIcon,
+  PhilippinePesoIcon,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";

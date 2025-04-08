@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { format, addDays, addHours, parseISO } from "date-fns"
+import { format, addDays, addHours, parseISO, isBefore } from "date-fns"
 import { cn } from "@/lib/utils"
 import {
   CalendarIcon,
@@ -22,7 +22,6 @@ import {
   CheckCircle2,
   ArrowLeft,
   ArrowRight,
-  DollarSign,
   Play,
   Pause,
   Music,
@@ -33,6 +32,7 @@ import {
   ChevronRight,
   Volume2,
   VolumeX,
+  Save,
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -42,46 +42,8 @@ import { PhotoUpload } from "./media-upload/photo-upload"
 import { VideoUpload } from "./media-upload/video-upload"
 import { Progress } from "@/components/ui/progress"
 import { NoteGenerator } from "./note-generator"
-
-// Add these imports for the fullscreen dialog
 import { motion } from "framer-motion"
-
-// Define fallback rate constants if they're not imported
-const BOARDING_RATES = {
-  hourly: {
-    Small: 5,
-    Medium: 7,
-    Large: 10,
-    XLarge: 12,
-  },
-  daily: {
-    Small: 30,
-    Medium: 40,
-    Large: 50,
-    XLarge: 60,
-  },
-}
-
-const GROOMING_RATES = {
-  "basic-wash": {
-    Small: 25,
-    Medium: 35,
-    Large: 45,
-    XLarge: 55,
-  },
-  "premium-wash-and-cut": {
-    Small: 40,
-    Medium: 50,
-    Large: 60,
-    XLarge: 70,
-  },
-  "deluxe-spa-package": {
-    Small: 60,
-    Medium: 75,
-    Large: 90,
-    XLarge: 105,
-  },
-}
+import { PRICING, calculateExtensionCost } from "../data/pricing-data"
 
 interface EnhancedRequestDialogProps {
   open: boolean
@@ -119,7 +81,7 @@ export default function EnhancedRequestDialog({
   const [mergedVideoUrl, setMergedVideoUrl] = useState<string | null>(null)
   const [processingNotes, setProcessingNotes] = useState("")
   const [date, setDate] = useState<Date | undefined>(undefined)
-  const [selectedGroomingService, setSelectedGroomingService] = useState("premium-wash-and-cut")
+  const [selectedGroomingService, setSelectedGroomingService] = useState<string>("")
   const [calculatedPrice, setCalculatedPrice] = useState<number | null>(null)
   const [isHourExtension, setIsHourExtension] = useState(false)
   const [newEndDate, setNewEndDate] = useState<Date | undefined>(undefined)
@@ -131,8 +93,10 @@ export default function EnhancedRequestDialog({
   const [extensionDate, setExtensionDate] = useState<Date | undefined>(undefined)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isVideoPlaying, setIsVideoPlaying] = useState(false)
+  const [originalVolume, setOriginalVolume] = useState(0.5) // Default to 50% volume
+  const [backgroundVolume, setBackgroundVolume] = useState(0.5) // Default to 50% volume
 
-  // Add state variables for fullscreen views inside the EnhancedRequestDialog component
+  // Add state variables for fullscreen views
   const [showVideoFullscreen, setShowVideoFullscreen] = useState(false)
   const [showPhotoFullscreen, setShowPhotoFullscreen] = useState(false)
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0)
@@ -140,7 +104,29 @@ export default function EnhancedRequestDialog({
   const [isVideoMuted, setIsVideoMuted] = useState(false)
   const fullscreenVideoRef = useRef<HTMLVideoElement>(null)
 
-  // Add this function inside the EnhancedRequestDialog component
+  // Calculate price based on request type and pet size
+  const calculatePrice = () => {
+    if (!request) return 0
+
+    const petSize = request.petSize || "Medium" // Default to Medium if size is not specified
+
+    if (request.type === "boarding-extension" && request.extensionDetails) {
+      const { duration, unit } = request.extensionDetails
+      return calculateExtensionCost(duration, unit, petSize)
+    } else if (request.type === "grooming") {
+      const service = selectedGroomingService || request.groomingService || "premium-wash-and-cut"
+
+      // Check if the service exists in the pricing data
+      if (PRICING.grooming[service as keyof typeof PRICING.grooming]) {
+        const serviceRates = PRICING.grooming[service as keyof typeof PRICING.grooming]
+        return serviceRates[petSize as keyof typeof serviceRates] || serviceRates.Medium
+      }
+    }
+
+    return request.price || 0
+  }
+
+  // Function to open video fullscreen
   const openVideoFullscreen = () => {
     if (videoRef.current) {
       videoRef.current.pause()
@@ -148,7 +134,7 @@ export default function EnhancedRequestDialog({
     setShowVideoFullscreen(true)
   }
 
-  // Add this function inside the EnhancedRequestDialog component
+  // Function to close video fullscreen
   const closeVideoFullscreen = () => {
     if (fullscreenVideoRef.current) {
       fullscreenVideoRef.current.pause()
@@ -156,13 +142,13 @@ export default function EnhancedRequestDialog({
     setShowVideoFullscreen(false)
   }
 
-  // Add this function inside the EnhancedRequestDialog component
+  // Function to open photo fullscreen
   const openPhotoFullscreen = (index: number) => {
     setCurrentPhotoIndex(index)
     setShowPhotoFullscreen(true)
   }
 
-  // Add this function inside the EnhancedRequestDialog component
+  // Function to navigate photos
   const navigatePhotos = (direction: "next" | "prev") => {
     if (direction === "next") {
       setCurrentPhotoIndex((prev) => (prev === previewUrls.length - 1 ? 0 : prev + 1))
@@ -171,7 +157,7 @@ export default function EnhancedRequestDialog({
     }
   }
 
-  // Add this function inside the EnhancedRequestDialog component
+  // Function to update video progress
   const updateVideoProgress = () => {
     if (fullscreenVideoRef.current) {
       const progress = (fullscreenVideoRef.current.currentTime / fullscreenVideoRef.current.duration) * 100
@@ -179,7 +165,7 @@ export default function EnhancedRequestDialog({
     }
   }
 
-  // Add this function inside the EnhancedRequestDialog component
+  // Function to handle video seeking
   const handleVideoSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (fullscreenVideoRef.current) {
       const seekTime = (Number.parseFloat(e.target.value) / 100) * fullscreenVideoRef.current.duration
@@ -187,7 +173,7 @@ export default function EnhancedRequestDialog({
     }
   }
 
-  // Add this function inside the EnhancedRequestDialog component
+  // Function to toggle mute
   const toggleMute = () => {
     if (fullscreenVideoRef.current) {
       fullscreenVideoRef.current.muted = !isVideoMuted
@@ -195,7 +181,7 @@ export default function EnhancedRequestDialog({
     }
   }
 
-  // Add this function inside the EnhancedRequestDialog component
+  // Function to toggle fullscreen video play
   const toggleFullscreenVideoPlay = () => {
     if (fullscreenVideoRef.current) {
       if (fullscreenVideoRef.current.paused) {
@@ -205,6 +191,47 @@ export default function EnhancedRequestDialog({
       } else {
         fullscreenVideoRef.current.pause()
       }
+    }
+  }
+
+  // Function to handle audio merging
+  const handleAudioMerge = () => {
+    if (!videoFile || !selectedAudioUrl) return
+
+    // In a real implementation, this would call a server-side API to merge the audio and video
+    // For this demo, we'll simulate the process
+    setAudioMerged(true)
+
+    // Store the merged state and audio settings
+    if (videoPreviewUrl) {
+      setMergedVideoUrl(videoPreviewUrl)
+    }
+
+    // Apply volume settings to the video and audio elements
+    if (videoRef.current) {
+      videoRef.current.volume = originalVolume
+    }
+
+    if (audioRef.current) {
+      audioRef.current.volume = backgroundVolume
+    }
+  }
+
+  // Handle volume changes for original video
+  const handleOriginalVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newVolume = Number.parseFloat(e.target.value)
+    setOriginalVolume(newVolume)
+    if (videoRef.current) {
+      videoRef.current.volume = newVolume
+    }
+  }
+
+  // Handle volume changes for background music
+  const handleBackgroundVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newVolume = Number.parseFloat(e.target.value)
+    setBackgroundVolume(newVolume)
+    if (audioRef.current) {
+      audioRef.current.volume = newVolume
     }
   }
 
@@ -220,6 +247,13 @@ export default function EnhancedRequestDialog({
       setAudioMerged(false)
       setMergedVideoUrl(null)
       setCurrentStep(0)
+
+      // Set default grooming service if available
+      if (request.type === "grooming" && request.groomingService) {
+        setSelectedGroomingService(request.groomingService)
+      } else if (request.type === "grooming") {
+        setSelectedGroomingService("premium-wash-and-cut")
+      }
 
       // Check if this is an hour extension
       if (request.type === "boarding-extension" && request.extensionDetails) {
@@ -238,35 +272,16 @@ export default function EnhancedRequestDialog({
 
           setDate(calculatedEndDate)
           setNewEndDate(calculatedEndDate)
+          setExtensionDate(calculatedEndDate)
           setNewEndTime(format(calculatedEndDate, "HH:mm"))
         }
       } else {
         setIsHourExtension(false)
       }
 
-      // Set default grooming service if available
-      if (request.type === "grooming" && request.groomingService) {
-        setSelectedGroomingService(request.groomingService)
-      } else {
-        setSelectedGroomingService("premium-wash-and-cut")
-      }
-
-      // Set default extension date if available
-      if (request.type === "boarding-extension" && request.currentEndDate) {
-        // Calculate a default extension date (current end date + requested extension)
-        const currentEndDate = new Date(request.currentEndDate)
-        if (request.extensionDetails) {
-          const { duration, unit } = request.extensionDetails
-          if (unit === "days") {
-            currentEndDate.setDate(currentEndDate.getDate() + Number.parseInt(duration))
-          } else if (unit === "weeks") {
-            currentEndDate.setDate(currentEndDate.getDate() + Number.parseInt(duration) * 7)
-          } else if (unit === "hours") {
-            currentEndDate.setHours(currentEndDate.getHours() + Number.parseInt(duration))
-          }
-          setExtensionDate(currentEndDate)
-        }
-      }
+      // Calculate price based on request type and pet size
+      const price = calculatePrice()
+      setCalculatedPrice(price)
     } else if (!open) {
       // Clean up audio and video when dialog closes
       if (videoRef.current) {
@@ -299,6 +314,14 @@ export default function EnhancedRequestDialog({
     }
   }, [open, request])
 
+  // Update calculated price when relevant state changes
+  useEffect(() => {
+    if (request) {
+      const price = calculatePrice()
+      setCalculatedPrice(price)
+    }
+  }, [request, selectedGroomingService, date])
+
   // Update play state when video plays/pauses
   useEffect(() => {
     const video = videoRef.current
@@ -316,7 +339,7 @@ export default function EnhancedRequestDialog({
     }
   }, [videoRef.current])
 
-  // Add this effect to update video progress and handle fullscreen video events
+  // Update video progress and handle fullscreen video events
   useEffect(() => {
     const videoElement = fullscreenVideoRef.current
     if (!videoElement) return
@@ -338,6 +361,54 @@ export default function EnhancedRequestDialog({
       videoElement.removeEventListener("ended", handleEnded)
     }
   }, [fullscreenVideoRef.current])
+
+  // Handle audio playback with video
+  useEffect(() => {
+    const videoElement = videoRef.current
+    const audioElement = audioRef.current
+
+    if (!videoElement || !audioElement || !selectedAudioUrl) return
+
+    const handlePlay = () => {
+      setIsVideoPlaying(true)
+      audioElement.currentTime = videoElement.currentTime
+      audioElement.volume = backgroundVolume
+      videoElement.volume = originalVolume
+      audioElement.play().catch((error) => {
+        console.error("Error playing audio:", error)
+      })
+    }
+
+    const handlePause = () => {
+      setIsVideoPlaying(false)
+      audioElement.pause()
+    }
+
+    const handleTimeUpdate = () => {
+      // Keep audio in sync with video
+      if (Math.abs(audioElement.currentTime - videoElement.currentTime) > 0.3) {
+        audioElement.currentTime = videoElement.currentTime
+      }
+    }
+
+    const handleEnded = () => {
+      setIsVideoPlaying(false)
+      audioElement.pause()
+      audioElement.currentTime = 0
+    }
+
+    videoElement.addEventListener("play", handlePlay)
+    videoElement.addEventListener("pause", handlePause)
+    videoElement.addEventListener("timeupdate", handleTimeUpdate)
+    videoElement.addEventListener("ended", handleEnded)
+
+    return () => {
+      videoElement.removeEventListener("play", handlePlay)
+      videoElement.removeEventListener("pause", handlePause)
+      videoElement.removeEventListener("timeupdate", handleTimeUpdate)
+      videoElement.removeEventListener("ended", handleEnded)
+    }
+  }, [selectedAudioUrl, backgroundVolume, originalVolume])
 
   // Handle photo file selection with max limit enforcement
   const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -525,6 +596,15 @@ export default function EnhancedRequestDialog({
       audioMerged: audioMerged,
       // Add a flag to indicate that the audio should replace the original
       replaceOriginalAudio: !!selectedAudioUrl && (audioMerged || request.type === "video"),
+      // Add calculated price
+      calculatedPrice: calculatedPrice,
+      // Add extension date for boarding extensions
+      extensionDate: extensionDate ? extensionDate.toISOString() : undefined,
+      // Add audio volume settings
+      audioSettings: {
+        originalVolume,
+        backgroundVolume,
+      },
     }
 
     // Call the onComplete callback with the updated request
@@ -599,27 +679,7 @@ export default function EnhancedRequestDialog({
   const formattedNewEndDate = date ? `${formatDate(date.toISOString())}` : "Not specified"
 
   // Calculate additional cost
-  const calculateAdditionalCost = () => {
-    if (!request) return 0
-
-    const petSize = request.petSize || "Medium" // Default to Medium if size is not specified
-
-    if (request.type === "boarding-extension" && request.extensionDetails) {
-      const { duration, unit } = request.extensionDetails
-      const rate =
-        unit === "hours"
-          ? BOARDING_RATES.hourly[petSize] || BOARDING_RATES.hourly.Medium
-          : BOARDING_RATES.daily[petSize] || BOARDING_RATES.daily.Medium
-      return rate * Number(duration || 1)
-    } else if (request.type === "grooming" && request.groomingService) {
-      const service = request.groomingService
-      const serviceRates = GROOMING_RATES[service] || GROOMING_RATES["basic-wash"]
-      return serviceRates[petSize] || serviceRates.Medium
-    }
-    return request.price || 0
-  }
-
-  const additionalCost = request.price || calculatedPrice || calculateAdditionalCost()
+  const additionalCost = calculatedPrice !== null ? calculatedPrice : request.price || 0
 
   // Format the extension requested
   const formattedExtensionRequested = request.extensionDetails
@@ -928,6 +988,87 @@ export default function EnhancedRequestDialog({
                   />
                 </CardContent>
               </Card>
+
+              {/* Add audio volume controls and merge button if audio is selected */}
+              {selectedAudioUrl && (
+                <Card className="border-purple-200 dark:border-purple-800">
+                  <CardHeader className="bg-purple-50 dark:bg-purple-950/20 pb-2">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Music className="h-5 w-5 text-purple-600" />
+                      Audio Settings
+                    </CardTitle>
+                    <CardDescription>Adjust audio levels and merge with video</CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-4 space-y-4">
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <div className="flex justify-between">
+                            <Label className="text-xs">Original Audio</Label>
+                            <span className="text-xs">{Math.round(originalVolume * 100)}%</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="0"
+                            max="1"
+                            step="0.01"
+                            value={originalVolume}
+                            onChange={handleOriginalVolumeChange}
+                            className="w-full"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex justify-between">
+                            <Label className="text-xs">Background Music</Label>
+                            <span className="text-xs">{Math.round(backgroundVolume * 100)}%</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="0"
+                            max="1"
+                            step="0.01"
+                            value={backgroundVolume}
+                            onChange={handleBackgroundVolumeChange}
+                            className="w-full"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <Label className="text-sm font-medium">Save with Selected Audio</Label>
+                        {!audioMerged ? (
+                          <Button size="sm" onClick={handleAudioMerge}>
+                            <Save className="h-4 w-4 mr-1" /> Save with Audio
+                          </Button>
+                        ) : (
+                          <div className="flex items-center text-green-600 dark:text-green-400">
+                            <CheckCircle className="h-4 w-4 mr-1" />
+                            <span className="text-sm font-medium">Audio Merged</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {!audioMerged && (
+                        <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-md p-3">
+                          <p className="text-sm text-amber-700 dark:text-amber-400">
+                            Click "Save with Audio" to merge the audio with the video. This will replace the original
+                            audio and will be sent to the pet owner.
+                          </p>
+                        </div>
+                      )}
+
+                      {audioMerged && (
+                        <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-md p-3">
+                          <p className="text-sm text-green-700 dark:text-green-400">
+                            Audio has been successfully merged with the video. This version will be sent to the pet
+                            owner.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           )}
 
@@ -960,8 +1101,7 @@ export default function EnhancedRequestDialog({
                     <div className="flex justify-between items-center">
                       <Label className="text-sm font-medium">Total Price:</Label>
                       <span className="text-base font-medium text-green-600 dark:text-green-400 flex items-center">
-                        <DollarSign className="h-4 w-4 mr-1" />
-                        {formatCurrency(calculatedPrice || request.price || 0)}
+                        {formatCurrency(calculatedPrice || 0)}
                       </span>
                     </div>
                   </div>
@@ -1033,9 +1173,19 @@ export default function EnhancedRequestDialog({
                                 <Calendar
                                   mode="single"
                                   selected={date}
-                                  onSelect={setDate}
+                                  onSelect={(newDate) => {
+                                    setDate(newDate)
+                                    setExtensionDate(newDate)
+                                  }}
                                   initialFocus
-                                  disabled={(date) => date < new Date()}
+                                  disabled={(date) => {
+                                    // Disable dates before current end date
+                                    if (request.currentEndDate) {
+                                      const currentEndDate = parseISO(request.currentEndDate)
+                                      return isBefore(date, currentEndDate)
+                                    }
+                                    return false
+                                  }}
                                 />
                               </PopoverContent>
                             </Popover>
@@ -1047,7 +1197,6 @@ export default function EnhancedRequestDialog({
                     <div className="space-y-1">
                       <Label className="text-sm font-medium">Additional Cost:</Label>
                       <div className="text-base font-medium text-green-600 dark:text-green-400 flex items-center">
-                        <DollarSign className="h-4 w-4 mr-1" />
                         {formatCurrency(additionalCost)}
                       </div>
                     </div>
@@ -1298,8 +1447,6 @@ export default function EnhancedRequestDialog({
                           </div>
                         )}
                       </div>
-
-
                     </div>
                   )}
 
@@ -1559,5 +1706,3 @@ export default function EnhancedRequestDialog({
     </Dialog>
   )
 }
-
-

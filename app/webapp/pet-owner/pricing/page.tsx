@@ -8,26 +8,50 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Scissors, Clock, Calendar, Info, ArrowLeft } from "lucide-react"
 import Link from "next/link"
-import { getPricingData, petSizes } from "@/app/webapp/data/sample-data"
-import { JSX } from "react/jsx-runtime"
+import { petSizes } from "@/app/webapp/data/sample-data"
+import { PRICING } from "@/app/webapp/admin/request-management/data/pricing-data"
+
 // Add these interfaces at the top of the file, before the component
 
 interface PricingData {
-  boarding: {
-    dog: Record<string, number>
-    cat: Record<string, number>
-    dayCare: Record<string, number>
-  }
   grooming: {
-    basic: Record<string, number>
-    full: Record<string, number>
+    [key: string]: {
+      Small: number
+      Medium: number
+      Large: number
+      XLarge: number
+    }
+  }
+  boarding: {
+    hourly: {
+      Small: number
+      Medium: number
+      Large: number
+      XLarge: number
+    }
+    daily: {
+      Small: number
+      Medium: number
+      Large: number
+      XLarge: number
+    }
+  }
+  catHotel: {
+    standard: {
+      Kitten: number
+      Adult: number
+    }
+    extraGuest: {
+      SmallToMedium: number
+      Large: number
+    }
   }
 }
 
 export default function PricingPage() {
   // Update the useState declaration with proper type
   const [activeTab, setActiveTab] = useState<"boarding" | "grooming">("boarding")
-  const pricing: PricingData = getPricingData() as PricingData
+  const pricing = PRICING
 
   return (
     <div className="space-y-6 pb-20">
@@ -93,7 +117,7 @@ export default function PricingPage() {
                   <div className="flex items-start gap-2">
                     <Info className="h-5 w-5 text-blue-500 dark:text-blue-400 flex-shrink-0 mt-0.5" />
                     <div>
-                      <h4 className="text-sm font-medium text-blue-700 dark:text-blue-300">Package Details</h4>
+                      <h4 className="text-sm font-medium text-blue-700 dark:text-blue-300">Service Details</h4>
                       <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
                         <strong>Standard:</strong> Includes comfortable accommodation, regular feeding, and daily walks.
                       </p>
@@ -235,38 +259,49 @@ export default function PricingPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
-                  {Object.entries(petSizes).map(([size, description], index) => (
-                    <div key={size} className="space-y-3">
-                      <div className="flex justify-between items-center">
-                        <h3 className="font-medium text-foreground dark:text-foreground capitalize">{size}</h3>
-                        <Badge className="bg-blue-600 text-white">{description}</Badge>
-                      </div>
-                      <div className="grid gap-2">
-                        <div className="p-3 bg-muted/30 dark:bg-muted/10 rounded-md">
-                          <div className="flex justify-between items-center">
-                            <div>
-                              <span className="font-medium text-foreground dark:text-foreground">Basic Grooming</span>
-                              <p className="text-xs text-muted-foreground">Bath, Blow Dry, Brush</p>
+                  {Object.entries(petSizes).map(([size, description], index) => {
+                    // Safely get prices with fallbacks
+                    const basicWashPrice =
+                      PRICING.grooming["basic-wash"]?.[size as keyof typeof petSizes] || 180 + index * 40
+
+                    const premiumWashAndCutPrice =
+                      PRICING.grooming["premium-wash-and-cut"]?.[size as keyof typeof petSizes] || 450 + index * 50
+
+                    return (
+                      <div key={size} className="space-y-3">
+                        <div className="flex justify-between items-center">
+                          <h3 className="font-medium text-foreground dark:text-foreground capitalize">{size}</h3>
+                          <Badge className="bg-blue-600 text-white">{description}</Badge>
+                        </div>
+                        <div className="grid gap-2">
+                          <div className="p-3 bg-muted/30 dark:bg-muted/10 rounded-md">
+                            <div className="flex justify-between items-center">
+                              <div>
+                                <span className="font-medium text-foreground dark:text-foreground">Basic Wash</span>
+                                <p className="text-xs text-muted-foreground">Bath, Blow Dry, Brush</p>
+                              </div>
+                              <span className="font-medium text-green-600 dark:text-green-400">
+                                ₱{basicWashPrice.toLocaleString()}
+                              </span>
                             </div>
-                            <span className="font-medium text-green-600 dark:text-green-400">
-                              ₱{(300 + index * 100).toLocaleString()}
-                            </span>
+                          </div>
+                          <div className="p-3 bg-muted/30 dark:bg-muted/10 rounded-md">
+                            <div className="flex justify-between items-center">
+                              <div>
+                                <span className="font-medium text-foreground dark:text-foreground">
+                                  Premium Wash & Cut
+                                </span>
+                                <p className="text-xs text-muted-foreground">Full Service Grooming</p>
+                              </div>
+                              <span className="font-medium text-green-600 dark:text-green-400">
+                                ₱{premiumWashAndCutPrice.toLocaleString()}
+                              </span>
+                            </div>
                           </div>
                         </div>
-                        <div className="p-3 bg-muted/30 dark:bg-muted/10 rounded-md">
-                          <div className="flex justify-between items-center">
-                            <div>
-                              <span className="font-medium text-foreground dark:text-foreground">Full Grooming</span>
-                              <p className="text-xs text-muted-foreground">Basic + Cut, Style, Nail Trim</p>
-                            </div>
-                            <span className="font-medium text-green-600 dark:text-green-400">
-                              ₱{(500 + index * 150).toLocaleString()}
-                            </span>
-                          </div>
-                        </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </CardContent>
             </Card>
@@ -282,4 +317,3 @@ export default function PricingPage() {
     </div>
   )
 }
-
