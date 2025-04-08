@@ -316,6 +316,8 @@ export default function RequestDetailPage(): JSX.Element {
   return (
     <div className="space-y-6">
       <div className="flex items-center mb-6">
+        {/* Ensure the back button functionality works correctly
+        Find the back button link and ensure it uses the fromTab parameter */}
         <Button variant="ghost" size="icon" asChild className="mr-4">
           <Link
             href={

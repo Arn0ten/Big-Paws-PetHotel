@@ -303,6 +303,60 @@ export const requests: Request[] = [
       },
     ],
   },
+  // Add in-progress samples
+  {
+    id: "req-in-prog-001",
+    type: "grooming",
+    petName: "Bella",
+    petId: "pet-2",
+    status: "in-progress",
+    title: "Bella - Grooming Service",
+    createdAt: "2025-03-15T14:15:00Z",
+    updatedAt: "2025-03-15T15:30:00Z",
+    description: "Please give Bella a bath and trim her nails.",
+    groomingService: "basic-wash",
+    conversation: [
+      {
+        id: "msg-001",
+        sender: "owner",
+        timestamp: "2025-03-15T14:15:00Z",
+        content: "Please give Bella a bath and trim her nails.",
+      },
+      {
+        id: "msg-002",
+        sender: "admin",
+        timestamp: "2025-03-15T15:30:00Z",
+        content:
+          "We've started the grooming process for Bella. We'll update you once it's completed.",
+      },
+    ],
+  },
+  {
+    id: "req-in-prog-002",
+    type: "photo",
+    petName: "Max",
+    petId: "pet-1",
+    status: "in-progress",
+    title: "Max - Photo Update",
+    createdAt: "2025-03-16T09:45:00Z",
+    updatedAt: "2025-03-16T10:20:00Z",
+    description: "Would love to see some photos of Max playing outside.",
+    conversation: [
+      {
+        id: "msg-001",
+        sender: "owner",
+        timestamp: "2025-03-16T09:45:00Z",
+        content: "Would love to see some photos of Max playing outside.",
+      },
+      {
+        id: "msg-002",
+        sender: "admin",
+        timestamp: "2025-03-16T10:20:00Z",
+        content:
+          "We'll take some photos of Max during his outdoor playtime today. Stay tuned!",
+      },
+    ],
+  },
 ];
 
 /**
@@ -376,6 +430,27 @@ export const petOwnerRequests = [
     updatedAt: "2025-03-07T10:30:00Z",
     rejectionReason:
       "We're unable to fulfill this request as Max prefers to play alone and gets anxious around other dogs.",
+  },
+  // Add in-progress samples to petOwnerRequests
+  {
+    id: "req-in-prog-001",
+    title: "Bella - Grooming Service",
+    type: "grooming",
+    petName: "Bella",
+    petId: "pet-2",
+    status: "in-progress",
+    createdAt: "2025-03-15T14:15:00Z",
+    updatedAt: "2025-03-15T15:30:00Z",
+  },
+  {
+    id: "req-in-prog-002",
+    title: "Max - Photo Update",
+    type: "photo",
+    petName: "Max",
+    petId: "pet-1",
+    status: "in-progress",
+    createdAt: "2025-03-16T09:45:00Z",
+    updatedAt: "2025-03-16T10:20:00Z",
   },
 ];
 
@@ -590,7 +665,7 @@ export const mediaItems: MediaItem[] = [
     requestType: "video",
     description: "Rocky playing in the yard",
     mediaUrls: [
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/481817843_9277714875675610_7115125575926345799_n-lCz1vZTDTYlcmAGIgVjrqw52ElqlYm.mp4",
+      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/481817843_9277714875675610_7115125575926345799_n-lCz1vZTDTYlcmAGIgVjrqw52public.blob.vercel-storage.com/481817843_9277714875675610_7115125575926345799_n-lCz1vZTDTYlcmAGIgVjrqw52ElqlYm.mp4",
     ],
   },
   {

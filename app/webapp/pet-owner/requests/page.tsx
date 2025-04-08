@@ -48,6 +48,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { useToast } from "@/hooks/use-toast"
+import { JSX } from "react/jsx-runtime"
 
 // Add these interfaces at the top of the file, before the component
 
@@ -153,33 +154,8 @@ export default function PetOwnerRequestsPage() {
         await new Promise((resolve) => setTimeout(resolve, 500)) // Simulate network delay
         const data = getPetOwnerRequests()
 
-        // Add some sample in-progress requests with valid IDs and data
-        const inProgressSamples = [
-          {
-            id: "req-in-prog-001",
-            type: "grooming",
-            petName: "Bella",
-            status: "in-progress",
-            title: "Bella - Grooming Service",
-            createdAt: "2025-03-15T14:15:00Z",
-            updatedAt: "2025-03-15T15:30:00Z",
-            description: "Please give Bella a bath and trim her nails.",
-            groomingService: "premium-wash-and-cut",
-          },
-          {
-            id: "req-in-prog-002",
-            type: "photo",
-            petName: "Max",
-            status: "in-progress",
-            title: "Max - Photo Update",
-            createdAt: "2025-03-16T09:45:00Z",
-            updatedAt: "2025-03-16T10:20:00Z",
-            description: "Would love to see some photos of Max playing outside.",
-          },
-        ]
-
-        // Combine with existing data
-        setRequests([...data, ...inProgressSamples])
+        // Set the requests directly from the sample data
+        setRequests(data)
       } catch (error) {
         console.error("Error fetching requests:", error)
         setError("Failed to load your requests. Please try again later.")
