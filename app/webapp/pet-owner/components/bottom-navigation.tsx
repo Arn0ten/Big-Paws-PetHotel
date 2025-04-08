@@ -2,9 +2,12 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, FileText, Bell, User, Image } from "lucide-react"
+import { Home, FileText, Bell, User, ImageIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { getUnreadNotificationsCount } from "@/app/webapp/data/sample-data"
+// BACKEND: Replace this with an API call to get the actual unread count
+// Example: const [unreadCount, setUnreadCount] = useState(0)
+//          useEffect(() => { fetch('/api/notifications/unread/count').then(res => res.json()).then(data => setUnreadCount(data.count)) }, [])
 
 export default function BottomNavigation() {
   const pathname = usePathname()
@@ -25,13 +28,21 @@ export default function BottomNavigation() {
     {
       name: "Media",
       href: "/webapp/pet-owner/media-archive",
-      icon: Image,
+      icon: ImageIcon,
     },
     {
       name: "Notifications",
       href: "/webapp/pet-owner/notifications",
       icon: Bell,
       badge: unreadCount > 0 ? unreadCount : null,
+      // BACKEND IMPLEMENTATION:
+      // 1. The unreadCount should be fetched from the API when the component mounts
+      // 2. Create an endpoint like GET /api/notifications/unread/count that returns the count
+      // 3. Implement real-time updates using WebSockets or polling to update the badge
+      // 4. When a notification is marked as read, decrement the count
+      // 5. Store the read/unread status in the database for each notification
+      // 6. Add a markAsRead endpoint: POST /api/notifications/:id/read
+      // 7. Add a markAllAsRead endpoint: POST /api/notifications/read-all
       badgeColor: "bg-emerald-500 text-white",
     },
     {
@@ -79,4 +90,3 @@ export default function BottomNavigation() {
     </div>
   )
 }
-

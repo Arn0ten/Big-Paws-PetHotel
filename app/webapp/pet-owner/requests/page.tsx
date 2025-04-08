@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -109,6 +109,10 @@ export default function PetOwnerRequestsPage() {
 
   const router = useRouter()
 
+  // Add this after the useState declarations
+  const searchParams = useSearchParams()
+  const urlTab = searchParams.get("activeTab")
+
   // Add this CSS class to hide scrollbars
   useEffect(() => {
     // Add CSS to hide scrollbars but keep functionality
@@ -148,7 +152,34 @@ export default function PetOwnerRequestsPage() {
         // For demo, we'll use the sample data
         await new Promise((resolve) => setTimeout(resolve, 500)) // Simulate network delay
         const data = getPetOwnerRequests()
-        setRequests(data)
+
+        // Add some sample in-progress requests with valid IDs and data
+        const inProgressSamples = [
+          {
+            id: "req-in-prog-001",
+            type: "grooming",
+            petName: "Bella",
+            status: "in-progress",
+            title: "Bella - Grooming Service",
+            createdAt: "2025-03-15T14:15:00Z",
+            updatedAt: "2025-03-15T15:30:00Z",
+            description: "Please give Bella a bath and trim her nails.",
+            groomingService: "premium-wash-and-cut",
+          },
+          {
+            id: "req-in-prog-002",
+            type: "photo",
+            petName: "Max",
+            status: "in-progress",
+            title: "Max - Photo Update",
+            createdAt: "2025-03-16T09:45:00Z",
+            updatedAt: "2025-03-16T10:20:00Z",
+            description: "Would love to see some photos of Max playing outside.",
+          },
+        ]
+
+        // Combine with existing data
+        setRequests([...data, ...inProgressSamples])
       } catch (error) {
         console.error("Error fetching requests:", error)
         setError("Failed to load your requests. Please try again later.")
@@ -157,8 +188,13 @@ export default function PetOwnerRequestsPage() {
       }
     }
 
+    // Set active tab from URL parameter if available
+    if (urlTab && ["pending", "in-progress", "completed", "rejected"].includes(urlTab)) {
+      setActiveTab(urlTab)
+    }
+
     fetchRequests()
-  }, [filterType, searchQuery, sortOrder])
+  }, [filterType, searchQuery, sortOrder, urlTab])
 
   // Handle "New Request" button click with error handling
   const handleNewRequest = () => {
@@ -173,7 +209,7 @@ export default function PetOwnerRequestsPage() {
   }
 
   // Get request type icon
-  const getRequestTypeIcon = (type) => {
+  const getRequestTypeIcon = (type: string) => {
     switch (type) {
       case "photo":
         return <Camera className="h-4 w-4" />
@@ -189,7 +225,7 @@ export default function PetOwnerRequestsPage() {
   }
 
   // Get status badge
-  const getStatusBadge = (status) => {
+  const getStatusBadge = (status: string) => {
     switch (status) {
       case "pending":
       case "new":
@@ -327,7 +363,7 @@ export default function PetOwnerRequestsPage() {
           >
             <Card className="overflow-hidden">
               <CardContent className="p-0">
-                <Link href={`/webapp/pet-owner/requests/${request.id}`} passHref>
+                <Link href={`/webapp/pet-owner/requests/${request.id}?from=requests&tab=${status}`} passHref>
                   <div className="p-6 hover:bg-muted/50 transition-colors cursor-pointer">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-2">
                       <div className="flex items-center gap-2">
@@ -428,172 +464,187 @@ export default function PetOwnerRequestsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground dark:text-foreground">Service Requests</h1>
-          <p className="text-base text-muted-foreground dark:text-muted-foreground/90">
-            View and manage your service requests
-          </p>
-        </div>
+    <div>
+      <div className="space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-foreground dark:text-foreground">Service Requests</h1>
+            <p className="text-base text-muted-foreground dark:text-muted-foreground/90">
+              View and manage your service requests
+            </p>
+          </div>
 
-        <Button onClick={handleNewRequest} className="bg-primary hover:bg-primary/90 text-primary-foreground">
-          <Plus className="h-4 w-4 mr-2" />
-          New Request
-        </Button>
-      </div>
-
-      {error && (
-        <Alert variant="destructive" className="my-4">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
-
-      {/* Enhanced Search and Filter Bar */}
-      <div className="flex flex-row flex-wrap gap-3 items-center mb-6">
-        <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search by pet name, title, or description..."
-            className="pl-9 h-10"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          {searchQuery && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="absolute right-1 top-1/2 -translate-y-1/2 h-7 px-2 text-xs font-medium"
-              onClick={() => {
-                setSearchQuery("")
-              }}
-              aria-label="Clear search"
-            >
-              Clear
-            </Button>
-          )}
-        </div>
-
-        <div className="w-auto min-w-[140px]">
-          <Select value={filterType} onValueChange={setFilterType}>
-            <SelectTrigger className="h-10">
-              <div className="flex items-center gap-1.5 text-sm">
-                <Filter className="h-3.5 w-3.5" />
-                <span className="truncate">
-                  {filterType === "all"
-                    ? "All Types"
-                    : filterType === "photo"
-                      ? "Photos"
-                      : filterType === "video"
-                        ? "Videos"
-                        : filterType === "grooming"
-                          ? "Grooming"
-                          : filterType === "boarding-extension"
-                            ? "Extensions"
-                            : filterType === "custom"
-                              ? "Custom"
-                              : "Filter"}
-                </span>
-              </div>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              <SelectItem value="photo">Photo Updates</SelectItem>
-              <SelectItem value="video">Video Requests</SelectItem>
-              <SelectItem value="grooming">Grooming</SelectItem>
-              <SelectItem value="boarding-extension">Boarding Extensions</SelectItem>
-              <SelectItem value="custom">Custom Requests</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="w-auto">
+          {/* Desktop New Request button */}
           <Button
-            variant="outline"
-            className="flex items-center gap-1.5 h-10 px-3"
-            onClick={toggleSortOrder}
-            title={sortOrder === "desc" ? "Newest first" : "Oldest first"}
+            onClick={handleNewRequest}
+            className="bg-primary hover:bg-primary/90 text-primary-foreground hidden md:inline-flex"
           >
-            <Calendar className="h-3.5 w-3.5" />
-            <ArrowUpDown className="h-3 w-3" />
-            <span className="hidden sm:inline-block sm:ml-1 text-xs">{sortOrder === "desc" ? "Newest" : "Oldest"}</span>
+            <Plus className="h-4 w-4 mr-2" />
+            New Request
+          </Button>
+
+          {/* Mobile floating New Request button */}
+          <Button
+            onClick={handleNewRequest}
+            className="bg-primary hover:bg-primary/90 text-primary-foreground md:hidden fixed bottom-20 right-6 shadow-lg rounded-full w-14 h-14 p-0 z-20"
+          >
+            <Plus className="h-6 w-6" />
           </Button>
         </div>
-      </div>
 
-      {/* Cancellation Policy Note */}
-      <Alert className="bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800 mb-4">
-        <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-        <AlertTitle className="text-blue-800 dark:text-blue-300">Request Cancellation Policy</AlertTitle>
-        <AlertDescription className="text-blue-700 dark:text-blue-400">
-          You can cancel requests that are in <Badge className="bg-yellow-600 text-white font-normal">Pending</Badge>{" "}
-          status. Once a request is <Badge className="bg-green-600 text-white font-normal">In Progress</Badge>, it
-          cannot be cancelled.
-        </AlertDescription>
-      </Alert>
+        {error && (
+          <Alert variant="destructive" className="my-4">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
 
-      <Tabs defaultValue="pending" className="w-full" onValueChange={setActiveTab}>
-        <TabsList className="flex w-full overflow-x-auto scrollbar-hide mb-4">
-          <TabsTrigger className="flex-grow sm:flex-grow-0" value="pending">
-            Pending
-          </TabsTrigger>
-          <TabsTrigger className="flex-grow sm:flex-grow-0" value="in-progress">
-            In Progress
-          </TabsTrigger>
-          <TabsTrigger className="flex-grow sm:flex-grow-0" value="completed">
-            Completed
-          </TabsTrigger>
-          <TabsTrigger className="flex-grow sm:flex-grow-0" value="rejected">
-            Rejected
-          </TabsTrigger>
-        </TabsList>
+        {/* Cancellation Policy Note */}
+        <Alert className="bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800 mb-4">
+          <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+          <AlertTitle className="text-blue-800 dark:text-blue-300">Request Cancellation Policy</AlertTitle>
+          <AlertDescription className="text-blue-700 dark:text-blue-400">
+            You can cancel requests that are in <Badge className="bg-yellow-600 text-white font-normal">Pending</Badge>{" "}
+            status. Once a request is <Badge className="bg-green-600 text-white font-normal">In Progress</Badge>, it
+            cannot be cancelled.
+          </AlertDescription>
+        </Alert>
 
-        {/* Individual TabsContent for each status */}
-        <TabsContent value="pending" className="mt-0">
-          {renderRequestsList("pending")}
-        </TabsContent>
+        {/* Enhanced Search and Filter Bar */}
+        <div className="flex flex-row flex-wrap gap-3 items-center mb-6">
+          <div className="relative flex-1 min-w-[200px]">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by pet name, title, or description..."
+              className="pl-9 h-10"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            {searchQuery && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="absolute right-1 top-1/2 -translate-y-1/2 h-7 px-2 text-xs font-medium"
+                onClick={() => {
+                  setSearchQuery("")
+                }}
+                aria-label="Clear search"
+              >
+                Clear
+              </Button>
+            )}
+          </div>
 
-        <TabsContent value="in-progress" className="mt-0">
-          {renderRequestsList("in-progress")}
-        </TabsContent>
+          <div className="w-auto min-w-[140px]">
+            <Select value={filterType} onValueChange={setFilterType}>
+              <SelectTrigger className="h-10">
+                <div className="flex items-center gap-1.5 text-sm">
+                  <Filter className="h-3.5 w-3.5" />
+                  <span className="truncate">
+                    {filterType === "all"
+                      ? "All Types"
+                      : filterType === "photo"
+                        ? "Photos"
+                        : filterType === "video"
+                          ? "Videos"
+                          : filterType === "grooming"
+                            ? "Grooming"
+                            : filterType === "boarding-extension"
+                              ? "Extensions"
+                              : filterType === "custom"
+                                ? "Custom"
+                                : "Filter"}
+                  </span>
+                </div>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="photo">Photo Updates</SelectItem>
+                <SelectItem value="video">Video Requests</SelectItem>
+                <SelectItem value="grooming">Grooming</SelectItem>
+                <SelectItem value="boarding-extension">Boarding Extensions</SelectItem>
+                <SelectItem value="custom">Custom Requests</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-        <TabsContent value="completed" className="mt-0">
-          {renderRequestsList("completed")}
-        </TabsContent>
-
-        <TabsContent value="rejected" className="mt-0">
-          {renderRequestsList("rejected")}
-        </TabsContent>
-      </Tabs>
-
-      <AlertDialog open={showCancelConfirm} onOpenChange={setShowCancelConfirm}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Cancel Request</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to cancel this request? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>No, Keep Request</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleCancelRequest}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              disabled={isCancelling}
+          <div className="w-auto">
+            <Button
+              variant="outline"
+              className="flex items-center gap-1.5 h-10 px-3"
+              onClick={toggleSortOrder}
+              title={sortOrder === "desc" ? "Newest first" : "Oldest first"}
             >
-              {isCancelling ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Cancelling...
-                </>
-              ) : (
-                "Yes, Cancel Request"
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+              <Calendar className="h-3.5 w-3.5" />
+              <ArrowUpDown className="h-3 w-3" />
+              <span className="hidden sm:inline-block sm:ml-1 text-xs">
+                {sortOrder === "desc" ? "Newest" : "Oldest"}
+              </span>
+            </Button>
+          </div>
+        </div>
+
+        <Tabs defaultValue="pending" className="w-full" onValueChange={setActiveTab}>
+          <TabsList className="flex w-full overflow-x-auto scrollbar-hide mb-4">
+            <TabsTrigger className="flex-grow sm:flex-grow-0" value="pending">
+              Pending
+            </TabsTrigger>
+            <TabsTrigger className="flex-grow sm:flex-grow-0" value="in-progress">
+              In Progress
+            </TabsTrigger>
+            <TabsTrigger className="flex-grow sm:flex-grow-0" value="completed">
+              Completed
+            </TabsTrigger>
+            <TabsTrigger className="flex-grow sm:flex-grow-0" value="rejected">
+              Rejected
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Individual TabsContent for each status */}
+          <TabsContent value="pending" className="mt-0">
+            {renderRequestsList("pending")}
+          </TabsContent>
+
+          <TabsContent value="in-progress" className="mt-0">
+            {renderRequestsList("in-progress")}
+          </TabsContent>
+
+          <TabsContent value="completed" className="mt-0">
+            {renderRequestsList("completed")}
+          </TabsContent>
+
+          <TabsContent value="rejected" className="mt-0">
+            {renderRequestsList("rejected")}
+          </TabsContent>
+        </Tabs>
+
+        <AlertDialog open={showCancelConfirm} onOpenChange={setShowCancelConfirm}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Cancel Request</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to cancel this request? This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>No, Keep Request</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleCancelRequest}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                disabled={isCancelling}
+              >
+                {isCancelling ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Cancelling...
+                  </>
+                ) : (
+                  "Yes, Cancel Request"
+                )}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
     </div>
   )
 }
-

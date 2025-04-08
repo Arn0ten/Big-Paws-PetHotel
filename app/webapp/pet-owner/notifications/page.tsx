@@ -1,16 +1,16 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useRef } from "react"
-import { motion } from "framer-motion"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Input } from "@/components/ui/input"
-import { Bell, Search, CheckCircle, Loader2 } from "lucide-react"
-import { notifications } from "@/app/webapp/data/sample-data"
-import { useRouter } from "next/navigation"
-import { Trash2 } from "lucide-react"
+import { useState, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Bell, Search, CheckCircle, Loader2 } from "lucide-react";
+import { notifications } from "@/app/webapp/data/sample-data";
+import { useRouter } from "next/navigation";
+import { Trash2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,47 +20,46 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { toast } from "@/components/ui/use-toast"
-import { JSX } from "react/jsx-runtime"
+} from "@/components/ui/alert-dialog";
+import { toast } from "@/components/ui/use-toast";
 
 // Add these interfaces at the top of the file, before the component
 
 interface Notification {
-  id: string
-  title: string
-  message: string
-  timestamp: string
-  isRead: boolean
-  type: string
-  requestId?: string
+  id: string;
+  title: string;
+  message: string;
+  timestamp: string;
+  isRead: boolean;
+  type: string;
+  requestId?: string;
 }
 
 // Local utility function to format dates
 const formatDate = (dateString: string): string => {
-  const date = new Date(dateString)
+  const date = new Date(dateString);
 
   // Check if date is today
-  const today = new Date()
+  const today = new Date();
   const isToday =
     date.getDate() === today.getDate() &&
     date.getMonth() === today.getMonth() &&
-    date.getFullYear() === today.getFullYear()
+    date.getFullYear() === today.getFullYear();
 
   if (isToday) {
-    return `Today at ${date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
+    return `Today at ${date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
   }
 
   // Check if date is yesterday
-  const yesterday = new Date(today)
-  yesterday.setDate(yesterday.getDate() - 1)
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
   const isYesterday =
     date.getDate() === yesterday.getDate() &&
     date.getMonth() === yesterday.getMonth() &&
-    date.getFullYear() === yesterday.getFullYear()
+    date.getFullYear() === yesterday.getFullYear();
 
   if (isYesterday) {
-    return `Yesterday at ${date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
+    return `Yesterday at ${date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
   }
 
   // Otherwise, return full date
@@ -70,23 +69,30 @@ const formatDate = (dateString: string): string => {
     day: "numeric",
     hour: "2-digit",
     minute: "2-digit",
-  })
-}
+  });
+};
 
 export default function NotificationsPage() {
   // Update the useState declarations with proper types
-  const [activeTab, setActiveTab] = useState<string>("all")
-  const [searchQuery, setSearchQuery] = useState<string>("")
-  const [notificationsList, setNotificationsList] = useState<Notification[]>([])
-  const [isLoading, setIsLoading] = useState<boolean>(true)
-  const [deletedNotificationIds, setDeletedNotificationIds] = useState<string[]>([])
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState<boolean>(false)
-  const [notificationToDelete, setNotificationToDelete] = useState<string | null>(null)
-  const [showDeleteAllReadConfirm, setShowDeleteAllReadConfirm] = useState<boolean>(false)
-  const [isSearching, setIsSearching] = useState<boolean>(false)
-  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const [activeTab, setActiveTab] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [notificationsList, setNotificationsList] = useState<Notification[]>(
+    [],
+  );
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [deletedNotificationIds, setDeletedNotificationIds] = useState<
+    string[]
+  >([]);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<boolean>(false);
+  const [notificationToDelete, setNotificationToDelete] = useState<
+    string | null
+  >(null);
+  const [showDeleteAllReadConfirm, setShowDeleteAllReadConfirm] =
+    useState<boolean>(false);
+  const [isSearching, setIsSearching] = useState<boolean>(false);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const router = useRouter()
+  const router = useRouter();
 
   // Fetch notifications on component mount
   useEffect(() => {
@@ -105,24 +111,24 @@ export default function NotificationsPage() {
 
     // For demo, use the sample data
     const fetchNotifications = () => {
-      setIsLoading(true)
+      setIsLoading(true);
       // Simulate API delay
       setTimeout(() => {
-        setNotificationsList(notifications)
-        setIsLoading(false)
-      }, 500)
-    }
+        setNotificationsList(notifications);
+        setIsLoading(false);
+      }, 500);
+    };
 
-    fetchNotifications()
-  }, [])
+    fetchNotifications();
+  }, []);
 
   useEffect(() => {
     return () => {
       if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current)
+        clearTimeout(searchTimeoutRef.current);
       }
-    }
-  }, [])
+    };
+  }, []);
 
   // Mark all as read
   const markAllAsRead = () => {
@@ -137,94 +143,113 @@ export default function NotificationsPage() {
     // };
 
     // For demo, just update the local state
-    setNotificationsList(notificationsList.map((notif) => ({ ...notif, isRead: true })))
-  }
+    setNotificationsList(
+      notificationsList.map((notif) => ({ ...notif, isRead: true })),
+    );
+  };
 
   // Update the handleNotificationClick function with proper typing
   const handleNotificationClick = (notificationId: string): void => {
     setNotificationsList((prev) =>
-      prev.map((notif) => (notif.id === notificationId ? { ...notif, isRead: true } : notif)),
-    )
-  }
+      prev.map((notif) =>
+        notif.id === notificationId ? { ...notif, isRead: true } : notif,
+      ),
+    );
+  };
 
   // Update the deleteNotification function with proper typing
   const deleteNotification = (notificationId: string): void => {
     // In a real app, this would be an API call
-    setDeletedNotificationIds((prev) => [...prev, notificationId])
-    setNotificationToDelete(null)
+    setDeletedNotificationIds((prev) => [...prev, notificationId]);
+    setNotificationToDelete(null);
 
     toast({
       title: "Notification deleted",
       description: "The notification has been removed.",
       duration: 3000,
-    })
-  }
+    });
+  };
 
   // Delete all read notifications
   const deleteAllReadNotifications = () => {
-    const readNotificationIds = notificationsList.filter((n) => n.isRead).map((n) => n.id)
+    const readNotificationIds = notificationsList
+      .filter((n) => n.isRead)
+      .map((n) => n.id);
 
-    setDeletedNotificationIds((prev) => [...prev, ...readNotificationIds])
-    setShowDeleteAllReadConfirm(false)
+    setDeletedNotificationIds((prev) => [...prev, ...readNotificationIds]);
+    setShowDeleteAllReadConfirm(false);
 
     toast({
       title: "Notifications deleted",
       description: `${readNotificationIds.length} read notifications have been removed.`,
       duration: 3000,
-    })
-  }
+    });
+  };
 
   // Filter out deleted notifications
   const displayedNotifications = notificationsList.filter(
     (notification) => !deletedNotificationIds.includes(notification.id),
-  )
+  );
 
   // Filter notifications based on active tab and search query
-  const filteredNotifications = displayedNotifications.filter((notification) => {
-    // Filter by tab
-    if (activeTab === "unread" && notification.isRead) return false
+  const filteredNotifications = displayedNotifications.filter(
+    (notification) => {
+      // Filter by tab
+      if (activeTab === "unread" && notification.isRead) return false;
 
-    // Filter by search query
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase()
-      if (!notification.title.toLowerCase().includes(query) && !notification.message.toLowerCase().includes(query)) {
-        return false
+      // Filter by search query
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        if (
+          !notification.title.toLowerCase().includes(query) &&
+          !notification.message.toLowerCase().includes(query)
+        ) {
+          return false;
+        }
       }
-    }
 
-    return true
-  })
+      return true;
+    },
+  );
 
   // Sort notifications by timestamp (newest first)
   const sortedNotifications = [...filteredNotifications].sort((a, b) => {
-    return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-  })
+    return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+  });
 
   // Update the getNotificationIcon function with proper typing
   const getNotificationIcon = (type: string): JSX.Element => {
     switch (type) {
       case "request-completed":
-        return <CheckCircle className="h-5 w-5 text-green-500 dark:text-green-400" />
+        return (
+          <CheckCircle className="h-5 w-5 text-green-500 dark:text-green-400" />
+        );
       case "request-in-progress":
-        return <Bell className="h-5 w-5 text-amber-500 dark:text-amber-400" />
+        return <Bell className="h-5 w-5 text-amber-500 dark:text-amber-400" />;
       case "payment-reminder":
-        return <Bell className="h-5 w-5 text-red-500 dark:text-red-400" />
+        return <Bell className="h-5 w-5 text-red-500 dark:text-red-400" />;
       case "request-rejected":
-        return <Bell className="h-5 w-5 text-red-500 dark:text-red-400" />
+        return <Bell className="h-5 w-5 text-red-500 dark:text-red-400" />;
       case "boarding-update":
-        return <Bell className="h-5 w-5 text-blue-500 dark:text-blue-400" />
+        return <Bell className="h-5 w-5 text-blue-500 dark:text-blue-400" />;
       default:
-        return <Bell className="h-5 w-5" />
+        return <Bell className="h-5 w-5" />;
     }
-  }
+  };
 
   return (
     <div className="space-y-6">
-      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5 }}>
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Notifications</h1>
-            <p className="text-muted-foreground">Stay updated on your pet's care</p>
+            <p className="text-muted-foreground">
+              Stay updated on your pet's care
+            </p>
           </div>
 
           {notificationsList.some((n) => !n.isRead) && (
@@ -252,24 +277,24 @@ export default function NotificationsPage() {
           className="pl-9"
           value={searchQuery}
           onChange={(e) => {
-            const query = e.target.value
-            setSearchQuery(query)
-            setIsSearching(true)
+            const query = e.target.value;
+            setSearchQuery(query);
+            setIsSearching(true);
 
             // Clear any existing timeout
             if (searchTimeoutRef.current) {
-              clearTimeout(searchTimeoutRef.current)
+              clearTimeout(searchTimeoutRef.current);
             }
 
             // Set a new timeout for the search
             searchTimeoutRef.current = setTimeout(() => {
               // Apply search filter
-              setIsLoading(true)
+              setIsLoading(true);
               setTimeout(() => {
-                setIsLoading(false)
-                setIsSearching(false)
-              }, 400)
-            }, 300)
+                setIsLoading(false);
+                setIsSearching(false);
+              }, 400);
+            }, 300);
           }}
         />
         {searchQuery && (
@@ -278,13 +303,13 @@ export default function NotificationsPage() {
             size="sm"
             className="absolute right-1 top-1/2 -translate-y-1/2 h-7 px-2 text-xs font-medium"
             onClick={() => {
-              setSearchQuery("")
-              setIsSearching(false)
+              setSearchQuery("");
+              setIsSearching(false);
               // Simulate clearing search results
-              setIsLoading(true)
+              setIsLoading(true);
               setTimeout(() => {
-                setIsLoading(false)
-              }, 300)
+                setIsLoading(false);
+              }, 300);
             }}
             aria-label="Clear search"
           >
@@ -344,57 +369,72 @@ export default function NotificationsPage() {
             ) : (
               <>
                 {/* Delete all read notifications button */}
-                {activeTab === "all" && displayedNotifications.some((n) => n.isRead) && (
-                  <div className="flex justify-end mb-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setShowDeleteAllReadConfirm(true)}
-                      className="text-xs"
-                    >
-                      <Trash2 className="h-3 w-3 mr-1" />
-                      Delete Read Notifications
-                    </Button>
-                  </div>
-                )}
+                {activeTab === "all" &&
+                  displayedNotifications.some((n) => n.isRead) && (
+                    <div className="flex justify-end mb-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowDeleteAllReadConfirm(true)}
+                        className="text-xs"
+                      >
+                        <Trash2 className="h-3 w-3 mr-1" />
+                        Delete Read Notifications
+                      </Button>
+                    </div>
+                  )}
 
                 {filteredNotifications.map((notification) => (
                   <Card
                     key={notification.id}
                     className={`hover:bg-muted/50 dark:hover:bg-muted/20 transition-colors ${
-                      !notification.isRead ? "border-l-4 border-l-primary dark:border-l-primary" : ""
+                      !notification.isRead
+                        ? "border-l-4 border-l-primary dark:border-l-primary"
+                        : ""
                     }`}
                   >
                     <CardContent className="p-4">
                       <div className="flex items-start gap-3">
-                        <div className="flex-shrink-0 mt-1">{getNotificationIcon(notification.type)}</div>
+                        <div className="flex-shrink-0 mt-1">
+                          {getNotificationIcon(notification.type)}
+                        </div>
 
                         <div className="flex-1">
                           <div className="flex justify-between items-start">
                             <div
                               className="flex-1 cursor-pointer"
                               onClick={() => {
-                                handleNotificationClick(notification.id)
+                                handleNotificationClick(notification.id);
                                 if (notification.requestId) {
-                                  router.push(`/webapp/pet-owner/requests/${notification.requestId}`)
+                                  router.push(
+                                    `/webapp/pet-owner/requests/${notification.requestId}?from=notifications`,
+                                  );
                                 } else {
-                                  router.push(`/webapp/pet-owner/notifications/${notification.id}`)
+                                  router.push(
+                                    `/webapp/pet-owner/notifications/${notification.id}`,
+                                  );
                                 }
                               }}
                             >
-                              <h3 className="font-medium">{notification.title}</h3>
+                              <h3 className="font-medium">
+                                {notification.title}
+                              </h3>
                             </div>
                             <div className="flex items-center gap-2">
                               {/* Updated badge styling for consistency */}
-                              {!notification.isRead && <Badge className="bg-blue-600 text-white">New</Badge>}
+                              {!notification.isRead && (
+                                <Badge className="bg-blue-600 text-white">
+                                  New
+                                </Badge>
+                              )}
                               <Button
                                 variant="ghost"
                                 size="icon"
                                 className="h-7 w-7 text-muted-foreground hover:text-destructive"
                                 onClick={(e) => {
-                                  e.stopPropagation()
-                                  setNotificationToDelete(notification.id)
-                                  setShowDeleteConfirm(true)
+                                  e.stopPropagation();
+                                  setNotificationToDelete(notification.id);
+                                  setShowDeleteConfirm(true);
                                 }}
                               >
                                 <Trash2 className="h-4 w-4" />
@@ -405,16 +445,24 @@ export default function NotificationsPage() {
                           <div
                             className="cursor-pointer"
                             onClick={() => {
-                              handleNotificationClick(notification.id)
+                              handleNotificationClick(notification.id);
                               if (notification.requestId) {
-                                router.push(`/webapp/pet-owner/requests/${notification.requestId}`)
+                                router.push(
+                                  `/webapp/pet-owner/requests/${notification.requestId}?from=notifications`,
+                                );
                               } else {
-                                router.push(`/webapp/pet-owner/notifications/${notification.id}`)
+                                router.push(
+                                  `/webapp/pet-owner/notifications/${notification.id}`,
+                                );
                               }
                             }}
                           >
-                            <p className="text-sm mt-1">{notification.message}</p>
-                            <p className="text-xs text-muted-foreground mt-2">{formatDate(notification.timestamp)}</p>
+                            <p className="text-sm mt-1">
+                              {notification.message}
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-2">
+                              {formatDate(notification.timestamp)}
+                            </p>
                           </div>
                         </div>
                       </div>
@@ -433,13 +481,16 @@ export default function NotificationsPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Notification</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this notification? This action cannot be undone.
+              Are you sure you want to delete this notification? This action
+              cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => notificationToDelete && deleteNotification(notificationToDelete)}
+              onClick={() =>
+                notificationToDelete && deleteNotification(notificationToDelete)
+              }
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Delete
@@ -449,12 +500,16 @@ export default function NotificationsPage() {
       </AlertDialog>
 
       {/* Delete All Read Notifications Confirmation Dialog */}
-      <AlertDialog open={showDeleteAllReadConfirm} onOpenChange={setShowDeleteAllReadConfirm}>
+      <AlertDialog
+        open={showDeleteAllReadConfirm}
+        onOpenChange={setShowDeleteAllReadConfirm}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Read Notifications</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete all read notifications? This action cannot be undone.
+              Are you sure you want to delete all read notifications? This
+              action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -469,6 +524,5 @@ export default function NotificationsPage() {
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  )
+  );
 }
-
