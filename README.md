@@ -44,4 +44,4 @@ We utilize **Mailgun** and optionally **Resend** for email services, and **Leafl
 ✅ **APIs** integrated with **Resen**.
 ✅ **Maps** integration with **Leaflet** and **OpenStreetMap**
 
-Folder structure dria ra mag trace if naay pangitaon na directory
+
