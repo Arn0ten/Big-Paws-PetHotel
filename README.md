@@ -42,12 +42,16 @@ We utilize **Mailgun** and optionally **Resend** for email services, and **Leafl
 ✅ Fully **responsive** design for all devices  
 ✅ **Node.js** and **NoSQL MongoDB** for the backend  
 ✅ **APIs** integrated with **Resen**
-✅ **APIs** integrated with **Resen**
 ✅ **Maps** integration with **Leaflet** and **OpenStreetMap**
 
 
 
- # Big Paws Pet Hotel - Backend Integration Guide
+
+
+
+----
+
+ ### Big Paws Pet Hotel - Backend Integration Guide
 
  ## Table of Contents
 
@@ -74,6 +78,11 @@ We utilize **Mailgun** and optionally **Resend** for email services, and **Leafl
  8. [File Storage](#file-storage)
  9. [Security Considerations](#security-considerations)
  10. [Deployment Guidelines](#deployment-guidelines)
+ 11. [Environment Variables](#environment-variables)
+ 12. [Image Handling](#image-handling)
+ 13. [Node.js Executable](#nodejs-executable)
+ 14. [Inline SQL code block](#inline-sql-code-block)
+ 15. [Math](#math)
 
  ## Introduction
 
@@ -1140,16 +1149,160 @@ We utilize **Mailgun** and optionally **Resend** for email services, and **Leafl
     - Database sharding for large datasets
     - CDN for media delivery
 
- ---
+ ## Environment Variables
 
- This guide provides a comprehensive overview of the backend requirements for the Big Paws Pet Hotel application. By following these guidelines, you can implement a robust backend system that integrates seamlessly with the existing frontend components.
+ The following environment variables are used in the project:
 
- For any questions or clarifications, please contact the development team.
+ - `EMAIL_PROVIDER`: Specifies the email provider to use (e.g., `resend`, `postmark`, `mailgun`).
+ - `RESEND_API_KEY`: API key for Resend email service.
+ - `POSTMARK_API_KEY`: API key for Postmark email service.
+ - `MAILGUN_API_KEY`: API key for Mailgun email service.
+ - `MAILGUN_DOMAIN`: Domain for Mailgun email service.
+ - `NEXT_PUBLIC_API_URL`: Base URL for the backend API.
 
- 
+ These variables should be set in your environment configuration (e.g., `.env` file or server environment variables).
+
+ ## Image Handling
+
+ The frontend currently uses placeholder images and blob storage variables).
+
+## Image Handling
+
+The frontend currently uses placeholder images and blob storage via Vercel Blob for development and testing. In a production environment, you should implement a more robust solution for image uploads, storage, and retrieval.
+
+### Recommendations
+
+1.  **Cloud Storage**: Use a cloud storage service like AWS S3, Google Cloud Storage, or Azure Blob Storage.
+2.  **Image Uploads**: Implement direct uploads from the client to the cloud storage service to reduce the load on your backend servers.
+3.  **Image Transformations**: Use a service like Cloudinary or Imgix to handle image resizing, optimization, and format conversion.
+4.  **Thumbnails**: Generate thumbnails for faster loading and display in list views.
+5.  **API Endpoints**: Provide API endpoints for uploading, retrieving, and deleting images.
+
+### API Endpoints
+
+```
+POST /api/upload/avatar
+POST /api/upload/photo
+```
+
+Request body (multipart/form-data):
+
+```
+{
+  file: File,
+  userId?: string,
+  petId?: string,
+  requestId?: string
+}
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "url": "https://your-storage-service.com/path/to/image.jpg"
+}
+```
+
+### Integration Points
+
+-   `app/webapp/admin/pet-owners/components/add-pet-owner-dialog.tsx`: Avatar upload
+-   `app/webapp/admin/pets/views/pet-form-view.tsx`: Pet image upload
+-   `app/webapp/pet-owner/profile/page.tsx`: User avatar upload
+-   `app/webapp/admin/request-management/components/enhanced-request-dialog.tsx`: Media uploads for requests
+
+### Implementation Notes
+
+1.  Validate file types and sizes on both the client and server.
+2.  Generate unique filenames to prevent naming conflicts.
+3.  Securely store access keys and credentials for your cloud storage service.
+4.  Implement proper error handling and logging.
+
+## Node.js Executable
+
+The Node.js Executable block allows users to execute Node.js code directly within the application. This is useful for tasks that do not require a frontend, such as running scripts, demonstrating algorithms, or processing data.
+
+### Implementation
+
+1.  **Code Execution**: Use the `child_process` module in Node.js to execute the user-provided code in a sandboxed environment.
+2.  **Security**: Implement strict security measures to prevent malicious code execution.
+3.  **Output**: Capture the output from the executed code and display it to the user.
+4.  **Dependencies**: Automatically install any required npm modules.
+
+### Example
+
+```javascript
+import { exec } from 'child_process';
+
+const executeCode = (code: string) => {
+  exec(`node -e "${code}"`, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`exec error: ${error}`);
+      return;
+    }
+    console.log(`stdout: ${stdout}`);
+    console.error(`stderr: ${stderr}`);
+  });
+};
+```
+
+## Inline SQL code block
+
+The Inline SQL code block allows users to execute SQL queries directly in chat with the Inline SQL code block to query and modify databases.
+
+### Implementation
+
+1.  **Database Connection**: Establish a secure connection to the database.
+2.  **SQL Execution**: Use a SQL library to execute the user-provided SQL query.
+3.  **Security**: Implement strict security measures to prevent SQL injection attacks.
+4.  **Output**: Capture the output from the executed query and display it to the user.
+
+### Example
+
+```javascript
+import { Client } from 'pg';
+
+const executeSQL = async (sql: string) => {
+  const client = new Client({
+    connectionString: process.env.DATABASE_URL,
+  });
+
+  try {
+    await client.connect();
+    const res = await client.query(sql);
+    console.log(res.rows);
+  } catch (err) {
+    console.error("Error executing query:", err);
+  } finally {
+    await client.end();
+  }
+};
+```
+
+## Math
+
+The application uses LaTeX to render mathematical equations and formulas.
+
+### Implementation
+
+1.  **LaTeX Rendering**: Use a LaTeX rendering library on the frontend to display mathematical equations.
+2.  **Data Storage**: Store LaTeX equations as strings in the database.
+3.  **Formatting**: Wrap the LaTeX in DOUBLE dollar signs ($$).
+
+### Example
+
+"The Pythagorean theorem is $$a^2 + b^2 = c^2$$"
+
+This will render the equation using LaTeX.
+
+This guide provides a comprehensive overview of the backend requirements for the Big Paws Pet Hotel application. By following these guidelines, you can implement a robust backend system that integrates seamlessly with the existing frontend components.
+
+For any questions or clarifications, please contact the development team.
+
+Please make sure to add the following environment variables to your project:
 
 
 ```
 <AddEnvironmentVariables names={["EMAIL_PROVIDER", "RESEND_API_KEY", "POSTMARK_API_KEY", "MAILGUN_API_KEY", "MAILGUN_DOMAIN", "NEXT_PUBLIC_API_URL"]} />
-
 
