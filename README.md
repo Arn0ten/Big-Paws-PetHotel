@@ -1146,7 +1146,7 @@ We utilize **Mailgun** and optionally **Resend** for email services, and **Leafl
  For any questions or clarifications, please contact the development team.
 
  
-```
+
 
 ```
 <AddEnvironmentVariables names={["EMAIL_PROVIDER", "RESEND_API_KEY", "POSTMARK_API_KEY", "MAILGUN_API_KEY", "MAILGUN_DOMAIN", "NEXT_PUBLIC_API_URL"]} />
