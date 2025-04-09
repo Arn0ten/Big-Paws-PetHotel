@@ -30,7 +30,7 @@ export function CompletedRequestCard({ request }: CompletedRequestCardProps) {
       <Card
         className={`w-full h-[280px] flex flex-col cursor-pointer ${
           request.isNewlyCompleted ? "ring-2 ring-green-500 dark:ring-green-400" : ""
-        } ${getCardBgColor(request.type)}`}
+        } ${getCardBgColor(request.type, false)}`}
         onClick={() => setShowDetailsDialog(true)}
       >
         <CardHeader className="p-4 pb-2">
@@ -340,4 +340,3 @@ function getIconBgColorClass(type: string) {
       return "bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300"
   }
 }
-

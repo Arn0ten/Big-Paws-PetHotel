@@ -572,17 +572,6 @@ export function VideoUpload({
     onRemoveFile();
   };
 
-  // Handle replacing the video
-  const handleReplaceVideo = () => {
-    // First reset the file input to ensure onChange fires even if selecting the same file
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-
-    // Then trigger the file input click
-    handleFileInputClick();
-  };
-
   const openFullscreen = () => {
     if (videoRef.current) {
       videoRef.current.pause();
@@ -826,27 +815,18 @@ export function VideoUpload({
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={handleRemoveVideo}
+                  onClick={handleFileInputClick}
                   className="w-full sm:w-auto"
                 >
-                  <X className="h-4 w-4 mr-1" /> Remove
+                  <Upload className="h-4 w-4 mr-1" /> Replace Video
                 </Button>
                 <Button
+                  variant="outline"
                   size="sm"
-                  onClick={handleReplaceVideo}
-                  className="w-full sm:w-auto"
-                  disabled={isLoading}
+                  onClick={handleRemoveVideo}
+                  className="w-full sm:w-auto text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
                 >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-1 animate-spin" />{" "}
-                      Uploading...
-                    </>
-                  ) : (
-                    <>
-                      <Upload className="h-4 w-4 mr-1" /> Replace
-                    </>
-                  )}
+                  <X className="h-4 w-4 mr-1" /> Remove
                 </Button>
               </div>
             </div>
@@ -864,12 +844,12 @@ export function VideoUpload({
                   shorter.
                 </p>
                 <Button
-                  variant="destructive"
+                  variant="default"
                   size="sm"
                   className="mt-2"
                   onClick={handleFileInputClick}
                 >
-                  Select Another Video
+                  <Upload className="h-4 w-4 mr-1" /> Select Another Video
                 </Button>
               </div>
             </div>

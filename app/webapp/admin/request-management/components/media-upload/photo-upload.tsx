@@ -1,33 +1,25 @@
-"use client";
+"use client"
 
-import type React from "react";
+import type React from "react"
 
-import { useState, useRef } from "react";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
-import {
-  Upload,
-  X,
-  ImageIcon,
-  AlertCircle,
-  Eye,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
-import { useMediaQuery } from "@/hooks/use-media-query";
-import { cn } from "@/lib/utils";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { motion } from "framer-motion";
+import { useState, useRef } from "react"
+import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
+import { Card, CardContent } from "@/components/ui/card"
+import { Upload, X, AlertCircle, Eye, ChevronLeft, ChevronRight } from "lucide-react"
+import { useMediaQuery } from "@/hooks/use-media-query"
+import { cn } from "@/lib/utils"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { motion } from "framer-motion"
 
 interface PhotoUploadProps {
-  selectedFiles: File[];
-  previewUrls: string[];
-  onFileSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onRemoveFile: (index: number) => void;
-  onRemoveAllFiles: () => void;
-  maxFiles?: number;
+  selectedFiles: File[]
+  previewUrls: string[]
+  onFileSelect: (e: React.ChangeEvent<HTMLInputElement>) => void
+  onRemoveFile: (index: number) => void
+  onRemoveAllFiles: () => void
+  maxFiles?: number
 }
 
 export function PhotoUpload({
@@ -38,162 +30,146 @@ export function PhotoUpload({
   onRemoveAllFiles,
   maxFiles = 5,
 }: PhotoUploadProps) {
-  const [isDragging, setIsDragging] = useState(false);
-  const [showLimitWarning, setShowLimitWarning] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const isMobile = useMediaQuery("(max-width: 640px)");
+  const [isDragging, setIsDragging] = useState(false)
+  const [showLimitWarning, setShowLimitWarning] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const isMobile = useMediaQuery("(max-width: 640px)")
 
   // Add state variables for fullscreen view inside the PhotoUpload component
-  const [showFullscreen, setShowFullscreen] = useState(false);
-  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+  const [showFullscreen, setShowFullscreen] = useState(false)
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0)
 
   // Add this function inside the PhotoUpload component
   const openFullscreen = (index: number) => {
-    setCurrentPhotoIndex(index);
-    setShowFullscreen(true);
-  };
+    setCurrentPhotoIndex(index)
+    setShowFullscreen(true)
+  }
 
   // Add this function inside the PhotoUpload component
   const navigatePhotos = (direction: "next" | "prev") => {
     if (direction === "next") {
-      setCurrentPhotoIndex((prev) =>
-        prev === previewUrls.length - 1 ? 0 : prev + 1,
-      );
+      setCurrentPhotoIndex((prev) => (prev === previewUrls.length - 1 ? 0 : prev + 1))
     } else {
-      setCurrentPhotoIndex((prev) =>
-        prev === 0 ? previewUrls.length - 1 : prev - 1,
-      );
+      setCurrentPhotoIndex((prev) => (prev === 0 ? previewUrls.length - 1 : prev - 1))
     }
-  };
+  }
 
   // Handle file input click
   const handleFileInputClick = () => {
     if (fileInputRef.current) {
       // Reset the file input value to ensure onChange fires even if selecting the same file
       if (fileInputRef.current.value) {
-        fileInputRef.current.value = "";
+        fileInputRef.current.value = ""
       }
-      fileInputRef.current.click();
+      fileInputRef.current.click()
     }
-  };
+  }
 
   // Handle file selection with max limit enforcement
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       // Convert FileList to array
-      const filesArray = Array.from(e.target.files).filter((file) =>
-        file.type.startsWith("image/"),
-      );
+      const filesArray = Array.from(e.target.files).filter((file) => file.type.startsWith("image/"))
 
       // Check if total would exceed max
-      const totalFiles = selectedFiles.length + filesArray.length;
+      const totalFiles = selectedFiles.length + filesArray.length
 
       if (totalFiles > maxFiles) {
         // Show warning
-        setShowLimitWarning(true);
+        setShowLimitWarning(true)
 
         // Only take the first N files that would make the total = maxFiles
-        const remainingSlots = maxFiles - selectedFiles.length;
-        const limitedFiles = filesArray.slice(0, remainingSlots);
+        const remainingSlots = maxFiles - selectedFiles.length
+        const limitedFiles = filesArray.slice(0, remainingSlots)
 
         // Create a new event with limited files
         const newEvent = {
           target: {
             files: limitedFiles,
           },
-        } as unknown as React.ChangeEvent<HTMLInputElement>;
+        } as unknown as React.ChangeEvent<HTMLInputElement>
 
         // Pass to parent handler
-        onFileSelect(newEvent);
+        onFileSelect(newEvent)
 
         // Hide warning after 3 seconds
-        setTimeout(() => setShowLimitWarning(false), 3000);
+        setTimeout(() => setShowLimitWarning(false), 3000)
       } else {
         // No limit exceeded, pass all files
-        onFileSelect(e);
+        onFileSelect(e)
       }
     }
-  };
+  }
 
   // Handle drag events
   const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(true);
-  };
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(true)
+  }
 
   const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-  };
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+  }
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(true);
-  };
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(true)
+  }
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
 
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       // Filter for image files
-      const imageFiles = Array.from(e.dataTransfer.files).filter((file) =>
-        file.type.startsWith("image/"),
-      );
+      const imageFiles = Array.from(e.dataTransfer.files).filter((file) => file.type.startsWith("image/"))
 
       // Check if total would exceed max
-      const totalFiles = selectedFiles.length + imageFiles.length;
+      const totalFiles = selectedFiles.length + imageFiles.length
 
       if (totalFiles > maxFiles) {
         // Show warning
-        setShowLimitWarning(true);
+        setShowLimitWarning(true)
 
         // Only take the first N files that would make the total = maxFiles
-        const remainingSlots = maxFiles - selectedFiles.length;
-        const limitedFiles = imageFiles.slice(0, remainingSlots);
+        const remainingSlots = maxFiles - selectedFiles.length
+        const limitedFiles = imageFiles.slice(0, remainingSlots)
 
         // Create a new event with limited files
         const event = {
           target: {
             files: limitedFiles,
           },
-        } as unknown as React.ChangeEvent<HTMLInputElement>;
+        } as unknown as React.ChangeEvent<HTMLInputElement>
 
         // Pass to parent handler
-        onFileSelect(event);
+        onFileSelect(event)
 
         // Hide warning after 3 seconds
-        setTimeout(() => setShowLimitWarning(false), 3000);
+        setTimeout(() => setShowLimitWarning(false), 3000)
       } else {
         // No limit exceeded, pass all files
         const event = {
           target: {
             files: imageFiles,
           },
-        } as unknown as React.ChangeEvent<HTMLInputElement>;
+        } as unknown as React.ChangeEvent<HTMLInputElement>
 
-        onFileSelect(event);
+        onFileSelect(event)
       }
     }
-  };
-
-  // Handle adding more photos
-  const handleAddMorePhotos = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent event bubbling
-    handleFileInputClick();
-  };
+  }
 
   return (
     <div className="space-y-4">
       <div>
         <Label className="text-base font-medium">Photo Upload</Label>
-        <p className="text-sm text-muted-foreground mb-2">
-          Upload photos of the pet (maximum {maxFiles} photos).
-        </p>
+        <p className="text-sm text-muted-foreground mb-2">Upload photos of the pet (maximum {maxFiles} photos).</p>
       </div>
 
       {showLimitWarning && (
@@ -203,8 +179,7 @@ export function PhotoUpload({
         >
           <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
           <AlertDescription className="text-amber-700 dark:text-amber-400">
-            Maximum {maxFiles} photos allowed. Only the first {maxFiles} photos
-            were selected.
+            Maximum {maxFiles} photos allowed. Only the first {maxFiles} photos were selected.
           </AlertDescription>
         </Alert>
       )}
@@ -230,9 +205,7 @@ export function PhotoUpload({
               ref={fileInputRef}
             />
             <Upload className="h-8 w-8 text-muted-foreground mb-2" />
-            <p className="text-sm font-medium mb-1">
-              Drag and drop photos here or click to browse
-            </p>
+            <p className="text-sm font-medium mb-1">Drag and drop photos here or click to browse</p>
             <p className="text-xs text-muted-foreground text-center mb-4">
               JPG, PNG, or GIF format (max {maxFiles} photos)
             </p>
@@ -255,29 +228,33 @@ export function PhotoUpload({
                     alt={`Preview ${index + 1}`}
                     className="w-full h-full object-cover"
                   />
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation(); // Prevent opening fullscreen
-                      onRemoveFile(index);
-                    }}
-                    className="absolute top-1 right-1 bg-black/50 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation(); // Prevent duplicate events
-                      openFullscreen(index);
-                    }}
-                    className="absolute bottom-1 right-1 bg-black/50 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <Eye className="h-4 w-4" />
-                  </button>
-
-                  {/* Add a subtle overlay on hover to indicate it's clickable */}
-                  <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  {/* Improved hover overlay with centered buttons */}
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation() // Prevent opening fullscreen
+                          onRemoveFile(index)
+                        }}
+                        className="bg-red-500/90 text-white p-1.5 rounded-full hover:bg-red-600 transition-colors"
+                        aria-label="Remove photo"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation() // Prevent duplicate events
+                          openFullscreen(index)
+                        }}
+                        className="bg-white/90 text-gray-800 p-1.5 rounded-full hover:bg-white transition-colors"
+                        aria-label="View photo"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
                 </div>
                 <p className="text-xs text-muted-foreground mt-1 truncate">
                   {selectedFiles[index]?.name || `Photo ${index + 1}`}
@@ -285,13 +262,17 @@ export function PhotoUpload({
               </div>
             ))}
 
+            {/* Add More Photos button when fewer than max photos are selected */}
             {selectedFiles.length < maxFiles && (
               <div
-                className="relative aspect-square rounded-md overflow-hidden bg-muted/30 border-2 border-dashed border-muted-foreground/30 flex flex-col items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors"
-                onClick={handleAddMorePhotos}
+                className="relative aspect-square rounded-md border-2 border-dashed border-muted-foreground/30 flex flex-col items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors"
+                onClick={handleFileInputClick}
               >
-                <ImageIcon className="h-6 w-6 text-muted-foreground mb-1" />
-                <p className="text-xs text-muted-foreground">Add More</p>
+                <div className="flex flex-col items-center gap-1 p-4 text-center">
+                  <Upload className="h-6 w-6 text-muted-foreground mb-1" />
+                  <span className="text-sm font-medium">Add More</span>
+                  <span className="text-xs text-muted-foreground">{maxFiles - selectedFiles.length} remaining</span>
+                </div>
               </div>
             )}
           </div>
@@ -301,17 +282,33 @@ export function PhotoUpload({
               {selectedFiles.length} of {maxFiles} photos selected
             </p>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={onRemoveAllFiles}>
-                <X className="h-4 w-4 mr-1" /> Remove All
-              </Button>
-              <Button
-                size="sm"
-                onClick={handleFileInputClick}
-                className="w-full sm:w-auto"
-                disabled={selectedFiles.length >= maxFiles}
-              >
-                <Upload className="h-4 w-4 mr-1" /> Replace
-              </Button>
+              {selectedFiles.length > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={onRemoveAllFiles}
+                  className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
+                >
+                  <X className="h-4 w-4 mr-1" /> Remove All
+                </Button>
+              )}
+              {selectedFiles.length < maxFiles && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    if (fileInputRef.current) {
+                      fileInputRef.current.value = ""
+                      fileInputRef.current.click()
+                    }
+                  }}
+                  className="text-primary hover:text-primary-foreground hover:bg-primary"
+                >
+                  <Upload className="h-4 w-4 mr-1" /> Add Photos
+                </Button>
+              )}
             </div>
           </div>
         </div>
@@ -375,5 +372,5 @@ export function PhotoUpload({
         </DialogContent>
       </Dialog>
     </div>
-  );
+  )
 }
