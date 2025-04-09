@@ -42,6 +42,7 @@ We utilize **Mailgun** and optionally **Resend** for email services, and **Leafl
 ✅ Fully **responsive** design for all devices  
 ✅ **Node.js** and **NoSQL MongoDB** for the backend  
 ✅ **APIs** integrated with **Resen**
+✅ **APIs** integrated with **Resen**
 ✅ **Maps** integration with **Leaflet** and **OpenStreetMap**
 
 
