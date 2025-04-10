@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 /**
  * BACKEND INTEGRATION NOTES:
@@ -19,20 +19,14 @@
  * - Timestamps for all status changes
  */
 
-import { useState } from "react";
-import Image from "next/image";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import type { BoardingOrder, PaymentStatus } from "../types";
+import { useState } from "react"
+import Image from "next/image"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
+import type { BoardingOrder, PaymentStatus } from "../types"
 import {
   formatDate,
   formatCurrency,
@@ -40,7 +34,7 @@ import {
   calculateDuration,
   calculateAdditionalServicesTotal,
   calculateBasePrice,
-} from "../utils/helpers";
+} from "../utils/helpers"
 import {
   CalendarClock,
   MapPin,
@@ -55,26 +49,21 @@ import {
   User,
   Calendar,
   Tag,
-  PhilippinePesoIcon,
-} from "lucide-react";
-import { ReleaseConfirmationDialog } from "./release-confirmation-dialog";
-import { ReceiptDialog } from "./receipt-dialog";
-import { ConfirmationDialog } from "./confirmation-dialog";
-import { DAYCARE_RATES, CAT_HOTEL_RATES } from "../types";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { getIconBgColorClass } from "../../request-management/utils/ui-helpers";
+  PoundSterlingIcon as PhilippinePesoIcon,
+} from "lucide-react"
+import { ReleaseConfirmationDialog } from "./release-confirmation-dialog"
+import { ReceiptDialog } from "./receipt-dialog"
+import { ConfirmationDialog } from "./confirmation-dialog"
+import { DAYCARE_RATES, CAT_HOTEL_RATES } from "../types"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { getIconBgColorClass } from "../../request-management/utils/ui-helpers"
 
 interface BoardingDetailDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  boardingOrder: BoardingOrder;
-  onUpdatePaymentStatus: (orderId: string, status: PaymentStatus) => void;
-  onReleasePet?: (orderId: string) => void;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  boardingOrder: BoardingOrder
+  onUpdatePaymentStatus: (orderId: string, status: PaymentStatus) => void
+  onReleasePet?: (orderId: string) => void
 }
 
 export function BoardingDetailDialog({
@@ -84,178 +73,148 @@ export function BoardingDetailDialog({
   onUpdatePaymentStatus,
   onReleasePet,
 }: BoardingDetailDialogProps) {
-  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>(
-    boardingOrder.paymentStatus,
-  );
-  const [releaseConfirmOpen, setReleaseConfirmOpen] = useState(false);
-  const [receiptDialogOpen, setReceiptDialogOpen] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>(boardingOrder.paymentStatus)
+  const [releaseConfirmOpen, setReleaseConfirmOpen] = useState(false)
+  const [receiptDialogOpen, setReceiptDialogOpen] = useState(false)
   const [confirmationDialog, setConfirmationDialog] = useState({
     open: false,
     action: "",
     status: "",
-  });
+  })
 
   const handleUpdatePaymentStatus = (status: PaymentStatus) => {
     setConfirmationDialog({
       open: true,
       action: "update payment status",
       status: status,
-    });
-  };
+    })
+  }
 
   const confirmUpdatePaymentStatus = (status: PaymentStatus) => {
-    setPaymentStatus(status);
-    onUpdatePaymentStatus(boardingOrder.id, status);
-    setConfirmationDialog({ open: false, action: "", status: "" });
-  };
+    setPaymentStatus(status)
+    onUpdatePaymentStatus(boardingOrder.id, status)
+    setConfirmationDialog({ open: false, action: "", status: "" })
+  }
 
   const handleReleasePet = () => {
-    setReleaseConfirmOpen(true);
-  };
+    setReleaseConfirmOpen(true)
+  }
 
   const handleConfirmRelease = (orderId: string) => {
     if (onReleasePet) {
-      onReleasePet(orderId);
-      setReleaseConfirmOpen(false);
+      onReleasePet(orderId)
+      setReleaseConfirmOpen(false)
     }
-  };
+  }
 
   const handleViewReceipt = () => {
-    onOpenChange(false); // Close the boarding details dialog
-    setReceiptDialogOpen(true); // Open the receipt dialog
-  };
+    onOpenChange(false) // Close the boarding details dialog
+    setReceiptDialogOpen(true) // Open the receipt dialog
+  }
 
   const handleReceiptDialogClose = (open: boolean) => {
-    setReceiptDialogOpen(open);
+    setReceiptDialogOpen(open)
     if (!open) {
-      onOpenChange(true); // Reopen the boarding details dialog when receipt is closed
+      onOpenChange(true) // Reopen the boarding details dialog when receipt is closed
     }
-  };
+  }
 
   const getBoardingStatusColor = (status: string) => {
     switch (status) {
       case "Boarding":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300";
+        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300"
       case "Done Boarding":
-        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
+        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
       case "Released":
-        return "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300";
+        return "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300"
       default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
+        return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
     }
-  };
+  }
 
   const getPaymentStatusColor = (status: string) => {
     switch (status) {
       case "Paid":
-        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
+        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
       case "Not Paid":
-        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
+        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
       case "Pending":
-        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300";
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
       default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
+        return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
     }
-  };
+  }
 
   const getPetTypeColor = (type: string) => {
     switch (type.toLowerCase()) {
       case "dog":
-        return "bg-blue-600 text-white dark:bg-blue-700 dark:text-white";
+        return "bg-blue-600 text-white dark:bg-blue-700 dark:text-white"
       case "cat":
-        return "bg-purple-600 text-white dark:bg-purple-700 dark:text-white";
+        return "bg-purple-600 text-white dark:bg-purple-700 dark:text-white"
       default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
+        return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
     }
-  };
+  }
 
   const canReleasePet =
-    (isEligibleForRelease(boardingOrder) ||
-      (boardingOrder.isOverdue && boardingOrder.paymentStatus === "Paid")) &&
-    onReleasePet;
+    (isEligibleForRelease(boardingOrder) || (boardingOrder.isOverdue && boardingOrder.paymentStatus === "Paid")) &&
+    onReleasePet
 
-  const isOverdue = boardingOrder.isOverdue;
+  const isOverdue = boardingOrder.isOverdue
 
   // Calculate duration in both days and hours
-  const durationInHours = calculateDuration(
-    boardingOrder.startDate,
-    boardingOrder.endDate,
-    "Daycare",
-  );
-  const durationInDays = calculateDuration(
-    boardingOrder.startDate,
-    boardingOrder.endDate,
-    "LongStay",
-  );
+  const durationInHours = calculateDuration(boardingOrder.startDate, boardingOrder.endDate, "Daycare")
+  const durationInDays = calculateDuration(boardingOrder.startDate, boardingOrder.endDate, "LongStay")
 
   // Format the duration based on boarding type
   const formattedDuration =
     boardingOrder.boardingType === "Daycare"
       ? `${durationInHours} hour${durationInHours !== 1 ? "s" : ""}`
-      : `${durationInDays} day${durationInDays !== 1 ? "s" : ""}`;
+      : `${durationInDays} day${durationInDays !== 1 ? "s" : ""}`
 
   // Combined duration display
-  const combinedDuration = `${durationInDays} day${durationInDays !== 1 ? "s" : ""} / ${durationInHours} hour${durationInHours !== 1 ? "s" : ""}`;
+  const combinedDuration = `${durationInDays} day${durationInDays !== 1 ? "s" : ""} / ${durationInHours} hour${durationInHours !== 1 ? "s" : ""}`
 
   const ACCOMMODATION_RATES = {
     Small: 25,
     Medium: 30,
     Large: 40,
     XLarge: 50,
-  };
+  }
 
   // Calculate prices
-  const basePrice = calculateBasePrice(boardingOrder);
-  const additionalServicesTotal =
-    calculateAdditionalServicesTotal(boardingOrder);
-  const totalPrice = boardingOrder.totalPrice;
+  const basePrice = calculateBasePrice(boardingOrder)
+  const additionalServicesTotal = calculateAdditionalServicesTotal(boardingOrder)
+  const totalPrice = boardingOrder.totalPrice
 
   // Get additional charges from the boardingOrder
-  const additionalCharges = boardingOrder.additionalCharges || 0;
-  const additionalChargesReason =
-    boardingOrder.additionalChargesReason || "Additional services";
+  const additionalCharges = boardingOrder.additionalCharges || 0
+  const additionalChargesReason = boardingOrder.additionalChargesReason || "Additional services"
 
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-[650px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-xl flex items-center gap-2">
-              Boarding Details
-            </DialogTitle>
+            <DialogTitle className="text-xl flex items-center gap-2">Boarding Details</DialogTitle>
           </DialogHeader>
 
           <div className="grid gap-4 py-2">
             {/* Order Summary */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-muted/30 p-3 rounded-lg">
               <div>
-                <h3 className="text-lg font-semibold">
-                  Order #{boardingOrder.id}
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  Created on {formatDate(boardingOrder.createdAt)}
-                </p>
+                <h3 className="text-lg font-semibold">Order #{boardingOrder.id}</h3>
+                <p className="text-sm text-muted-foreground">Created on {formatDate(boardingOrder.createdAt)}</p>
               </div>
               <div className="flex flex-wrap gap-1.5">
-                <Badge
-                  variant="outline"
-                  className={getBoardingStatusColor(
-                    boardingOrder.boardingStatus,
-                  )}
-                >
+                <Badge variant="outline" className={getBoardingStatusColor(boardingOrder.boardingStatus)}>
                   {boardingOrder.boardingStatus}
                 </Badge>
-                <Badge
-                  variant="outline"
-                  className={getPaymentStatusColor(paymentStatus)}
-                >
+                <Badge variant="outline" className={getPaymentStatusColor(paymentStatus)}>
                   {paymentStatus}
                 </Badge>
                 {isOverdue && (
-                  <Badge
-                    variant="outline"
-                    className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
-                  >
+                  <Badge variant="outline" className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300">
                     <AlertTriangle className="h-3 w-3 mr-1" /> Overdue Pickup
                   </Badge>
                 )}
@@ -275,10 +234,7 @@ export function BoardingDetailDialog({
                   <div className="flex items-start gap-3">
                     <div className="flex-shrink-0">
                       <Image
-                        src={
-                          boardingOrder.pet.imageUrl ||
-                          "/placeholder.svg?height=80&width=80"
-                        }
+                        src={boardingOrder.pet.imageUrl || "/placeholder.svg?height=80&width=80"}
                         alt={boardingOrder.pet.name}
                         width={80}
                         height={80}
@@ -286,44 +242,25 @@ export function BoardingDetailDialog({
                       />
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-semibold text-base mb-2">
-                        {boardingOrder.pet.name}
-                      </h4>
+                      <h4 className="font-semibold text-base mb-2">{boardingOrder.pet.name}</h4>
                       <div className="space-y-1.5">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium text-muted-foreground">
-                            TYPE:
-                          </span>
-                          <Badge
-                            variant="outline"
-                            className={getPetTypeColor(boardingOrder.pet.type)}
-                          >
+                          <span className="text-sm font-medium text-muted-foreground">TYPE:</span>
+                          <Badge variant="outline" className={getPetTypeColor(boardingOrder.pet.type)}>
                             {boardingOrder.pet.type}
                           </Badge>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium text-muted-foreground">
-                            BREED:
-                          </span>
-                          <span className="text-sm text-right">
-                            {boardingOrder.pet.breed}
-                          </span>
+                          <span className="text-sm font-medium text-muted-foreground">BREED:</span>
+                          <span className="text-sm text-right">{boardingOrder.pet.breed}</span>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium text-muted-foreground">
-                            SIZE:
-                          </span>
-                          <span className="text-sm">
-                            {boardingOrder.pet.size}
-                          </span>
+                          <span className="text-sm font-medium text-muted-foreground">SIZE:</span>
+                          <span className="text-sm">{boardingOrder.pet.size}</span>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium text-muted-foreground">
-                            AGE:
-                          </span>
-                          <span className="text-sm">
-                            {boardingOrder.pet.age} years
-                          </span>
+                          <span className="text-sm font-medium text-muted-foreground">AGE:</span>
+                          <span className="text-sm">{boardingOrder.pet.age} years</span>
                         </div>
                       </div>
                     </div>
@@ -342,16 +279,12 @@ export function BoardingDetailDialog({
                 <CardContent>
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold text-base">
-                        {boardingOrder.owner.name}
-                      </span>
+                      <span className="font-semibold text-base">{boardingOrder.owner.name}</span>
                     </div>
                     <div className="space-y-1.5 mt-2">
                       <div className="flex items-center gap-2 text-sm">
                         <Mail className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                        <span className="truncate">
-                          {boardingOrder.owner.email}
-                        </span>
+                        <span className="truncate">{boardingOrder.owner.email}</span>
                       </div>
                       <div className="flex items-center gap-2 text-sm">
                         <Phone className="h-4 w-4 text-muted-foreground flex-shrink-0" />
@@ -359,9 +292,7 @@ export function BoardingDetailDialog({
                       </div>
                       <div className="flex items-start gap-2 text-sm">
                         <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                        <span className="break-words">
-                          {boardingOrder.owner.address}
-                        </span>
+                        <span className="break-words">{boardingOrder.owner.address}</span>
                       </div>
                     </div>
                   </div>
@@ -384,9 +315,7 @@ export function BoardingDetailDialog({
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <Tag className="h-4 w-4 text-primary" />
-                        <span className="text-sm font-semibold">
-                          SERVICE TYPE
-                        </span>
+                        <span className="text-sm font-semibold">SERVICE TYPE</span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-xs text-muted-foreground">
@@ -398,9 +327,7 @@ export function BoardingDetailDialog({
                         </span>
                         <Badge
                           variant="outline"
-                          className={getIconBgColorClass(
-                            boardingOrder.boardingType.toLowerCase(),
-                          )}
+                          className={getIconBgColorClass(boardingOrder.boardingType.toLowerCase())}
                         >
                           {boardingOrder.boardingType}
                         </Badge>
@@ -412,12 +339,8 @@ export function BoardingDetailDialog({
                         <span className="text-sm font-semibold">DURATION</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-muted-foreground">
-                          Total stay length
-                        </span>
-                        <span className="text-sm font-medium">
-                          {combinedDuration}
-                        </span>
+                        <span className="text-xs text-muted-foreground">Total stay length</span>
+                        <span className="text-sm font-medium">{combinedDuration}</span>
                       </div>
                     </div>
                   </div>
@@ -427,23 +350,35 @@ export function BoardingDetailDialog({
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <Calendar className="h-4 w-4 text-primary" />
-                        <span className="text-sm font-semibold">
-                          CHECK-IN / CHECK-OUT
-                        </span>
+                        <span className="text-sm font-semibold">CHECK-IN / CHECK-OUT</span>
                       </div>
                       <div className="space-y-1">
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground font-medium">
-                            Check-in:
-                          </span>
+                          <span className="text-muted-foreground font-medium">Check-in:</span>
                           <span>{formatDate(boardingOrder.startDate)}</span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground font-medium">
-                            Check-out:
-                          </span>
+                          <span className="text-muted-foreground font-medium">Check-out:</span>
                           <span>{formatDate(boardingOrder.endDate)}</span>
                         </div>
+                        {boardingOrder.hasExtension && boardingOrder.originalEndDate && (
+                          <>
+                            <div className="flex justify-between text-sm mt-2">
+                              <span className="text-muted-foreground font-medium">Original Check-out:</span>
+                              <span className="line-through text-muted-foreground">
+                                {formatDate(boardingOrder.originalEndDate)}
+                              </span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                              <span className="text-amber-600 dark:text-amber-400 font-medium">Extension:</span>
+                              <span className="text-amber-600 dark:text-amber-400">
+                                {boardingOrder.boardingType === "Daycare"
+                                  ? `+${boardingOrder.extensionHours} hours`
+                                  : `+${boardingOrder.extensionDays} days`}
+                              </span>
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
                     <div>
@@ -451,17 +386,11 @@ export function BoardingDetailDialog({
                         <>
                           <div className="flex items-center gap-2 mb-1">
                             <LogOut className="h-4 w-4 text-primary" />
-                            <span className="text-sm font-semibold">
-                              RELEASED
-                            </span>
+                            <span className="text-sm font-semibold">RELEASED</span>
                           </div>
                           <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground font-medium">
-                              Released on:
-                            </span>
-                            <span>
-                              {formatDate(boardingOrder.releaseTimestamp)}
-                            </span>
+                            <span className="text-muted-foreground font-medium">Released on:</span>
+                            <span>{formatDate(boardingOrder.releaseTimestamp)}</span>
                           </div>
                         </>
                       ) : (
@@ -471,9 +400,7 @@ export function BoardingDetailDialog({
                             <span className="text-sm font-semibold">RATE</span>
                           </div>
                           <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground font-medium">
-                              Base Rate:
-                            </span>
+                            <span className="text-muted-foreground font-medium">Base Rate:</span>
                             <span>
                               {boardingOrder.boardingType === "Daycare"
                                 ? `₱${DAYCARE_RATES[boardingOrder.pet.size]}/hour`
@@ -483,9 +410,7 @@ export function BoardingDetailDialog({
                             </span>
                           </div>
                           <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground font-medium">
-                              PET SIZE:
-                            </span>
+                            <span className="text-muted-foreground font-medium">PET SIZE:</span>
                             <span>{boardingOrder.pet.size}</span>
                           </div>
                         </>
@@ -501,60 +426,46 @@ export function BoardingDetailDialog({
                     </h4>
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground font-medium">
-                          BOARDING PRICE:
-                        </span>
+                        <span className="text-muted-foreground font-medium">BOARDING PRICE:</span>
                         <span>{formatCurrency(basePrice)}</span>
                       </div>
 
-                      {boardingOrder.additionalServices &&
-                        boardingOrder.additionalServices.length > 0 && (
-                          <>
-                            <Separator className="my-2" />
-                            <h5 className="text-sm font-medium mb-2">
-                              Additional Services
-                            </h5>
-                            {boardingOrder.additionalServices.map(
-                              (service, index) => (
-                                <div
-                                  key={index}
-                                  className="flex justify-between text-sm"
-                                >
-                                  <span className="text-muted-foreground flex items-center">
-                                    {service.name}
-                                    {service.requestId && (
-                                      <TooltipProvider>
-                                        <Tooltip>
-                                          <TooltipTrigger asChild>
-                                            <Badge
-                                              variant="outline"
-                                              className="ml-2 text-xs bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300"
-                                            >
-                                              Request
-                                            </Badge>
-                                          </TooltipTrigger>
-                                          <TooltipContent>
-                                            <p>Added via service request</p>
-                                          </TooltipContent>
-                                        </Tooltip>
-                                      </TooltipProvider>
-                                    )}
-                                    {service.timestamp && (
-                                      <span className="text-xs ml-2 text-muted-foreground">
-                                        (
-                                        {new Date(
-                                          service.timestamp,
-                                        ).toLocaleDateString()}
-                                        )
-                                      </span>
-                                    )}
+                      {boardingOrder.additionalServices && boardingOrder.additionalServices.length > 0 && (
+                        <>
+                          <Separator className="my-2" />
+                          <h5 className="text-sm font-medium mb-2">Additional Services</h5>
+                          {boardingOrder.additionalServices.map((service, index) => (
+                            <div key={index} className="flex justify-between text-sm">
+                              <span className="text-muted-foreground flex items-center">
+                                {service.name}
+                                {service.requestId && (
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <Badge
+                                          variant="outline"
+                                          className="ml-2 text-xs bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300"
+                                        >
+                                          Request
+                                        </Badge>
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <p>Added via service request</p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                )}
+                                {service.timestamp && (
+                                  <span className="text-xs ml-2 text-muted-foreground">
+                                    ({new Date(service.timestamp).toLocaleDateString()})
                                   </span>
-                                  <span>{formatCurrency(service.price)}</span>
-                                </div>
-                              ),
-                            )}
+                                )}
+                              </span>
+                              <span>{formatCurrency(service.price)}</span>
+                            </div>
+                          ))}
 
-                            {/* <div className="flex justify-between text-sm font-medium">
+                          {/* <div className="flex justify-between text-sm font-medium">
                               <span className="text-muted-foreground">
                                 Additional Services Total:
                               </span>
@@ -562,27 +473,22 @@ export function BoardingDetailDialog({
                                 {formatCurrency(additionalServicesTotal)}
                               </span>
                             </div> */}
-                          </>
-                        )}
+                        </>
+                      )}
 
                       {/* Display additional charges if present */}
                       {additionalCharges > 0 && (
                         <div className="flex justify-between text-sm font-medium">
                           <span className="text-muted-foreground flex items-center">
                             Additional Charges:
-                            <span className="text-xs ml-2 text-muted-foreground">
-                              ({additionalChargesReason})
-                            </span>
+                            <span className="text-xs ml-2 text-muted-foreground">({additionalChargesReason})</span>
                           </span>
                           <span>{formatCurrency(additionalCharges)}</span>
                         </div>
                       )}
 
                       {boardingOrder.discounts?.map((discount, index) => (
-                        <div
-                          key={index}
-                          className="flex justify-between text-sm text-green-600 dark:text-green-400"
-                        >
+                        <div key={index} className="flex justify-between text-sm text-green-600 dark:text-green-400">
                           <span>{discount.name}:</span>
                           <span>-{formatCurrency(discount.amount)}</span>
                         </div>
@@ -620,32 +526,20 @@ export function BoardingDetailDialog({
           <DialogFooter className="flex-col sm:flex-row gap-2 mt-4">
             <div className="flex gap-2 w-full sm:w-auto">
               {canReleasePet && (
-                <Button
-                  onClick={handleReleasePet}
-                  className="flex-1 sm:flex-none"
-                  variant="default"
-                >
+                <Button onClick={handleReleasePet} className="flex-1 sm:flex-none" variant="default">
                   <LogOut className="mr-2 h-4 w-4" />
                   Release Pet
                 </Button>
               )}
 
               {boardingOrder.boardingStatus === "Released" && (
-                <Button
-                  onClick={handleViewReceipt}
-                  className="flex-1 sm:flex-none"
-                  variant="outline"
-                >
+                <Button onClick={handleViewReceipt} className="flex-1 sm:flex-none" variant="outline">
                   <Receipt className="mr-2 h-4 w-4" />
                   View Receipt
                 </Button>
               )}
 
-              <Button
-                variant="ghost"
-                onClick={() => onOpenChange(false)}
-                className="flex-1 sm:flex-none"
-              >
+              <Button variant="ghost" onClick={() => onOpenChange(false)} className="flex-1 sm:flex-none">
                 Close
               </Button>
             </div>
@@ -669,14 +563,10 @@ export function BoardingDetailDialog({
 
       <ConfirmationDialog
         open={confirmationDialog.open}
-        onOpenChange={(open) =>
-          setConfirmationDialog({ ...confirmationDialog, open })
-        }
+        onOpenChange={(open) => setConfirmationDialog({ ...confirmationDialog, open })}
         title={`Confirm Payment Status Update`}
         description={`Are you sure you want to mark this booking as ${confirmationDialog.status}?`}
-        onConfirm={() =>
-          confirmUpdatePaymentStatus(confirmationDialog.status as PaymentStatus)
-        }
+        onConfirm={() => confirmUpdatePaymentStatus(confirmationDialog.status as PaymentStatus)}
       />
 
       {boardingOrder.lastModifiedBy && (
@@ -684,12 +574,9 @@ export function BoardingDetailDialog({
           <div className="flex items-start">
             <Info className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5 mr-2" />
             <div>
-              <h5 className="text-sm font-medium text-amber-800 dark:text-amber-200">
-                Payment Status Updated
-              </h5>
+              <h5 className="text-sm font-medium text-amber-800 dark:text-amber-200">Payment Status Updated</h5>
               <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
-                Last modified by {boardingOrder.lastModifiedBy} on{" "}
-                {formatDate(boardingOrder.updatedAt)}
+                Last modified by {boardingOrder.lastModifiedBy} on {formatDate(boardingOrder.updatedAt)}
               </p>
               {boardingOrder.lastModificationReason && (
                 <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
@@ -701,5 +588,5 @@ export function BoardingDetailDialog({
         </div>
       )}
     </>
-  );
+  )
 }

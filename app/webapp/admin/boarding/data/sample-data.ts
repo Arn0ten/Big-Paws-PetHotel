@@ -1,4 +1,4 @@
-import type { BoardingOrder } from "../types"
+import type { BoardingOrder } from "../types";
 
 /**
  * BOARDING MANAGEMENT MODULE - SAMPLE DATA
@@ -32,7 +32,7 @@ import type { BoardingOrder } from "../types"
  */
 
 // Helper function to generate random time between 1 and 22 hours
-const randomHours = () => Math.floor(Math.random() * 22) + 1
+const randomHours = () => Math.floor(Math.random() * 22) + 1;
 
 // Sample data for demonstration purposes
 export const sampleBoardingOrders: BoardingOrder[] = [
@@ -88,6 +88,128 @@ export const sampleBoardingOrders: BoardingOrder[] = [
         timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
         modifiedBy: "Admin",
         reason: "Additional service added",
+      },
+    ],
+  },
+  // Add a new boarding order with extension
+  {
+    id: "BO-1009",
+    petId: "P-1009",
+    ownerId: "O-1009",
+    pet: {
+      id: "P-1009",
+      name: "Buddy",
+      type: "Dog",
+      breed: "Shih Tzu",
+      size: "Small",
+      age: 4,
+      imageUrl: "/placeholder.svg?height=40&width=40",
+    },
+    owner: {
+      id: "O-1009",
+      name: "Emma Wilson",
+      email: "emma.w@example.com",
+      phone: "(555) 890-1234",
+      address: "606 Pine Ave, Somewhere, CA 94322",
+    },
+    startDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days ago
+    endDate: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000).toISOString(), // 4 days from now
+    originalEndDate: new Date(
+      Date.now() + 1 * 24 * 60 * 60 * 1000,
+    ).toISOString(), // Original end date was 1 day from now
+    boardingType: "LongStay",
+    boardingStatus: "Boarding",
+    paymentStatus: "Paid",
+    totalPrice: 280.0,
+    baseAmount: 200.0,
+    hasExtension: true,
+    extensionDays: 3,
+    extensionRequestId: "req-005",
+    additionalServices: [
+      {
+        name: "3-day boarding extension",
+        price: 80.0,
+        requestId: "req-005",
+        timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+      },
+    ],
+    createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days ago
+    updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
+    isOverdue: false,
+    lastModifiedBy: "Admin",
+    lastModificationReason: "Boarding extension approved",
+    paymentHistory: [
+      {
+        status: "Paid",
+        timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+        modifiedBy: "Admin",
+        reason: "Initial payment",
+      },
+      {
+        status: "Paid",
+        timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+        modifiedBy: "Admin",
+        reason: "Extension payment",
+      },
+    ],
+  },
+  // Add a daycare with extension
+  {
+    id: "BO-1010",
+    petId: "P-1010",
+    ownerId: "O-1010",
+    pet: {
+      id: "P-1010",
+      name: "Coco",
+      type: "Dog",
+      breed: "Pomeranian",
+      size: "Small",
+      age: 2,
+      imageUrl: "/placeholder.svg?height=40&width=40",
+    },
+    owner: {
+      id: "O-1010",
+      name: "Oliver Chen",
+      email: "oliver.c@example.com",
+      phone: "(555) 345-6789",
+      address: "707 Maple St, Elsewhere, CA 94323",
+    },
+    startDate: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(), // 6 hours ago
+    endDate: new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString(), // 4 hours from now
+    originalEndDate: new Date(Date.now() + 1 * 60 * 60 * 1000).toISOString(), // Original end time was 1 hour from now
+    boardingType: "Daycare",
+    boardingStatus: "Boarding",
+    paymentStatus: "Paid",
+    totalPrice: 120.0,
+    baseAmount: 80.0,
+    hasExtension: true,
+    extensionHours: 3,
+    extensionRequestId: "req-006",
+    additionalServices: [
+      {
+        name: "3-hour daycare extension",
+        price: 40.0,
+        requestId: "req-006",
+        timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+      },
+    ],
+    createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(), // 6 hours ago
+    updatedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
+    isOverdue: false,
+    lastModifiedBy: "Admin",
+    lastModificationReason: "Daycare extension approved",
+    paymentHistory: [
+      {
+        status: "Paid",
+        timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
+        modifiedBy: "Admin",
+        reason: "Initial payment",
+      },
+      {
+        status: "Paid",
+        timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+        modifiedBy: "Admin",
+        reason: "Extension payment",
       },
     ],
   },
@@ -149,7 +271,9 @@ export const sampleBoardingOrders: BoardingOrder[] = [
     totalPrice: 350.0,
     createdAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(), // 15 days ago
     updatedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days ago
-    releaseTimestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days ago
+    releaseTimestamp: new Date(
+      Date.now() - 5 * 24 * 60 * 60 * 1000,
+    ).toISOString(), // 5 days ago
     isOverdue: false,
     receiptGenerated: true,
     notificationSent: true,
@@ -231,7 +355,6 @@ export const sampleBoardingOrders: BoardingOrder[] = [
     },
     startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days ago
     endDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days  // 7 days ago
-    endDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
     boardingType: "LongStay",
     boardingStatus: "Done Boarding",
     paymentStatus: "Not Paid",
@@ -260,7 +383,9 @@ export const sampleBoardingOrders: BoardingOrder[] = [
       phone: "(555) 567-8901",
       address: "303 Birch Rd, Somewhere Else, IL 60001",
     },
-    startDate: new Date(Date.now() - randomHours() * 60 * 60 * 1000).toISOString(), // Random hours ago
+    startDate: new Date(
+      Date.now() - randomHours() * 60 * 60 * 1000,
+    ).toISOString(), // Random hours ago
     endDate: new Date().toISOString(), // Now
     boardingType: "Daycare",
     boardingStatus: "Done Boarding",
@@ -290,7 +415,9 @@ export const sampleBoardingOrders: BoardingOrder[] = [
       phone: "(555) 678-9012",
       address: "404 Elm St, Anyville, CA 90210",
     },
-    startDate: new Date(Date.now() - randomHours() * 60 * 60 * 1000).toISOString(), // Random hours ago
+    startDate: new Date(
+      Date.now() - randomHours() * 60 * 60 * 1000,
+    ).toISOString(), // Random hours ago
     endDate: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(), // 2 hours from now
     boardingType: "Daycare",
     boardingStatus: "Boarding",
@@ -328,12 +455,14 @@ export const sampleBoardingOrders: BoardingOrder[] = [
     totalPrice: 420.0,
     createdAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(), // 20 days ago
     updatedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days ago
-    releaseTimestamp: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days ago
+    releaseTimestamp: new Date(
+      Date.now() - 7 * 24 * 60 * 60 * 1000,
+    ).toISOString(), // 7 days ago
     isOverdue: false,
     receiptGenerated: true,
     notificationSent: true,
   },
-]
+];
 
 /**
  * Check for overdue pickups based on current date and end date
@@ -341,18 +470,20 @@ export const sampleBoardingOrders: BoardingOrder[] = [
  * @param orders - Array of boarding orders to check
  * @returns Array of boarding orders with updated overdue status
  */
-export const checkOverduePickups = (orders: BoardingOrder[]): BoardingOrder[] => {
-  const now = new Date()
+export const checkOverduePickups = (
+  orders: BoardingOrder[],
+): BoardingOrder[] => {
+  const now = new Date();
 
   return orders.map((order) => {
     if (order.boardingStatus === "Done Boarding") {
-      const endDate = new Date(order.endDate)
-      const isOverdue = endDate < now
-      return { ...order, isOverdue }
+      const endDate = new Date(order.endDate);
+      const isOverdue = endDate < now;
+      return { ...order, isOverdue };
     }
-    return order
-  })
-}
+    return order;
+  });
+};
 
 /**
  * Update boarding status for an order
@@ -361,7 +492,10 @@ export const checkOverduePickups = (orders: BoardingOrder[]): BoardingOrder[] =>
  * @param paymentStatus - The new payment status
  * @returns Updated boarding order
  */
-export const updateBoardingStatus = (order: BoardingOrder, paymentStatus: string): BoardingOrder => {
+export const updateBoardingStatus = (
+  order: BoardingOrder,
+  paymentStatus: string,
+): BoardingOrder => {
   return {
     ...order,
     paymentStatus: paymentStatus as any,
@@ -375,8 +509,8 @@ export const updateBoardingStatus = (order: BoardingOrder, paymentStatus: string
         reason: `Payment status updated to ${paymentStatus}`,
       },
     ],
-  }
-}
+  };
+};
 
 /**
  * Release a pet from boarding
@@ -392,6 +526,5 @@ export const releasePet = (order: BoardingOrder): BoardingOrder => {
     updatedAt: new Date().toISOString(),
     receiptGenerated: true,
     notificationSent: true,
-  }
-}
-
+  };
+};

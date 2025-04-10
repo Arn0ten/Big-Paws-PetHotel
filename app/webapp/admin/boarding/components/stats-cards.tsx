@@ -81,23 +81,6 @@ export function StatsCards({
           </p>
         </CardContent>
       </Card>
-
-      <Card
-        className="bg-purple-600 text-white border-purple-700 transition-all hover:shadow-md cursor-pointer"
-        onClick={() => handleCardClick("released")}
-      >
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-white">
-            Released Pets
-          </CardTitle>
-          <LogOut className="h-4 w-4 text-white" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-white">{releasedPets}</div>
-          <p className="text-xs text-purple-100">Completed boardings</p>
-        </CardContent>
-      </Card>
-
       <Card
         className={`${overduePickups > 0 ? "bg-red-600 text-white border-red-700" : "bg-gray-600 text-white border-gray-700"} transition-all hover:shadow-md cursor-pointer`}
         onClick={() => handleCardClick("overdue")}
@@ -117,6 +100,23 @@ export function StatsCards({
           </p>
         </CardContent>
       </Card>
+      <Card
+        className="bg-purple-600 text-white border-purple-700 transition-all hover:shadow-md cursor-pointer"
+        onClick={() => handleCardClick("released")}
+      >
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium text-white">
+            Released Pets
+          </CardTitle>
+          <LogOut className="h-4 w-4 text-white" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold text-white">{releasedPets}</div>
+          <p className="text-xs text-purple-100">Completed boardings</p>
+        </CardContent>
+      </Card>
+
+      
     </div>
   );
 }

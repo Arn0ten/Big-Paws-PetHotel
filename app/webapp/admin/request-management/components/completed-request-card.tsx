@@ -303,7 +303,8 @@ export function CompletedRequestCard({ request }: CompletedRequestCardProps) {
                       request.mediaFiles
                         ? {
                             url: request.mediaFiles.urls?.[0] || "",
-                            type: request.mediaFiles.type === "photo" ? "image" : "video",
+                            type:
+                              request.mediaFiles.type === "photo" || request.type === "grooming" ? "image" : "video",
                             urls: request.mediaFiles.urls,
                             audioUrl: request.selectedAudioUrl,
                             audioName: request.selectedAudioName,
