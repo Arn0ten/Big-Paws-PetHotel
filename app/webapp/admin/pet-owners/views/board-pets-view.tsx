@@ -7,7 +7,6 @@ import { ArrowLeft, Info, Hotel, Dog, Cat, Clock, CalendarDays, CalendarClock, M
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
@@ -377,10 +376,69 @@ export default function BoardPetsView({ owner, onBack, onSubmit, isSubmitting }:
           </div>
         </div>
 
-        {/* Boarding type selection */}
+        {/* Pet Selection - Move outside the grid to span full width */}
         <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Boarding Type Selection */}
+          <div className="flex justify-between items-center">
+            <h3 className="text-sm font-medium text-muted-foreground">Select Pets to Board</h3>
+            {errors.petIds && <p className="text-xs text-destructive">{errors.petIds}</p>}
+          </div>
+
+          {availablePets.length === 0 ? (
+            <div className="rounded-md border p-4 text-center">
+              <p className="text-muted-foreground">No pets available for boarding.</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                All of {owner.name}'s pets are currently boarding or no pets have been registered.
+              </p>
+            </div>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {availablePets.map((pet) => (
+                <div
+                  key={pet.id}
+                  className={`rounded-md border p-4 cursor-pointer transition-all ${
+                    formData.petIds.includes(pet.id) ? "border-primary bg-primary/10 shadow-sm" : "hover:bg-muted/50"
+                  }`}
+                  onClick={() => handlePetSelection(pet.id)}
+                >
+                  <div className="flex items-start gap-3">
+                    <Checkbox
+                      id={`pet-${pet.id}`}
+                      checked={formData.petIds.includes(pet.id)}
+                      onCheckedChange={() => handlePetSelection(pet.id)}
+                      className="mt-1"
+                    />
+                    <div className="flex-1">
+                      <Label htmlFor={`pet-${pet.id}`} className="text-base font-medium cursor-pointer">
+                        {pet.name}
+                      </Label>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Badge
+                          className={
+                            pet.type === "Dog"
+                              ? "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-700 dark:text-white dark:hover:bg-blue-600"
+                              : "bg-purple-600 text-white hover:bg-purple-700 dark:bg-purple-700 dark:text-white dark:hover:bg-purple-600"
+                          }
+                        >
+                          {pet.type === "Dog" ? <Dog className="mr-1 h-3 w-3" /> : <Cat className="mr-1 h-3 w-3" />}
+                          {pet.type}
+                        </Badge>
+                        <Badge variant="outline">{pet.size}</Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {pet.breed} • {pet.age} years old
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Left column: Boarding type and dates */}
+          <div className="space-y-4">
+            {/* Boarding type selection */}
             <div className="space-y-2">
               <Label className="text-base font-medium">Boarding Type</Label>
               <RadioGroup
@@ -423,8 +481,168 @@ export default function BoardPetsView({ owner, onBack, onSubmit, isSubmitting }:
               </RadioGroup>
             </div>
 
-            {/* Pricing Summary - Move it up to be visible without scrolling */}
-            <div className="bg-muted/50 rounded-lg p-4 space-y-3 h-fit">
+            {formData.type === "Daycare" ? (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="start-time" className="text-sm font-medium">
+                      Drop-off Time
+                    </Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          id="start-time"
+                          variant="outline"
+                          className="w-full justify-start text-left font-normal"
+                        >
+                          <Clock className="mr-2 h-4 w-4 text-blue-500" />
+                          {formData.startTime ? formatTime(formData.startTime) : "Select time"}
+                        </Button>
+                      </PopoverTrigger>
+                      <TimePicker value={formData.startTime || "09:00"} onChange={handleStartTimeChange} />
+                    </Popover>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="end-time" className="text-sm font-medium">
+                      Pick-up Time
+                    </Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button id="end-time" variant="outline" className="w-full justify-start text-left font-normal">
+                          <Clock className="mr-2 h-4 w-4 text-amber-500" />
+                          {formData.endTime ? formatTime(formData.endTime) : "Select time"}
+                        </Button>
+                      </PopoverTrigger>
+                      <TimePicker value={formData.endTime || "17:00"} onChange={handleEndTimeChange} />
+                    </Popover>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="daycare-date" className="text-sm font-medium">
+                    Date
+                  </Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        id="daycare-date"
+                        variant="outline"
+                        className="w-full justify-start text-left font-normal"
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4 text-primary" />
+                        {formatDate(formData.startDate)}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={formData.startDate}
+                        onSelect={(date) =>
+                          date &&
+                          setFormData((prev) => ({
+                            ...prev,
+                            startDate: date,
+                            endDate: date,
+                          }))
+                        }
+                        initialFocus
+                        disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  {errors.startDate && <p className="text-xs text-destructive">{errors.startDate}</p>}
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="start-date" className="text-sm font-medium">
+                      Check-in Date
+                    </Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          id="start-date"
+                          variant="outline"
+                          className="w-full justify-start text-left font-normal"
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4 text-blue-500" />
+                          {formatDate(formData.startDate)}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={formData.startDate}
+                          onSelect={(date) => {
+                            if (!date) return
+
+                            // Ensure end date is not before start date
+                            const newEndDate = formData.endDate < date ? date : formData.endDate
+
+                            setFormData((prev) => ({
+                              ...prev,
+                              startDate: date,
+                              endDate: newEndDate,
+                            }))
+                          }}
+                          initialFocus
+                          disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    {errors.startDate && <p className="text-xs text-destructive">{errors.startDate}</p>}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="end-date" className="text-sm font-medium">
+                      Check-out Date
+                    </Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button id="end-date" variant="outline" className="w-full justify-start text-left font-normal">
+                          <CalendarIcon className="mr-2 h-4 w-4 text-amber-500" />
+                          {formatDate(formData.endDate)}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={formData.endDate}
+                          onSelect={(date) => date && setFormData((prev) => ({ ...prev, endDate: date }))}
+                          initialFocus
+                          disabled={(date) => date < formData.startDate}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    {errors.endDate && <p className="text-xs text-destructive">{errors.endDate}</p>}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Info className="h-4 w-4" />
+                  <span>Duration: {calculateDuration()} days</span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Right column: Pet selection, notes and pricing */}
+          <div className="space-y-4">
+            
+
+            <div className="space-y-2">
+              <Label htmlFor="notes" className="text-sm font-medium">
+                Additional Notes
+              </Label>
+              <Textarea
+                id="notes"
+                value={formData.notes}
+                onChange={handleNotesChange}
+                placeholder="Enter any special instructions or notes for this boarding"
+                rows={4}
+              />
+            </div>
+            {/* Pricing summary */}
+            <div className="bg-muted/50 rounded-lg p-4 space-y-3">
               <h3 className="font-medium">Pricing Summary</h3>
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
@@ -448,221 +666,9 @@ export default function BoardPetsView({ owner, onBack, onSubmit, isSubmitting }:
               </div>
             </div>
           </div>
-
-          {/* Pet Selection */}
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h3 className="text-sm font-medium text-muted-foreground">Select Pets to Board</h3>
-              {errors.petIds && <p className="text-xs text-destructive">{errors.petIds}</p>}
-            </div>
-
-            {availablePets.length === 0 ? (
-              <div className="rounded-md border p-4 text-center">
-                <p className="text-muted-foreground">No pets available for boarding.</p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  All of {owner.name}'s pets are currently boarding or no pets have been registered.
-                </p>
-              </div>
-            ) : (
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {availablePets.map((pet) => (
-                  <div
-                    key={pet.id}
-                    className={`rounded-md border p-4 cursor-pointer transition-all ${
-                      formData.petIds.includes(pet.id) ? "border-primary bg-primary/10 shadow-sm" : "hover:bg-muted/50"
-                    }`}
-                    onClick={() => handlePetSelection(pet.id)}
-                  >
-                    <div className="flex items-start gap-3">
-                      <Checkbox
-                        id={`pet-${pet.id}`}
-                        checked={formData.petIds.includes(pet.id)}
-                        onCheckedChange={() => handlePetSelection(pet.id)}
-                        className="mt-1"
-                      />
-                      <div className="flex-1">
-                        <Label htmlFor={`pet-${pet.id}`} className="text-base font-medium cursor-pointer">
-                          {pet.name}
-                        </Label>
-                        <div className="flex items-center gap-2 mt-1">
-                          <Badge
-                            className={
-                              pet.type === "Dog"
-                                ? "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-700 dark:text-white dark:hover:bg-blue-600"
-                                : "bg-purple-600 text-white hover:bg-purple-700 dark:bg-purple-700 dark:text-white dark:hover:bg-purple-600"
-                            }
-                          >
-                            {pet.type === "Dog" ? <Dog className="mr-1 h-3 w-3" /> : <Cat className="mr-1 h-3 w-3" />}
-                            {pet.type}
-                          </Badge>
-                          <Badge variant="outline">{pet.size}</Badge>
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {pet.breed} • {pet.age} years old
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <Separator />
-
-          {/* Boarding Duration */}
-          {formData.type === "Daycare" ? (
-            <div className="space-y-4">
-              <h3 className="text-sm font-medium text-muted-foreground">Daycare Schedule</h3>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="start-time" className="text-sm font-medium">
-                    Drop-off Time
-                  </Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button id="start-time" variant="outline" className="w-full justify-start text-left font-normal">
-                        <Clock className="mr-2 h-4 w-4 text-blue-500" />
-                        {formData.startTime ? formatTime(formData.startTime) : "Select time"}
-                      </Button>
-                    </PopoverTrigger>
-                    <TimePicker value={formData.startTime || "09:00"} onChange={handleStartTimeChange} />
-                  </Popover>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="end-time" className="text-sm font-medium">
-                    Pick-up Time
-                  </Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button id="end-time" variant="outline" className="w-full justify-start text-left font-normal">
-                        <Clock className="mr-2 h-4 w-4 text-amber-500" />
-                        {formData.endTime ? formatTime(formData.endTime) : "Select time"}
-                      </Button>
-                    </PopoverTrigger>
-                    <TimePicker value={formData.endTime || "17:00"} onChange={handleEndTimeChange} />
-                  </Popover>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="daycare-date" className="text-sm font-medium">
-                  Date
-                </Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button id="daycare-date" variant="outline" className="w-full justify-start text-left font-normal">
-                      <CalendarIcon className="mr-2 h-4 w-4 text-primary" />
-                      {formatDate(formData.startDate)}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={formData.startDate}
-                      onSelect={(date) =>
-                        date &&
-                        setFormData((prev) => ({
-                          ...prev,
-                          startDate: date,
-                          endDate: date,
-                        }))
-                      }
-                      initialFocus
-                      disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
-                    />
-                  </PopoverContent>
-                </Popover>
-                {errors.startDate && <p className="text-xs text-destructive">{errors.startDate}</p>}
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <h3 className="text-sm font-medium text-muted-foreground">Boarding Duration</h3>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="start-date" className="text-sm font-medium">
-                    Check-in Date
-                  </Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button id="start-date" variant="outline" className="w-full justify-start text-left font-normal">
-                        <CalendarIcon className="mr-2 h-4 w-4 text-blue-500" />
-                        {formatDate(formData.startDate)}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={formData.startDate}
-                        onSelect={(date) => {
-                          if (!date) return
-
-                          // Ensure end date is not before start date
-                          const newEndDate = formData.endDate < date ? date : formData.endDate
-
-                          setFormData((prev) => ({
-                            ...prev,
-                            startDate: date,
-                            endDate: newEndDate,
-                          }))
-                        }}
-                        initialFocus
-                        disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  {errors.startDate && <p className="text-xs text-destructive">{errors.startDate}</p>}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="end-date" className="text-sm font-medium">
-                    Check-out Date
-                  </Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button id="end-date" variant="outline" className="w-full justify-start text-left font-normal">
-                        <CalendarIcon className="mr-2 h-4 w-4 text-amber-500" />
-                        {formatDate(formData.endDate)}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={formData.endDate}
-                        onSelect={(date) => date && setFormData((prev) => ({ ...prev, endDate: date }))}
-                        initialFocus
-                        disabled={(date) => date < formData.startDate}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  {errors.endDate && <p className="text-xs text-destructive">{errors.endDate}</p>}
-                </div>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Info className="h-4 w-4" />
-                <span>Duration: {calculateDuration()} days</span>
-              </div>
-            </div>
-          )}
-
-          <Separator />
-
-          {/* Additional Information */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-medium text-muted-foreground">Additional Information</h3>
-            <div className="space-y-2">
-              <Label htmlFor="notes">Notes</Label>
-              <Textarea
-                id="notes"
-                value={formData.notes}
-                onChange={handleNotesChange}
-                placeholder="Enter any special instructions or notes for this boarding"
-                rows={4}
-              />
-            </div>
-          </div>
-
-          <Separator />
         </div>
+
+        
 
         {/* Submit button */}
         <div className="pt-4 border-t flex justify-end gap-2">
