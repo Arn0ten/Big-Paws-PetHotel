@@ -10,15 +10,6 @@
     "@ai-sdk/provider" "1.1.2"
     "@ai-sdk/provider-utils" "2.2.6"
 
-"@ai-sdk/provider-utils@2.2.1":
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/@ai-sdk/provider-utils/-/provider-utils-2.2.1.tgz#f8877238c5a5d665fe311d69e559f1b932ed1d4e"
-  integrity sha512-BuExLp+NcpwsAVj1F4bgJuQkSqO/+roV9wM7RdIO+NVrcT8RBUTdXzf5arHt5T58VpK7bZyB2V9qigjaPHE+Dg==
-  dependencies:
-    "@ai-sdk/provider" "1.1.0"
-    nanoid "^3.3.8"
-    secure-json-parse "^2.7.0"
-
 "@ai-sdk/provider-utils@2.2.6":
   version "2.2.6"
   resolved "https://registry.yarnpkg.com/@ai-sdk/provider-utils/-/provider-utils-2.2.6.tgz#5dc457feaf3698bb2d1acf33adaf6b2182e501d5"
@@ -28,13 +19,6 @@
     nanoid "^3.3.8"
     secure-json-parse "^2.7.0"
 
-"@ai-sdk/provider@1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@ai-sdk/provider/-/provider-1.1.0.tgz#a9e8bc5ea820a7e4df0abad008f80c8bda44d035"
-  integrity sha512-0M+qjp+clUD0R1E5eWQFhxEvWLNaOtGQRUaBn8CUABnSKredagq92hUS9VjOzGsTm37xLfpaxl97AVtbeOsHew==
-  dependencies:
-    json-schema "^0.4.0"
-
 "@ai-sdk/provider@1.1.2":
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@ai-sdk/provider/-/provider-1.1.2.tgz#d12e46fe396648812e51a682f9f4bbabc27af6d7"
@@ -42,23 +26,23 @@
   dependencies:
     json-schema "^0.4.0"
 
-"@ai-sdk/react@1.2.2":
-  version "1.2.2"
-  resolved "https://registry.yarnpkg.com/@ai-sdk/react/-/react-1.2.2.tgz#2af43a4bcc19b5005cdb905c0f246ee72076981e"
-  integrity sha512-rxyNTFjUd3IilVOJFuUJV5ytZBYAIyRi50kFS2gNmSEiG4NHMBBm31ddrxI/i86VpY8gzZVp1/igtljnWBihUA==
+"@ai-sdk/react@1.2.8":
+  version "1.2.8"
+  resolved "https://registry.yarnpkg.com/@ai-sdk/react/-/react-1.2.8.tgz#1a7148c66ee5d90a0794d803ffedacdbdc3aa6f7"
+  integrity sha512-S2FzCSi4uTF0JuSN6zYMXyiAWVAzi/Hho8ISYgHpGZiICYLNCP2si4DuXQOsnWef3IXzQPLVoE11C63lILZIkw==
   dependencies:
-    "@ai-sdk/provider-utils" "2.2.1"
-    "@ai-sdk/ui-utils" "1.2.1"
+    "@ai-sdk/provider-utils" "2.2.6"
+    "@ai-sdk/ui-utils" "1.2.7"
     swr "^2.2.5"
     throttleit "2.1.0"
 
-"@ai-sdk/ui-utils@1.2.1":
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/@ai-sdk/ui-utils/-/ui-utils-1.2.1.tgz#5d3719ad19ce6f993cd1df6c0976f10c4352706e"
-  integrity sha512-BzvMbYm7LHBlbWuLlcG1jQh4eu14MGpz7L+wrGO1+F4oQ+O0fAjgUSNwPWGlZpKmg4NrcVq/QLmxiVJrx2R4Ew==
+"@ai-sdk/ui-utils@1.2.7":
+  version "1.2.7"
+  resolved "https://registry.yarnpkg.com/@ai-sdk/ui-utils/-/ui-utils-1.2.7.tgz#899d2ea2f6fc16bf8b4bd8329d9946e4f6eeea54"
+  integrity sha512-OVRxa4SDj0wVsMZ8tGr/whT89oqNtNoXBKmqWC2BRv5ZG6azL2LYZ5ZK35u3lb4l1IE7cWGsLlmq0py0ttsL7A==
   dependencies:
-    "@ai-sdk/provider" "1.1.0"
-    "@ai-sdk/provider-utils" "2.2.1"
+    "@ai-sdk/provider" "1.1.2"
+    "@ai-sdk/provider-utils" "2.2.6"
     zod-to-json-schema "^3.24.1"
 
 "@alloc/quick-lru@^5.2.0":
@@ -1394,14 +1378,14 @@ acorn@^8.12.1:
   integrity sha512-OvQ/2pUDKmgfCg++xsTX1wGxfTaszcHVcTctW4UJB4hibJx2HXxxO5UmVgyjMa+ZDsiaf5wWLXYpRWMmBI0QHg==
 
 ai@^4.2.7:
-  version "4.2.7"
-  resolved "https://registry.yarnpkg.com/ai/-/ai-4.2.7.tgz#8086af6e8aafeb7250ad95cd939b83018d663bc5"
-  integrity sha512-wFQG6jDxh+uG37EHj/QzZIWMj8r6hKeSowo7gyZNFLTjLFS61VSYHGqdUO/lepm5bGzF94W/MXgYyZ00IIsseQ==
+  version "4.3.4"
+  resolved "https://registry.yarnpkg.com/ai/-/ai-4.3.4.tgz#91b44a0b803a079f2f87988d12b1433e7484dadb"
+  integrity sha512-uMjzrowIqfU8CCCxhx8QGl7ETydHBROeNL0VoEwetkmDCY6Q8ZTacj6jNNqGJOiCk595aUrGR9VHPY9Ylvy1fg==
   dependencies:
-    "@ai-sdk/provider" "1.1.0"
-    "@ai-sdk/provider-utils" "2.2.1"
-    "@ai-sdk/react" "1.2.2"
-    "@ai-sdk/ui-utils" "1.2.1"
+    "@ai-sdk/provider" "1.1.2"
+    "@ai-sdk/provider-utils" "2.2.6"
+    "@ai-sdk/react" "1.2.8"
+    "@ai-sdk/ui-utils" "1.2.7"
     "@opentelemetry/api" "1.9.0"
     jsondiffpatch "0.6.0"
 
@@ -3152,9 +3136,9 @@ use-sidecar@^1.1.3:
     tslib "^2.0.0"
 
 use-sync-external-store@^1.4.0:
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/use-sync-external-store/-/use-sync-external-store-1.4.0.tgz#adbc795d8eeb47029963016cefdf89dc799fcebc"
-  integrity sha512-9WXSPC5fMv61vaupRkCKCxsPxBocVnwakBEkMIHHpkTTg6icbJtg6jzgtLDm4bl3cSHAca52rYWih0k4K3PfHw==
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/use-sync-external-store/-/use-sync-external-store-1.5.0.tgz#55122e2a3edd2a6c106174c27485e0fd59bcfca0"
+  integrity sha512-Rb46I4cGGVBmjamjphe8L/UnvJD+uPPtTkNvX5mZgqdbavhI4EbgIWJiIHXJ8bc/i9EQGPRh4DwEURJ552Do0A==
 
 util-deprecate@^1.0.2:
   version "1.0.2"
