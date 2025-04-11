@@ -165,9 +165,9 @@ export function EditPetOwnerDialog({ owner, isOpen, onOpenChange, onSubmit, isSu
 
         <div className="space-y-4 py-4">
           <div className="flex flex-col items-center mb-4">
-            <Avatar className="h-24 w-24 mb-2">
-              <AvatarImage src={formData.avatar || DEFAULT_IMAGES.USER_AVATAR} alt="Profile" />
-              <AvatarFallback>{formData.name ? formData.name.charAt(0) : "U"}</AvatarFallback>
+            <Avatar className="h-20 w-20 mb-2 rounded-md">
+              <AvatarImage src={formData.avatar || DEFAULT_IMAGES.USER_AVATAR} alt="Profile" className="object-cover" />
+              <AvatarFallback className="rounded-md">{formData.name ? formData.name.charAt(0) : "U"}</AvatarFallback>
             </Avatar>
 
             <Label htmlFor="avatar-upload" className="cursor-pointer">
@@ -336,4 +336,3 @@ export function EditPetOwnerDialog({ owner, isOpen, onOpenChange, onSubmit, isSu
     </Dialog>
   )
 }
-

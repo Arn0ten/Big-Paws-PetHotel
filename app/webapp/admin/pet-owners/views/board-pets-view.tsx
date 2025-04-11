@@ -379,34 +379,74 @@ export default function BoardPetsView({ owner, onBack, onSubmit, isSubmitting }:
 
         {/* Boarding type selection */}
         <div className="space-y-4">
-          <div className="space-y-2">
-            <Label className="text-base font-medium">Boarding Type</Label>
-            <RadioGroup
-              value={formData.type}
-              onValueChange={(value) => handleBoardingTypeChange(value as BoardingType)}
-              className="flex flex-col space-y-2"
-            >
-              <div className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
-                <RadioGroupItem value="Daycare" id="daycare" className="text-primary" />
-                <Label htmlFor="daycare" className="flex items-center cursor-pointer">
-                  <CalendarClock className="h-4 w-4 mr-2 text-blue-500" />
-                  <div>
-                    <span className="font-medium">Daycare (Same Day)</span>
-                    <p className="text-sm text-muted-foreground">For short-term pet care during the day</p>
-                  </div>
-                </Label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Boarding Type Selection */}
+            <div className="space-y-2">
+              <Label className="text-base font-medium">Boarding Type</Label>
+              <RadioGroup
+                value={formData.type}
+                onValueChange={(value) => handleBoardingTypeChange(value as BoardingType)}
+                className="flex flex-col space-y-2"
+              >
+                <div
+                  className={`flex items-center space-x-3 p-3 rounded-lg border transition-colors ${
+                    formData.type === "Daycare"
+                      ? "border-primary bg-primary/10 shadow-sm"
+                      : "hover:bg-muted/50 border-border"
+                  }`}
+                >
+                  <RadioGroupItem value="Daycare" id="daycare" className="text-primary" />
+                  <Label htmlFor="daycare" className="flex items-center cursor-pointer">
+                    <CalendarClock className="h-4 w-4 mr-2 text-blue-500" />
+                    <div>
+                      <span className="font-medium">Daycare (Same Day)</span>
+                      <p className="text-sm text-muted-foreground">For short-term pet care during the day</p>
+                    </div>
+                  </Label>
+                </div>
+                <div
+                  className={`flex items-center space-x-3 p-3 rounded-lg border transition-colors ${
+                    formData.type === "LongStay"
+                      ? "border-primary bg-primary/10 shadow-sm"
+                      : "hover:bg-muted/50 border-border"
+                  }`}
+                >
+                  <RadioGroupItem value="LongStay" id="longstay" className="text-primary" />
+                  <Label htmlFor="longstay" className="flex items-center cursor-pointer">
+                    <CalendarDays className="h-4 w-4 mr-2 text-amber-500" />
+                    <div>
+                      <span className="font-medium">Long Stay (Multiple Days)</span>
+                      <p className="text-sm text-muted-foreground">For extended boarding periods</p>
+                    </div>
+                  </Label>
+                </div>
+              </RadioGroup>
+            </div>
+
+            {/* Pricing Summary - Move it up to be visible without scrolling */}
+            <div className="bg-muted/50 rounded-lg p-4 space-y-3 h-fit">
+              <h3 className="font-medium">Pricing Summary</h3>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Number of pets:</span>
+                  <span>{formData.petIds.length}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span>Duration:</span>
+                  <span>{formData.type === "Daycare" ? "1 day" : `${calculateDuration()} days`}</span>
+                </div>
+                <div className="flex justify-between pt-2 border-t mt-2">
+                  <span className="font-medium">Total</span>
+                  <span className="text-lg font-bold text-green-600 dark:text-green-500">
+                    ₱
+                    {calculateEstimatedCost().toLocaleString("en-PH", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </span>
+                </div>
               </div>
-              <div className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
-                <RadioGroupItem value="LongStay" id="longstay" className="text-primary" />
-                <Label htmlFor="longstay" className="flex items-center cursor-pointer">
-                  <CalendarDays className="h-4 w-4 mr-2 text-amber-500" />
-                  <div>
-                    <span className="font-medium">Long Stay (Multiple Days)</span>
-                    <p className="text-sm text-muted-foreground">For extended boarding periods</p>
-                  </div>
-                </Label>
-              </div>
-            </RadioGroup>
+            </div>
           </div>
 
           {/* Pet Selection */}
@@ -429,7 +469,7 @@ export default function BoardPetsView({ owner, onBack, onSubmit, isSubmitting }:
                   <div
                     key={pet.id}
                     className={`rounded-md border p-4 cursor-pointer transition-all ${
-                      formData.petIds.includes(pet.id) ? "border-primary bg-primary/5" : ""
+                      formData.petIds.includes(pet.id) ? "border-primary bg-primary/10 shadow-sm" : "hover:bg-muted/50"
                     }`}
                     onClick={() => handlePetSelection(pet.id)}
                   >
@@ -622,38 +662,6 @@ export default function BoardPetsView({ owner, onBack, onSubmit, isSubmitting }:
           </div>
 
           <Separator />
-
-          {/* Pricing Summary */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-medium text-muted-foreground">Pricing Summary</h3>
-            <div className="bg-muted/50 rounded-lg p-4 space-y-3">
-              <h3 className="font-medium">Pricing Summary</h3>
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Number of pets:</span>
-                  <span>{formData.petIds.length}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span>Duration:</span>
-                  <span>{formData.type === "Daycare" ? "1 day" : `${calculateDuration()} days`}</span>
-                </div>
-                <div className="flex justify-between pt-2 border-t mt-2">
-                  <span className="font-medium">Total</span>
-                  <span className="text-lg font-bold text-green-600 dark:text-green-500">
-                    ₱
-                    {calculateEstimatedCost().toLocaleString("en-PH", {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
-                  </span>
-                </div>
-              </div>
-              <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
-                <Info className="h-3 w-3" />
-                <span>Final cost may vary based on additional services and actual duration.</span>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Submit button */}
@@ -695,4 +703,3 @@ export default function BoardPetsView({ owner, onBack, onSubmit, isSubmitting }:
     </PageLayout>
   )
 }
-

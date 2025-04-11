@@ -273,10 +273,10 @@ export function AddPetDialog({ isOpen, onOpenChange, onSubmit, isSubmitting, pet
 
         <div className="space-y-4 py-4">
           <div className="flex flex-col items-center mb-4">
-            <Avatar className="h-24 w-24 mb-2">
-              <AvatarImage src={formData.image || getDefaultImage()} alt="Pet Profile" />
-              <AvatarFallback>
-                {formData.type === "Dog" ? <Dog className="h-12 w-12" /> : <Cat className="h-12 w-12" />}
+            <Avatar className="h-20 w-20 mb-2 rounded-md">
+              <AvatarImage src={formData.image || getDefaultImage()} alt="Pet Profile" className="object-cover" />
+              <AvatarFallback className="rounded-md">
+                {formData.type === "Dog" ? <Dog className="h-10 w-10" /> : <Cat className="h-10 w-10" />}
               </AvatarFallback>
             </Avatar>
 
@@ -679,10 +679,14 @@ export function EditPetDialog({
 
         <div className="space-y-4 py-4">
           <div className="flex flex-col items-center mb-4">
-            <Avatar className="h-24 w-24 mb-2">
-              <AvatarImage src={formData.image || "/placeholder.svg?height=200&width=200"} alt="Pet Profile" />
-              <AvatarFallback>
-                {formData.type === "Dog" ? <Dog className="h-12 w-12" /> : <Cat className="h-12 w-12" />}
+            <Avatar className="h-20 w-20 mb-2 rounded-md">
+              <AvatarImage
+                src={formData.image || "/placeholder.svg?height=200&width=200"}
+                alt="Pet Profile"
+                className="object-cover"
+              />
+              <AvatarFallback className="rounded-md">
+                {formData.type === "Dog" ? <Dog className="h-10 w-10" /> : <Cat className="h-10 w-10" />}
               </AvatarFallback>
             </Avatar>
 
@@ -944,4 +948,3 @@ export function DeleteConfirmDialog({
     </Dialog>
   )
 }
-

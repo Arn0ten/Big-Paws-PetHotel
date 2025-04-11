@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { motion } from "framer-motion"
 import { useRef, useState, useEffect } from "react"
-import { Music, CheckCircle, X, Volume2, VolumeX, Eye, Play, Pause, ChevronLeft, ChevronRight } from "lucide-react"
+import { Music, X, Volume2, VolumeX, Eye, Play, Pause, ChevronLeft, ChevronRight } from "lucide-react"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 
 interface ChatBubbleProps {
@@ -466,11 +466,32 @@ export function ChatBubble({
                     >
                       Your browser does not support the video tag.
                     </video>
-                    {media.audioMerged && (
-                      <div className="absolute top-2 left-2 bg-green-500/70 text-white text-xs px-2 py-1 rounded-full flex items-center shadow-md">
-                        <Music className="h-3 w-3 mr-1" />
-                        <span>{media.audioName || "Background Music"}</span>
-                      </div>
+                    {media?.audioMerged && (
+                      <motion.div
+                        className="absolute top-2 left-2 bg-gradient-to-r from-green-500 to-blue-500 text-white text-xs px-2 py-1 rounded-full flex items-center shadow-md"
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{
+                          scale: [0.9, 1.05, 1],
+                          opacity: 1,
+                        }}
+                        transition={{
+                          duration: 0.5,
+                          ease: "easeOut",
+                        }}
+                      >
+                        <motion.div
+                          animate={{ rotate: [0, 15, -15, 0] }}
+                          transition={{
+                            repeat: Number.POSITIVE_INFINITY,
+                            repeatType: "reverse",
+                            duration: 2,
+                            ease: "easeInOut",
+                          }}
+                        >
+                          <Music className="h-3 w-3 mr-1" />
+                        </motion.div>
+                        <span>{media.audioName || "Audio Merged"}</span>
+                      </motion.div>
                     )}
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
                       <button
@@ -624,10 +645,31 @@ export function ChatBubble({
 
                   {/* Show indicator for merged audio in fullscreen */}
                   {media?.audioMerged && (
-                    <div className="absolute top-4 left-4 bg-green-500/70 text-white text-sm px-3 py-1.5 rounded-full flex items-center shadow-md">
-                      <CheckCircle className="h-4 w-4 mr-2" />
+                    <motion.div
+                      className="absolute top-4 left-4 bg-gradient-to-r from-green-500 to-blue-500 text-white text-sm px-3 py-1.5 rounded-full flex items-center shadow-md"
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{
+                        scale: [0.9, 1.05, 1],
+                        opacity: 1,
+                      }}
+                      transition={{
+                        duration: 0.5,
+                        ease: "easeOut",
+                      }}
+                    >
+                      <motion.div
+                        animate={{ rotate: [0, 15, -15, 0] }}
+                        transition={{
+                          repeat: Number.POSITIVE_INFINITY,
+                          repeatType: "reverse",
+                          duration: 2,
+                          ease: "easeInOut",
+                        }}
+                      >
+                        <Music className="h-4 w-4 mr-2" />
+                      </motion.div>
                       <span>Audio Merged</span>
-                    </div>
+                    </motion.div>
                   )}
 
                   {/* Volume control in fullscreen */}
@@ -649,4 +691,3 @@ export function ChatBubble({
     </>
   )
 }
-

@@ -103,6 +103,28 @@ export default function EnhancedRequestDialog({
   const [videoProgress, setVideoProgress] = useState(0)
   const [isVideoMuted, setIsVideoMuted] = useState(false)
   const fullscreenVideoRef = useRef<HTMLVideoElement>(null)
+  const [audioMerging, setAudioMerging] = useState(false)
+
+  // Handlers for volume changes
+  const handleOriginalVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newVolume = Number.parseFloat(e.target.value)
+    setOriginalVolume(newVolume)
+
+    // Apply volume change immediately to video
+    if (videoRef.current) {
+      videoRef.current.volume = newVolume
+    }
+  }
+
+  const handleBackgroundVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newVolume = Number.parseFloat(e.target.value)
+    setBackgroundVolume(newVolume)
+
+    // Apply volume change immediately to audio
+    if (audioRef.current) {
+      audioRef.current.volume = newVolume
+    }
+  }
 
   // Calculate price based on request type and pet size
   const calculatePrice = () => {
@@ -194,45 +216,68 @@ export default function EnhancedRequestDialog({
     }
   }
 
-  // Function to handle audio merging
-  const handleAudioMerge = () => {
+  // Handle audio merging with backend integration
+  const handleAudioMerge = async () => {
     if (!videoFile || !selectedAudioUrl) return
 
-    // In a real implementation, this would call a server-side API to merge the audio and video
-    // For this demo, we'll simulate the process
-    setAudioMerged(true)
+    setAudioMerging(true)
 
-    // Store the merged state and audio settings
-    if (videoPreviewUrl) {
+    /**
+     * BACKEND INTEGRATION GUIDE FOR AUDIO MERGING
+     *
+     * In a production environment, this function would call a backend API to perform the actual
+     * audio merging. Below is a guide for implementing this functionality on the backend.
+     *
+     * JAVA SPRING BOOT IMPLEMENTATION:
+     *
+     * @PostMapping("/api/media/merge-audio")
+     * public ResponseEntity<Map<String, String>> mergeAudioWithVideo(
+     *     @RequestParam("videoFile") MultipartFile videoFile,
+     *     @RequestParam("audioUrl") String audioUrl,
+     *     @RequestParam("originalVolume") float originalVolume,
+     *     @RequestParam("backgroundVolume") float backgroundVolume) {
+     *
+     *     // Download audio from URL if needed
+     *     File audioFile = downloadAudioFromUrl(audioUrl);
+     *
+     *     // Process the files using FFmpeg
+     *     String outputPath = "/tmp/merged_" + System.currentTimeMillis() + ".mp4";
+     *
+     *     // FFmpeg command to merge audio with video while controlling volume levels
+     *     String command = String.format(
+     *         "ffmpeg -i %s -i %s -filter_complex \"[0:a]volume=%.1f[a1];[1:a]volume=%.1f,aloop=loop=-1:size=0:start=0[a2];[a1][a2]amix=inputs=2:duration=first[aout]\" -map 0:v -map \"[aout]\" -c:v copy -c:a aac -shortest %s",
+     *         videoFile.getOriginalFilename(), audioFile.getAbsolutePath(),
+     *         originalVolume, backgroundVolume, outputPath);
+     *
+     *     // Execute command...
+     *
+     *     // Upload result to cloud storage
+     *     String publicUrl = uploadToCloudStorage(outputPath);
+     *
+     *     // Return the URL of the merged video
+     *     Map<String, String> response = new HashMap<>();
+     *     response.put("mergedVideoUrl", publicUrl);
+     *     return ResponseEntity.ok(response);
+     * }
+     */
+
+    // For this demo, we'll simulate the process with a timeout
+    setTimeout(() => {
+      // Create a "merged" video URL (in reality, this would be a new video with the audio merged)
+      // For demo purposes, we'll just use the original video URL and track the merged state
+      setAudioMerged(true)
       setMergedVideoUrl(videoPreviewUrl)
-    }
+      setAudioMerging(false)
 
-    // Apply volume settings to the video and audio elements
-    if (videoRef.current) {
-      videoRef.current.volume = originalVolume
-    }
+      // Apply volume settings to the video and audio elements
+      if (videoRef.current) {
+        videoRef.current.volume = originalVolume
+      }
 
-    if (audioRef.current) {
-      audioRef.current.volume = backgroundVolume
-    }
-  }
-
-  // Handle volume changes for original video
-  const handleOriginalVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newVolume = Number.parseFloat(e.target.value)
-    setOriginalVolume(newVolume)
-    if (videoRef.current) {
-      videoRef.current.volume = newVolume
-    }
-  }
-
-  // Handle volume changes for background music
-  const handleBackgroundVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newVolume = Number.parseFloat(e.target.value)
-    setBackgroundVolume(newVolume)
-    if (audioRef.current) {
-      audioRef.current.volume = newVolume
-    }
+      if (audioRef.current) {
+        audioRef.current.volume = backgroundVolume
+      }
+    }, 2000)
   }
 
   // Reset state when dialog opens/closes or request changes
@@ -1037,8 +1082,16 @@ export default function EnhancedRequestDialog({
                       <div className="flex items-center justify-between">
                         <Label className="text-sm font-medium">Save with Selected Audio</Label>
                         {!audioMerged ? (
-                          <Button size="sm" onClick={handleAudioMerge}>
-                            <Save className="h-4 w-4 mr-1" /> Save with Audio
+                          <Button size="sm" onClick={handleAudioMerge} disabled={audioMerging}>
+                            {audioMerging ? (
+                              <>
+                                <Loader2 className="h-4 w-4 mr-1 animate-spin" /> Processing...
+                              </>
+                            ) : (
+                              <>
+                                <Save className="h-4 w-4 mr-1" /> Save with Audio
+                              </>
+                            )}
                           </Button>
                         ) : (
                           <div className="flex items-center text-green-600 dark:text-green-400">
@@ -1051,8 +1104,7 @@ export default function EnhancedRequestDialog({
                       {!audioMerged && (
                         <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-md p-3">
                           <p className="text-sm text-amber-700 dark:text-amber-400">
-                            Click "Save with Audio" to merge the audio with the video. This will replace the original
-                            audio and will be sent to the pet owner.
+                            Click "Save with Audio" to merge the background music with your video.
                           </p>
                         </div>
                       )}
@@ -1060,8 +1112,7 @@ export default function EnhancedRequestDialog({
                       {audioMerged && (
                         <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-md p-3">
                           <p className="text-sm text-green-700 dark:text-green-400">
-                            Audio has been successfully merged with the video. This version will be sent to the pet
-                            owner.
+                            Audio successfully merged with the video.
                           </p>
                         </div>
                       )}
@@ -1441,10 +1492,31 @@ export default function EnhancedRequestDialog({
                         )}
 
                         {audioMerged && (
-                          <div className="absolute top-2 left-2 bg-green-500/70 text-white text-xs px-2 py-1 rounded-md flex items-center">
-                            <CheckCircle className="h-3 w-3 mr-1" />
+                          <motion.div
+                            className="absolute top-2 left-2 bg-gradient-to-r from-green-500 to-blue-500 text-white text-xs px-2 py-1 rounded-md flex items-center shadow-md"
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{
+                              scale: [0.9, 1.05, 1],
+                              opacity: 1,
+                            }}
+                            transition={{
+                              duration: 0.5,
+                              ease: "easeOut",
+                            }}
+                          >
+                            <motion.div
+                              animate={{ rotate: [0, 15, -15, 0] }}
+                              transition={{
+                                repeat: Number.POSITIVE_INFINITY,
+                                repeatType: "reverse",
+                                duration: 2,
+                                ease: "easeInOut",
+                              }}
+                            >
+                              <Music className="h-3 w-3 mr-1" />
+                            </motion.div>
                             <span>Audio Merged</span>
-                          </div>
+                          </motion.div>
                         )}
                       </div>
                     </div>
@@ -1639,10 +1711,31 @@ export default function EnhancedRequestDialog({
                   )}
 
                   {audioMerged && (
-                    <div className="absolute top-4 left-4 bg-green-500/70 text-white text-sm px-3 py-1.5 rounded-full flex items-center shadow-md">
-                      <CheckCircle className="h-4 w-4 mr-2" />
+                    <motion.div
+                      className="absolute top-4 left-4 bg-gradient-to-r from-green-500 to-blue-500 text-white text-sm px-3 py-1.5 rounded-full flex items-center shadow-md"
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{
+                        scale: [0.9, 1.05, 1],
+                        opacity: 1,
+                      }}
+                      transition={{
+                        duration: 0.5,
+                        ease: "easeOut",
+                      }}
+                    >
+                      <motion.div
+                        animate={{ rotate: [0, 15, -15, 0] }}
+                        transition={{
+                          repeat: Number.POSITIVE_INFINITY,
+                          repeatType: "reverse",
+                          duration: 2,
+                          ease: "easeInOut",
+                        }}
+                      >
+                        <Music className="h-4 w-4 mr-2" />
+                      </motion.div>
                       <span>Audio Merged</span>
-                    </div>
+                    </motion.div>
                   )}
 
                   {/* Volume control in fullscreen */}
