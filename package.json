@@ -43,7 +43,7 @@
     "@sveltejs/kit": "latest",
     "@vercel/analytics": "latest",
     "ai": "^4.2.7",
-    "autoprefixer": "10.4.20",
+    "autoprefixer": "10.4.21",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "1.1.1",
