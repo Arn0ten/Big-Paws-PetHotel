@@ -22,6 +22,17 @@ import {
   LogOut,
   CalendarClock,
 } from "lucide-react";
+import { FaChartSimple } from "react-icons/fa6";
+import { MdPets } from "react-icons/md";
+import { HiUsers } from "react-icons/hi2";
+import { HiUserAdd } from "react-icons/hi";
+import { RiCalendarScheduleFill } from "react-icons/ri";
+import {
+  VscGitPullRequestNewChanges,
+  VscGitPullRequestGoToChanges,
+} from "react-icons/vsc";
+import { FaHistory } from "react-icons/fa";
+import { BiLogOut } from "react-icons/bi";
 import { Button } from "@/components/ui/button";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { useToast } from "@/hooks/use-toast";
@@ -31,7 +42,7 @@ import { LogoutConfirmationDialog } from "@/components/ui/logout-confirmation-di
 const menuItems = [
   {
     title: "Dashboard",
-    icon: LayoutDashboard,
+    icon: FaChartSimple,
     href: "/webapp/admin/dashboard",
     section: "main",
     color: "text-blue-500",
@@ -43,35 +54,35 @@ const menuItems = [
   },
   {
     title: "Pet Management",
-    icon: PawPrint,
+    icon: MdPets,
     href: "/webapp/admin/pets",
     section: "management",
     color: "text-emerald-500",
   },
   {
     title: "Pet Owner Management",
-    icon: Users,
+    icon: HiUsers,
     href: "/webapp/admin/pet-owners",
     section: "management",
     color: "text-violet-500",
   },
   {
     title: "Pet Owner Registration",
-    icon: UserPlus,
+    icon: HiUserAdd,
     href: "/webapp/admin/registration",
     section: "management",
     color: "text-pink-500",
   },
   {
     title: "Boarding Management",
-    icon: CalendarClock,
+    icon: RiCalendarScheduleFill,
     href: "/webapp/admin/boarding",
     section: "management",
     color: "text-orange-500",
   },
   {
     title: "Request Management",
-    icon: ClipboardList,
+    icon: VscGitPullRequestGoToChanges,
     href: "/webapp/admin/request-management",
     section: "management",
     color: "text-amber-500",
@@ -83,7 +94,7 @@ const menuItems = [
   },
   {
     title: "Requests",
-    icon: Bell,
+    icon: VscGitPullRequestNewChanges,
     href: "/webapp/admin/requests",
     section: "requests",
     color: "text-red-500",
@@ -95,7 +106,7 @@ const menuItems = [
   },
   {
     title: "History",
-    icon: History,
+    icon: FaHistory,
     href: "/webapp/admin/history",
     section: "reports",
     color: "text-cyan-500",
@@ -526,7 +537,7 @@ export function AdminSidebar({ onCollapse }: AdminSidebarProps) {
             )}
             onClick={() => setLogoutDialogOpen(true)}
           >
-            <LogOut size={18} className="mr-2" />
+            <BiLogOut size={18} className="mr-2" />
             {(!isCollapsed || (isMobile && isMobileMenuOpen)) && "Log Out"}
           </Button>
         </div>
