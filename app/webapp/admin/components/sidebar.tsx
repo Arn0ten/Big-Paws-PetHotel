@@ -9,18 +9,9 @@ import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
-  LayoutDashboard,
-  PawPrint,
-  Users,
-  UserPlus,
-  ClipboardList,
-  Bell,
-  History,
   ChevronLeft,
   Menu,
   ChevronRight,
-  LogOut,
-  CalendarClock,
 } from "lucide-react";
 import { FaChartSimple } from "react-icons/fa6";
 import { MdPets } from "react-icons/md";

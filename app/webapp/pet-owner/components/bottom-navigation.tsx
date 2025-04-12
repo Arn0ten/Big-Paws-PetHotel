@@ -1,39 +1,44 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Home, FileText, Bell, User, ImageIcon } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { getUnreadNotificationsCount } from "@/app/webapp/data/sample-data"
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Home, FileText, Bell, User, ImageIcon } from "lucide-react";
+import { AiFillHome } from "react-icons/ai";
+import { VscGitPullRequestNewChanges } from "react-icons/vsc";
+import { IoNotifications } from "react-icons/io5";
+import { MdPermMedia } from "react-icons/md";
+import { FaUserAlt } from "react-icons/fa";
+import { cn } from "@/lib/utils";
+import { getUnreadNotificationsCount } from "@/app/webapp/data/sample-data";
 // BACKEND: Replace this with an API call to get the actual unread count
 // Example: const [unreadCount, setUnreadCount] = useState(0)
 //          useEffect(() => { fetch('/api/notifications/unread/count').then(res => res.json()).then(data => setUnreadCount(data.count)) }, [])
 
 export default function BottomNavigation() {
-  const pathname = usePathname()
-  const unreadCount = getUnreadNotificationsCount()
+  const pathname = usePathname();
+  const unreadCount = getUnreadNotificationsCount();
 
   const navItems = [
     {
       name: "Home",
       href: "/webapp/pet-owner",
-      icon: Home,
+      icon: AiFillHome,
       exact: true,
     },
     {
       name: "Requests",
       href: "/webapp/pet-owner/requests",
-      icon: FileText,
+      icon: VscGitPullRequestNewChanges,
     },
     {
       name: "Media",
       href: "/webapp/pet-owner/media-archive",
-      icon: ImageIcon,
+      icon: MdPermMedia,
     },
     {
       name: "Notifications",
       href: "/webapp/pet-owner/notifications",
-      icon: Bell,
+      icon: IoNotifications,
       badge: unreadCount > 0 ? unreadCount : null,
       // BACKEND IMPLEMENTATION:
       // 1. The unreadCount should be fetched from the API when the component mounts
@@ -48,15 +53,17 @@ export default function BottomNavigation() {
     {
       name: "Profile",
       href: "/webapp/pet-owner/profile",
-      icon: User,
+      icon: FaUserAlt,
     },
-  ]
+  ];
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden border-t border-border dark:border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex items-center justify-around">
         {navItems.map((item) => {
-          const isActive = item.exact ? pathname === item.href : pathname.startsWith(item.href)
+          const isActive = item.exact
+            ? pathname === item.href
+            : pathname.startsWith(item.href);
 
           return (
             <Link
@@ -84,9 +91,9 @@ export default function BottomNavigation() {
               </div>
               <span className="text-xs font-medium mt-1">{item.name}</span>
             </Link>
-          )
+          );
         })}
       </div>
     </div>
-  )
+  );
 }
