@@ -1280,29 +1280,3 @@ const executeSQL = async (sql: string) => {
 };
 ```
 
-## Math
-
-The application uses LaTeX to render mathematical equations and formulas.
-
-### Implementation
-
-1.  **LaTeX Rendering**: Use a LaTeX rendering library on the frontend to display mathematical equations.
-2.  **Data Storage**: Store LaTeX equations as strings in the database.
-3.  **Formatting**: Wrap the LaTeX in DOUBLE dollar signs ($$).
-
-### Example
-
-"The Pythagorean theorem is $$a^2 + b^2 = c^2$$"
-
-This will render the equation using LaTeX.
-
-This guide provides a comprehensive overview of the backend requirements for the Big Paws Pet Hotel application. By following these guidelines, you can implement a robust backend system that integrates seamlessly with the existing frontend components.
-
-For any questions or clarifications, please contact the development team.
-
-Please make sure to add the following environment variables to your project:
-
-
-```
-<AddEnvironmentVariables names={["EMAIL_PROVIDER", "RESEND_API_KEY", "POSTMARK_API_KEY", "MAILGUN_API_KEY", "MAILGUN_DOMAIN", "NEXT_PUBLIC_API_URL"]} />
-

@@ -35,8 +35,9 @@ import { filterPets } from "./utils/helpers"
 import type { Pet } from "./utils/types"
 import { PaginationControls } from "@/app/webapp/admin/components/pagination-controls"
 import PetDetailsView from "./views/pet-details-view"
-import PetFormView from "./views/pet-form-view"
 import BoardPetView from "./views/board-pet-view"
+import AddPetView from "./views/add-pet-view"
+import EditPetView from "./views/edit-pet-view"
 
 // Define the possible views for the module with proper navigation tracking
 type View =
@@ -637,8 +638,9 @@ export default function PetsPage() {
         )
 
       case "add":
+        // Use the new AddPetView component
         return (
-          <PetFormView
+          <AddPetView
             petOwners={petOwners}
             onBack={navigateBack}
             onCancel={navigateToList}
@@ -648,8 +650,9 @@ export default function PetsPage() {
         )
 
       case "edit":
+        // Use the new EditPetView component
         return (
-          <PetFormView
+          <EditPetView
             pet={selectedPet}
             petOwners={petOwners}
             onBack={navigateBack}
@@ -699,4 +702,3 @@ export default function PetsPage() {
     </>
   )
 }
-

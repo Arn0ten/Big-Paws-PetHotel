@@ -7,6 +7,7 @@ import {
   CheckCircle,
   AlertTriangle,
   LogOut,
+  AlertCircle,
 } from "lucide-react";
 
 interface StatsCardsProps {
@@ -89,7 +90,7 @@ export function StatsCards({
           <CardTitle className="text-sm font-medium text-white">
             Overdue Pickups
           </CardTitle>
-          <AlertTriangle className="h-4 w-4 text-white" />
+          <AlertCircle className="h-4 w-4 text-white" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-white">{overduePickups}</div>

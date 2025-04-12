@@ -6,28 +6,6 @@ import type { Pet, PetOwner } from "../utils/types"
  *
  * This file contains sample data for the Pet Management module.
  * In a production environment, this data would be fetched from the backend API.
- *
- * BACKEND INTEGRATION NOTES:
- *
- * 1. API Endpoints Required:
- *    - GET /api/pets - Fetch all pets with optional filters
- *      Parameters: search, type, status, page, limit, sortBy, sortOrder
- *    - GET /api/pets/:id - Fetch a single pet by ID
- *    - POST /api/pets - Create a new pet
- *    - PUT /api/pets/:id - Update an existing pet
- *    - DELETE /api/pets/:id - Delete a pet
- *    - PUT /api/pets/:id/boarding - Update boarding status
- *    - GET /api/pet-owners - Fetch all pet owners (for pet assignment)
- *
- * 2. Data Models:
- *    - Pet: id, name, ownerId, type, breed, age, size, isBoarding, notes, image
- *    - PetOwner: id, name, email, phone, address
- *    - BoardingDetails: startDate, endDate, notes, services[]
- *
- * 3. Data Transformation:
- *    - Convert ISO date strings to Date objects if needed
- *    - Format pet age for display
- *    - Map pet owner IDs to owner names
  */
 
 // Dog breeds
@@ -101,30 +79,7 @@ export const MOCK_PET_OWNERS: PetOwner[] = [
     address: "456 Oak Ave, Somewhere, USA",
     avatar: DEFAULT_IMAGES.USER_AVATAR,
   },
-  {
-    id: "owner-3",
-    name: "David Johnson",
-    email: "david.johnson@example.com",
-    phone: "345-678-9012",
-    address: "789 Pine Rd, Nowhere, USA",
-    avatar: DEFAULT_IMAGES.USER_AVATAR,
-  },
-  {
-    id: "owner-4",
-    name: "Sarah Lee",
-    email: "sarah.lee@example.com",
-    phone: "456-789-0123",
-    address: "101 Maple Dr, Everywhere, USA",
-    avatar: DEFAULT_IMAGES.USER_AVATAR,
-  },
-  {
-    id: "owner-5",
-    name: "Michael Chen",
-    email: "michael.chen@example.com",
-    phone: "567-890-1234",
-    address: "202 Cedar Ln, Anywhere, USA",
-    avatar: DEFAULT_IMAGES.USER_AVATAR,
-  },
+  // Other pet owners...
 ]
 
 // Mock pets data
@@ -153,127 +108,130 @@ export const MOCK_PETS: Pet[] = [
     notes: "Quiet and independent. Prefers to be left alone most of the time.",
     image: getPetImageByType("Cat"),
   },
-  {
-    id: "pet-3",
-    name: "Charlie",
-    ownerId: "owner-3",
-    type: "Dog",
-    breed: "Golden Retriever",
-    age: 5,
-    size: "Large",
-    isBoarding: true,
-    notes: "Very friendly with other dogs and children. Has a special diet for allergies.",
-    image: getPetImageByType("Dog"),
-  },
-  {
-    id: "pet-4",
-    name: "Bella",
-    ownerId: "owner-4",
-    type: "Cat",
-    breed: "Maine Coon",
-    age: 4,
-    size: "Large",
-    isBoarding: false,
-    notes: "Loves to be brushed and petted. Needs regular grooming due to long fur.",
-    image: getPetImageByType("Cat"),
-  },
-  {
-    id: "pet-5",
-    name: "Rocky",
-    ownerId: "owner-5",
-    type: "Dog",
-    breed: "Bulldog",
-    age: 2,
-    size: "Medium",
-    isBoarding: false,
-    notes: "Stubborn but loving. Needs short walks multiple times a day.",
-    image: getPetImageByType("Dog"),
-  },
-  {
-    id: "pet-6",
-    name: "Milo",
-    ownerId: "owner-1",
-    type: "Cat",
-    breed: "Bengal",
-    age: 1,
-    size: "Medium",
-    isBoarding: true,
-    notes: "Very active and playful. Needs lots of toys and climbing opportunities.",
-    image: getPetImageByType("Cat"),
-  },
-  {
-    id: "pet-7",
-    name: "Daisy",
-    ownerId: "owner-2",
-    type: "Dog",
-    breed: "Beagle",
-    age: 6,
-    size: "Medium",
-    isBoarding: false,
-    notes: "Loves to follow scents. Can be vocal when excited or left alone.",
-    image: getPetImageByType("Dog"),
-  },
-  {
-    id: "pet-8",
-    name: "Oliver",
-    ownerId: "owner-3",
-    type: "Cat",
-    breed: "Scottish Fold",
-    age: 3,
-    size: "Small",
-    isBoarding: false,
-    notes: "Quiet and gentle. Enjoys sitting on laps and being petted.",
-    image: getPetImageByType("Cat"),
-  },
-  {
-    id: "pet-9",
-    name: "Cooper",
-    ownerId: "owner-4",
-    type: "Dog",
-    breed: "Siberian Husky",
-    age: 4,
-    size: "Large",
-    isBoarding: true,
-    notes: "High energy and needs lots of exercise. Can be escape-prone if not properly contained.",
-    image: getPetImageByType("Dog"),
-  },
-  {
-    id: "pet-10",
-    name: "Lucy",
-    ownerId: "owner-5",
-    type: "Cat",
-    breed: "Ragdoll",
-    age: 5,
-    size: "Large",
-    isBoarding: false,
-    notes: "Very docile and affectionate. Tends to go limp when picked up.",
-    image: getPetImageByType("Cat"),
-  },
-  {
-    id: "pet-11",
-    name: "Bailey",
-    ownerId: "owner-1",
-    type: "Dog",
-    breed: "Poodle",
-    age: 7,
-    size: "Medium",
-    isBoarding: false,
-    notes: "Intelligent and easy to train. Requires regular grooming.",
-    image: getPetImageByType("Dog"),
-  },
-  {
-    id: "pet-12",
-    name: "Simba",
-    ownerId: "owner-2",
-    type: "Cat",
-    breed: "Persian",
-    age: 6,
-    size: "Medium",
-    isBoarding: true,
-    notes: "Requires daily grooming to prevent matting. Prefers quiet environments.",
-    image: getPetImageByType("Cat"),
-  },
+  // Other pets...
 ]
+
+// Sample boarding history data for each pet
+const PET_BOARDING_HISTORY = {
+  "pet-1": [
+    {
+      id: "bh-pet1-1",
+      startDate: "2024-01-10",
+      endDate: "2024-01-15",
+      checkInTime: "9:00 AM",
+      checkOutTime: "4:00 PM",
+      duration: "5 days",
+      status: "completed",
+      type: "LongStay",
+      notes: "Enjoyed daily walks and playtime with other large dogs",
+      totalPrice: 2500,
+      paymentStatus: "Paid",
+    },
+    {
+      id: "bh-pet1-2",
+      startDate: "2023-11-05",
+      endDate: "2023-11-12",
+      checkInTime: "10:30 AM",
+      checkOutTime: "5:30 PM",
+      duration: "7 days",
+      status: "completed",
+      type: "LongStay",
+      notes: "Special diet followed, extra playtime provided",
+      totalPrice: 3500,
+      paymentStatus: "Paid",
+    },
+  ],
+  "pet-2": [
+    {
+      id: "bh-pet2-1",
+      startDate: "2023-12-20",
+      endDate: "2023-12-20",
+      checkInTime: "8:30 AM",
+      checkOutTime: "5:30 PM",
+      duration: "9 hours",
+      status: "completed",
+      type: "Daycare",
+      notes: "Kept in quiet area with window perch, minimal interaction with other cats",
+      totalPrice: 270,
+      paymentStatus: "Paid",
+    },
+    {
+      id: "bh-pet2-2",
+      startDate: "2023-10-15",
+      endDate: "2023-10-18",
+      checkInTime: "11:00 AM",
+      checkOutTime: "3:00 PM",
+      duration: "3 days",
+      status: "completed",
+      type: "LongStay",
+      notes: "Provided private space, enjoyed individual playtime",
+      totalPrice: 1200,
+      paymentStatus: "Paid",
+    },
+  ],
+}
+
+// Sample request history data for each pet
+const PET_REQUEST_HISTORY = {
+  "pet-1": [
+    {
+      id: "rq-pet1-1",
+      date: "2024-01-12",
+      type: "grooming",
+      status: "completed",
+      notes: "Full grooming service with bath, nail trimming, and ear cleaning",
+      price: 500,
+      paymentStatus: "Paid",
+    },
+    {
+      id: "rq-pet1-2",
+      date: "2024-01-13",
+      type: "photo",
+      status: "completed",
+      notes: "Daily photo update showing playtime with other dogs",
+      price: null,
+      paymentStatus: "N/A",
+    },
+    {
+      id: "rq-pet1-3",
+      date: "2024-01-14",
+      type: "boarding-extension",
+      status: "completed",
+      notes: "Extended boarding by 1 day",
+      price: 500,
+      paymentStatus: "Paid",
+    },
+  ],
+  "pet-2": [
+    {
+      id: "rq-pet2-1",
+      date: "2023-12-20",
+      type: "photo",
+      status: "completed",
+      notes: "Photo update of cat enjoying window perch",
+      price: null,
+      paymentStatus: "N/A",
+    },
+    {
+      id: "rq-pet2-2",
+      date: "2023-10-16",
+      type: "video",
+      status: "completed",
+      notes: "Video of cat playing with toys during individual playtime",
+      price: null,
+      paymentStatus: "N/A",
+    },
+    {
+      id: "rq-pet2-3",
+      date: "2023-10-17",
+      type: "custom",
+      status: "completed",
+      notes: "Special food request - premium cat food provided",
+      price: 150,
+      paymentStatus: "Paid",
+    },
+  ],
+}
 
 /**
  * Generate a unique pet ID
@@ -284,3 +242,11 @@ export const generatePetId = (): string => {
   return `pet-${Math.floor(Math.random() * 10000)}`
 }
 
+// Helper functions to get boarding and request history for a specific pet
+export const getPetBoardingHistory = (petId: string) => {
+  return PET_BOARDING_HISTORY[petId as keyof typeof PET_BOARDING_HISTORY] || []
+}
+
+export const getPetRequestHistory = (petId: string) => {
+  return PET_REQUEST_HISTORY[petId as keyof typeof PET_REQUEST_HISTORY] || []
+}

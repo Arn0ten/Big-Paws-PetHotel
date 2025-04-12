@@ -25,14 +25,10 @@ import {
   Play,
   Pause,
   Music,
-  CheckCircle,
   Eye,
   X,
-  ChevronLeft,
-  ChevronRight,
   Volume2,
   VolumeX,
-  Save,
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -93,8 +89,8 @@ export default function EnhancedRequestDialog({
   const [extensionDate, setExtensionDate] = useState<Date | undefined>(undefined)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isVideoPlaying, setIsVideoPlaying] = useState(false)
-  const [originalVolume, setOriginalVolume] = useState(0.5) // Default to 50% volume
-  const [backgroundVolume, setBackgroundVolume] = useState(0.5) // Default to 50% volume
+  const [originalVolume, setOriginalVolume] = useState(0) // Initially set to 0% (muted)
+  const [backgroundVolume, setBackgroundVolume] = useState(1) // Initially set to 100%
 
   // Add state variables for fullscreen views
   const [showVideoFullscreen, setShowVideoFullscreen] = useState(false)
@@ -110,9 +106,13 @@ export default function EnhancedRequestDialog({
     const newVolume = Number.parseFloat(e.target.value)
     setOriginalVolume(newVolume)
 
-    // Apply volume change immediately to video
+    // Apply volume change immediately to video and unmute if needed
     if (videoRef.current) {
       videoRef.current.volume = newVolume
+      // If user is adjusting original audio volume above 0, unmute
+      if (newVolume > 0 && videoRef.current.muted) {
+        videoRef.current.muted = false
+      }
     }
   }
 
@@ -1035,91 +1035,7 @@ export default function EnhancedRequestDialog({
               </Card>
 
               {/* Add audio volume controls and merge button if audio is selected */}
-              {selectedAudioUrl && (
-                <Card className="border-purple-200 dark:border-purple-800">
-                  <CardHeader className="bg-purple-50 dark:bg-purple-950/20 pb-2">
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Music className="h-5 w-5 text-purple-600" />
-                      Audio Settings
-                    </CardTitle>
-                    <CardDescription>Adjust audio levels and merge with video</CardDescription>
-                  </CardHeader>
-                  <CardContent className="pt-4 space-y-4">
-                    <div className="space-y-3">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <div className="flex justify-between">
-                            <Label className="text-xs">Original Audio</Label>
-                            <span className="text-xs">{Math.round(originalVolume * 100)}%</span>
-                          </div>
-                          <input
-                            type="range"
-                            min="0"
-                            max="1"
-                            step="0.01"
-                            value={originalVolume}
-                            onChange={handleOriginalVolumeChange}
-                            className="w-full"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <div className="flex justify-between">
-                            <Label className="text-xs">Background Music</Label>
-                            <span className="text-xs">{Math.round(backgroundVolume * 100)}%</span>
-                          </div>
-                          <input
-                            type="range"
-                            min="0"
-                            max="1"
-                            step="0.01"
-                            value={backgroundVolume}
-                            onChange={handleBackgroundVolumeChange}
-                            className="w-full"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <Label className="text-sm font-medium">Save with Selected Audio</Label>
-                        {!audioMerged ? (
-                          <Button size="sm" onClick={handleAudioMerge} disabled={audioMerging}>
-                            {audioMerging ? (
-                              <>
-                                <Loader2 className="h-4 w-4 mr-1 animate-spin" /> Processing...
-                              </>
-                            ) : (
-                              <>
-                                <Save className="h-4 w-4 mr-1" /> Save with Audio
-                              </>
-                            )}
-                          </Button>
-                        ) : (
-                          <div className="flex items-center text-green-600 dark:text-green-400">
-                            <CheckCircle className="h-4 w-4 mr-1" />
-                            <span className="text-sm font-medium">Audio Merged</span>
-                          </div>
-                        )}
-                      </div>
-
-                      {!audioMerged && (
-                        <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-md p-3">
-                          <p className="text-sm text-amber-700 dark:text-amber-400">
-                            Click "Save with Audio" to merge the background music with your video.
-                          </p>
-                        </div>
-                      )}
-
-                      {audioMerged && (
-                        <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-md p-3">
-                          <p className="text-sm text-green-700 dark:text-green-400">
-                            Audio successfully merged with the video.
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
+              {/* Remove the Audio Settings section in the dialog */}
             </div>
           )}
 
@@ -1523,7 +1439,7 @@ export default function EnhancedRequestDialog({
                   )}
 
                   {/* Photo preview in final step */}
-                  {request.type === "photo" && selectedFiles.length > 0 && (
+                  {(request.type === "photo" || request.type === "grooming") && selectedFiles.length > 0 && (
                     <div className="col-span-2 mt-2">
                       <Label className="text-xs text-muted-foreground uppercase tracking-wider mb-2 block">
                         Photo Preview
@@ -1557,65 +1473,6 @@ export default function EnhancedRequestDialog({
                           </div>
                         ))}
                       </div>
-
-                      {/* Photo Fullscreen Dialog */}
-                      <Dialog open={showPhotoFullscreen} onOpenChange={setShowPhotoFullscreen}>
-                        <DialogContent className="p-0 max-w-[100vw] h-[100vh] border-none bg-transparent shadow-none">
-                          <div className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center">
-                            {/* Close button */}
-                            <button
-                              className="fixed top-4 right-4 bg-black/50 text-white p-2 rounded-full z-10 hover:bg-black/70 transition-colors"
-                              onClick={() => setShowPhotoFullscreen(false)}
-                              aria-label="Close fullscreen view"
-                            >
-                              <X className="h-6 w-6" />
-                            </button>
-
-                            {/* Navigation buttons */}
-                            {previewUrls.length > 1 && (
-                              <>
-                                <button
-                                  className="fixed left-4 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full z-10 hover:bg-black/70 transition-colors"
-                                  onClick={() => navigatePhotos("prev")}
-                                  aria-label="Previous photo"
-                                >
-                                  <ChevronLeft className="h-6 w-6" />
-                                </button>
-                                <button
-                                  className="fixed right-4 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full z-10 hover:bg-black/70 transition-colors"
-                                  onClick={() => navigatePhotos("next")}
-                                  aria-label="Next photo"
-                                >
-                                  <ChevronRight className="h-6 w-6" />
-                                </button>
-                              </>
-                            )}
-
-                            {/* Photo container with animation */}
-                            <motion.div
-                              className="relative w-full max-w-4xl h-full flex items-center justify-center p-4"
-                              initial={{ scale: 0.9, opacity: 0 }}
-                              animate={{ scale: 1, opacity: 1 }}
-                              exit={{ scale: 0.9, opacity: 0 }}
-                              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                              key={currentPhotoIndex} // Re-render animation when photo changes
-                            >
-                              <img
-                                src={previewUrls[currentPhotoIndex] || "/placeholder.svg"}
-                                alt={`Photo ${currentPhotoIndex + 1}`}
-                                className="max-w-full max-h-[80vh] object-contain rounded-lg"
-                              />
-
-                              {/* Photo counter */}
-                              {previewUrls.length > 1 && (
-                                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-white text-sm px-3 py-1 rounded-full">
-                                  {currentPhotoIndex + 1} / {previewUrls.length}
-                                </div>
-                              )}
-                            </motion.div>
-                          </div>
-                        </DialogContent>
-                      </Dialog>
                     </div>
                   )}
 

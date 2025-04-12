@@ -6,28 +6,6 @@ import type { PetOwner } from "../utils/types"
  *
  * This file contains sample data for the Pet Owner Management module.
  * In a production environment, this data would be fetched from the backend API.
- *
- * BACKEND INTEGRATION NOTES:
- *
- * 1. API Endpoints Required:
- *    - GET /api/pet-owners - Fetch all pet owners with optional filters
- *      Parameters: search, city, hasPets, page, limit, sortBy, sortOrder
- *    - GET /api/pet-owners/:id - Fetch a single pet owner by ID
- *    - POST /api/pet-owners - Create a new pet owner
- *    - PUT /api/pet-owners/:id - Update an existing pet owner
- *    - DELETE /api/pet-owners/:id - Delete a pet owner
- *    - POST /api/pet-owners/:id/pets - Add a pet to a pet owner
- *    - POST /api/boarding - Create a new boarding record
- *
- * 2. Data Models:
- *    - PetOwner: id, name, email, phone, address, avatar, pets[]
- *    - Pet: id, name, type, breed, age, size, isBoarding, notes, image, ownerId
- *    - BoardingDetails: petIds[], startDate, endDate, notes, services[]
- *
- * 3. Data Transformation:
- *    - Convert ISO date strings to Date objects if needed
- *    - Format address for display
- *    - Calculate pet counts and boarding status
  */
 
 // Mock data for pet owners
@@ -84,161 +62,162 @@ export const MOCK_PET_OWNERS: PetOwner[] = [
     ],
     createdAt: "2023-02-20",
   },
-  {
-    id: "PO-003",
-    name: "Robert Johnson",
-    avatar: DEFAULT_IMAGES.USER_AVATAR,
-    email: "robert.johnson@example.com",
-    phone: "09345678901",
-    address: "789 Pine St, Pasig City, Metro Manila",
-    pets: [
-      {
-        id: "P-004",
-        name: "Charlie",
-        type: "Dog",
-        breed: "Beagle",
-        age: 4,
-        size: "Medium",
-        isBoarding: false,
-        image: getPetImageByType("Dog"),
-      },
-      {
-        id: "P-005",
-        name: "Milo",
-        type: "Cat",
-        breed: "Persian",
-        age: 3,
-        size: "Medium",
-        isBoarding: true,
-        image: getPetImageByType("Cat"),
-      },
-    ],
-    createdAt: "2023-03-10",
-  },
-  {
-    id: "PO-004",
-    name: "Sarah Lee",
-    avatar: DEFAULT_IMAGES.USER_AVATAR,
-    email: "sarah.lee@example.com",
-    phone: "09456789012",
-    address: "101 Maple Dr, Taguig City, Metro Manila",
-    pets: [
-      {
-        id: "P-006",
-        name: "Bella",
-        type: "Dog",
-        breed: "Poodle",
-        age: 2,
-        size: "Small",
-        isBoarding: true,
-        image: getPetImageByType("Dog"),
-      },
-    ],
-    createdAt: "2023-04-05",
-  },
-  {
-    id: "PO-005",
-    name: "Michael Chen",
-    avatar: DEFAULT_IMAGES.USER_AVATAR,
-    email: "michael.chen@example.com",
-    phone: "09567890123",
-    address: "202 Cedar Ln, Mandaluyong City, Metro Manila",
-    pets: [
-      {
-        id: "P-007",
-        name: "Oliver",
-        type: "Cat",
-        breed: "Maine Coon",
-        age: 5,
-        size: "Large",
-        isBoarding: false,
-        image: getPetImageByType("Cat"),
-      },
-      {
-        id: "P-008",
-        name: "Rocky",
-        type: "Dog",
-        breed: "Bulldog",
-        age: 3,
-        size: "Medium",
-        isBoarding: true,
-        image: getPetImageByType("Dog"),
-      },
-    ],
-    createdAt: "2023-05-15",
-  },
-  {
-    id: "PO-006",
-    name: "Emily Wilson",
-    avatar: DEFAULT_IMAGES.USER_AVATAR,
-    email: "emily.wilson@example.com",
-    phone: "09678901234",
-    address: "303 Birch Rd, Parañaque City, Metro Manila",
-    pets: [
-      {
-        id: "P-009",
-        name: "Lucy",
-        type: "Dog",
-        breed: "Shih Tzu",
-        age: 4,
-        size: "Small",
-        isBoarding: false,
-        image: getPetImageByType("Dog"),
-      },
-    ],
-    createdAt: "2023-06-20",
-  },
-  {
-    id: "PO-007",
-    name: "David Kim",
-    avatar: DEFAULT_IMAGES.USER_AVATAR,
-    email: "david.kim@example.com",
-    phone: "09789012345",
-    address: "404 Elm St, Muntinlupa City, Metro Manila",
-    pets: [
-      {
-        id: "P-010",
-        name: "Leo",
-        type: "Cat",
-        breed: "Bengal",
-        age: 2,
-        size: "Medium",
-        isBoarding: true,
-        image: getPetImageByType("Cat"),
-      },
-      {
-        id: "P-011",
-        name: "Cooper",
-        type: "Dog",
-        breed: "Labrador",
-        age: 6,
-        size: "Large",
-        isBoarding: false,
-        image: getPetImageByType("Dog"),
-      },
-    ],
-    createdAt: "2023-07-10",
-  },
-  {
-    id: "PO-008",
-    name: "Jessica Martinez",
-    avatar: DEFAULT_IMAGES.USER_AVATAR,
-    email: "jessica.martinez@example.com",
-    phone: "09890123456",
-    address: "505 Walnut Ave, Caloocan City, Metro Manila",
-    pets: [
-      {
-        id: "P-012",
-        name: "Daisy",
-        type: "Dog",
-        breed: "Corgi",
-        age: 3,
-        size: "Small",
-        isBoarding: true,
-        image: getPetImageByType("Dog"),
-      },
-    ],
-    createdAt: "2023-08-15",
-  },
+  // Other pet owners...
 ]
 
+// Sample boarding history data for each pet
+const PET_BOARDING_HISTORY = {
+  "P-001": [
+    {
+      id: "bh-p001-1",
+      startDate: "2023-12-15",
+      endDate: "2023-12-20",
+      checkInTime: "10:00 AM",
+      checkOutTime: "5:00 PM",
+      duration: "5 days",
+      status: "completed",
+      type: "LongStay",
+      notes: "Regular diet, daily walks, enjoyed playtime with other dogs",
+      totalPrice: 2400,
+      paymentStatus: "Paid",
+    },
+    {
+      id: "bh-p001-2",
+      startDate: "2023-11-01",
+      endDate: "2023-11-03",
+      checkInTime: "9:30 AM",
+      checkOutTime: "4:30 PM",
+      duration: "2 days",
+      status: "completed",
+      type: "LongStay",
+      notes: "Special diet followed, medication administered as scheduled",
+      totalPrice: 960,
+      paymentStatus: "Paid",
+    },
+  ],
+  "P-002": [
+    {
+      id: "bh-p002-1",
+      startDate: "2023-10-10",
+      endDate: "2023-10-10",
+      checkInTime: "8:00 AM",
+      checkOutTime: "6:00 PM",
+      duration: "10 hours",
+      status: "completed",
+      type: "Daycare",
+      notes: "Socialized well with other dogs, enjoyed outdoor activities",
+      totalPrice: 300,
+      paymentStatus: "Paid",
+    },
+  ],
+  "P-003": [
+    {
+      id: "bh-p003-1",
+      startDate: "2023-11-20",
+      endDate: "2023-11-25",
+      checkInTime: "11:00 AM",
+      checkOutTime: "3:00 PM",
+      duration: "5 days",
+      status: "completed",
+      type: "LongStay",
+      notes: "Preferred quiet spaces, enjoyed individual playtime",
+      totalPrice: 2000,
+      paymentStatus: "Paid",
+    },
+    {
+      id: "bh-p003-2",
+      startDate: "2023-09-15",
+      endDate: "2023-09-15",
+      checkInTime: "9:00 AM",
+      checkOutTime: "5:00 PM",
+      duration: "8 hours",
+      status: "completed",
+      type: "Daycare",
+      notes: "Kept in quiet area, enjoyed window perching",
+      totalPrice: 240,
+      paymentStatus: "Paid",
+    },
+  ],
+}
+
+// Sample request history data for each pet
+const PET_REQUEST_HISTORY = {
+  "P-001": [
+    {
+      id: "rq-p001-1",
+      date: "2023-12-18",
+      type: "grooming",
+      status: "completed",
+      notes: "Full grooming service with nail trimming and bath",
+      price: 450,
+      paymentStatus: "Paid",
+    },
+    {
+      id: "rq-p001-2",
+      date: "2023-12-17",
+      type: "photo",
+      status: "completed",
+      notes: "Daily photo update showing playtime activities",
+      price: null,
+      paymentStatus: "N/A",
+    },
+  ],
+  "P-002": [
+    {
+      id: "rq-p002-1",
+      date: "2023-10-10",
+      type: "video",
+      status: "completed",
+      notes: "Video of daycare activities and socialization",
+      price: null,
+      paymentStatus: "N/A",
+    },
+    {
+      id: "rq-p002-2",
+      date: "2023-09-05",
+      type: "boarding-extension",
+      status: "rejected",
+      notes: "Request to extend boarding by 1 day - no space available",
+      price: null,
+      paymentStatus: "N/A",
+    },
+  ],
+  "P-003": [
+    {
+      id: "rq-p003-1",
+      date: "2023-11-22",
+      type: "photo",
+      status: "completed",
+      notes: "Daily photo update showing cat in relaxed state",
+      price: null,
+      paymentStatus: "N/A",
+    },
+    {
+      id: "rq-p003-2",
+      date: "2023-11-23",
+      type: "custom",
+      status: "completed",
+      notes: "Special food request - premium cat food provided",
+      price: 120,
+      paymentStatus: "Paid",
+    },
+    {
+      id: "rq-p003-3",
+      date: "2023-11-24",
+      type: "boarding-extension",
+      status: "completed",
+      notes: "Extended boarding by 1 day",
+      price: 400,
+      paymentStatus: "Paid",
+    },
+  ],
+}
+
+// Helper functions to get boarding and request history for a specific pet
+export const getPetBoardingHistory = (petId: string) => {
+  return PET_BOARDING_HISTORY[petId as keyof typeof PET_BOARDING_HISTORY] || []
+}
+
+export const getPetRequestHistory = (petId: string) => {
+  return PET_REQUEST_HISTORY[petId as keyof typeof PET_REQUEST_HISTORY] || []
+}

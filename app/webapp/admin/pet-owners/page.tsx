@@ -24,7 +24,7 @@ import { motion } from "framer-motion"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Users, Filter, Search, Loader2 } from "lucide-react"
+import { Users, Filter, Search, Loader2, Plus } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
@@ -38,10 +38,11 @@ import { DeleteConfirmDialog } from "./components/dialogs"
 import { SuccessDialog as ActionSuccessDialog } from "../pets/components/confirmation-dialog"
 import type { PetOwner } from "./utils/types"
 import PetOwnerDetailsView from "./views/pet-owner-details-view"
-import PetOwnerFormView from "./views/pet-owner-form-view"
-import PetFormView from "./views/pet-form-view"
 import BoardPetsView from "./views/board-pets-view"
 import PetDetailsView from "./views/pet-details-view"
+import EditPetOwnerView from "./views/edit-pet-owner-view"
+import AddPetView from "./views/add-pet-view"
+import EditPetView from "./views/edit-pet-view"
 
 // Define the possible views for the module
 type View =
@@ -771,6 +772,16 @@ export default function PetOwnersPage() {
                           </SelectContent>
                         </Select>
                       </div>
+                      {/* Right side - Add New */}
+                      <div className="flex justify-end order-2 md:order-2 w-full md:w-auto">
+                        <Button
+                          onClick={handleAddPetOwnerClick}
+                          className="bg-green-600 hover:bg-green-700 text-white whitespace-nowrap"
+                        >
+                          <Plus className="mr-2 h-4 w-4" />
+                          Add Pet Owner
+                        </Button>
+                      </div>
                     </div>
 
                     {/* Pet owners table */}
@@ -830,13 +841,10 @@ export default function PetOwnersPage() {
           />
         )
 
-      // Update all other cases to use navigateBack and navigateTo
-      case "add":
-        return <PetOwnerFormView onBack={navigateBack} onSubmit={handleAddPetOwner} isSubmitting={isSubmitting} />
-
+      // Update to use the new EditPetOwnerView component
       case "edit":
         return (
-          <PetOwnerFormView
+          <EditPetOwnerView
             owner={selectedOwner}
             onBack={navigateBack}
             onSubmit={handleUpdatePetOwner}
@@ -844,9 +852,10 @@ export default function PetOwnersPage() {
           />
         )
 
+      // Update to use the new AddPetView component
       case "addPet":
         return (
-          <PetFormView
+          <AddPetView
             ownerId={selectedOwnerId}
             ownerName={selectedOwner?.name}
             onBack={navigateBack}
@@ -855,9 +864,10 @@ export default function PetOwnersPage() {
           />
         )
 
+      // Update to use the new EditPetView component
       case "editPet":
         return (
-          <PetFormView
+          <EditPetView
             pet={selectedPet}
             ownerId={selectedOwnerId}
             ownerName={selectedOwner?.name}
@@ -935,4 +945,3 @@ export default function PetOwnersPage() {
     </>
   )
 }
-

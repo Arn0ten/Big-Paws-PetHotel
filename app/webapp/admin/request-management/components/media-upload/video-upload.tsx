@@ -6,7 +6,22 @@ import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
-import { Loader2, Upload, X, Music, Play, Pause, Volume2, VolumeX, AlertCircle, Eye, Replace } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import {
+  Loader2,
+  Upload,
+  X,
+  Music,
+  Play,
+  Pause,
+  Volume2,
+  VolumeX,
+  AlertCircle,
+  Eye,
+  Replace,
+  CheckCircle,
+  Save,
+} from "lucide-react"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
@@ -46,8 +61,8 @@ export function VideoUpload({
   const fileInputRef = useRef<HTMLInputElement>(null)
   const isMobile = useMediaQuery("(max-width: 640px)")
   const [showDurationError, setShowDurationError] = useState(false)
-  const [originalVolume, setOriginalVolume] = useState(0.2) // Lower original volume by default
-  const [backgroundVolume, setBackgroundVolume] = useState(0.8) // Higher background volume by default
+  const [originalVolume, setOriginalVolume] = useState(0) // Initially set to 0% (muted)
+  const [backgroundVolume, setBackgroundVolume] = useState(1) // Initially set to 100%
   const [videoFile, setVideoFile] = useState<File | null>(null)
   const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null)
   const [isDragging, setIsDragging] = useState(false)
@@ -210,7 +225,7 @@ export function VideoUpload({
     }
   }
 
-  // Handle audio selection and auto-play video with selected audio
+  // Modify the handleAudioSelect function to not automatically merge audio
   const handleAudioSelect = (audioUrl: string | null, audioName: string | null) => {
     // Stop any currently playing audio preview
     if (isAudioPlaying) {
@@ -251,11 +266,11 @@ export function VideoUpload({
       return
     }
 
-    // Auto-play video with selected audio
+    // Set up audio for preview but don't auto-merge
     if (videoRef.current && audioUrl) {
       // Reset video to beginning
       videoRef.current.currentTime = 0
-      // Mute original audio
+      // Mute original audio initially
       videoRef.current.muted = true
       setIsMuted(true)
 
@@ -263,6 +278,7 @@ export function VideoUpload({
       if (audioRef.current) {
         audioRef.current.src = audioUrl
         audioRef.current.currentTime = 0
+        audioRef.current.volume = 1 // Set background audio to 100%
 
         // Play video with audio
         const playPromise = videoRef.current.play()
@@ -277,13 +293,6 @@ export function VideoUpload({
             })
         }
       }
-    }
-
-    // Automatically merge audio with video if an audio is selected
-    if (audioUrl) {
-      setTimeout(() => {
-        handleMergeAudio(audioUrl, audioName)
-      }, 500)
     }
   }
 
@@ -712,6 +721,25 @@ export function VideoUpload({
     }
   }, [fullscreenVideoRef.current])
 
+  const handleAudioMerge = () => {
+    handleMergeAudio()
+  }
+
+  const handleOriginalVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newVolume = Number.parseFloat(e.target.value)
+    setOriginalVolume(newVolume)
+
+    // Apply volume change immediately to video and unmute if needed
+    if (videoRef.current) {
+      videoRef.current.volume = newVolume
+      // If user is adjusting original audio volume above 0, unmute
+      if (newVolume > 0 && isMuted) {
+        videoRef.current.muted = false
+        setIsMuted(false)
+      }
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -913,6 +941,24 @@ export function VideoUpload({
                   <Music className="h-4 w-4 mr-1" />
                   {selectedAudio ? "Change Music" : "Add Music"}
                 </Button>
+                {selectedAudio && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleAudioMerge}
+                    className="w-full sm:w-auto"
+                    disabled={audioMerging || audioMerged}
+                  >
+                    {audioMerging ? (
+                      <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                    ) : audioMerged ? (
+                      <CheckCircle className="h-4 w-4 mr-1" />
+                    ) : (
+                      <Save className="h-4 w-4 mr-1" />
+                    )}
+                    {audioMerging ? "Merging..." : audioMerged ? "Merged" : "Save Audio"}
+                  </Button>
+                )}
                 <Button
                   variant="outline"
                   size="sm"
@@ -933,6 +979,67 @@ export function VideoUpload({
                 </Button>
               </div>
             </div>
+            {selectedAudio && (
+              <div className="mt-4 p-3 bg-muted/30 rounded-md">
+                <h4 className="text-sm font-medium mb-2">Audio Settings</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="original-volume" className="text-xs flex justify-between">
+                      <span>Original Audio</span>
+                      <span>{Math.round(originalVolume * 100)}%</span>
+                    </Label>
+                    <Input
+                      id="original-volume"
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.1"
+                      value={originalVolume}
+                      onChange={handleOriginalVolumeChange}
+                      className="h-2"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="background-volume" className="text-xs flex justify-between">
+                      <span>Background Music</span>
+                      <span>{Math.round(backgroundVolume * 100)}%</span>
+                    </Label>
+                    <Input
+                      id="background-volume"
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.1"
+                      value={backgroundVolume}
+                      onChange={(e) => setBackgroundVolume(Number.parseFloat(e.target.value))}
+                      className="h-2"
+                    />
+                  </div>
+                </div>
+                <Button
+                  onClick={() => handleMergeAudio()}
+                  disabled={audioMerging || audioMerged}
+                  className="w-full mt-3 bg-green-600 hover:bg-green-700 text-white"
+                >
+                  {audioMerging ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Merging Audio...
+                    </>
+                  ) : audioMerged ? (
+                    <>
+                      <CheckCircle className="mr-2 h-4 w-4" />
+                      Audio Merged
+                    </>
+                  ) : (
+                    <>
+                      <Music className="mr-2 h-4 w-4" />
+                      Save with Audio
+                    </>
+                  )}
+                </Button>
+              </div>
+            )}
           </div>
 
           {durationError && (

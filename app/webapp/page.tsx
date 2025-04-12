@@ -481,7 +481,6 @@ export default function WelcomePage() {
                     </>
                   ) : (
                     <>
-                      <PawPrint className="h-5 w-5" />
                       <span className="relative z-10">Enter Portal</span>
                     </>
                   )}
