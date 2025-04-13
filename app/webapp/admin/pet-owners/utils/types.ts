@@ -25,6 +25,7 @@ export interface PetOwner {
   };
   notes?: string;
   avatar?: string;
+  pets?: Pet[];
 }
 
 export interface FormErrors {

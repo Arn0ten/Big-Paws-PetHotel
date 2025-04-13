@@ -1,23 +1,23 @@
-"use client"
+"use client";
 
-import { Skeleton } from "@/components/ui/skeleton"
+import { Skeleton } from "@/components/ui/skeleton";
 
-import { useState, useEffect } from "react"
-import { motion } from "framer-motion"
-import { Download, UserPlus } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { useRouter } from "next/navigation"
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { Download, UserPlus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 // Import modular dashboard components
-import { StatCards } from "./components/stat-cards"
-import { RequestTrendChart } from "./components/request-trend-chart"
-import { RevenueChart } from "./components/revenue-chart"
-import { PopularRequestsChart } from "./components/popular-requests-chart"
-import { RecentActivityTabs } from "./components/recent-activity-tabs"
+import { StatCards } from "./components/stat-cards";
+import { RequestTrendChart } from "./components/request-trend-chart";
+import { RevenueChart } from "./components/revenue-chart";
+import { PopularRequestsChart } from "./components/popular-requests-chart";
+import { RecentActivityTabs } from "./components/recent-activity-tabs";
+import { DashboardDataProvider } from "./context/dashboard-context";
 
-// Import data fetching utilities
-import { fetchDashboardData } from "./utils/data-fetching"
-import { DashboardDataProvider } from "./context/dashboard-context"
+// Update the imports at the top of the file to use the consolidated sample data
+import { dashboardStats } from "../data/dashboard-sample-data";
 
 // Animation variants
 const container = {
@@ -28,18 +28,18 @@ const container = {
       staggerChildren: 0.1,
     },
   },
-}
+};
 
 const item = {
   hidden: { opacity: 0, y: 20 },
   show: { opacity: 1, y: 0 },
-}
+};
 
 export default function AdminDashboardPage() {
-  const [isLoading, setIsLoading] = useState(true)
-  const [dashboardData, setDashboardData] = useState(null)
-  const [revenueView, setRevenueView] = useState("daily")
-  const router = useRouter()
+  const [isLoading, setIsLoading] = useState(true);
+  const [dashboardData, setDashboardData] = useState(null);
+  const [revenueView, setRevenueView] = useState("daily");
+  const router = useRouter();
 
   useEffect(() => {
     /**
@@ -82,36 +82,46 @@ export default function AdminDashboardPage() {
     // Simulated API call - replace with actual implementation
     const loadData = async () => {
       try {
-        const data = await fetchDashboardData()
-        setDashboardData(data)
+        // const data = await fetchDashboardData()
+        // setDashboardData(data)
+        setDashboardData(dashboardStats);
       } catch (error) {
-        console.error("Error fetching dashboard data:", error)
+        console.error("Error fetching dashboard data:", error);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    loadData()
+    loadData();
 
     // Optional: Set up polling for real-time updates
-    const intervalId = setInterval(loadData, 60000) // Update every minute
-    return () => clearInterval(intervalId)
-  }, [])
+    const intervalId = setInterval(loadData, 60000); // Update every minute
+    return () => clearInterval(intervalId);
+  }, []);
 
   const navigateTo = (path) => {
-    router.push(path)
-  }
+    router.push(path);
+  };
 
   if (isLoading) {
-    return <DashboardSkeleton />
+    return <DashboardSkeleton />;
   }
 
   return (
-    <DashboardDataProvider value={{ dashboardData, revenueView, setRevenueView }}>
-      <motion.div className="space-y-8" variants={container} initial="hidden" animate="show">
+    <DashboardDataProvider
+      value={{ dashboardData, revenueView, setRevenueView }}
+    >
+      <motion.div
+        className="space-y-8"
+        variants={container}
+        initial="hidden"
+        animate="show"
+      >
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Admin Dashboard</h1>
+            <h1 className="text-3xl font-bold text-foreground">
+              Admin Dashboard
+            </h1>
             <p className="text-muted-foreground">Welcome back, Admin Jenie!</p>
           </div>
           <div className="flex gap-3 w-full sm:w-auto">
@@ -119,7 +129,10 @@ export default function AdminDashboardPage() {
               <Download size={16} />
               <span className="hidden sm:inline">Export</span>
             </Button>
-            <Button className="flex-1 sm:flex-none gap-2" onClick={() => navigateTo("/webapp/admin/registration")}>
+            <Button
+              className="flex-1 sm:flex-none gap-2"
+              onClick={() => navigateTo("/webapp/admin/registration")}
+            >
               <UserPlus size={16} />
               <span>Add Pet Owner</span>
             </Button>
@@ -149,11 +162,14 @@ export default function AdminDashboardPage() {
 
         {/* Recent Activity Section */}
         <motion.div variants={item}>
-          <RecentActivityTabs bookings={dashboardData?.recentBookings} customers={dashboardData?.recentCustomers} />
+          <RecentActivityTabs
+            bookings={dashboardData?.recentBookings}
+            customers={dashboardData?.recentCustomers}
+          />
         </motion.div>
       </motion.div>
     </DashboardDataProvider>
-  )
+  );
 }
 
 // Skeleton loader component for the dashboard
@@ -221,5 +237,5 @@ function DashboardSkeleton() {
       {/* Recent activity skeleton */}
       {/* ... */}
     </div>
-  )
+  );
 }

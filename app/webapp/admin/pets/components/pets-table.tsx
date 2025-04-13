@@ -6,8 +6,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { MoreHorizontal, Edit, Trash2, Hotel, CheckCircle, Dog, Cat, Info } from "lucide-react"
-import type { Pet, PetOwner } from "../utils/types"
+import type { BasePet, BasePetOwner } from "@/app/webapp/admin/data/shared-sample-data"
 import { Skeleton } from "@/components/ui/skeleton"
+
+// Pet interface extending the base interface
+export interface Pet extends BasePet {}
+
+// Pet Owner interface extending the base interface
+export interface PetOwner extends BasePetOwner {}
 
 interface PetsTableProps {
   pets: Pet[]

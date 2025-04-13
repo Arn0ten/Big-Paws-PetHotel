@@ -22,7 +22,7 @@ import {
 } from "lucide-react"
 import type { Pet, PetOwner } from "../utils/types"
 import PageLayout from "@/app/webapp/components/PageLayout"
-import { getPetBoardingHistory, getPetRequestHistory } from "../data/sample-data"
+import { getPetBoardingHistory, getPetRequestHistory } from "@/app/webapp/admin/data/pet-management-sample-data"
 
 interface PetDetailsViewProps {
   pet: Pet | null

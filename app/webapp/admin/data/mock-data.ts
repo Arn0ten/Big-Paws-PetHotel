@@ -15,7 +15,7 @@ export const dashboardStats = {
   activeBoardings: 42,
   pendingRequests: 15,
   completedBookings: 87,
-}
+};
 
 export const recentActivities = [
   {
@@ -58,7 +58,7 @@ export const recentActivities = [
     timestamp: "1 day ago",
     status: "Cancelled",
   },
-]
+];
 
 export const upcomingCheckins = [
   {
@@ -85,7 +85,7 @@ export const upcomingCheckins = [
     duration: "7 days",
     status: "Confirmed",
   },
-]
+];
 
 export const monthlyRevenue = [
   { month: "Jan", amount: 12500 },
@@ -100,7 +100,7 @@ export const monthlyRevenue = [
   { month: "Oct", amount: 19800 },
   { month: "Nov", amount: 21700 },
   { month: "Dec", amount: 23500 },
-]
+];
 
 // Pet Management Data
 export const petsList = [
@@ -184,7 +184,7 @@ export const petsList = [
     status: "Inactive",
     lastVisit: "2023-11-15",
   },
-]
+];
 
 // Pet Owner Management Data
 export const petOwnersList = [
@@ -260,7 +260,7 @@ export const petOwnersList = [
     joinDate: "2022-10-05",
     status: "Active",
   },
-]
+];
 
 // Boarding Management Data
 export const currentBoardings = [
@@ -314,7 +314,7 @@ export const currentBoardings = [
     status: "Active",
     specialInstructions: "Prefers wet food only",
   },
-]
+];
 
 export const upcomingBoardings = [
   {
@@ -337,7 +337,7 @@ export const upcomingBoardings = [
     status: "Confirmed",
     specialInstructions: "Needs daily walks",
   },
-]
+];
 
 // Request Management Data
 export const pendingRequests = [
@@ -377,7 +377,7 @@ export const pendingRequests = [
     status: "Pending",
     notes: "Extended from previous booking",
   },
-]
+];
 
 // History Data
 export const boardingHistory = [
@@ -481,4 +481,4 @@ export const boardingHistory = [
     status: "Completed",
     notes: "Second stay, even better than first",
   },
-]
+];

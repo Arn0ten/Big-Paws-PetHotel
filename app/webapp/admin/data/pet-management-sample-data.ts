@@ -4,7 +4,12 @@
  * This file contains centralized sample data for the Pet Management module.
  */
 
-import { type BasePet, type BasePetOwner, DEFAULT_IMAGES, getPetImageByType } from "./shared-sample-data"
+import {
+  type BasePet,
+  type BasePetOwner,
+  DEFAULT_IMAGES,
+  getPetImageByType,
+} from "./shared-sample-data";
 
 // Pet interface extending the base interface
 export interface Pet extends BasePet {}
@@ -54,7 +59,7 @@ export const MOCK_PET_OWNERS: PetOwner[] = [
     address: "202 Maple Dr, Anywhere, USA",
     avatar: DEFAULT_IMAGES.USER_AVATAR,
   },
-]
+];
 
 // Mock pets data
 export const MOCK_PETS: Pet[] = [
@@ -67,7 +72,8 @@ export const MOCK_PETS: Pet[] = [
     age: 3,
     size: "Large",
     isBoarding: true,
-    notes: "Friendly and energetic. Loves to play fetch and needs daily exercise.",
+    notes:
+      "Friendly and energetic. Loves to play fetch and needs daily exercise.",
     image: getPetImageByType("Dog"),
   },
   {
@@ -154,7 +160,7 @@ export const MOCK_PETS: Pet[] = [
     notes: "High energy and needs lots of exercise. Very intelligent.",
     image: getPetImageByType("Dog"),
   },
-]
+];
 
 // Sample boarding history data for each pet
 export const PET_BOARDING_HISTORY = {
@@ -196,7 +202,8 @@ export const PET_BOARDING_HISTORY = {
       duration: "9 hours",
       status: "completed",
       type: "Daycare",
-      notes: "Kept in quiet area with window perch, minimal interaction with other cats",
+      notes:
+        "Kept in quiet area with window perch, minimal interaction with other cats",
       totalPrice: 270,
       paymentStatus: "Paid",
     },
@@ -274,7 +281,7 @@ export const PET_BOARDING_HISTORY = {
       paymentStatus: "Paid",
     },
   ],
-}
+};
 
 // Sample request history data for each pet
 export const PET_REQUEST_HISTORY = {
@@ -378,7 +385,7 @@ export const PET_REQUEST_HISTORY = {
       paymentStatus: "N/A",
     },
   ],
-}
+};
 
 /**
  * Generate a unique pet ID
@@ -386,14 +393,14 @@ export const PET_REQUEST_HISTORY = {
  * @returns A unique pet ID string
  */
 export const generatePetId = (): string => {
-  return `pet-${Math.floor(Math.random() * 10000)}`
-}
+  return `pet-${Math.floor(Math.random() * 10000)}`;
+};
 
 // Helper functions to get boarding and request history for a specific pet
 export const getPetBoardingHistory = (petId: string) => {
-  return PET_BOARDING_HISTORY[petId as keyof typeof PET_BOARDING_HISTORY] || []
-}
+  return PET_BOARDING_HISTORY[petId as keyof typeof PET_BOARDING_HISTORY] || [];
+};
 
 export const getPetRequestHistory = (petId: string) => {
-  return PET_REQUEST_HISTORY[petId as keyof typeof PET_REQUEST_HISTORY] || []
-}
+  return PET_REQUEST_HISTORY[petId as keyof typeof PET_REQUEST_HISTORY] || [];
+};

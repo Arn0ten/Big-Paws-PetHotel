@@ -1,121 +1,88 @@
 "use client"
 
 // Consolidated hooks file
-import { useState, useEffect, useCallback, useMemo } from "react"
-import { useToast } from "@/hooks/use-toast"
+import { useState, useCallback } from "react"
 import type { PetOwner, Pet, FormErrors, PetFormState } from "./utils/types"
-import { fetchPetOwners, deletePetOwner, addPetToOwner } from "./utils/api"
-import { calculateTotalPages } from "./utils/helpers"
+// import { MOCK_PET_OWNERS } from "@/app/webapp/admin/data/pet-owner-sample-data"
+import { MOCK_PET_OWNERS } from "../data/pet-owner-sample-data"
 
 /**
  * Custom hook for managing pet owners data
+ *
+ * BACKEND INTEGRATION:
+ * Replace this hook with actual API calls in production
  */
 export function usePetOwners() {
-  const { toast } = useToast()
-  const [petOwners, setPetOwners] = useState<PetOwner[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [petOwners, setPetOwners] = useState<PetOwner[]>(MOCK_PET_OWNERS)
+  const [isLoading, setIsLoading] = useState(false)
   const [isRefreshing, setIsRefreshing] = useState(false)
 
-  // Fetch pet owners
-  const loadPetOwners = useCallback(async () => {
-    try {
-      const data = await fetchPetOwners()
-      setPetOwners(data)
-    } catch (error) {
-      console.error("Error fetching pet owners:", error)
-      toast({
-        title: "Error",
-        description: "Failed to load pet owners. Please try again.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }, [toast])
-
-  // Initial data loading
-  useEffect(() => {
-    loadPetOwners()
-  }, [loadPetOwners])
-
-  // Refresh pet owners
+  // Refresh pet owners data
   const refreshPetOwners = useCallback(async () => {
     setIsRefreshing(true)
-    try {
-      const data = await fetchPetOwners()
-      setPetOwners(data)
-      toast({
-        title: "Success",
-        description: "Pet owner data refreshed successfully",
-      })
-    } catch (error) {
-      console.error("Error refreshing pet owners:", error)
-      toast({
-        title: "Error",
-        description: "Failed to refresh pet owners. Please try again.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsRefreshing(false)
+
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+
+    // In a real implementation, this would be an API call
+    // const response = await fetch('/api/pet-owners')
+    // const data = await response.json()
+    // setPetOwners(data)
+
+    setIsRefreshing(false)
+  }, [])
+
+  // Add a new pet owner
+  const addPetOwner = useCallback(async (ownerData: Partial<PetOwner>) => {
+    setIsLoading(true)
+
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+
+    // Generate a new pet owner with the provided data
+    const newPetOwner: PetOwner = {
+      id: `owner-${Date.now()}`,
+      name: ownerData.name!,
+      email: ownerData.email!,
+      phone: ownerData.phone!,
+      address: ownerData.address!,
+      avatar: ownerData.avatar || `/placeholder.svg?height=200&width=200`,
+      pets: [],
+      createdAt: new Date().toISOString(),
     }
-  }, [toast])
 
-  // Delete pet owner
-  const removePetOwner = useCallback(
-    async (id: string) => {
-      try {
-        await deletePetOwner(id)
-        setPetOwners((current) => current.filter((owner) => owner.id !== id))
-        toast({
-          title: "Success",
-          description: "Pet owner deleted successfully",
-        })
-        return true
-      } catch (error) {
-        console.error("Error deleting pet owner:", error)
-        toast({
-          title: "Error",
-          description: "Failed to delete pet owner. Please try again.",
-          variant: "destructive",
-        })
-        return false
-      }
-    },
-    [toast],
-  )
+    // Update local state
+    setPetOwners((prev) => [...prev, newPetOwner])
 
-  // Add pet to owner
-  const addPet = useCallback(
-    async (ownerId: string, petData: Partial<Pet>) => {
-      try {
-        const newPet = await addPetToOwner(ownerId, petData)
+    setIsLoading(false)
+    return newPetOwner
+  }, [])
 
-        // Update pet owners state with new pet
-        setPetOwners((current) =>
-          current.map((owner) => {
-            if (owner.id === ownerId) {
-              return {
-                ...owner,
-                pets: [...owner.pets, newPet],
-              }
-            }
-            return owner
-          }),
-        )
+  // Update an existing pet owner
+  const updatePetOwner = useCallback(async (id: string, ownerData: Partial<PetOwner>) => {
+    setIsLoading(true)
 
-        return { success: true, pet: newPet }
-      } catch (error) {
-        console.error("Error adding pet:", error)
-        toast({
-          title: "Error",
-          description: "Failed to add pet. Please try again.",
-          variant: "destructive",
-        })
-        return { success: false, pet: null }
-      }
-    },
-    [toast],
-  )
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+
+    // Update local state
+    setPetOwners((prev) => prev.map((owner) => (owner.id === id ? { ...owner, ...ownerData } : owner)))
+
+    setIsLoading(false)
+  }, [])
+
+  // Remove a pet owner
+  const removePetOwner = useCallback(async (id: string) => {
+    setIsLoading(true)
+
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+
+    // Update local state
+    setPetOwners((prev) => prev.filter((owner) => owner.id !== id))
+
+    setIsLoading(false)
+  }, [])
 
   return {
     petOwners,
@@ -123,8 +90,9 @@ export function usePetOwners() {
     isLoading,
     isRefreshing,
     refreshPetOwners,
+    addPetOwner,
+    updatePetOwner,
     removePetOwner,
-    addPet,
   }
 }
 
@@ -194,55 +162,29 @@ export function usePetForm(initialState: PetFormState = { type: "Dog", size: "Me
 /**
  * Custom hook for pagination
  */
-export interface UsePaginationProps {
-  totalItems: number
-  itemsPerPage: number
-  initialPage?: number
-}
+export function usePagination({ totalItems, itemsPerPage = 5 }: { totalItems: number; itemsPerPage?: number }) {
+  const [currentPage, setCurrentPage] = useState(1)
 
-export function usePagination({ totalItems, itemsPerPage, initialPage = 1 }: UsePaginationProps) {
-  const [currentPage, setCurrentPage] = useState(initialPage)
+  const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage))
 
-  // Calculate total pages
-  const totalPages = useMemo(() => calculateTotalPages(totalItems, itemsPerPage), [totalItems, itemsPerPage])
+  // Ensure current page is within valid range
+  if (currentPage > totalPages) {
+    setCurrentPage(totalPages)
+  }
 
-  // Handle page change
-  const goToPage = useCallback(
-    (page: number) => {
-      const targetPage = Math.max(1, Math.min(page, totalPages))
-      setCurrentPage(targetPage)
-    },
-    [totalPages],
-  )
+  const goToPage = (page: number) => {
+    const validPage = Math.max(1, Math.min(page, totalPages))
+    setCurrentPage(validPage)
+  }
 
-  // Go to next page
-  const nextPage = useCallback(() => {
-    goToPage(currentPage + 1)
-  }, [currentPage, goToPage])
-
-  // Go to previous page
-  const prevPage = useCallback(() => {
-    goToPage(currentPage - 1)
-  }, [currentPage, goToPage])
-
-  // Reset to first page
-  const resetPage = useCallback(() => {
+  const resetPage = () => {
     setCurrentPage(1)
-  }, [])
-
-  // Calculate start and end indices
-  const startIndex = (currentPage - 1) * itemsPerPage
-  const endIndex = Math.min(startIndex + itemsPerPage, totalItems)
+  }
 
   return {
     currentPage,
     totalPages,
     goToPage,
-    nextPage,
-    prevPage,
     resetPage,
-    startIndex,
-    endIndex,
   }
 }
-

@@ -4,31 +4,37 @@
  * This file contains centralized sample data for the Pet Owner Management module.
  */
 
-import { type BasePetOwner, DEFAULT_IMAGES, getPetImageByType, type PetSize, type PetType } from "./shared-sample-data"
+import {
+  type BasePetOwner,
+  DEFAULT_IMAGES,
+  getPetImageByType,
+  type PetSize,
+  type PetType,
+} from "./shared-sample-data";
 
 // Pet interface for the pet owner module
 export interface Pet {
-  id: string
-  name: string
-  type: PetType
-  breed: string
-  age: number
-  size: PetSize
-  isBoarding: boolean
-  notes?: string
-  image: string
+  id: string;
+  name: string;
+  type: PetType;
+  breed: string;
+  age: number;
+  size: PetSize;
+  isBoarding: boolean;
+  notes?: string;
+  image: string;
 }
 
 // Pet Owner interface extending the base interface with pets
 export interface PetOwner extends BasePetOwner {
-  pets: Pet[]
+  pets: Pet[];
 }
 
 // Mock data for pet owners
 export const MOCK_PET_OWNERS: PetOwner[] = [
   {
     id: "PO-001",
-    name: "John Doe",
+    name: "Arn Skibidi",
     avatar: DEFAULT_IMAGES.USER_AVATAR,
     email: "john.doe@example.com",
     phone: "09123456789",
@@ -140,7 +146,7 @@ export const MOCK_PET_OWNERS: PetOwner[] = [
     pets: [],
     createdAt: "2023-05-15",
   },
-]
+];
 
 // Sample boarding history data for each pet
 export const PET_BOARDING_HISTORY = {
@@ -230,7 +236,7 @@ export const PET_BOARDING_HISTORY = {
       paymentStatus: "Paid",
     },
   ],
-}
+};
 
 // Sample request history data for each pet
 export const PET_REQUEST_HISTORY = {
@@ -323,13 +329,13 @@ export const PET_REQUEST_HISTORY = {
       paymentStatus: "Paid",
     },
   ],
-}
+};
 
 // Helper functions to get boarding and request history for a specific pet
 export const getPetBoardingHistory = (petId: string) => {
-  return PET_BOARDING_HISTORY[petId as keyof typeof PET_BOARDING_HISTORY] || []
-}
+  return PET_BOARDING_HISTORY[petId as keyof typeof PET_BOARDING_HISTORY] || [];
+};
 
 export const getPetRequestHistory = (petId: string) => {
-  return PET_REQUEST_HISTORY[petId as keyof typeof PET_REQUEST_HISTORY] || []
-}
+  return PET_REQUEST_HISTORY[petId as keyof typeof PET_REQUEST_HISTORY] || [];
+};
