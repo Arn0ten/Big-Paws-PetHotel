@@ -443,4 +443,3 @@ export const boardingData = [
 export const getBoardingDetails = (boardingId: string) => {
   return boardingData.find((boarding) => boarding.id === boardingId)
 }
-

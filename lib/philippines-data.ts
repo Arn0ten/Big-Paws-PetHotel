@@ -194,4 +194,3 @@ export function getCitiesByProvince(province: string): string[] {
     ]
   )
 }
-

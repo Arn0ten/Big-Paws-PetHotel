@@ -39,7 +39,7 @@ export const photoRequestTemplates = [
 
   // Additional templates would continue here...
   // For brevity, I'm showing just 10 examples, but the actual file would contain 1,000+ variations
-];
+]
 
 // Video Request Templates
 export const videoRequestTemplates = [
@@ -65,7 +65,7 @@ export const videoRequestTemplates = [
 
   // Additional templates would continue here...
   // For brevity, I'm showing just 10 examples, but the actual file would contain 1,000+ variations
-];
+]
 
 // Grooming Service Templates
 export const groomingServiceTemplates = [
@@ -91,7 +91,7 @@ export const groomingServiceTemplates = [
 
   // Additional templates would continue here...
   // For brevity, I'm showing just 10 examples, but the actual file would contain 1,000+ variations
-];
+]
 
 // Boarding Extension Templates
 export const boardingExtensionTemplates = [
@@ -117,7 +117,7 @@ export const boardingExtensionTemplates = [
 
   // Additional templates would continue here...
   // For brevity, I'm showing just 10 examples, but the actual file would contain 1,000+ variations
-];
+]
 
 // Custom Request Templates
 export const customRequestTemplates = [
@@ -143,7 +143,7 @@ export const customRequestTemplates = [
 
   // Additional templates would continue here...
   // For brevity, I'm showing just 10 examples, but the actual file would contain 1,000+ variations
-];
+]
 
 // Media Description Templates for Photos
 export const photoDescriptionTemplates = [
@@ -158,7 +158,7 @@ export const photoDescriptionTemplates = [
   "In these images, you can see that {{petName}} is comfortable and well-adjusted to the boarding environment.",
   "These photos show {{petName}} receiving some extra cuddles and attention from our staff.",
   // Additional templates would continue here...
-];
+]
 
 // Media Description Templates for Videos
 export const videoDescriptionTemplates = [
@@ -173,7 +173,7 @@ export const videoDescriptionTemplates = [
   "In this footage, you can see that {{petName}} is comfortable and well-adjusted to the boarding environment.",
   "This video shows {{petName}} receiving some extra cuddles and attention from our staff.",
   // Additional templates would continue here...
-];
+]
 
 // Media Description Templates for Grooming
 export const groomingDescriptionTemplates = [
@@ -188,7 +188,7 @@ export const groomingDescriptionTemplates = [
   "As you can see, {{petName}} looks absolutely adorable with {{petName}}'s fresh new haircut.",
   "These photos showcase the professional grooming results, and {{petName}} looks fantastic!",
   // Additional templates would continue here...
-];
+]
 
 /**
  * Get a random template based on request type
@@ -198,25 +198,15 @@ export const groomingDescriptionTemplates = [
 export function getRandomTemplate(type: string): string {
   switch (type) {
     case "photo":
-      return photoRequestTemplates[
-        Math.floor(Math.random() * photoRequestTemplates.length)
-      ];
+      return photoRequestTemplates[Math.floor(Math.random() * photoRequestTemplates.length)]
     case "video":
-      return videoRequestTemplates[
-        Math.floor(Math.random() * videoRequestTemplates.length)
-      ];
+      return videoRequestTemplates[Math.floor(Math.random() * videoRequestTemplates.length)]
     case "grooming":
-      return groomingServiceTemplates[
-        Math.floor(Math.random() * groomingServiceTemplates.length)
-      ];
+      return groomingServiceTemplates[Math.floor(Math.random() * groomingServiceTemplates.length)]
     case "boarding-extension":
-      return boardingExtensionTemplates[
-        Math.floor(Math.random() * boardingExtensionTemplates.length)
-      ];
+      return boardingExtensionTemplates[Math.floor(Math.random() * boardingExtensionTemplates.length)]
     default:
-      return customRequestTemplates[
-        Math.floor(Math.random() * customRequestTemplates.length)
-      ];
+      return customRequestTemplates[Math.floor(Math.random() * customRequestTemplates.length)]
   }
 }
 
@@ -228,46 +218,35 @@ export function getRandomTemplate(type: string): string {
 export function getRandomMediaDescription(type: string): string {
   switch (type) {
     case "photo":
-      return photoDescriptionTemplates[
-        Math.floor(Math.random() * photoDescriptionTemplates.length)
-      ];
+      return photoDescriptionTemplates[Math.floor(Math.random() * photoDescriptionTemplates.length)]
     case "video":
-      return videoDescriptionTemplates[
-        Math.floor(Math.random() * videoDescriptionTemplates.length)
-      ];
+      return videoDescriptionTemplates[Math.floor(Math.random() * videoDescriptionTemplates.length)]
     case "grooming":
-      return groomingDescriptionTemplates[
-        Math.floor(Math.random() * groomingDescriptionTemplates.length)
-      ];
+      return groomingDescriptionTemplates[Math.floor(Math.random() * groomingDescriptionTemplates.length)]
     default:
-      return photoDescriptionTemplates[
-        Math.floor(Math.random() * photoDescriptionTemplates.length)
-      ];
+      return photoDescriptionTemplates[Math.floor(Math.random() * photoDescriptionTemplates.length)]
   }
 }
 
 // Fix the generateProcessingNote function to properly replace placeholders
 export function generateProcessingNote(request: any, mediaCount = 0): string {
-  if (!request) return "";
+  if (!request) return ""
 
   // Get a random template based on request type
-  const template = getRandomTemplate(request.type);
+  const template = getRandomTemplate(request.type)
 
   // Get a random media description if applicable
-  let mediaDescription = "";
+  let mediaDescription = ""
   if (request.type === "photo" || request.type === "video") {
-    mediaDescription = getRandomMediaDescription(request.type);
+    mediaDescription = getRandomMediaDescription(request.type)
   } else if (request.type === "grooming" && mediaCount > 0) {
-    mediaDescription = getRandomMediaDescription("grooming");
+    mediaDescription = getRandomMediaDescription("grooming")
   }
 
   // Replace placeholders with actual values
   // First, replace all instances of the pet name in the media description
   if (mediaDescription && request.petName) {
-    mediaDescription = mediaDescription.replace(
-      /{{petName}}/g,
-      request.petName,
-    );
+    mediaDescription = mediaDescription.replace(/{{petName}}/g, request.petName)
   }
 
   // Then replace all placeholders in the main template
@@ -275,32 +254,22 @@ export function generateProcessingNote(request: any, mediaCount = 0): string {
     .replace(/{{petName}}/g, request.petName || "your pet")
     .replace(/{{ownerName}}/g, request.petOwnerName || "valued customer")
     .replace(/{{mediaCount}}/g, mediaCount.toString())
-    .replace(/{{mediaDescription}}/g, mediaDescription);
+    .replace(/{{mediaDescription}}/g, mediaDescription)
 
   // Replace request-specific placeholders
   if (request.type === "grooming" && request.groomingService) {
-    const formattedService = request.groomingService
-      .replace(/-/g, " ")
-      .replace(/\b\w/g, (l: string) => l.toUpperCase());
-    note = note.replace(/{{groomingService}}/g, formattedService);
+    const formattedService = request.groomingService.replace(/-/g, " ").replace(/\b\w/g, (l: string) => l.toUpperCase())
+    note = note.replace(/{{groomingService}}/g, formattedService)
   }
 
   if (request.type === "boarding-extension" && request.extensionDetails) {
     note = note
-      .replace(
-        /{{extensionDuration}}/g,
-        request.extensionDetails.duration || "",
-      )
+      .replace(/{{extensionDuration}}/g, request.extensionDetails.duration || "")
       .replace(/{{extensionUnit}}/g, request.extensionDetails.unit || "")
-      .replace(
-        /{{newEndDate}}/g,
-        request.newEndDate
-          ? formatDate(request.newEndDate)
-          : "the updated date",
-      );
+      .replace(/{{newEndDate}}/g, request.newEndDate ? formatDate(request.newEndDate) : "the updated date")
   }
 
-  return note;
+  return note
 }
 
 /**
@@ -310,7 +279,7 @@ export function generateProcessingNote(request: any, mediaCount = 0): string {
  */
 function formatDate(dateString: string): string {
   try {
-    const date = new Date(dateString);
+    const date = new Date(dateString)
     return new Intl.DateTimeFormat("en-US", {
       year: "numeric",
       month: "long",
@@ -318,8 +287,8 @@ function formatDate(dateString: string): string {
       hour: "numeric",
       minute: "numeric",
       hour12: true,
-    }).format(date);
+    }).format(date)
   } catch (error) {
-    return dateString;
+    return dateString
   }
 }

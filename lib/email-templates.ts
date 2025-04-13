@@ -155,4 +155,3 @@ export function generateBoardingConfirmationEmail(pet: Pet, boarding: BoardingDe
     text,
   }
 }
-
