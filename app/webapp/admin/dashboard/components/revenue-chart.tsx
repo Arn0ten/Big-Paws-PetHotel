@@ -19,8 +19,7 @@ export function RevenueChart() {
    *
    * This component displays revenue data in different time frames (daily, weekly, monthly).
    *
-   * API Endpoint: /api/admin/analytics/revenue
-   * Method: GET
+   * API Endpoint: GET /api/admin/analytics/revenue
    * Query Parameters:
    *   - timeFrame: "daily" | "weekly" | "monthly"
    *   - startDate (optional): ISO date string
@@ -28,18 +27,18 @@ export function RevenueChart() {
    *
    * Response Format:
    * {
-   *   daily: [{ day: "Mon", amount: 1200 }, ...],
-   *   weekly: [{ week: "Week 1", amount: 8500 }, ...],
-   *   monthly: [{ month: "Jan", amount: 28000 }, ...]
+   *   dailyRevenue: [{ day: "Mon", amount: 1200 }, ...],
+   *   weeklyRevenue: [{ week: "Week 1", amount: 8500 }, ...],
+   *   monthlyRevenue: [{ month: "Jan", amount: 28000 }, ...]
    * }
    *
    * Update Frequency: Daily or on-demand when timeFrame changes
    *
    * Implementation Notes:
-   * 1. The chart should update when revenueView changes
-   * 2. Consider adding date range picker for custom time ranges
-   * 3. Add ability to compare with previous periods
-   * 4. Implement data export functionality (CSV, Excel)
+   * 1. Replace the sample data with actual API calls
+   * 2. Add loading states and error handling
+   * 3. Consider adding date range picker for custom time ranges
+   * 4. Add ability to compare with previous periods
    */
 
   const getRevenueData = () => {

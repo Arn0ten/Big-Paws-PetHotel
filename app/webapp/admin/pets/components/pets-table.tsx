@@ -1,44 +1,64 @@
-"use client"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { MoreHorizontal, Edit, Trash2, Hotel, CheckCircle, Dog, Cat, Info } from "lucide-react"
-import type { BasePet, BasePetOwner } from "@/app/webapp/admin/data/shared-sample-data"
-import { Skeleton } from "@/components/ui/skeleton"
-
-// Pet interface extending the base interface
-export interface Pet extends BasePet {}
-
-// Pet Owner interface extending the base interface
-export interface PetOwner extends BasePetOwner {}
+"use client";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  MoreHorizontal,
+  Edit,
+  Trash2,
+  Hotel,
+  Dog,
+  Cat,
+  Info,
+  Eye,
+} from "lucide-react";
+import type { Pet, PetOwner } from "../utils/types";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface PetsTableProps {
-  pets: Pet[]
-  petOwners: PetOwner[]
-  onEdit: (pet: Pet) => void
-  onEditDetails: (pet: Pet) => void // Add this new prop
-  onDelete: (pet: Pet) => void
-  onBoard: (pet: Pet) => void
-  onEndBoarding: (pet: Pet) => void
-  currentPage: number
-  totalPages: number
-  goToPage: (page: number) => void
-  nextPage: () => void
-  prevPage: () => void
-  isLoading?: boolean
+  pets: Pet[];
+  petOwners: PetOwner[];
+  onEdit: (pet: Pet) => void;
+  onEditDetails: (pet: Pet) => void;
+  onDelete: (pet: Pet) => void;
+  onBoard: (pet: Pet) => void;
+  onViewBoarding?: (pet: Pet) => void;
+  currentPage: number;
+  totalPages: number;
+  goToPage: (page: number) => void;
+  nextPage: () => void;
+  prevPage: () => void;
+  isLoading?: boolean;
 }
 
 export function PetsTable({
   pets,
   petOwners,
   onEdit,
-  onEditDetails, // Add this new prop
+  onEditDetails,
   onDelete,
   onBoard,
-  onEndBoarding,
+  onViewBoarding,
   currentPage,
   totalPages,
   goToPage,
@@ -48,9 +68,9 @@ export function PetsTable({
 }: PetsTableProps) {
   // Find owner name by pet's ownerId
   const getOwnerName = (ownerId: string): string => {
-    const owner = petOwners.find((owner) => owner.id === ownerId)
-    return owner ? owner.name : "Unknown Owner"
-  }
+    const owner = petOwners.find((owner) => owner.id === ownerId);
+    return owner ? owner.name : "Unknown Owner";
+  };
 
   // Add a loading state renderer
   if (isLoading) {
@@ -60,16 +80,36 @@ export function PetsTable({
           <Table>
             <TableHeader className="bg-muted">
               <TableRow>
-                <TableHead className="w-[60px] text-center whitespace-nowrap">Avatar</TableHead>
-                <TableHead className="text-center whitespace-nowrap">Pet Name</TableHead>
-                <TableHead className="text-center whitespace-nowrap">Pet Owner</TableHead>
-                <TableHead className="text-center whitespace-nowrap">Type</TableHead>
-                <TableHead className="text-center whitespace-nowrap">Breed</TableHead>
-                <TableHead className="text-center whitespace-nowrap">Age</TableHead>
-                <TableHead className="text-center whitespace-nowrap">Size</TableHead>
-                <TableHead className="text-center whitespace-nowrap">Notes</TableHead>
-                <TableHead className="text-center whitespace-nowrap">Status</TableHead>
-                <TableHead className="text-center whitespace-nowrap">Actions</TableHead>
+                <TableHead className="w-[60px] text-center whitespace-nowrap">
+                  Avatar
+                </TableHead>
+                <TableHead className="text-center whitespace-nowrap">
+                  Pet Name
+                </TableHead>
+                <TableHead className="text-center whitespace-nowrap">
+                  Pet Owner
+                </TableHead>
+                <TableHead className="text-center whitespace-nowrap">
+                  Type
+                </TableHead>
+                <TableHead className="text-center whitespace-nowrap">
+                  Breed
+                </TableHead>
+                <TableHead className="text-center whitespace-nowrap">
+                  Age
+                </TableHead>
+                <TableHead className="text-center whitespace-nowrap">
+                  Size
+                </TableHead>
+                <TableHead className="text-center whitespace-nowrap">
+                  Notes
+                </TableHead>
+                <TableHead className="text-center whitespace-nowrap">
+                  Status
+                </TableHead>
+                <TableHead className="text-center whitespace-nowrap">
+                  Actions
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -114,35 +154,63 @@ export function PetsTable({
           </Table>
         </div>
       </div>
-    )
+    );
   }
 
-  // Rest of the component remains the same
+  // Handle view boarding action
+  const handleViewBoarding = (pet: Pet) => {
+    if (onViewBoarding) {
+      onViewBoarding(pet);
+    } else {
+      console.log("View boarding details for:", pet.name);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <style jsx global>{`
-  /* Hide the browser's native clear button */
-  input[type="search"]::-webkit-search-cancel-button {
-    display: none;
-  }
-  input[type="search"]::-ms-clear {
-    display: none;
-  }
-`}</style>
+        /* Hide the browser's native clear button */
+        input[type="search"]::-webkit-search-cancel-button {
+          display: none;
+        }
+        input[type="search"]::-ms-clear {
+          display: none;
+        }
+      `}</style>
       <div className="rounded-md border overflow-x-auto">
         <Table>
           <TableHeader className="bg-muted">
             <TableRow>
-              <TableHead className="w-[60px] text-center whitespace-nowrap">Avatar</TableHead>
-              <TableHead className="text-center whitespace-nowrap">Pet Name</TableHead>
-              <TableHead className="text-center whitespace-nowrap">Pet Owner</TableHead>
-              <TableHead className="text-center whitespace-nowrap">Type</TableHead>
-              <TableHead className="text-center whitespace-nowrap">Breed</TableHead>
-              <TableHead className="text-center whitespace-nowrap">Age</TableHead>
-              <TableHead className="text-center whitespace-nowrap">Size</TableHead>
-              <TableHead className="text-center whitespace-nowrap">Notes</TableHead>
-              <TableHead className="text-center whitespace-nowrap">Status</TableHead>
-              <TableHead className="text-center whitespace-nowrap">Actions</TableHead>
+              <TableHead className="w-[60px] text-center whitespace-nowrap">
+                Avatar
+              </TableHead>
+              <TableHead className="text-center whitespace-nowrap">
+                Pet Name
+              </TableHead>
+              <TableHead className="text-center whitespace-nowrap">
+                Pet Owner
+              </TableHead>
+              <TableHead className="text-center whitespace-nowrap">
+                Type
+              </TableHead>
+              <TableHead className="text-center whitespace-nowrap">
+                Breed
+              </TableHead>
+              <TableHead className="text-center whitespace-nowrap">
+                Age
+              </TableHead>
+              <TableHead className="text-center whitespace-nowrap">
+                Size
+              </TableHead>
+              <TableHead className="text-center whitespace-nowrap">
+                Notes
+              </TableHead>
+              <TableHead className="text-center whitespace-nowrap">
+                Status
+              </TableHead>
+              <TableHead className="text-center whitespace-nowrap">
+                Actions
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -159,14 +227,21 @@ export function PetsTable({
                   className="cursor-pointer hover:bg-muted/50 transition-colors"
                   onClick={(e) => {
                     // Only trigger row click if not clicking on a button or interactive element
-                    if (!(e.target as HTMLElement).closest('button, [role="button"], a, input, select, textarea')) {
-                      onEdit(pet)
+                    if (
+                      !(e.target as HTMLElement).closest(
+                        'button, [role="button"], a, input, select, textarea',
+                      )
+                    ) {
+                      onEdit(pet);
                     }
                   }}
                 >
                   <TableCell>
                     <Avatar className="h-9 w-9 border">
-                      <AvatarImage src={pet.image} alt={pet.name} />
+                      <AvatarImage
+                        src={pet.image || "/placeholder.svg"}
+                        alt={pet.name}
+                      />
                       <AvatarFallback className="bg-primary/10">
                         {pet.type === "Dog" ? (
                           <Dog className="h-4 w-4 text-primary" />
@@ -186,7 +261,11 @@ export function PetsTable({
                           : "bg-purple-600 text-white hover:bg-purple-700 dark:bg-purple-700 dark:text-white dark:hover:bg-purple-600"
                       }`}
                     >
-                      {pet.type === "Dog" ? <Dog className="mr-1 h-3 w-3" /> : <Cat className="mr-1 h-3 w-3" />}
+                      {pet.type === "Dog" ? (
+                        <Dog className="mr-1 h-3 w-3" />
+                      ) : (
+                        <Cat className="mr-1 h-3 w-3" />
+                      )}
                       {pet.type}
                     </Badge>
                   </TableCell>
@@ -201,7 +280,9 @@ export function PetsTable({
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <div className="flex items-center cursor-help">
-                              <span className="truncate max-w-[100px]">{pet.notes}</span>
+                              <span className="truncate max-w-[100px]">
+                                {pet.notes}
+                              </span>
                               <Info className="h-3 w-3 ml-1 text-muted-foreground" />
                             </div>
                           </TooltipTrigger>
@@ -211,41 +292,49 @@ export function PetsTable({
                         </Tooltip>
                       </TooltipProvider>
                     ) : (
-                      <span className="text-muted-foreground text-sm">No notes</span>
+                      <span className="text-muted-foreground text-sm">
+                        No notes
+                      </span>
                     )}
                   </TableCell>
                   <TableCell>
-                    <Badge
-                      className={`whitespace-nowrap min-w-[110px] text-center justify-center ${pet.isBoarding ? "bg-green-500 text-white" : "bg-red-500 text-white"}`}
-                    >
-                      {pet.isBoarding ? "Boarding" : "Not Boarding"}
-                    </Badge>
+                    <div className="flex justify-center">
+                      <Badge
+                        className={`whitespace-nowrap w-[110px] h-[24px] flex items-center justify-center text-white ${
+                          pet.isBoarding
+                            ? "bg-green-600 hover:bg-green-700"
+                            : "bg-red-600 hover:bg-red-700"
+                        }`}
+                      >
+                        {pet.isBoarding ? "Boarding" : "Not Boarding"}
+                      </Badge>
+                    </div>
                   </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end">
-                      {pet.isBoarding ? (
+                  <TableCell>
+                    <div className="flex justify-end gap-2">
+                      {!pet.isBoarding ? (
                         <Button
-                          className="mr-2 bg-red-500 hover:bg-red-600 text-white min-w-[140px]"
+                          className="bg-green-600 hover:bg-green-700 text-white"
                           size="sm"
                           onClick={(e) => {
-                            e.stopPropagation() // Prevent row click
-                            onEndBoarding(pet)
-                          }}
-                        >
-                          <CheckCircle className="h-4 w-4 mr-1" />
-                          End Boarding
-                        </Button>
-                      ) : (
-                        <Button
-                          className="mr-2 bg-green-500 hover:bg-green-600 text-white min-w-[140px]"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation() // Prevent row click
-                            onBoard(pet)
+                            e.stopPropagation(); // Prevent row click
+                            onBoard(pet);
                           }}
                         >
                           <Hotel className="h-4 w-4 mr-1" />
                           Board Pet
+                        </Button>
+                      ) : (
+                        <Button
+                          className="bg-blue-600 hover:bg-blue-700 text-white"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation(); // Prevent row click
+                            handleViewBoarding(pet);
+                          }}
+                        >
+                          <Eye className="h-4 w-4 mr-1" />
+                          View
                         </Button>
                       )}
                       <DropdownMenu>
@@ -262,8 +351,8 @@ export function PetsTable({
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem
                             onClick={(e) => {
-                              e.stopPropagation() // Prevent row click
-                              onEditDetails(pet) // Use the new function instead of onEdit
+                              e.stopPropagation(); // Prevent row click
+                              onEditDetails(pet);
                             }}
                           >
                             <Edit className="mr-2 h-4 w-4 text-blue-500" />
@@ -271,8 +360,8 @@ export function PetsTable({
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={(e) => {
-                              e.stopPropagation() // Prevent row click
-                              onDelete(pet)
+                              e.stopPropagation(); // Prevent row click
+                              onDelete(pet);
                             }}
                             className="text-red-600 hover:text-red-700 focus:text-red-700 dark:text-red-500 dark:hover:text-red-400"
                           >
@@ -298,6 +387,5 @@ export function PetsTable({
         </Table>
       </div>
     </div>
-  )
+  );
 }
-

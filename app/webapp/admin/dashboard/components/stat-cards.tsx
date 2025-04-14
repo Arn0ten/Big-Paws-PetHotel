@@ -46,13 +46,13 @@ export function StatCards({ data }: StatCardsProps) {
    * - registeredOwners: Number of registered pet owners
    * - revenue: Object containing daily, weekly, and monthly revenue
    *
-   * API Endpoint: This data should be included in the main dashboard data fetch
+   * API Endpoint: GET /api/admin/dashboard/stats
    * Update Frequency: Real-time or polling (every 1-5 minutes)
    *
    * Implementation Notes:
-   * 1. Each card can be clicked to navigate to the relevant section
-   * 2. Consider adding percentage change indicators for each metric
-   * 3. For real-time updates, consider using WebSockets for these critical metrics
+   * 1. Replace the sample data with actual API calls
+   * 2. Add loading states and error handling
+   * 3. Consider implementing WebSockets for real-time updates
    */
 
   // Fallback values if data is not available
@@ -160,8 +160,8 @@ export function StatCards({ data }: StatCardsProps) {
 }
 
 // Separate component for the revenue card with its own state
-function RevenueCard({ revenue }) {
-  const [revenueView, setRevenueView] = useState("daily")
+function RevenueCard({ revenue }: { revenue: { daily: number; weekly: number; monthly: number } }) {
+  const [revenueView, setRevenueView] = useState<"daily" | "weekly" | "monthly">("daily")
 
   const getCurrentRevenue = () => {
     if (!revenue) return 0

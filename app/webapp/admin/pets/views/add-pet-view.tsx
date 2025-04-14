@@ -16,7 +16,7 @@
 
 import type React from "react"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -26,6 +26,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Dog, Cat, Upload, User, Loader2, PlusCircle } from "lucide-react"
 import type { Pet, PetOwner } from "../utils/types"
 import PageLayout from "@/app/webapp/components/PageLayout"
+import { useToast } from "@/components/ui/use-toast"
 
 // Define the FormErrors type
 interface FormErrors {
@@ -84,27 +85,56 @@ const CAT_BREEDS = [
   "Ocicat",
 ]
 
+// Update the props interface to include preSelectedOwnerId
 interface AddPetViewProps {
   petOwners: PetOwner[]
+  preSelectedOwnerId?: string | null
   onBack: () => void
   onCancel: () => void
   onSubmit: (petData: Partial<Pet>, ownerId: string) => Promise<boolean>
   isSubmitting: boolean
 }
 
-export default function AddPetView({ petOwners, onBack, onCancel, onSubmit, isSubmitting }: AddPetViewProps) {
-  const [formData, setFormData] = useState<Partial<Pet>>({
+// Update the component to use preSelectedOwnerId
+export default function AddPetView({
+  petOwners,
+  preSelectedOwnerId,
+  onBack,
+  onCancel,
+  onSubmit,
+  isSubmitting,
+}: AddPetViewProps) {
+  const { toast } = useToast()
+  const [formState, setFormState] = useState({
+    name: "",
     type: "Dog",
+    breed: "",
+    age: "",
     size: "Medium",
+    notes: "",
+    ownerId: preSelectedOwnerId || "",
+    image: null,
   })
-  const [ownerId, setOwnerId] = useState<string>("")
   const [formErrors, setFormErrors] = useState<FormErrors>({})
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Set the owner ID from preSelectedOwnerId when it changes
+  useEffect(() => {
+    if (preSelectedOwnerId) {
+      setFormState((prev) => ({
+        ...prev,
+        ownerId: preSelectedOwnerId,
+      }))
+    }
+  }, [preSelectedOwnerId])
+
+  // Get the selected owner's name for display
+  const selectedOwner = petOwners.find((owner) => owner.id === formState.ownerId)
 
   // Handle form input change
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
+    setFormState((prev) => ({ ...prev, [name]: value }))
 
     // Clear error for this field if it exists
     if (formErrors[name as keyof FormErrors]) {
@@ -118,11 +148,11 @@ export default function AddPetView({ petOwners, onBack, onCancel, onSubmit, isSu
 
   // Handle select change
   const handleSelectChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
+    setFormState((prev) => ({ ...prev, [field]: value }))
 
     // Reset breed if pet type changes
     if (field === "type") {
-      setFormData((prev) => ({ ...prev, breed: undefined }))
+      setFormState((prev) => ({ ...prev, breed: undefined }))
     }
 
     // Clear error for this field if it exists
@@ -165,7 +195,7 @@ export default function AddPetView({ petOwners, onBack, onCancel, onSubmit, isSu
     reader.onload = (event) => {
       if (event.target?.result) {
         const imageUrl = event.target.result.toString()
-        setFormData((prev) => ({ ...prev, image: imageUrl }))
+        setFormState((prev) => ({ ...prev, image: imageUrl }))
         setFormErrors((prev) => {
           const newErrors = { ...prev }
           delete newErrors.image
@@ -181,12 +211,12 @@ export default function AddPetView({ petOwners, onBack, onCancel, onSubmit, isSu
     const requiredFields: (keyof Pet)[] = ["name", "type", "breed", "age", "size"]
 
     requiredFields.forEach((field) => {
-      if (!formData[field]) {
+      if (!formState[field]) {
         errors[field] = true
       }
     })
 
-    if (!ownerId) {
+    if (!formState.ownerId) {
       errors["ownerId"] = true
     }
 
@@ -198,17 +228,52 @@ export default function AddPetView({ petOwners, onBack, onCancel, onSubmit, isSu
     if (!validateForm()) return
 
     // Set default image based on pet type if no image is provided
-    if (!formData.image) {
-      const defaultImage = formData.type === "Dog" ? "/default-images/dog.png" : "/default-images/cat.png"
-      formData.image = defaultImage
+    if (!formState.image) {
+      const defaultImage = formState.type === "Dog" ? "/default-images/dog.png" : "/default-images/cat.png"
+      setFormState((prev) => ({ ...prev, image: defaultImage }))
     }
 
-    await onSubmit(formData, ownerId)
+    try {
+      const success = await onSubmit(formState, formState.ownerId)
+      if (success) {
+        toast({
+          title: "Pet added successfully!",
+          description: "The new pet has been added to the system.",
+        })
+      } else {
+        toast({
+          title: "Error adding pet",
+          description: "Something went wrong while adding the pet.",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      toast({
+        title: "Error adding pet",
+        description: "An unexpected error occurred.",
+        variant: "destructive",
+      })
+    }
   }
 
   // Get default image based on pet type
   const getDefaultImage = () => {
-    return formData.type === "Dog" ? "/default-images/dog.png" : "/default-images/cat.png"
+    return formState.type === "Dog" ? "/default-images/dog.png" : "/default-images/cat.png"
+  }
+
+  const updateField = (field: string, value: any) => {
+    setFormState((prev) => ({
+      ...prev,
+      [field]: value,
+    }))
+
+    if (formErrors[field as keyof FormErrors]) {
+      setFormErrors((prev) => {
+        const newErrors = { ...prev }
+        delete newErrors[field as keyof FormErrors]
+        return newErrors
+      })
+    }
   }
 
   return (
@@ -216,9 +281,9 @@ export default function AddPetView({ petOwners, onBack, onCancel, onSubmit, isSu
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="md:col-span-2 flex flex-col items-center mb-4">
           <Avatar className="aspect-square h-24 w-24 mb-2 rounded-md">
-            <AvatarImage src={formData.image || getDefaultImage()} alt="Pet Profile" className="object-cover" />
+            <AvatarImage src={formState.image || getDefaultImage()} alt="Pet Profile" className="object-cover" />
             <AvatarFallback className="rounded-md">
-              {formData.type === "Dog" ? <Dog className="h-12 w-12" /> : <Cat className="h-12 w-12" />}
+              {formState.type === "Dog" ? <Dog className="h-12 w-12" /> : <Cat className="h-12 w-12" />}
             </AvatarFallback>
           </Avatar>
 
@@ -249,43 +314,56 @@ export default function AddPetView({ petOwners, onBack, onCancel, onSubmit, isSu
               id="name"
               name="name"
               placeholder="Enter pet name"
-              value={formData.name || ""}
+              value={formState.name || ""}
               onChange={handleInputChange}
               className={formErrors.name ? "border-red-500 focus-visible:ring-red-500" : ""}
             />
             {formErrors.name && <p className="text-xs text-red-500">Pet name is required</p>}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="pet-owner" className="text-sm font-medium flex items-center">
-              Pet Owner <span className="text-red-500 ml-1">*</span>
-            </Label>
-            <Select value={ownerId} onValueChange={setOwnerId}>
-              <SelectTrigger
-                id="pet-owner"
-                className={formErrors.ownerId ? "border-red-500 focus-visible:ring-red-500" : ""}
-              >
-                <SelectValue placeholder="Select pet owner" />
-              </SelectTrigger>
-              <SelectContent>
-                {petOwners.map((owner) => (
-                  <SelectItem key={owner.id} value={owner.id}>
-                    <div className="flex items-center">
-                      <User className="mr-2 h-4 w-4 text-muted-foreground" />
-                      {owner.name}
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {formErrors.ownerId && <p className="text-xs text-red-500">Pet owner is required</p>}
-          </div>
+          {/* Replace the owner selection dropdown with a read-only display if preSelectedOwnerId is provided */}
+          {preSelectedOwnerId ? (
+            <div className="space-y-2">
+              <Label htmlFor="pet-owner" className="text-sm font-medium flex items-center">
+                Pet Owner <span className="text-red-500 ml-1">*</span>
+              </Label>
+              <div className="flex items-center p-2 border rounded-md bg-muted">
+                <User className="mr-2 h-4 w-4 text-muted-foreground" />
+                <span>{selectedOwner?.name || "Selected Owner"}</span>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <Label htmlFor="pet-owner" className="text-sm font-medium flex items-center">
+                Pet Owner <span className="text-red-500 ml-1">*</span>
+              </Label>
+              <Select value={formState.ownerId} onValueChange={(value) => updateField("ownerId", value)}>
+                <SelectTrigger
+                  id="pet-owner"
+                  className={`${formErrors.ownerId ? "border-red-500 focus-visible:ring-red-500" : "border-input"} focus-visible:ring-primary`}
+                >
+                  <SelectValue placeholder="Select pet owner" />
+                </SelectTrigger>
+                <SelectContent>
+                  {petOwners.map((owner) => (
+                    <SelectItem key={owner.id} value={owner.id}>
+                      <div className="flex items-center">
+                        <User className="mr-2 h-4 w-4 text-muted-foreground" />
+                        {owner.name}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {formErrors.ownerId && <p className="text-xs text-red-500">Pet owner is required</p>}
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label htmlFor="type" className="text-sm font-medium flex items-center">
               Pet Type <span className="text-red-500 ml-1">*</span>
             </Label>
-            <Select value={formData.type || "Dog"} onValueChange={(value) => handleSelectChange("type", value)}>
+            <Select value={formState.type || "Dog"} onValueChange={(value) => handleSelectChange("type", value)}>
               <SelectTrigger id="type" className={formErrors.type ? "border-red-500 focus-visible:ring-red-500" : ""}>
                 <SelectValue placeholder="Select pet type" />
               </SelectTrigger>
@@ -313,12 +391,12 @@ export default function AddPetView({ petOwners, onBack, onCancel, onSubmit, isSu
             <Label htmlFor="breed" className="text-sm font-medium flex items-center">
               Breed <span className="text-red-500 ml-1">*</span>
             </Label>
-            <Select value={formData.breed || ""} onValueChange={(value) => handleSelectChange("breed", value)}>
+            <Select value={formState.breed || ""} onValueChange={(value) => handleSelectChange("breed", value)}>
               <SelectTrigger id="breed" className={formErrors.breed ? "border-red-500 focus-visible:ring-red-500" : ""}>
                 <SelectValue placeholder="Select breed" />
               </SelectTrigger>
               <SelectContent>
-                {(formData.type === "Dog" ? DOG_BREEDS : CAT_BREEDS).map((breed) => (
+                {(formState.type === "Dog" ? DOG_BREEDS : CAT_BREEDS).map((breed) => (
                   <SelectItem key={breed} value={breed}>
                     {breed}
                   </SelectItem>
@@ -339,7 +417,7 @@ export default function AddPetView({ petOwners, onBack, onCancel, onSubmit, isSu
               min="0"
               max="30"
               placeholder="Enter age"
-              value={formData.age || ""}
+              value={formState.age || ""}
               onChange={handleInputChange}
               className={formErrors.age ? "border-red-500 focus-visible:ring-red-500" : ""}
             />
@@ -350,7 +428,7 @@ export default function AddPetView({ petOwners, onBack, onCancel, onSubmit, isSu
             <Label htmlFor="size" className="text-sm font-medium flex items-center">
               Size <span className="text-red-500 ml-1">*</span>
             </Label>
-            <Select value={formData.size || "Medium"} onValueChange={(value) => handleSelectChange("size", value)}>
+            <Select value={formState.size || "Medium"} onValueChange={(value) => handleSelectChange("size", value)}>
               <SelectTrigger id="size" className={formErrors.size ? "border-red-500 focus-visible:ring-red-500" : ""}>
                 <SelectValue placeholder="Select size" />
               </SelectTrigger>
@@ -373,7 +451,7 @@ export default function AddPetView({ petOwners, onBack, onCancel, onSubmit, isSu
             id="notes"
             name="notes"
             placeholder="Enter any additional notes about this pet"
-            value={formData.notes || ""}
+            value={formState.notes || ""}
             onChange={handleInputChange}
             className="min-h-[80px]"
           />

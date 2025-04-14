@@ -1,23 +1,23 @@
-"use client";
+"use client"
 
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@/components/ui/skeleton"
 
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { Download, UserPlus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react"
+import { motion } from "framer-motion"
+import { Download, UserPlus } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { useRouter } from "next/navigation"
 
 // Import modular dashboard components
-import { StatCards } from "./components/stat-cards";
-import { RequestTrendChart } from "./components/request-trend-chart";
-import { RevenueChart } from "./components/revenue-chart";
-import { PopularRequestsChart } from "./components/popular-requests-chart";
-import { RecentActivityTabs } from "./components/recent-activity-tabs";
-import { DashboardDataProvider } from "./context/dashboard-context";
+import { StatCards } from "./components/stat-cards"
+import { RequestTrendChart } from "./components/request-trend-chart"
+import { RevenueChart } from "./components/revenue-chart"
+import { PopularRequestsChart } from "./components/popular-requests-chart"
+import { RecentActivityTabs } from "./components/recent-activity-tabs"
+import { DashboardDataProvider } from "./context/dashboard-context"
 
 // Update the imports at the top of the file to use the consolidated sample data
-import { dashboardStats } from "../data/dashboard-sample-data";
+import { dashboardStats } from "../data/dashboard-sample-data"
 
 // Animation variants
 const container = {
@@ -28,19 +28,28 @@ const container = {
       staggerChildren: 0.1,
     },
   },
-};
+}
 
 const item = {
   hidden: { opacity: 0, y: 20 },
   show: { opacity: 1, y: 0 },
-};
+}
 
 export default function AdminDashboardPage() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [dashboardData, setDashboardData] = useState(null);
-  const [revenueView, setRevenueView] = useState("daily");
-  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true)
+  interface DashboardData {
+    recentRequests: Array<any>;
+    requestsTrend: Array<any>;
+    popularRequests: Array<any>;
+    newOwners: Array<any>;
+    // Add other properties as needed
+  }
 
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null)
+  const [revenueView, setRevenueView] = useState<"daily" | "weekly" | "monthly">("daily")
+  const router = useRouter()
+
+  // Update the useEffect to properly load and use the sample data
   useEffect(() => {
     /**
      * BACKEND INTEGRATION POINT: Dashboard Data Fetching
@@ -50,78 +59,62 @@ export default function AdminDashboardPage() {
      * API Endpoint: /api/admin/dashboard
      * Method: GET
      * Response: Complete dashboard data object containing all metrics and charts data
+     *   - activeBoardings: Number of currently boarding pets
+     *   - petCheckouts: Number of completed boardings
+     *   - pendingRequests: Number of pending requests
+     *   - registeredOwners: Number of registered pet owners
+     *   - revenue: Object with daily, weekly, monthly revenue
+     *   - requestsTrend: Array of request data over time
+     *   - popularRequests: Array of most popular request types
+     *   - recentRequests: Array of recent service requests
+     *   - newOwners: Array of newly registered pet owners
      *
      * Implementation Notes:
      * 1. Replace the setTimeout with actual API call
      * 2. Handle loading states and errors appropriately
      * 3. Consider implementing data caching for performance
      * 4. Set up polling or WebSocket for real-time updates if needed
-     *
-     * Example implementation:
-     *
-     * async function loadDashboardData() {
-     *   try {
-     *     setIsLoading(true);
-     *     const data = await fetchDashboardData();
-     *     setDashboardData(data);
-     *   } catch (error) {
-     *     console.error("Failed to load dashboard data:", error);
-     *     // Implement error handling/notification
-     *   } finally {
-     *     setIsLoading(false);
-     *   }
-     * }
-     *
-     * loadDashboardData();
-     *
-     * // Optional: Set up polling for real-time updates
-     * const intervalId = setInterval(loadDashboardData, 60000); // Update every minute
-     * return () => clearInterval(intervalId);
      */
 
     // Simulated API call - replace with actual implementation
     const loadData = async () => {
       try {
-        // const data = await fetchDashboardData()
-        // setDashboardData(data)
-        setDashboardData(dashboardStats);
-      } catch (error) {
-        console.error("Error fetching dashboard data:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+        // BACKEND INTEGRATION: Replace this with actual API call
+        // const response = await fetch('/api/admin/dashboard');
+        // const data = await response.json();
+        // setDashboardData(data);
 
-    loadData();
+        // Using sample data for now
+        setDashboardData(dashboardStats)
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadData()
 
     // Optional: Set up polling for real-time updates
-    const intervalId = setInterval(loadData, 60000); // Update every minute
-    return () => clearInterval(intervalId);
-  }, []);
+    const intervalId = setInterval(loadData, 60000) // Update every minute
+    return () => clearInterval(intervalId)
+  }, [])
 
   const navigateTo = (path) => {
-    router.push(path);
-  };
-
-  if (isLoading) {
-    return <DashboardSkeleton />;
+    router.push(path)
   }
 
+  if (isLoading) {
+    return <DashboardSkeleton />
+  }
+
+  // Update the return statement to pass the correct data to components
   return (
-    <DashboardDataProvider
-      value={{ dashboardData, revenueView, setRevenueView }}
-    >
-      <motion.div
-        className="space-y-8"
-        variants={container}
-        initial="hidden"
-        animate="show"
-      >
+    <DashboardDataProvider value={{ dashboardData, revenueView, setRevenueView }}>
+      <motion.div className="space-y-8" variants={container} initial="hidden" animate="show">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">
-              Admin Dashboard
-            </h1>
+            <h1 className="text-3xl font-bold text-foreground">Admin Dashboard</h1>
             <p className="text-muted-foreground">Welcome back, Admin Jenie!</p>
           </div>
           <div className="flex gap-3 w-full sm:w-auto">
@@ -129,10 +122,7 @@ export default function AdminDashboardPage() {
               <Download size={16} />
               <span className="hidden sm:inline">Export</span>
             </Button>
-            <Button
-              className="flex-1 sm:flex-none gap-2"
-              onClick={() => navigateTo("/webapp/admin/registration")}
-            >
+            <Button className="flex-1 sm:flex-none gap-2" onClick={() => navigateTo("/webapp/admin/registration")}>
               <UserPlus size={16} />
               <span>Add Pet Owner</span>
             </Button>
@@ -147,7 +137,7 @@ export default function AdminDashboardPage() {
         {/* Charts Section */}
         <div className="grid gap-6 lg:grid-cols-2">
           <motion.div variants={item}>
-            <RequestTrendChart data={dashboardData?.requestsTrend} />
+            <RequestTrendChart data={dashboardData?.requestsTrend || []} />
           </motion.div>
 
           <motion.div variants={item}>
@@ -157,19 +147,19 @@ export default function AdminDashboardPage() {
 
         {/* Popular Requests Section */}
         <motion.div variants={item}>
-          <PopularRequestsChart data={dashboardData?.popularRequests} />
+          <PopularRequestsChart data={dashboardData?.popularRequests || []} />
         </motion.div>
 
         {/* Recent Activity Section */}
         <motion.div variants={item}>
           <RecentActivityTabs
-            bookings={dashboardData?.recentBookings}
-            customers={dashboardData?.recentCustomers}
+            requests={dashboardData?.recentRequests || []}
+            petOwners={dashboardData?.newOwners || []}
           />
         </motion.div>
       </motion.div>
     </DashboardDataProvider>
-  );
+  )
 }
 
 // Skeleton loader component for the dashboard
@@ -237,5 +227,5 @@ function DashboardSkeleton() {
       {/* Recent activity skeleton */}
       {/* ... */}
     </div>
-  );
+  )
 }

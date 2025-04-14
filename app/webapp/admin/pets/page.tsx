@@ -15,29 +15,53 @@
  * 4. Implement loading states during API requests
  * 5. Add real-time updates using WebSockets or polling
  */
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect, useCallback, useRef } from "react"
-import { motion } from "framer-motion"
-import { PawPrint, Search, Plus, Dog, Cat, Filter, X, Loader2 } from "lucide-react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
-import { useToast } from "@/hooks/use-toast"
-import { PetsTable } from "./components/pets-table"
-import { ConfirmationDialog, SuccessDialog } from "./components/confirmation-dialog"
-import { usePets, usePagination } from "./hooks"
-import { filterPets } from "./utils/helpers"
-import type { Pet } from "./utils/types"
-import { PaginationControls } from "@/app/webapp/admin/components/pagination-controls"
-import PetDetailsView from "./views/pet-details-view"
-import BoardPetView from "./views/board-pet-view"
-import AddPetView from "./views/add-pet-view"
-import EditPetView from "./views/edit-pet-view"
+import { useState, useEffect, useCallback, useRef } from "react";
+import { motion } from "framer-motion";
+import {
+  PawPrint,
+  Search,
+  Plus,
+  Dog,
+  Cat,
+  Filter,
+  X,
+  Loader2,
+} from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { PetsTable } from "./components/pets-table";
+import {
+  ConfirmationDialog,
+  SuccessDialog,
+} from "./components/confirmation-dialog";
+import { usePets, usePagination } from "./hooks";
+import { filterPets } from "./utils/helpers";
+import type { Pet } from "./utils/types";
+import { PaginationControls } from "@/app/webapp/admin/components/pagination-controls";
+import PetDetailsView from "./views/pet-details-view";
+import BoardPetView from "./views/board-pet-view";
+import AddPetView from "./views/add-pet-view";
+import EditPetView from "./views/edit-pet-view";
+import PetOwnerSelectionView from "./views/pet-owner-selection-view";
 
 // Define the possible views for the module with proper navigation tracking
 type View =
@@ -46,23 +70,28 @@ type View =
   | { type: "add"; previousView: View }
   | { type: "edit"; petId: string; previousView: View }
   | { type: "board"; petId: string; previousView: View }
+  | { type: "pet-owner-selection"; previousView: View };
 
 export default function PetsPage() {
-  const { toast } = useToast()
+  const { toast } = useToast();
 
   // Navigation state with improved tracking
-  const [currentView, setCurrentView] = useState<View>({ type: "list", previousView: null })
+  const [currentView, setCurrentView] = useState<View>({
+    type: "list",
+    previousView: null,
+  });
 
   // Search state
-  const [searchQuery, setSearchQuery] = useState("")
-  const [isSearching, setIsSearching] = useState(false)
-  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const [searchInputValue, setSearchInputValue] = useState("")
-  const [filterType, setFilterType] = useState<string>("all")
-  const [filterStatus, setFilterStatus] = useState<string>("all")
-  const [selectedPet, setSelectedPet] = useState<Pet | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const searchInputRef = useRef<HTMLInputElement>(null)
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [searchInputValue, setSearchInputValue] = useState("");
+  const [filterType, setFilterType] = useState<string>("all");
+  const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const [selectedOwnerId, setSelectedOwnerId] = useState<string | null>(null);
 
   // Confirmation dialog state
   const [confirmationDialog, setConfirmationDialog] = useState({
@@ -71,7 +100,7 @@ export default function PetsPage() {
     title: "",
     description: "",
     onConfirm: () => {},
-  })
+  });
 
   // Success dialog state
   const [successDialog, setSuccessDialog] = useState({
@@ -80,139 +109,169 @@ export default function PetsPage() {
     description: "",
     actionLabel: "",
     onAction: () => {},
-  })
+  });
 
   // BACKEND INTEGRATION: Replace this with actual API calls
   // Fetch pets data
-  const { pets, petOwners, isLoading, isRefreshing, refreshPets, addPet, updatePet, removePet, toggleBoardingStatus } =
-    usePets()
+  const {
+    pets,
+    petOwners,
+    isLoading,
+    isRefreshing,
+    refreshPets,
+    addPet,
+    updatePet,
+    removePet,
+    toggleBoardingStatus,
+  } = usePets();
 
   // Apply filters
   const filteredPets = filterPets(pets, {
     searchQuery,
     type: filterType !== "all" ? (filterType as "Dog" | "Cat") : undefined,
     status: filterStatus !== "all" ? filterStatus === "boarding" : undefined,
-  })
+  });
 
   // Pagination
-  const { currentPage, totalPages, goToPage, nextPage, prevPage, resetPage, startIndex, endIndex } = usePagination({
+  const {
+    currentPage,
+    totalPages,
+    goToPage,
+    nextPage,
+    prevPage,
+    resetPage,
+    startIndex,
+    endIndex,
+  } = usePagination({
     totalItems: filteredPets.length,
     itemsPerPage: 6,
-  })
+  });
 
   // Reset pagination when filters change
   useEffect(() => {
-    resetPage()
-  }, [searchQuery, filterType, filterStatus, resetPage])
+    resetPage();
+  }, [searchQuery, filterType, filterStatus, resetPage]);
 
   // Current page data
-  const currentPets = filteredPets.slice(startIndex, endIndex)
+  const currentPets = filteredPets.slice(startIndex, endIndex);
 
   // Get the currently selected pet based on the view
   useEffect(() => {
-    if (currentView.type === "details" || currentView.type === "edit" || currentView.type === "board") {
-      const pet = pets.find((p) => p.id === currentView.petId) || null
-      setSelectedPet(pet)
+    if (
+      currentView.type === "details" ||
+      currentView.type === "edit" ||
+      currentView.type === "board"
+    ) {
+      const pet = pets.find((p) => p.id === currentView.petId) || null;
+      setSelectedPet(pet);
     } else {
-      setSelectedPet(null)
+      setSelectedPet(null);
     }
-  }, [currentView, pets])
+  }, [currentView, pets]);
 
   // Improved navigation helper - always returns to the correct previous view
   const navigateBack = useCallback(() => {
     if (currentView.previousView) {
-      setCurrentView(currentView.previousView)
+      setCurrentView(currentView.previousView);
     } else {
       // Fallback to list view if no previous view exists
-      setCurrentView({ type: "list", previousView: null })
+      setCurrentView({ type: "list", previousView: null });
     }
-  }, [currentView])
+  }, [currentView]);
 
   // Navigate to list view directly
   const navigateToList = useCallback(() => {
-    setCurrentView({ type: "list", previousView: null })
-  }, [])
+    setCurrentView({ type: "list", previousView: null });
+  }, []);
 
   // Handle search input change with debounce
-  const handleSearchInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    setSearchInputValue(value)
+  const handleSearchInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      setSearchInputValue(value);
 
-    // Clear any existing timeout
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current)
-    }
+      // Clear any existing timeout
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
 
-    // Set searching state immediately for UI feedback
-    if (value.length > 0) {
-      setIsSearching(true)
-    }
+      // Set searching state immediately for UI feedback
+      if (value.length > 0) {
+        setIsSearching(true);
+      }
 
-    // Debounce the actual search query update
-    searchTimeoutRef.current = setTimeout(() => {
-      setSearchQuery(value)
-      setIsSearching(false)
-    }, 300) // 300ms debounce
-  }, [])
+      // Debounce the actual search query update
+      searchTimeoutRef.current = setTimeout(() => {
+        setSearchQuery(value);
+        setIsSearching(false);
+      }, 300); // 300ms debounce
+    },
+    [],
+  );
 
   // Clear search input
   const handleClearSearch = useCallback(() => {
-    setSearchInputValue("")
-    setSearchQuery("")
+    setSearchInputValue("");
+    setSearchQuery("");
     if (searchInputRef.current) {
-      searchInputRef.current.focus()
+      searchInputRef.current.focus();
     }
-  }, [])
+  }, []);
 
   // Clean up timeout on unmount
   useEffect(() => {
     return () => {
       if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current)
+        clearTimeout(searchTimeoutRef.current);
       }
-    }
-  }, [])
+    };
+  }, []);
 
   // Clear filters
   const clearFilters = useCallback(() => {
-    setSearchQuery("")
-    setSearchInputValue("")
-    setFilterType("all")
-    setFilterStatus("all")
-  }, [])
+    setSearchQuery("");
+    setSearchInputValue("");
+    setFilterType("all");
+    setFilterStatus("all");
+  }, []);
 
   // Show confirmation dialog
   const showConfirmation = useCallback(
-    (type: "delete" | "edit" | "board" | "endBoarding", title: string, description: string, onConfirm: () => void) => {
+    (
+      type: "delete" | "edit" | "board" | "endBoarding",
+      title: string,
+      description: string,
+      onConfirm: () => void,
+    ) => {
       setConfirmationDialog({
         isOpen: true,
         type,
         title,
         description,
         onConfirm,
-      })
+      });
     },
     [],
-  )
+  );
 
   // Close confirmation dialog
   const closeConfirmation = useCallback(() => {
-    setConfirmationDialog((prev) => ({ ...prev, isOpen: false }))
-  }, [])
+    setConfirmationDialog((prev) => ({ ...prev, isOpen: false }));
+  }, []);
 
   // Handle add pet
   const handleAddPet = useCallback(
     async (petData: Partial<Pet>, ownerId: string) => {
-      setIsSubmitting(true)
+      setIsSubmitting(true);
       try {
         // BACKEND INTEGRATION: Replace with actual API call to add a pet
-        await addPet(petData, ownerId)
+        await addPet(petData, ownerId);
 
         // Navigate back to list view
-        navigateToList()
+        navigateToList();
 
         // Refresh pets with loading effect
-        refreshPets()
+        refreshPets();
 
         // Show success dialog
         setSuccessDialog({
@@ -221,43 +280,46 @@ export default function PetsPage() {
           description: `${petData.name} has been added to the system.`,
           actionLabel: "",
           onAction: () => {},
-        })
+        });
 
-        return true
+        return true;
       } catch (error) {
         toast({
           title: "Error",
           description: "Failed to add pet. Please try again.",
           variant: "destructive",
-        })
-        return false
+        });
+        return false;
       } finally {
-        setIsSubmitting(false)
+        setIsSubmitting(false);
       }
     },
     [addPet, refreshPets, toast, navigateToList],
-  )
+  );
 
   // Handle edit pet with improved navigation
   const handleEditPet = useCallback(
     async (petData: Partial<Pet>) => {
-      if (!selectedPet) return false
+      if (!selectedPet) return false;
 
-      setIsSubmitting(true)
+      setIsSubmitting(true);
       try {
         // BACKEND INTEGRATION: Replace with actual API call to update a pet
-        await updatePet(selectedPet.id, petData)
+        await updatePet(selectedPet.id, petData);
 
         // Navigate back to details view after successful edit
-        if (currentView.previousView && currentView.previousView.type === "details") {
-          setCurrentView(currentView.previousView)
+        if (
+          currentView.previousView &&
+          currentView.previousView.type === "details"
+        ) {
+          setCurrentView(currentView.previousView);
         } else {
           // If coming directly from list view, go back to list
-          navigateToList()
+          navigateToList();
         }
 
         // Refresh pets with loading effect
-        refreshPets()
+        refreshPets();
 
         // Show success dialog
         setSuccessDialog({
@@ -266,38 +328,38 @@ export default function PetsPage() {
           description: `${petData.name || selectedPet.name} has been successfully updated.`,
           actionLabel: "",
           onAction: () => {},
-        })
+        });
 
-        return true
+        return true;
       } catch (error) {
         toast({
           title: "Error",
           description: "Failed to update pet. Please try again.",
           variant: "destructive",
-        })
-        return false
+        });
+        return false;
       } finally {
-        setIsSubmitting(false)
+        setIsSubmitting(false);
       }
     },
     [selectedPet, updatePet, refreshPets, toast, currentView, navigateToList],
-  )
+  );
 
   // Handle delete pet
   const handleDeletePet = useCallback(async () => {
-    if (!selectedPet) return
+    if (!selectedPet) return;
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
       // BACKEND INTEGRATION: Replace with actual API call to delete a pet
-      await removePet(selectedPet.id)
-      closeConfirmation()
+      await removePet(selectedPet.id);
+      closeConfirmation();
 
       // Always navigate back to list view after deletion
-      navigateToList()
+      navigateToList();
 
       // Refresh pets with loading effect
-      refreshPets()
+      refreshPets();
 
       // Show success dialog
       setSuccessDialog({
@@ -306,35 +368,42 @@ export default function PetsPage() {
         description: `${selectedPet.name} has been removed from the system.`,
         actionLabel: "",
         onAction: () => {},
-      })
+      });
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to delete pet. Please try again.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }, [selectedPet, removePet, refreshPets, toast, closeConfirmation, navigateToList])
+  }, [
+    selectedPet,
+    removePet,
+    refreshPets,
+    toast,
+    closeConfirmation,
+    navigateToList,
+  ]);
 
   // Handle boarding status toggle
   const handleToggleBoardingStatus = useCallback(
     async (petId: string, boardingDetails?: any) => {
-      const pet = pets.find((p) => p.id === petId)
-      if (!pet) return false
+      const pet = pets.find((p) => p.id === petId);
+      if (!pet) return false;
 
-      setIsSubmitting(true)
+      setIsSubmitting(true);
       try {
         // BACKEND INTEGRATION: Replace with actual API call to toggle boarding status
-        await toggleBoardingStatus(petId, boardingDetails)
-        closeConfirmation()
+        await toggleBoardingStatus(petId, boardingDetails);
+        closeConfirmation();
 
         // Navigate back to the previous view
-        navigateBack()
+        navigateBack();
 
         // Refresh pets with loading effect
-        refreshPets()
+        refreshPets();
 
         // Show success dialog
         setSuccessDialog({
@@ -345,31 +414,43 @@ export default function PetsPage() {
             : `${pet.name} has been successfully boarded.`,
           actionLabel: "",
           onAction: () => {},
-        })
-        return true
+        });
+        return true;
       } catch (error) {
         toast({
           title: "Error",
           description: "Failed to update boarding status. Please try again.",
           variant: "destructive",
-        })
-        return false
+        });
+        return false;
       } finally {
-        setIsSubmitting(false)
+        setIsSubmitting(false);
       }
     },
-    [pets, toggleBoardingStatus, refreshPets, toast, closeConfirmation, navigateBack],
-  )
+    [
+      pets,
+      toggleBoardingStatus,
+      refreshPets,
+      toast,
+      closeConfirmation,
+      navigateBack,
+    ],
+  );
 
   // Determine if we should show the skeleton loader
-  const showSkeletonLoader = isLoading || isRefreshing || isSearching
+  const showSkeletonLoader = isLoading || isRefreshing || isSearching;
 
   // Render the appropriate view based on the current state
   const renderView = () => {
     switch (currentView.type) {
       case "list":
         return (
-          <motion.div className="space-y-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+          <motion.div
+            className="space-y-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
             <motion.div
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
@@ -379,8 +460,12 @@ export default function PetsPage() {
                 stiffness: 300,
               }}
             >
-              <h1 className="text-3xl font-bold tracking-tight text-foreground">Pet Management</h1>
-              <p className="text-muted-foreground">Manage all pets currently registered in the system.</p>
+              <h1 className="text-3xl font-bold tracking-tight text-foreground">
+                Pet Management
+              </h1>
+              <p className="text-muted-foreground">
+                Manage all pets currently registered in the system.
+              </p>
             </motion.div>
 
             <motion.div
@@ -404,7 +489,9 @@ export default function PetsPage() {
                       <CardTitle>Pet Registry</CardTitle>
                     </div>
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                      <CardDescription className="mt-0">View and manage all registered pets.</CardDescription>
+                      <CardDescription className="mt-0">
+                        View and manage all registered pets.
+                      </CardDescription>
                     </div>
                   </div>
                 </CardHeader>
@@ -443,7 +530,10 @@ export default function PetsPage() {
                           )}
                         </div>
 
-                        <Select value={filterType} onValueChange={setFilterType}>
+                        <Select
+                          value={filterType}
+                          onValueChange={setFilterType}
+                        >
                           <SelectTrigger className="w-[130px]">
                             <div className="flex items-center">
                               <Filter className="mr-2 h-4 w-4 text-muted-foreground" />
@@ -467,7 +557,10 @@ export default function PetsPage() {
                           </SelectContent>
                         </Select>
 
-                        <Select value={filterStatus} onValueChange={setFilterStatus}>
+                        <Select
+                          value={filterStatus}
+                          onValueChange={setFilterStatus}
+                        >
                           <SelectTrigger className="w-[150px]">
                             <div className="flex items-center">
                               <Filter className="mr-2 h-4 w-4 text-muted-foreground" />
@@ -476,13 +569,24 @@ export default function PetsPage() {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="all">All Statuses</SelectItem>
-                            <SelectItem value="boarding">Currently Boarding</SelectItem>
-                            <SelectItem value="not-boarding">Not Boarding</SelectItem>
+                            <SelectItem value="boarding">
+                              Currently Boarding
+                            </SelectItem>
+                            <SelectItem value="not-boarding">
+                              Not Boarding
+                            </SelectItem>
                           </SelectContent>
                         </Select>
 
-                        {(searchQuery || filterType !== "all" || filterStatus !== "all") && (
-                          <Button variant="outline" size="icon" onClick={clearFilters} title="Clear filters">
+                        {(searchQuery ||
+                          filterType !== "all" ||
+                          filterStatus !== "all") && (
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={clearFilters}
+                            title="Clear filters"
+                          >
                             <X className="h-4 w-4" />
                           </Button>
                         )}
@@ -491,7 +595,12 @@ export default function PetsPage() {
                       {/* Right side - Add New */}
                       <div className="flex justify-end order-2 md:order-2 w-full md:w-auto">
                         <Button
-                          onClick={() => setCurrentView({ type: "add", previousView: currentView })}
+                          onClick={() =>
+                            setCurrentView({
+                              type: "pet-owner-selection",
+                              previousView: currentView,
+                            })
+                          }
                           className="bg-green-600 hover:bg-green-700 text-white whitespace-nowrap"
                         >
                           <Plus className="mr-2 h-4 w-4" />
@@ -501,30 +610,50 @@ export default function PetsPage() {
                     </div>
 
                     {/* Active filters display */}
-                    {(searchQuery || filterType !== "all" || filterStatus !== "all") && (
+                    {(searchQuery ||
+                      filterType !== "all" ||
+                      filterStatus !== "all") && (
                       <div className="flex flex-wrap gap-2">
                         {searchQuery && (
-                          <Badge variant="secondary" className="flex items-center gap-1">
+                          <Badge
+                            variant="secondary"
+                            className="flex items-center gap-1"
+                          >
                             Search: {searchQuery}
                             <X
                               className="h-3 w-3 cursor-pointer"
                               onClick={() => {
-                                setSearchQuery("")
-                                setSearchInputValue("")
+                                setSearchQuery("");
+                                setSearchInputValue("");
                               }}
                             />
                           </Badge>
                         )}
                         {filterType !== "all" && (
-                          <Badge variant="secondary" className="flex items-center gap-1">
+                          <Badge
+                            variant="secondary"
+                            className="flex items-center gap-1"
+                          >
                             Type: {filterType}
-                            <X className="h-3 w-3 cursor-pointer" onClick={() => setFilterType("all")} />
+                            <X
+                              className="h-3 w-3 cursor-pointer"
+                              onClick={() => setFilterType("all")}
+                            />
                           </Badge>
                         )}
                         {filterStatus !== "all" && (
-                          <Badge variant="secondary" className="flex items-center gap-1">
-                            Status: {filterStatus === "boarding" ? "Boarding" : "Not Boarding"}
-                            <X className="h-3 w-3 cursor-pointer" onClick={() => setFilterStatus("all")} />
+                          <Badge
+                            variant="secondary"
+                            className="flex items-center gap-1"
+                          >
+                            Status:{" "}
+                            {filterStatus === "boarding"
+                              ? "Boarding"
+                              : "Not Boarding"}
+                            <X
+                              className="h-3 w-3 cursor-pointer"
+                              onClick={() => setFilterStatus("all")}
+                            />
                           </Badge>
                         )}
                       </div>
@@ -550,13 +679,13 @@ export default function PetsPage() {
                           })
                         }
                         onDelete={(pet) => {
-                          setSelectedPet(pet)
+                          setSelectedPet(pet);
                           showConfirmation(
                             "delete",
                             "Delete Pet",
                             `Are you sure you want to delete ${pet.name}? This action cannot be undone.`,
                             handleDeletePet,
-                          )
+                          );
                         }}
                         onBoard={(pet) =>
                           setCurrentView({
@@ -566,13 +695,13 @@ export default function PetsPage() {
                           })
                         }
                         onEndBoarding={(pet) => {
-                          setSelectedPet(pet)
+                          setSelectedPet(pet);
                           showConfirmation(
                             "endBoarding",
                             "End Boarding",
                             `Are you sure you want to end boarding for ${pet.name}?`,
                             () => handleToggleBoardingStatus(pet.id),
-                          )
+                          );
                         }}
                         currentPage={currentPage}
                         totalPages={totalPages}
@@ -584,13 +713,17 @@ export default function PetsPage() {
                     </div>
 
                     {/* Pagination */}
-                    <PaginationControls currentPage={currentPage} totalPages={totalPages} onPageChange={goToPage} />
+                    <PaginationControls
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      onPageChange={goToPage}
+                    />
                   </div>
                 </CardContent>
               </Card>
             </motion.div>
           </motion.div>
-        )
+        );
 
       case "details":
         return (
@@ -621,7 +754,7 @@ export default function PetsPage() {
                   "End Boarding",
                   `Are you sure you want to end boarding for ${selectedPet.name}?`,
                   () => handleToggleBoardingStatus(selectedPet.id),
-                )
+                );
               }
             }}
             onDelete={() => {
@@ -631,23 +764,42 @@ export default function PetsPage() {
                   "Delete Pet",
                   `Are you sure you want to delete ${selectedPet.name}? This action cannot be undone.`,
                   handleDeletePet,
-                )
+                );
               }
             }}
           />
-        )
+        );
+
+      case "pet-owner-selection":
+        return (
+          <PetOwnerSelectionView
+            petOwners={petOwners}
+            isLoading={isLoading}
+            onBack={navigateBack}
+            onSelectOwner={(ownerId) => {
+              // Navigate to add pet view with the selected owner ID
+              setCurrentView({
+                type: "add",
+                previousView: currentView,
+              });
+              // Store the selected owner ID for use in the add pet view
+              setSelectedOwnerId(ownerId);
+            }}
+          />
+        );
 
       case "add":
-        // Use the new AddPetView component
+        // Use the new AddPetView component with pre-selected owner
         return (
           <AddPetView
             petOwners={petOwners}
+            preSelectedOwnerId={selectedOwnerId}
             onBack={navigateBack}
             onCancel={navigateToList}
             onSubmit={handleAddPet}
             isSubmitting={isSubmitting}
           />
-        )
+        );
 
       case "edit":
         // Use the new EditPetView component
@@ -660,7 +812,7 @@ export default function PetsPage() {
             onSubmit={handleEditPet}
             isSubmitting={isSubmitting}
           />
-        )
+        );
 
       case "board":
         return (
@@ -668,12 +820,14 @@ export default function PetsPage() {
             pet={selectedPet}
             onBack={navigateBack}
             onCancel={navigateBack}
-            onSubmit={(details) => selectedPet && handleToggleBoardingStatus(selectedPet.id, details)}
+            onSubmit={(details) =>
+              selectedPet && handleToggleBoardingStatus(selectedPet.id, details)
+            }
             isSubmitting={isSubmitting}
           />
-        )
+        );
     }
-  }
+  };
 
   return (
     <>
@@ -700,5 +854,5 @@ export default function PetsPage() {
         onAction={successDialog.onAction}
       />
     </>
-  )
+  );
 }

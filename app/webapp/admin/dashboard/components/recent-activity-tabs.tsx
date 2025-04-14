@@ -2,31 +2,32 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { JSX } from "react/jsx-runtime"
 
 interface RecentActivityTabsProps {
-  bookings: any[]
-  customers: any[]
+  requests: any[]
+  petOwners: any[]
 }
 
-export function RecentActivityTabs({ bookings = [], customers = [] }: RecentActivityTabsProps) {
+export function RecentActivityTabs({ requests = [], petOwners = [] }: RecentActivityTabsProps) {
   /**
    * BACKEND INTEGRATION POINT: Recent Activity Data
    *
-   * This component displays recent bookings and new customer registrations.
+   * This component displays recent requests and new pet owner registrations.
    *
    * API Endpoint: /api/admin/recent-activity
    * Method: GET
    * Query Parameters:
-   *   - type: "bookings" | "customers" | "all" (optional, defaults to "all")
+   *   - type: "requests" | "petOwners" | "all" (optional, defaults to "all")
    *   - limit: number (optional, defaults to 5)
    *
    * Response Format:
    * {
-   *   recentBookings: [
-   *     { id: 1, customerName: "John Doe", petName: "Buddy", petType: "dog", service: "Boarding", date: "2023-06-15", status: "Confirmed" },
+   *   recentRequests: [
+   *     { id: 1, ownerName: "John Doe", petName: "Buddy", petType: "dog", service: "Boarding", date: "2023-06-15", status: "Confirmed" },
    *     ...
    *   ],
-   *   recentCustomers: [
+   *   newPetOwners: [
    *     { id: 1, name: "John Doe", email: "john.doe@example.com", pets: 2, lastVisit: "2023-06-10" },
    *     ...
    *   ]
@@ -53,16 +54,20 @@ export function RecentActivityTabs({ bookings = [], customers = [] }: RecentActi
   }
 
   // Update the getRequestStatusBadge function to use solid backgrounds
-  const getRequestStatusBadge = (status) => {
+  interface RequestStatusBadgeProps {
+    status: "Confirmed" | "Pending" | string;
+  }
+
+  const getRequestStatusBadge = (status: RequestStatusBadgeProps["status"]): JSX.Element => {
     switch (status) {
       case "Confirmed":
-        return <span className="rounded-full px-2 py-1 text-xs bg-green-600 text-white">{status}</span>
+        return <span className="rounded-full px-2 py-1 text-xs bg-green-600 text-white">{status}</span>;
       case "Pending":
-        return <span className="rounded-full px-2 py-1 text-xs bg-yellow-600 text-white">{status}</span>
+        return <span className="rounded-full px-2 py-1 text-xs bg-yellow-600 text-white">{status}</span>;
       default:
-        return <span className="rounded-full px-2 py-1 text-xs bg-gray-600 text-white">{status}</span>
+        return <span className="rounded-full px-2 py-1 text-xs bg-gray-600 text-white">{status}</span>;
     }
-  }
+  };
 
   return (
     <Card>
@@ -74,33 +79,33 @@ export function RecentActivityTabs({ bookings = [], customers = [] }: RecentActi
         <Tabs defaultValue="requests">
           <TabsList className="grid w-full grid-cols-2 mb-4">
             <TabsTrigger value="requests">Recent Requests</TabsTrigger>
-            <TabsTrigger value="owners">New Owners</TabsTrigger>
+            <TabsTrigger value="owners">New Pet Owners</TabsTrigger>
           </TabsList>
           <TabsContent value="requests" className="mt-0">
             <div className="space-y-4">
-              {bookings.map((booking) => (
+              {requests.map((request) => (
                 <div
-                  key={booking.id}
+                  key={request.id}
                   className="flex flex-col sm:flex-row sm:items-center justify-between rounded-lg border p-4 transition-colors hover:bg-muted/50 gap-2 sm:gap-0 cursor-pointer"
                   onClick={() => (window.location.href = "/webapp/admin/request-management")}
                 >
                   <div className="flex items-center gap-4">
                     <Avatar className="h-10 w-10">
-                      <AvatarImage src={getPetAvatar(booking.petType) || "/placeholder.svg"} alt={booking.petName} />
+                      <AvatarImage src={getPetAvatar(request.petType) || "/placeholder.svg"} alt={request.petName} />
                       <AvatarFallback className="bg-primary/10 text-primary">
-                        {booking.petName.charAt(0)}
+                        {request.petName.charAt(0)}
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="font-medium text-foreground">{booking.customerName}</p>
+                      <p className="font-medium text-foreground">{request.ownerName}</p>
                       <p className="text-sm text-muted-foreground">
-                        {booking.service} - {booking.petName}
+                        {request.service} - {request.petName}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4 ml-11 sm:ml-0">
-                    <div className="text-sm text-muted-foreground">{booking.date}</div>
-                    {getRequestStatusBadge(booking.status)}
+                    <div className="text-sm text-muted-foreground">{request.date}</div>
+                    {getRequestStatusBadge(request.status)}
                   </div>
                 </div>
               ))}
@@ -108,9 +113,9 @@ export function RecentActivityTabs({ bookings = [], customers = [] }: RecentActi
           </TabsContent>
           <TabsContent value="owners" className="mt-0">
             <div className="space-y-4">
-              {customers.map((customer) => (
+              {petOwners.map((petOwner) => (
                 <div
-                  key={customer.id}
+                  key={petOwner.id}
                   className="flex flex-col sm:flex-row sm:items-center justify-between rounded-lg border p-4 transition-colors hover:bg-muted/50 gap-2 sm:gap-0 cursor-pointer"
                   onClick={() => (window.location.href = "/webapp/admin/pet-owners")}
                 >
@@ -118,23 +123,23 @@ export function RecentActivityTabs({ bookings = [], customers = [] }: RecentActi
                     <Avatar className="h-10 w-10">
                       <AvatarImage
                         src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/default-pic-TTy4UvlTr4nVP0etctSbFI1CUrupvH.png"
-                        alt={customer.name}
+                        alt={petOwner.name}
                       />
                       <AvatarFallback className="bg-primary/10 text-primary">
-                        {customer.name
+                        {petOwner.name
                           .split(" ")
-                          .map((n) => n[0])
+                          .map((n: any[]) => n[0])
                           .join("")}
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="font-medium text-foreground">{customer.name}</p>
-                      <p className="text-sm text-muted-foreground">{customer.email}</p>
+                      <p className="font-medium text-foreground">{petOwner.name}</p>
+                      <p className="text-sm text-muted-foreground">{petOwner.email}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4 ml-11 sm:ml-0">
-                    <div className="text-sm text-muted-foreground">Pets: {customer.pets}</div>
-                    <div className="text-sm text-muted-foreground">Joined: {customer.lastVisit}</div>
+                    <div className="text-sm text-muted-foreground">Pets: {petOwner.pets}</div>
+                    <div className="text-sm text-muted-foreground">Joined: {petOwner.lastVisit}</div>
                   </div>
                 </div>
               ))}

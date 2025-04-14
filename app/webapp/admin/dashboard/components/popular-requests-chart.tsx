@@ -1,28 +1,40 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { motion } from "framer-motion"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Camera, Video, Scissors, Clock } from "lucide-react"
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts"
-import { useMediaQuery } from "@/hooks/use-media-query"
+import { useState } from "react";
+import { motion } from "framer-motion";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Camera, Video, Scissors, Clock } from "lucide-react";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Legend,
+  Tooltip,
+} from "recharts";
+import { useMediaQuery } from "@/hooks/use-media-query";
 
 interface PopularRequestsChartProps {
-  data: any[]
+  data: any[];
 }
 
 export function PopularRequestsChart({ data = [] }: PopularRequestsChartProps) {
-  const [activeIndex, setActiveIndex] = useState<number | null>(null)
-  const isMobile = useMediaQuery("(max-width: 640px)")
-  const isTablet = useMediaQuery("(max-width: 1024px)")
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const isMobile = useMediaQuery("(max-width: 640px)");
+  const isTablet = useMediaQuery("(max-width: 1024px)");
 
   /**
    * BACKEND INTEGRATION POINT: Popular Requests Data
    *
    * This component displays the distribution of request types.
    *
-   * API Endpoint: /api/admin/analytics/popular-requests
-   * Method: GET
+   * API Endpoint: GET /api/admin/analytics/popular-requests
    * Query Parameters:
    *   - period: "week" | "month" | "year" (optional, defaults to "month")
    *
@@ -37,55 +49,79 @@ export function PopularRequestsChart({ data = [] }: PopularRequestsChartProps) {
    * Update Frequency: Daily or on-demand
    *
    * Implementation Notes:
-   * 1. The chart should be interactive - clicking on a segment should show detailed stats
-   * 2. Consider adding time period filters (this week, this month, this year)
-   * 3. Add ability to drill down into each request type for more details
-   * 4. Ensure the chart is responsive on all device sizes
+   * 1. Replace the sample data with actual API calls
+   * 2. Add loading states and error handling
+   * 3. Consider adding time period filters (this week, this month, this year)
+   * 4. Add ability to drill down into each request type for more details
    */
 
   // Get the icon for each request type
   const getRequestIcon = (type: string) => {
     switch (type.toLowerCase()) {
       case "photo":
-        return <Camera className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+        return <Camera className="h-4 w-4 text-blue-600 dark:text-blue-400" />;
       case "video":
-        return <Video className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+        return (
+          <Video className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+        );
       case "grooming":
-        return <Scissors className="h-4 w-4 text-pink-600 dark:text-pink-400" />
+        return (
+          <Scissors className="h-4 w-4 text-pink-600 dark:text-pink-400" />
+        );
       case "extension":
-        return <Clock className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+        return (
+          <Clock className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+        );
       default:
-        return <Camera className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+        return <Camera className="h-4 w-4 text-blue-600 dark:text-blue-400" />;
     }
-  }
+  };
 
   // Handle pie chart segment hover
-  const onPieEnter = (_, index) => {
-    setActiveIndex(index)
-  }
+  const onPieEnter = (_: unknown, index: number): void => {
+    setActiveIndex(index);
+  };
 
   const onPieLeave = () => {
-    setActiveIndex(null)
-  }
+    setActiveIndex(null);
+  };
 
   // Custom label for the pie chart
-  const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index, name }) => {
-    const RADIAN = Math.PI / 180
-    const radius = innerRadius + (outerRadius - innerRadius) * 0.5
-    const x = cx + radius * Math.cos(-midAngle * RADIAN)
-    const y = cy + radius * Math.sin(-midAngle * RADIAN)
+  const renderCustomizedLabel = ({
+    cx,
+    cy,
+    midAngle,
+    innerRadius,
+    outerRadius,
+    percent,
+    index,
+    name,
+  }: {
+    cx: number;
+    cy: number;
+    midAngle: number;
+    innerRadius: number;
+    outerRadius: number;
+    percent: number;
+    index: number;
+    name: string;
+  }) => {
+    const RADIAN = Math.PI / 180;
+    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
     // On small screens, show only percentages without labels
     if (isMobile) {
-      return `${(percent * 100).toFixed(0)}%`
+      return `${(percent * 100).toFixed(0)}%`;
     }
     // On medium screens, show abbreviated labels
     else if (isTablet) {
-      return `${name.substring(0, 1)}. ${(percent * 100).toFixed(0)}%`
+      return `${name.substring(0, 1)}. ${(percent * 100).toFixed(0)}%`;
     }
     // On large screens, show full labels
-    return `${name} ${(percent * 100).toFixed(0)}%`
-  }
+    return `${name} ${(percent * 100).toFixed(0)}%`;
+  };
 
   return (
     <Card className="overflow-hidden">
@@ -136,7 +172,9 @@ export function PopularRequestsChart({ data = [] }: PopularRequestsChartProps) {
             <div
               key={index}
               className="flex items-center gap-2 rounded-lg border p-3 cursor-pointer hover:bg-muted/50 transition-colors"
-              onClick={() => (window.location.href = "/webapp/admin/request-management")}
+              onClick={() =>
+                (window.location.href = "/webapp/admin/request-management")
+              }
             >
               <motion.div
                 className={`rounded-full p-2 flex-shrink-0`}
@@ -149,13 +187,17 @@ export function PopularRequestsChart({ data = [] }: PopularRequestsChartProps) {
                 {getRequestIcon(item.name)}
               </motion.div>
               <div className="min-w-0">
-                <p className="text-sm font-medium text-foreground truncate">{item.name} Requests</p>
-                <p className="text-xl font-bold text-foreground">{item.value}</p>
+                <p className="text-sm font-medium text-foreground truncate">
+                  {item.name} Requests
+                </p>
+                <p className="text-xl font-bold text-foreground">
+                  {item.value}
+                </p>
               </div>
             </div>
           ))}
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

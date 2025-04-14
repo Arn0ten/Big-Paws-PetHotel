@@ -22,8 +22,7 @@ export function RequestTrendChart({ data = [] }: RequestTrendChartProps) {
    *
    * This component displays the trend of service requests over time.
    *
-   * API Endpoint: /api/admin/analytics/request-trends
-   * Method: GET
+   * API Endpoint: GET /api/admin/analytics/request-trends
    * Query Parameters:
    *   - timeRange: "7days" | "30days" | "90days"
    *   - startDate (optional): ISO date string
@@ -39,17 +38,16 @@ export function RequestTrendChart({ data = [] }: RequestTrendChartProps) {
    * Update Frequency: Daily or on-demand when timeRange changes
    *
    * Implementation Notes:
-   * 1. The chart should update when timeRange changes
-   * 2. Consider adding date range picker for custom time ranges
-   * 3. Add ability to filter by request type
-   * 4. Implement data export functionality (CSV, Excel)
+   * 1. Replace the sample data with actual API calls
+   * 2. Add loading states and error handling
+   * 3. Consider adding date range picker for custom time ranges
+   * 4. Add ability to filter by request type
    */
 
   // Filter data based on selected time range
   const getFilteredData = () => {
     if (!data || data.length === 0) return []
 
-    const now = new Date()
     let daysToShow = 30
 
     switch (timeRange) {
