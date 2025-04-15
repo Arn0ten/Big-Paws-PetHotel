@@ -134,7 +134,6 @@ export interface BaseRequest {
   status: RequestStatus
   createdAt: string
   description: string
-  isUrgent: boolean
   petSize?: PetSize
   boardingId?: string
   completedAt?: string

@@ -40,12 +40,12 @@ export default function RequestManagementPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [selectedGroomingService, setSelectedGroomingService] = useState("premium-wash-and-cut")
   const [calculatedPrice, setCalculatedPrice] = useState<number | null>(null)
-  const [successDialog, setSuccessDialog] = useState({
-    open: false,
-    title: "",
-    message: "",
-    type: "",
-  })
+  // const [successDialog, setSuccessDialog] = useState({
+  //   open: false,
+  //   title: "",
+  //   message: "",
+  //   type: "",
+  // })
   const [hasNewCompletedRequests, setHasNewCompletedRequests] = useState(false)
   const [showBoardingDetailsDialog, setShowBoardingDetailsDialog] = useState(false)
   const [selectedBoardingDetails, setSelectedBoardingDetails] = useState<any>(null)
@@ -150,12 +150,12 @@ export default function RequestManagementPage() {
       setShowProcessDialog(false)
 
       // Show success dialog
-      setSuccessDialog({
-        open: true,
-        title: "Request Completed Successfully",
-        message: `The ${getRequestTypeLabel(selectedRequest.type).toLowerCase()} for ${selectedRequest.petName} has been completed.`,
-        type: selectedRequest.type,
-      })
+      // setSuccessDialog({
+      //   open: true,
+      //   title: "Request Completed Successfully",
+      //   message: `The ${getRequestTypeLabel(selectedRequest.type).toLowerCase()} for ${selectedRequest.petName} has been completed.`,
+      //   type: selectedRequest.type,
+      // })
 
       // Set new completed requests flag
       setHasNewCompletedRequests(true)
@@ -176,7 +176,7 @@ export default function RequestManagementPage() {
   // Add a useEffect to handle dialog sequencing
   useEffect(() => {
     // If success dialog closes and we have boarding details to show, open that dialog
-    if (!successDialog.open && selectedBoardingDetails) {
+    if ( selectedBoardingDetails) {
       // Small delay to prevent dialog overlap
       const timer = setTimeout(() => {
         setShowBoardingDetailsDialog(true)
@@ -187,7 +187,7 @@ export default function RequestManagementPage() {
 
       return () => clearTimeout(timer)
     }
-  }, [successDialog.open, selectedBoardingDetails])
+  }, [selectedBoardingDetails])
 
   // Modify the handleUndoAccept function to immediately return the request to "new" status without confirmation dialog
 
@@ -611,13 +611,13 @@ export default function RequestManagementPage() {
       />
 
       {/* Success Dialog */}
-      <SuccessDialog
+      {/* <SuccessDialog
         open={successDialog.open}
         onOpenChange={(open) => setSuccessDialog({ ...successDialog, open })}
         title={successDialog.title}
         description={successDialog.message}
         type={successDialog.type as any}
-      />
+      /> */}
 
       {/* Boarding Details Dialog */}
       <BoardingDetailsDialog

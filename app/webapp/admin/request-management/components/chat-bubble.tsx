@@ -47,6 +47,7 @@ export function ChatBubble({
 }: ChatBubbleProps) {
   const isMobile = useMediaQuery("(max-width: 640px)")
   const isSmallScreen = useMediaQuery("(max-width: 768px)")
+
   const videoRef = useRef<HTMLVideoElement>(null)
   const fullscreenVideoRef = useRef<HTMLVideoElement>(null)
   const audioRef = useRef<HTMLAudioElement>(null)
