@@ -1,40 +1,22 @@
-"use client";
+"use client"
 
-import { motion } from "framer-motion";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { CheckCircle, ExternalLink } from "lucide-react";
-import {
-  getRequestTypeIcon,
-  getRequestTypeLabel,
-  getCardBgColor,
-  formatDate,
-} from "../utils/ui-helpers";
-import { useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { ChatBubble } from "./chat-bubble";
-import { Camera, Clock, Scissors, Video } from "lucide-react";
+import { motion } from "framer-motion"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { CheckCircle, ExternalLink } from "lucide-react"
+import { getRequestTypeIcon, getRequestTypeLabel, getCardBgColor, formatDate } from "../utils/ui-helpers"
+import { useState } from "react"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { ChatBubble } from "./chat-bubble"
+import { Camera, Clock, Scissors, Video } from "lucide-react"
 
 interface CompletedRequestCardProps {
-  request: any;
+  request: any
 }
 
 export function CompletedRequestCard({ request }: CompletedRequestCardProps) {
-  const [showDetailsDialog, setShowDetailsDialog] = useState(false);
+  const [showDetailsDialog, setShowDetailsDialog] = useState(false)
 
   return (
     <motion.div
@@ -47,18 +29,14 @@ export function CompletedRequestCard({ request }: CompletedRequestCardProps) {
     >
       <Card
         className={`w-full h-[280px] flex flex-col cursor-pointer ${
-          request.isNewlyCompleted
-            ? "ring-2 ring-green-500 dark:ring-green-400"
-            : ""
+          request.isNewlyCompleted ? "ring-2 ring-green-500 dark:ring-green-400" : ""
         } ${getCardBgColor(request.type, false)}`}
         onClick={() => setShowDetailsDialog(true)}
       >
         <CardHeader className="p-4 pb-2">
           <div className="flex justify-between items-start">
             <div className="flex items-center space-x-2">
-              <div
-                className={`p-2 rounded-full ${getIconBgColorClass(request.type)}`}
-              >
+              <div className={`p-2 rounded-full ${getIconBgColorClass(request.type)}`}>
                 {getRequestTypeIcon(request.type)}
               </div>
               <div>
@@ -66,41 +44,25 @@ export function CompletedRequestCard({ request }: CompletedRequestCardProps) {
                   {getRequestTypeLabel(request.type)}
                 </CardTitle>
                 <CardDescription className="text-foreground/70 dark:text-foreground/60 font-medium">
-                  {request.petName}{" "}
-                  <span className="text-muted-foreground">
-                    ({request.petOwnerName})
-                  </span>
+                  {request.petName} <span className="text-muted-foreground">({request.petOwnerName})</span>
                 </CardDescription>
               </div>
             </div>
-            <Badge
-              variant="default"
-              className="bg-green-600 hover:bg-green-700 text-white ml-auto"
-            >
+            <Badge variant="default" className="bg-green-600 hover:bg-green-700 text-white ml-auto">
               <CheckCircle className="h-3 w-3 mr-1" /> Completed
             </Badge>
           </div>
         </CardHeader>
         <CardContent className="p-4 pt-2 flex-grow overflow-hidden">
-          <p className="text-sm line-clamp-2 text-foreground/90 dark:text-foreground/80">
-            {request.description}
-          </p>
+          <p className="text-sm line-clamp-2 text-foreground/90 dark:text-foreground/80">{request.description}</p>
 
           <div className="mt-3">
-            <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-              Completed
-            </span>
-            <div className="text-sm font-medium mt-0.5">
-              {formatDate(request.completedAt || request.createdAt)}
-            </div>
+            <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Completed</span>
+            <div className="text-sm font-medium mt-0.5">{formatDate(request.completedAt || request.createdAt)}</div>
           </div>
         </CardContent>
         <CardFooter className="p-4 pt-0 mt-auto">
-          <Button
-            variant="outline"
-            className="w-full"
-            onClick={() => setShowDetailsDialog(true)}
-          >
+          <Button variant="outline" className="w-full" onClick={() => setShowDetailsDialog(true)}>
             <ExternalLink className="mr-2 h-4 w-4" />
             View Details
           </Button>
@@ -112,16 +74,13 @@ export function CompletedRequestCard({ request }: CompletedRequestCardProps) {
         <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-xl font-semibold">
-              <span
-                className={`p-1 rounded-full ${getIconBgColorClass(request.type)}`}
-              >
+              <span className={`p-1 rounded-full ${getIconBgColorClass(request.type)}`}>
                 {getRequestTypeIcon(request.type)}
               </span>
               {getRequestTypeLabel(request.type)} - {request.petName}
             </DialogTitle>
             <DialogDescription>
-              Completed on {formatDate(request.completedAt)} by{" "}
-              {request.completedBy || "Admin"}
+              Completed on {formatDate(request.completedAt)} by {request.completedBy || "Admin"}
             </DialogDescription>
           </DialogHeader>
 
@@ -129,31 +88,19 @@ export function CompletedRequestCard({ request }: CompletedRequestCardProps) {
             {/* Request details */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-                  Pet Owner
-                </span>
-                <div className="text-base font-medium mt-1">
-                  {request.petOwnerName}
-                </div>
+                <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Pet Owner</span>
+                <div className="text-base font-medium mt-1">{request.petOwnerName}</div>
               </div>
               <div>
-                <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-                  Pet
-                </span>
-                <div className="text-base font-medium mt-1">
-                  {request.petName}
-                </div>
+                <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Pet</span>
+                <div className="text-base font-medium mt-1">{request.petName}</div>
               </div>
             </div>
 
             {/* Request description */}
             <div>
-              <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-                Request
-              </span>
-              <div className="mt-1 p-3 bg-muted/30 rounded-md text-base whitespace-pre-wrap">
-                {request.description}
-              </div>
+              <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Request</span>
+              <div className="mt-1 p-3 bg-muted/30 rounded-md text-base whitespace-pre-wrap">{request.description}</div>
             </div>
 
             {/* Request type specific details */}
@@ -166,31 +113,23 @@ export function CompletedRequestCard({ request }: CompletedRequestCardProps) {
                   <div>
                     <span className="text-muted-foreground">Service Type:</span>
                     <div className="font-medium">
-                      {request.groomingService
-                        ?.replace(/-/g, " ")
-                        .replace(/\b\w/g, (l) => l.toUpperCase()) ||
+                      {request.groomingService?.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()) ||
                         "Standard Grooming"}
                     </div>
                   </div>
                   <div>
                     <span className="text-muted-foreground">Pet Size:</span>
-                    <div className="font-medium">
-                      {request.petSize || "Medium"}
-                    </div>
+                    <div className="font-medium">{request.petSize || "Medium"}</div>
                   </div>
                   <div>
                     <span className="text-muted-foreground">Price:</span>
                     <div className="font-medium text-green-700 dark:text-green-400">
-                      {request.price
-                        ? `₱${request.price.toFixed(2)}`
-                        : "Price not specified"}
+                      {request.price ? `₱${request.price.toFixed(2)}` : "Price not specified"}
                     </div>
                   </div>
                   <div>
                     <span className="text-muted-foreground">Duration:</span>
-                    <div className="font-medium">
-                      {request.duration || "1-2 hours"}
-                    </div>
+                    <div className="font-medium">{request.duration || "1-2 hours"}</div>
                   </div>
                 </div>
               </div>
@@ -203,13 +142,9 @@ export function CompletedRequestCard({ request }: CompletedRequestCardProps) {
                 </h4>
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
-                    <span className="text-muted-foreground">
-                      Original End Date:
-                    </span>
+                    <span className="text-muted-foreground">Original End Date:</span>
                     <div className="font-medium">
-                      {request.currentEndDate
-                        ? formatDate(request.currentEndDate)
-                        : "Not specified"}
+                      {request.currentEndDate ? formatDate(request.currentEndDate) : "Not specified"}
                     </div>
                   </div>
                   <div>
@@ -223,19 +158,13 @@ export function CompletedRequestCard({ request }: CompletedRequestCardProps) {
                   <div>
                     <span className="text-muted-foreground">New End Date:</span>
                     <div className="font-medium">
-                      {request.newEndDate
-                        ? formatDate(request.newEndDate)
-                        : "Not specified"}
+                      {request.newEndDate ? formatDate(request.newEndDate) : "Not specified"}
                     </div>
                   </div>
                   <div>
-                    <span className="text-muted-foreground">
-                      Additional Cost:
-                    </span>
+                    <span className="text-muted-foreground">Additional Cost:</span>
                     <div className="font-medium text-green-700 dark:text-green-400">
-                      {request.price
-                        ? `₱${request.price.toFixed(2)}`
-                        : "Price not specified"}
+                      {request.price ? `₱${request.price.toFixed(2)}` : "Price not specified"}
                     </div>
                   </div>
                 </div>
@@ -249,30 +178,19 @@ export function CompletedRequestCard({ request }: CompletedRequestCardProps) {
                 </h4>
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
-                    <span className="text-muted-foreground">
-                      Video Duration:
-                    </span>
-                    <div className="font-medium">
-                      {request.videoDuration || "Up to 60 seconds"}
-                    </div>
+                    <span className="text-muted-foreground">Video Duration:</span>
+                    <div className="font-medium">{request.videoDuration || "Up to 60 seconds"}</div>
                   </div>
                   <div>
-                    <span className="text-muted-foreground">
-                      Background Music:
-                    </span>
+                    <span className="text-muted-foreground">Background Music:</span>
                     <div className="font-medium">
-                      {request.selectedAudioName ||
-                        (request.audioMerged ? "Added" : "None")}
+                      {request.selectedAudioName || (request.audioMerged ? "Added" : "None")}
                     </div>
                   </div>
                   {request.videoSpecialRequests && (
                     <div className="col-span-2">
-                      <span className="text-muted-foreground">
-                        Special Requests:
-                      </span>
-                      <div className="font-medium">
-                        {request.videoSpecialRequests}
-                      </div>
+                      <span className="text-muted-foreground">Special Requests:</span>
+                      <div className="font-medium">{request.videoSpecialRequests}</div>
                     </div>
                   )}
                 </div>
@@ -286,27 +204,17 @@ export function CompletedRequestCard({ request }: CompletedRequestCardProps) {
                 </h4>
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
-                    <span className="text-muted-foreground">
-                      Number of Photos:
-                    </span>
-                    <div className="font-medium">
-                      {request.mediaFiles?.count || "Multiple"}
-                    </div>
+                    <span className="text-muted-foreground">Number of Photos:</span>
+                    <div className="font-medium">{request.mediaFiles?.count || "Multiple"}</div>
                   </div>
                   <div>
                     <span className="text-muted-foreground">Photo Type:</span>
-                    <div className="font-medium">
-                      {request.photoType || "Standard"}
-                    </div>
+                    <div className="font-medium">{request.photoType || "Standard"}</div>
                   </div>
                   {request.photoSpecialRequests && (
                     <div className="col-span-2">
-                      <span className="text-muted-foreground">
-                        Special Requests:
-                      </span>
-                      <div className="font-medium">
-                        {request.photoSpecialRequests}
-                      </div>
+                      <span className="text-muted-foreground">Special Requests:</span>
+                      <div className="font-medium">{request.photoSpecialRequests}</div>
                     </div>
                   )}
                 </div>
@@ -374,9 +282,7 @@ export function CompletedRequestCard({ request }: CompletedRequestCardProps) {
                     sender={request.approvedBy || "Admin"}
                     message={`Request approved and in progress`}
                     timestamp={request.approvedAt}
-                    avatar={(request.approvedBy || "Admin")
-                      .charAt(0)
-                      .toUpperCase()}
+                    avatar={(request.approvedBy || "Admin").charAt(0).toUpperCase()}
                     isAdmin={true}
                   />
                 )}
@@ -390,9 +296,7 @@ export function CompletedRequestCard({ request }: CompletedRequestCardProps) {
                         : `Request completed: ${getRequestTypeLabel(request.type)} for ${request.petName}`
                     }
                     timestamp={request.completedAt}
-                    avatar={(request.completedBy || "Admin")
-                      .charAt(0)
-                      .toUpperCase()}
+                    avatar={(request.completedBy || "Admin").charAt(0).toUpperCase()}
                     isAdmin={true}
                     type={request.type}
                     media={
@@ -400,10 +304,7 @@ export function CompletedRequestCard({ request }: CompletedRequestCardProps) {
                         ? {
                             url: request.mediaFiles.urls?.[0] || "",
                             type:
-                              request.mediaFiles.type === "photo" ||
-                              request.type === "grooming"
-                                ? "image"
-                                : "video",
+                              request.mediaFiles.type === "photo" || request.type === "grooming" ? "image" : "video",
                             urls: request.mediaFiles.urls,
                             audioUrl: request.selectedAudioUrl,
                             audioName: request.selectedAudioName,
@@ -420,23 +321,23 @@ export function CompletedRequestCard({ request }: CompletedRequestCardProps) {
         </DialogContent>
       </Dialog>
     </motion.div>
-  );
+  )
 }
 
 // Helper function to get icon background color class
 function getIconBgColorClass(type: string) {
   switch (type) {
     case "photo":
-      return "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300";
+      return "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300"
     case "video":
-      return "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300";
+      return "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300"
     case "grooming":
-      return "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300";
+      return "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
     case "boarding-extension":
-      return "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300";
+      return "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300"
     case "custom":
-      return "bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300";
+      return "bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300"
     default:
-      return "bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300";
+      return "bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300"
   }
 }
