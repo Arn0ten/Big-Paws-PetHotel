@@ -61,11 +61,11 @@ export function RecentActivityTabs({ requests = [], petOwners = [] }: RecentActi
   const getRequestStatusBadge = (status: RequestStatusBadgeProps["status"]): JSX.Element => {
     switch (status) {
       case "Confirmed":
-        return <span className="rounded-full px-2 py-1 text-xs bg-green-600 w-[100px] text-white">{status}</span>;
+        return <span className="rounded-full px-2 py-1 text-xs bg-green-600 w-[100px] flex justify-center text-white">{status}</span>;
       case "Pending":
-        return <span className="rounded-full px-2 py-1 text-xs bg-yellow-600 w-[100px] text-white">{status}</span>;
+        return <span className="rounded-full px-2 py-1 text-xs bg-yellow-600 w-[100px] flex justify-center text-white">{status}</span>;
       default:
-        return <span className="rounded-full px-2 py-1 text-xs bg-gray-600 w-[100px] text-white">{status}</span>;
+        return <span className="rounded-full px-2 py-1 text-xs bg-gray-600 w-[100px] flex justify-center text-white">{status}</span>;
     }
   };
 
