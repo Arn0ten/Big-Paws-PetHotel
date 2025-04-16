@@ -122,37 +122,37 @@ export function BoardingDetailDialog({
   const getBoardingStatusColor = (status: string) => {
     switch (status) {
       case "Boarding":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300"
+        return "bg-blue-600 hover:bg-blue-600 text-white min-w-[120px] flex justify-center"
       case "Done Boarding":
-        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
+        return "bg-green-600 hover:bg-green-600 text-white min-w-[120px] flex justify-center"
       case "Released":
-        return "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300"
+        return "bg-purple-600 hover:bg-purple-600 text-white min-w-[120px] flex justify-center"
       default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
+        return "bg-gray-600 hover:bg-gray-600 text-white min-w-[120px] flex justify-center"
     }
   }
 
   const getPaymentStatusColor = (status: string) => {
     switch (status) {
       case "Paid":
-        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
+        return "bg-green-600 hover:bg-green-600 text-white min-w-[120px] flex justify-center"
       case "Not Paid":
-        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
+        return "bg-red-600 hover:bg-red-600 text-white min-w-[120px] flex justify-center"
       case "Pending":
-        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
+        return "bg-yellow-600 hover:bg-yellow-600 text-white min-w-[120px] flex justify-center"
       default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
+        return "bg-gray-600 hover:bg-gray-600 text-white min-w-[120px] flex justify-center"
     }
   }
 
   const getPetTypeColor = (type: string) => {
     switch (type.toLowerCase()) {
       case "dog":
-        return "bg-blue-600 text-white dark:bg-blue-700 dark:text-white"
+        return "bg-blue-600 hover:bg-blue-600 text-white min-w-[80px] flex justify-center"
       case "cat":
-        return "bg-purple-600 text-white dark:bg-purple-700 dark:text-white"
+        return "bg-purple-600 hover:bg-purple-600 text-white min-w-[80px] flex justify-center"
       default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
+        return "bg-gray-600 hover:bg-gray-600 text-white min-w-[80px] flex justify-center"
     }
   }
 
@@ -207,15 +207,18 @@ export function BoardingDetailDialog({
                 <p className="text-sm text-muted-foreground">Created on {formatDate(boardingOrder.createdAt)}</p>
               </div>
               <div className="flex flex-wrap gap-1.5">
-                <Badge variant="outline" className={getBoardingStatusColor(boardingOrder.boardingStatus)}>
+                <Badge variant="secondary" className={getBoardingStatusColor(boardingOrder.boardingStatus)}>
                   {boardingOrder.boardingStatus}
                 </Badge>
-                <Badge variant="outline" className={getPaymentStatusColor(paymentStatus)}>
+                <Badge variant="secondary" className={getPaymentStatusColor(paymentStatus)}>
                   {paymentStatus}
                 </Badge>
                 {isOverdue && (
-                  <Badge variant="outline" className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300">
-                    <AlertTriangle className="h-3 w-3 mr-1" /> Overdue Pickup
+                  <Badge
+                    variant="secondary"
+                    className="bg-red-600 hover:bg-red-600 text-white min-w-[120px] flex justify-center"
+                  >
+                    <AlertTriangle className="h-3 w-3 mr-1" /> Overdue
                   </Badge>
                 )}
               </div>
@@ -246,7 +249,7 @@ export function BoardingDetailDialog({
                       <div className="space-y-1.5">
                         <div className="flex items-center justify-between">
                           <span className="text-sm font-medium text-muted-foreground">TYPE:</span>
-                          <Badge variant="outline" className={getPetTypeColor(boardingOrder.pet.type)}>
+                          <Badge variant="secondary" className={getPetTypeColor(boardingOrder.pet.type)}>
                             {boardingOrder.pet.type}
                           </Badge>
                         </div>
@@ -361,24 +364,6 @@ export function BoardingDetailDialog({
                           <span className="text-muted-foreground font-medium">Check-out:</span>
                           <span>{formatDate(boardingOrder.endDate)}</span>
                         </div>
-                        {boardingOrder.hasExtension && boardingOrder.originalEndDate && (
-                          <>
-                            <div className="flex justify-between text-sm mt-2">
-                              <span className="text-muted-foreground font-medium">Original Check-out:</span>
-                              <span className="line-through text-muted-foreground">
-                                {formatDate(boardingOrder.originalEndDate)}
-                              </span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                              <span className="text-amber-600 dark:text-amber-400 font-medium">Extension:</span>
-                              <span className="text-amber-600 dark:text-amber-400">
-                                {boardingOrder.boardingType === "Daycare"
-                                  ? `+${boardingOrder.extensionHours} hours`
-                                  : `+${boardingOrder.extensionDays} days`}
-                              </span>
-                            </div>
-                          </>
-                        )}
                       </div>
                     </div>
                     <div>

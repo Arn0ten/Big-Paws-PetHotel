@@ -120,37 +120,37 @@ export function BoardingTable({
   const getBoardingStatusColor = (status: string) => {
     switch (status) {
       case "Boarding":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300";
+        return "bg-blue-600 hover:bg-blue-600 text-white min-w-[100px] flex justify-center";
       case "Done Boarding":
-        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
+        return "bg-green-600 hover:bg-green-600 text-white min-w-[100px] flex justify-center";
       case "Released":
-        return "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300";
+        return "bg-purple-600 hover:bg-purple-600 text-white min-w-[100px] flex justify-center";
       default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
+        return "bg-gray-600 hover:bg-gray-600 text-white min-w-[100px] flex justify-center";
     }
   };
 
   const getPaymentStatusColor = (status: string) => {
     switch (status) {
       case "Paid":
-        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
+        return "bg-green-600 hover:bg-green-600 text-white min-w-[100px] flex justify-center";
       case "Not Paid":
-        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
+        return "bg-red-600 hover:bg-red-600 text-white min-w-[100px] flex justify-center";
       case "Pending":
-        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300";
+        return "bg-yellow-600 hover:bg-yellow-600 text-white min-w-[100px] flex justify-center";
       default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
+        return "bg-gray-600 hover:bg-gray-600 text-white min-w-[100px] flex justify-center";
     }
   };
 
   const getPetTypeColor = (type: string) => {
     switch (type.toLowerCase()) {
       case "dog":
-        return "bg-blue-600 text-white dark:bg-blue-700 dark:text-white";
+        return "bg-blue-600 hover:bg-blue-600 text-white min-w-[80px] flex justify-center";
       case "cat":
-        return "bg-purple-600 text-white dark:bg-purple-700 dark:text-white";
+        return "bg-purple-600 hover:bg-purple-600 text-white min-w-[80px] flex justify-center";
       default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
+        return "bg-gray-600 hover:bg-gray-600 text-white min-w-[80px] flex justify-center";
     }
   };
 
@@ -300,10 +300,10 @@ export function BoardingTable({
                         </TableCell>
                         <TableCell>
                           <Badge
-                            variant="outline"
+                            variant="secondary"
                             className={getPetTypeColor(order.pet.type)}
                           >
-                            <div className="flex items-center">
+                            <div className="flex items-center justify-center w-full">
                               {getPetTypeIcon(order.pet.type)}
                               {order.pet.type}
                             </div>
@@ -333,8 +333,8 @@ export function BoardingTable({
                         <TableCell className="whitespace-nowrap">
                           <div className="flex justify-center">
                             <Badge
-                              variant="outline"
-                              className={`${getBoardingStatusColor(order.boardingStatus)} whitespace-nowrap`}
+                              variant="secondary"
+                              className={`${getBoardingStatusColor(order.boardingStatus)}`}
                             >
                               {order.boardingStatus}
                             </Badge>
@@ -344,8 +344,8 @@ export function BoardingTable({
                         <TableCell className="whitespace-nowrap">
                           <div className="flex justify-center">
                             <Badge
-                              variant="outline"
-                              className={`${getPaymentStatusColor(order.paymentStatus)} whitespace-nowrap`}
+                              variant="secondary"
+                              className={`${getPaymentStatusColor(order.paymentStatus)}`}
                             >
                               {order.paymentStatus}
                             </Badge>
@@ -366,7 +366,7 @@ export function BoardingTable({
                                   size="sm"
                                   onClick={() => handleReleasePet(order.id)}
                                   title="Release Pet"
-                                  className="bg-green-600 hover:bg-green-700 text-white"
+                                  className="bg-green-600 hover:bg-green-700 text-white w-[100px]"
                                 >
                                   <LogOut className="h-3.5 w-3.5 mr-1" />
                                   Release
@@ -380,12 +380,13 @@ export function BoardingTable({
                                   size="sm"
                                   onClick={() => handleForceRelease(order.id)}
                                   title="Force Release Pet"
-                                  className="bg-amber-600 hover:bg-amber-700 text-white"
+                                  className="bg-amber-600 hover:bg-amber-700 text-white w-[100px]"
                                 >
                                   <LogOut className="h-3.5 w-3.5 mr-1" />
                                   Force
                                 </Button>
                               )}
+
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
                                 <Button

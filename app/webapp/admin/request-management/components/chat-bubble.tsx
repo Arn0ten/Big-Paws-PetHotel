@@ -425,7 +425,7 @@ export function ChatBubble({
 
             {media && (
               <div className="mt-2">
-                {(media.type === "image" || type === "grooming") && media.urls && media.urls.length > 0 ? (
+                {media.type === "image" && media.urls && media.urls.length > 0 ? (
                   <div className={`grid ${media.urls.length > 1 ? "grid-cols-2 gap-2" : "grid-cols-1"}`}>
                     {media.urls.map((url, index) => (
                       <div

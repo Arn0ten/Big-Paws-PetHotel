@@ -1,25 +1,46 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { format } from "date-fns"
-import { CalendarIcon, Clock, Hotel, Dog, Cat, Loader2, CalendarDays, CalendarClock } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import type { Pet } from "../utils/types"
-import PageLayout from "@/app/webapp/components/PageLayout"
+import { useState, useEffect } from "react";
+import { format } from "date-fns";
+import {
+  CalendarIcon,
+  Clock,
+  Hotel,
+  Dog,
+  Cat,
+  Loader2,
+  CalendarDays,
+  CalendarClock,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import type { Pet } from "../utils/types";
+import PageLayout from "@/app/webapp/components/PageLayout";
 
 // Custom time picker component
-const TimePicker = ({ value, onChange }: { value: string; onChange: (time: string) => void }) => {
-  const hours = Array.from({ length: 24 }, (_, i) => i)
-  const minutes = ["00", "15", "30", "45"]
+const TimePicker = ({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (time: string) => void;
+}) => {
+  const hours = Array.from({ length: 24 }, (_, i) => i);
+  const minutes = ["00", "15", "30", "45"];
 
-  const [selectedHour, selectedMinute] = value.split(":").map((v, i) => (i === 0 ? Number.parseInt(v) : v))
+  const [selectedHour, selectedMinute] = value
+    .split(":")
+    .map((v, i) => (i === 0 ? Number.parseInt(v) : v));
 
   return (
     <PopoverContent className="w-auto p-0" align="start">
@@ -29,10 +50,14 @@ const TimePicker = ({ value, onChange }: { value: string; onChange: (time: strin
             <div
               key={hour}
               className={`cursor-pointer rounded-md p-2 text-center text-sm hover:bg-muted ${
-                selectedHour === hour ? "bg-primary text-primary-foreground hover:bg-primary/90" : ""
+                selectedHour === hour
+                  ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                  : ""
               }`}
               onClick={() => {
-                onChange(`${hour.toString().padStart(2, "0")}:${selectedMinute}`)
+                onChange(
+                  `${hour.toString().padStart(2, "0")}:${selectedMinute}`,
+                );
               }}
             >
               {hour.toString().padStart(2, "0")}
@@ -44,10 +69,14 @@ const TimePicker = ({ value, onChange }: { value: string; onChange: (time: strin
             <div
               key={minute}
               className={`cursor-pointer rounded-md p-2 text-center text-sm hover:bg-muted ${
-                selectedMinute === minute ? "bg-primary text-primary-foreground hover:bg-primary/90" : ""
+                selectedMinute === minute
+                  ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                  : ""
               }`}
               onClick={() => {
-                onChange(`${selectedHour.toString().padStart(2, "0")}:${minute}`)
+                onChange(
+                  `${selectedHour.toString().padStart(2, "0")}:${minute}`,
+                );
               }}
             >
               {minute}
@@ -56,8 +85,8 @@ const TimePicker = ({ value, onChange }: { value: string; onChange: (time: strin
         </div>
       </div>
     </PopoverContent>
-  )
-}
+  );
+};
 
 // Pricing tiers based on pet size
 const dogDaycarePricing = {
@@ -65,14 +94,14 @@ const dogDaycarePricing = {
   Medium: 30,
   Large: 40,
   XL: 50,
-}
+};
 
 const dogAccommodationPricing = {
   Small: 320,
   Medium: 400,
   Large: 480,
   XL: 550,
-}
+};
 
 const catPricing = {
   standard: {
@@ -83,24 +112,24 @@ const catPricing = {
     smallToMedium: 200,
     large: 300,
   },
-}
+};
 
 // Boarding type
-type BoardingType = "Daycare" | "LongStay"
+type BoardingType = "Daycare" | "LongStay";
 
 // Boarding details
 interface BoardingDetails {
-  petIds: string[]
-  type: BoardingType
-  startDate: Date
-  endDate: Date
-  startTime?: string
-  endTime?: string
-  notes?: string
+  petIds: string[];
+  type: BoardingType;
+  startDate: Date;
+  endDate: Date;
+  startTime?: string;
+  endTime?: string;
+  notes?: string;
   pricing?: {
-    total: number
-    breakdown: { petName: string; price: number }[]
-  }
+    total: number;
+    breakdown: { petName: string; price: number }[];
+  };
 }
 
 // Pricing utility function
@@ -112,59 +141,65 @@ const calculateBoardingPrice = (
   startTime?: string,
   endTime?: string,
 ): { total: number; breakdown: { petName: string; price: number }[] } => {
-  let petPrice = 0
+  let petPrice = 0;
 
   if (pet.type === "Dog") {
     if (type === "Daycare") {
       // Calculate hours for daycare
-      let hours = 8 // Default to 8 hours if times not provided
+      let hours = 8; // Default to 8 hours if times not provided
 
       if (startTime && endTime) {
-        const startHour = Number.parseInt(startTime.split(":")[0])
-        const startMinute = Number.parseInt(startTime.split(":")[1])
-        const endHour = Number.parseInt(endTime.split(":")[0])
-        const endMinute = Number.parseInt(endTime.split(":")[1])
+        const startHour = Number.parseInt(startTime.split(":")[0]);
+        const startMinute = Number.parseInt(startTime.split(":")[1]);
+        const endHour = Number.parseInt(endTime.split(":")[0]);
+        const endMinute = Number.parseInt(endTime.split(":")[1]);
 
         // Calculate total hours including partial hours
-        hours = endHour - startHour
-        if (endMinute > startMinute) hours += 0.5
-        else if (endMinute < startMinute) hours -= 0.5
+        hours = endHour - startHour;
+        if (endMinute > startMinute) hours += 0.5;
+        else if (endMinute < startMinute) hours -= 0.5;
 
         // Minimum 1 hour
-        hours = Math.max(1, hours)
+        hours = Math.max(1, hours);
       }
 
       // Get hourly rate based on size
-      const hourlyRate = dogDaycarePricing[pet.size || "Medium"]
-      petPrice = hourlyRate * hours
+      const hourlyRate = dogDaycarePricing[pet.size || "Medium"];
+      petPrice = hourlyRate * hours;
     } else {
       // For long stay, calculate number of days
-      const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))
+      const days = Math.ceil(
+        (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24),
+      );
       // Minimum 1 day
-      const stayDays = Math.max(1, days)
+      const stayDays = Math.max(1, days);
 
       // Get daily rate based on size
-      const dailyRate = dogAccommodationPricing[pet.size || "Medium"]
-      petPrice = dailyRate * stayDays
+      const dailyRate = dogAccommodationPricing[pet.size || "Medium"];
+      petPrice = dailyRate * stayDays;
     }
   } else if (pet.type === "Cat") {
     // For cats, we use a simpler pricing model
-    const isKitten = pet.age && pet.age < 1
-    const isLarge = pet.size === "Large" || pet.size === "XL"
+    const isKitten = pet.age && pet.age < 1;
+    const isLarge = pet.size === "Large" || pet.size === "XL";
 
     // Base price for standard room
-    petPrice = isKitten ? catPricing.standard.kitten : catPricing.standard.adult
+    petPrice = isKitten
+      ? catPricing.standard.kitten
+      : catPricing.standard.adult;
 
     // For long stay, multiply by days
     if (type === "LongStay") {
-      const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))
-      const stayDays = Math.max(1, days)
-      petPrice *= stayDays
+      const days = Math.ceil(
+        (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24),
+      );
+      const stayDays = Math.max(1, days);
+      petPrice *= stayDays;
     }
   }
 
   // Round to 2 decimal places
-  petPrice = Math.round(petPrice * 100) / 100
+  petPrice = Math.round(petPrice * 100) / 100;
 
   return {
     total: petPrice,
@@ -174,17 +209,22 @@ const calculateBoardingPrice = (
         price: petPrice,
       },
     ],
-  }
-}
+  };
+};
 
 interface BoardPetViewProps {
-  pet: Pet | null
-  onBack: () => void
-  onSubmit: (details: BoardingDetails) => Promise<boolean>
-  isSubmitting: boolean
+  pet: Pet | null;
+  onBack: () => void;
+  onSubmit: (details: BoardingDetails) => Promise<boolean>;
+  isSubmitting: boolean;
 }
 
-export default function BoardPetView({ pet, onBack, onSubmit, isSubmitting }: BoardPetViewProps) {
+export default function BoardPetView({
+  pet,
+  onBack,
+  onSubmit,
+  isSubmitting,
+}: BoardPetViewProps) {
   const [boardingDetails, setBoardingDetails] = useState<BoardingDetails>({
     petIds: [],
     type: "Daycare",
@@ -193,7 +233,7 @@ export default function BoardPetView({ pet, onBack, onSubmit, isSubmitting }: Bo
     startTime: "09:00",
     endTime: "17:00",
     notes: "",
-  })
+  });
 
   // Initialize pet ID when pet changes
   useEffect(() => {
@@ -201,9 +241,9 @@ export default function BoardPetView({ pet, onBack, onSubmit, isSubmitting }: Bo
       setBoardingDetails((prev) => ({
         ...prev,
         petIds: [pet.id],
-      }))
+      }));
     }
-  }, [pet])
+  }, [pet]);
 
   // Handle boarding type change
   const handleBoardingTypeChange = (type: BoardingType) => {
@@ -224,8 +264,8 @@ export default function BoardPetView({ pet, onBack, onSubmit, isSubmitting }: Bo
             startTime: undefined,
             endTime: undefined,
           }),
-    }))
-  }
+    }));
+  };
 
   // Calculate pricing whenever relevant details change
   useEffect(() => {
@@ -237,18 +277,19 @@ export default function BoardPetView({ pet, onBack, onSubmit, isSubmitting }: Bo
         boardingDetails.endDate,
         boardingDetails.startTime,
         boardingDetails.endTime,
-      )
+      );
 
       // Only update if the price has actually changed
       if (
         !boardingDetails.pricing ||
         boardingDetails.pricing.total !== pricing.total ||
-        JSON.stringify(boardingDetails.pricing.breakdown) !== JSON.stringify(pricing.breakdown)
+        JSON.stringify(boardingDetails.pricing.breakdown) !==
+          JSON.stringify(pricing.breakdown)
       ) {
         setBoardingDetails((prev) => ({
           ...prev,
           pricing,
-        }))
+        }));
       }
     }
   }, [
@@ -258,29 +299,29 @@ export default function BoardPetView({ pet, onBack, onSubmit, isSubmitting }: Bo
     boardingDetails.endDate,
     boardingDetails.startTime,
     boardingDetails.endTime,
-  ])
+  ]);
 
   // Handle form submission
   const handleSubmit = async () => {
-    if (!pet) return
-    await onSubmit(boardingDetails)
-  }
+    if (!pet) return;
+    await onSubmit(boardingDetails);
+  };
 
   // Format date for display
   const formatDate = (date: Date) => {
-    return format(date, "PPP")
-  }
+    return format(date, "PPP");
+  };
 
   // Format time for display
   const formatTime = (time: string) => {
-    const [hour, minute] = time.split(":")
-    const hourNum = Number.parseInt(hour)
-    const period = hourNum >= 12 ? "PM" : "AM"
-    const hour12 = hourNum % 12 || 12
-    return `${hour12}:${minute} ${period}`
-  }
+    const [hour, minute] = time.split(":");
+    const hourNum = Number.parseInt(hour);
+    const period = hourNum >= 12 ? "PM" : "AM";
+    const hour12 = hourNum % 12 || 12;
+    return `${hour12}:${minute} ${period}`;
+  };
 
-  if (!pet) return null
+  if (!pet) return null;
 
   return (
     <PageLayout title={`Board Pet: ${pet?.name}`} onBack={onBack}>
@@ -290,7 +331,11 @@ export default function BoardPetView({ pet, onBack, onSubmit, isSubmitting }: Bo
           <Avatar className="h-16 w-16 border">
             <AvatarImage src={pet.image} alt={pet.name} />
             <AvatarFallback className="bg-primary/10">
-              {pet.type === "Dog" ? <Dog className="h-8 w-8 text-primary" /> : <Cat className="h-8 w-8 text-primary" />}
+              {pet.type === "Dog" ? (
+                <Dog className="h-8 w-8 text-primary" />
+              ) : (
+                <Cat className="h-8 w-8 text-primary" />
+              )}
             </AvatarFallback>
           </Avatar>
           <div>
@@ -305,7 +350,11 @@ export default function BoardPetView({ pet, onBack, onSubmit, isSubmitting }: Bo
                     : "bg-purple-600 text-white hover:bg-purple-700 dark:bg-purple-700 dark:text-white dark:hover:bg-purple-600"
                 }`}
               >
-                {pet.type === "Dog" ? <Dog className="mr-1 h-3 w-3" /> : <Cat className="mr-1 h-3 w-3" />}
+                {pet.type === "Dog" ? (
+                  <Dog className="mr-1 h-3 w-3" />
+                ) : (
+                  <Cat className="mr-1 h-3 w-3" />
+                )}
                 {pet.type}
               </Badge>
               <span className="ml-2">{pet.breed}</span>
@@ -323,7 +372,9 @@ export default function BoardPetView({ pet, onBack, onSubmit, isSubmitting }: Bo
               <Label className="text-base font-medium">Boarding Type</Label>
               <RadioGroup
                 value={boardingDetails.type}
-                onValueChange={(value) => handleBoardingTypeChange(value as BoardingType)}
+                onValueChange={(value) =>
+                  handleBoardingTypeChange(value as BoardingType)
+                }
                 className="flex flex-col space-y-2"
               >
                 <div
@@ -333,12 +384,21 @@ export default function BoardPetView({ pet, onBack, onSubmit, isSubmitting }: Bo
                       : "hover:bg-muted/50 border-border"
                   }`}
                 >
-                  <RadioGroupItem value="Daycare" id="daycare" className="text-primary" />
-                  <Label htmlFor="daycare" className="flex items-center cursor-pointer">
+                  <RadioGroupItem
+                    value="Daycare"
+                    id="daycare"
+                    className="text-primary"
+                  />
+                  <Label
+                    htmlFor="daycare"
+                    className="flex items-center cursor-pointer"
+                  >
                     <CalendarClock className="h-4 w-4 mr-2 text-blue-500" />
                     <div>
                       <span className="font-medium">Daycare (Same Day)</span>
-                      <p className="text-sm text-muted-foreground">For short-term pet care during the day</p>
+                      <p className="text-sm text-muted-foreground">
+                        For short-term pet care during the day
+                      </p>
                     </div>
                   </Label>
                 </div>
@@ -349,12 +409,23 @@ export default function BoardPetView({ pet, onBack, onSubmit, isSubmitting }: Bo
                       : "hover:bg-muted/50 border-border"
                   }`}
                 >
-                  <RadioGroupItem value="LongStay" id="longstay" className="text-primary" />
-                  <Label htmlFor="longstay" className="flex items-center cursor-pointer">
+                  <RadioGroupItem
+                    value="LongStay"
+                    id="longstay"
+                    className="text-primary"
+                  />
+                  <Label
+                    htmlFor="longstay"
+                    className="flex items-center cursor-pointer"
+                  >
                     <CalendarDays className="h-4 w-4 mr-2 text-amber-500" />
                     <div>
-                      <span className="font-medium">Long Stay (Multiple Days)</span>
-                      <p className="text-sm text-muted-foreground">For extended boarding periods</p>
+                      <span className="font-medium">
+                        Long Stay (Multiple Days)
+                      </span>
+                      <p className="text-sm text-muted-foreground">
+                        For extended boarding periods
+                      </p>
                     </div>
                   </Label>
                 </div>
@@ -376,12 +447,19 @@ export default function BoardPetView({ pet, onBack, onSubmit, isSubmitting }: Bo
                           className="w-full justify-start text-left font-normal"
                         >
                           <Clock className="mr-2 h-4 w-4 text-blue-500" />
-                          {boardingDetails.startTime ? formatTime(boardingDetails.startTime) : "Select time"}
+                          {boardingDetails.startTime
+                            ? formatTime(boardingDetails.startTime)
+                            : "Select time"}
                         </Button>
                       </PopoverTrigger>
                       <TimePicker
                         value={boardingDetails.startTime || "09:00"}
-                        onChange={(time) => setBoardingDetails((prev) => ({ ...prev, startTime: time }))}
+                        onChange={(time) =>
+                          setBoardingDetails((prev) => ({
+                            ...prev,
+                            startTime: time,
+                          }))
+                        }
                       />
                     </Popover>
                   </div>
@@ -391,14 +469,25 @@ export default function BoardPetView({ pet, onBack, onSubmit, isSubmitting }: Bo
                     </Label>
                     <Popover>
                       <PopoverTrigger asChild>
-                        <Button id="end-time" variant="outline" className="w-full justify-start text-left font-normal">
+                        <Button
+                          id="end-time"
+                          variant="outline"
+                          className="w-full justify-start text-left font-normal"
+                        >
                           <Clock className="mr-2 h-4 w-4 text-amber-500" />
-                          {boardingDetails.endTime ? formatTime(boardingDetails.endTime) : "Select time"}
+                          {boardingDetails.endTime
+                            ? formatTime(boardingDetails.endTime)
+                            : "Select time"}
                         </Button>
                       </PopoverTrigger>
                       <TimePicker
                         value={boardingDetails.endTime || "17:00"}
-                        onChange={(time) => setBoardingDetails((prev) => ({ ...prev, endTime: time }))}
+                        onChange={(time) =>
+                          setBoardingDetails((prev) => ({
+                            ...prev,
+                            endTime: time,
+                          }))
+                        }
                       />
                     </Popover>
                   </div>
@@ -431,7 +520,9 @@ export default function BoardPetView({ pet, onBack, onSubmit, isSubmitting }: Bo
                           }))
                         }
                         initialFocus
-                        disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                        disabled={(date) =>
+                          date < new Date(new Date().setHours(0, 0, 0, 0))
+                        }
                       />
                     </PopoverContent>
                   </Popover>
@@ -460,19 +551,24 @@ export default function BoardPetView({ pet, onBack, onSubmit, isSubmitting }: Bo
                           mode="single"
                           selected={boardingDetails.startDate}
                           onSelect={(date) => {
-                            if (!date) return
+                            if (!date) return;
 
                             // Ensure end date is not before start date
-                            const newEndDate = boardingDetails.endDate < date ? date : boardingDetails.endDate
+                            const newEndDate =
+                              boardingDetails.endDate < date
+                                ? date
+                                : boardingDetails.endDate;
 
                             setBoardingDetails((prev) => ({
                               ...prev,
                               startDate: date,
                               endDate: newEndDate,
-                            }))
+                            }));
                           }}
                           initialFocus
-                          disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                          disabled={(date) =>
+                            date < new Date(new Date().setHours(0, 0, 0, 0))
+                          }
                         />
                       </PopoverContent>
                     </Popover>
@@ -483,7 +579,11 @@ export default function BoardPetView({ pet, onBack, onSubmit, isSubmitting }: Bo
                     </Label>
                     <Popover>
                       <PopoverTrigger asChild>
-                        <Button id="end-date" variant="outline" className="w-full justify-start text-left font-normal">
+                        <Button
+                          id="end-date"
+                          variant="outline"
+                          className="w-full justify-start text-left font-normal"
+                        >
                           <CalendarIcon className="mr-2 h-4 w-4 text-amber-500" />
                           {formatDate(boardingDetails.endDate)}
                         </Button>
@@ -492,7 +592,13 @@ export default function BoardPetView({ pet, onBack, onSubmit, isSubmitting }: Bo
                         <Calendar
                           mode="single"
                           selected={boardingDetails.endDate}
-                          onSelect={(date) => date && setBoardingDetails((prev) => ({ ...prev, endDate: date }))}
+                          onSelect={(date) =>
+                            date &&
+                            setBoardingDetails((prev) => ({
+                              ...prev,
+                              endDate: date,
+                            }))
+                          }
                           initialFocus
                           disabled={(date) => date < boardingDetails.startDate}
                         />
@@ -514,7 +620,12 @@ export default function BoardPetView({ pet, onBack, onSubmit, isSubmitting }: Bo
                 id="notes"
                 placeholder="Enter any special instructions or requirements..."
                 value={boardingDetails.notes || ""}
-                onChange={(e) => setBoardingDetails((prev) => ({ ...prev, notes: e.target.value }))}
+                onChange={(e) =>
+                  setBoardingDetails((prev) => ({
+                    ...prev,
+                    notes: e.target.value,
+                  }))
+                }
                 className="min-h-[100px] resize-none"
               />
             </div>
@@ -527,12 +638,16 @@ export default function BoardPetView({ pet, onBack, onSubmit, isSubmitting }: Bo
                   {boardingDetails.pricing.breakdown.map((item, index) => (
                     <div key={index} className="flex justify-between text-sm">
                       <span>{item.petName}</span>
-                      <span className="font-medium">₱{item.price.toFixed(2)}</span>
+                      <span className="font-medium">
+                        ₱{item.price.toFixed(2)}
+                      </span>
                     </div>
                   ))}
                   <div className="flex justify-between pt-2 border-t mt-2">
                     <span className="font-medium">Total</span>
-                    <span className="text-lg font-bold text-primary">₱{boardingDetails.pricing.total.toFixed(2)}</span>
+                    <span className="text-lg font-bold text-primary">
+                      ₱{boardingDetails.pricing.total.toFixed(2)}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -545,7 +660,11 @@ export default function BoardPetView({ pet, onBack, onSubmit, isSubmitting }: Bo
           <Button variant="outline" onClick={onBack}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit} disabled={isSubmitting} className="bg-green-600 hover:bg-green-700 text-white">
+          <Button
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+            className="bg-green-600 hover:bg-green-700 text-white"
+          >
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -561,5 +680,5 @@ export default function BoardPetView({ pet, onBack, onSubmit, isSubmitting }: Bo
         </div>
       </div>
     </PageLayout>
-  )
+  );
 }

@@ -162,7 +162,8 @@ export function PetsTable({
     if (onViewBoarding) {
       onViewBoarding(pet);
     } else {
-      console.log("View boarding details for:", pet.name);
+      // Navigate to boarding management page
+      window.location.href = "/webapp/admin/boarding";
     }
   };
 
@@ -314,7 +315,7 @@ export function PetsTable({
                     <div className="flex justify-end gap-2">
                       {!pet.isBoarding ? (
                         <Button
-                          className="bg-green-600 hover:bg-green-700 text-white"
+                          className="bg-green-600 hover:bg-green-700 text-white w-[120px]"
                           size="sm"
                           onClick={(e) => {
                             e.stopPropagation(); // Prevent row click
@@ -326,7 +327,7 @@ export function PetsTable({
                         </Button>
                       ) : (
                         <Button
-                          className="bg-blue-600 hover:bg-blue-700 text-white"
+                          className="bg-blue-600 hover:bg-blue-700 text-white w-[120px]"
                           size="sm"
                           onClick={(e) => {
                             e.stopPropagation(); // Prevent row click
@@ -334,7 +335,7 @@ export function PetsTable({
                           }}
                         >
                           <Eye className="h-4 w-4 mr-1" />
-                          View
+                          View Board
                         </Button>
                       )}
                       <DropdownMenu>

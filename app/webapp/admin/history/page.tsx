@@ -61,7 +61,7 @@ import {
   CalendarIcon,
   Download,
   Filter,
-  Image,
+  ImageIcon,
   Loader2,
   MoreHorizontal,
   Search,
@@ -87,7 +87,7 @@ import {
   type MediaEntry,
   generateSampleHistoryData,
   generateSampleMediaData,
-} from "./data/sample-data";
+} from "@/app/webapp/admin/data/history-sample-data";
 // Add import for PaginationControls at the top with other imports
 import { PaginationControls } from "@/app/webapp/admin/components/pagination-controls";
 
@@ -132,37 +132,37 @@ const getStatusBadge = (status: string | undefined) => {
   switch (status) {
     case "completed":
       return (
-        <Badge className="bg-green-600 text-white hover:bg-green-700">
+        <Badge className="bg-green-600 text-white hover:bg-green-700 w-[100px] flex justify-center">
           Completed
         </Badge>
       );
     case "pending":
       return (
-        <Badge className="bg-yellow-600 text-white hover:bg-yellow-700">
+        <Badge className="bg-yellow-600 text-white hover:bg-yellow-700 w-[100px] flex justify-center">
           Pending
         </Badge>
       );
     case "active":
       return (
-        <Badge className="bg-blue-600 text-white hover:bg-blue-700">
+        <Badge className="bg-blue-600 text-white hover:bg-blue-700 w-[100px] flex justify-center">
           Active
         </Badge>
       );
     case "deleted":
       return (
-        <Badge className="bg-red-600 text-white hover:bg-red-700">
+        <Badge className="bg-red-600 text-white hover:bg-red-700 w-[100px] flex justify-center">
           Deleted
         </Badge>
       );
     case "updated":
       return (
-        <Badge className="bg-purple-600 text-white hover:bg-purple-700">
+        <Badge className="bg-purple-600 text-white hover:bg-purple-700 w-[100px] flex justify-center">
           Updated
         </Badge>
       );
     default:
       return (
-        <Badge className="bg-gray-600 text-white hover:bg-gray-700">
+        <Badge className="bg-gray-600 text-white hover:bg-gray-700 w-[100px] flex justify-center">
           Unknown
         </Badge>
       );
@@ -174,34 +174,38 @@ const getMediaTypeBadge = (mediaType: string) => {
   switch (mediaType) {
     case "photo":
       return (
-        <Badge className="bg-blue-600 text-white">
-          <Image className="h-3 w-3 mr-1" />
+        <Badge className="bg-blue-600 text-white w-[80px] flex justify-center">
+          <ImageIcon className="h-3 w-3 mr-1" />
           Photo
         </Badge>
       );
     case "video":
       return (
-        <Badge className="bg-purple-600 text-white">
+        <Badge className="bg-purple-600 text-white w-[80px] flex justify-center">
           <Video className="h-3 w-3 mr-1" />
           Video
         </Badge>
       );
     case "dog":
       return (
-        <Badge className="bg-blue-600 text-white">
+        <Badge className="bg-blue-600 text-white w-[80px] flex justify-center">
           <Dog className="h-3 w-3 mr-1" />
           Dog
         </Badge>
       );
     case "cat":
       return (
-        <Badge className="bg-purple-600 text-white">
+        <Badge className="bg-purple-600 text-white w-[80px] flex justify-center">
           <Cat className="h-3 w-3 mr-1" />
           Cat
         </Badge>
       );
     default:
-      return <Badge className="bg-gray-600 text-white">Unknown</Badge>;
+      return (
+        <Badge className="bg-gray-600 text-white w-[80px] flex justify-center">
+          Unknown
+        </Badge>
+      );
   }
 };
 
@@ -658,7 +662,7 @@ export default function HistoryPage() {
             <span>Activity Log</span>
           </TabsTrigger>
           <TabsTrigger value="media" className="flex items-center gap-2">
-            <Image className="h-4 w-4" />
+            <ImageIcon className="h-4 w-4" />
             <span>Media Archive</span>
           </TabsTrigger>
         </TabsList>
@@ -940,7 +944,7 @@ export default function HistoryPage() {
                                 </div>
                               )}
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="text-center">
                               {getStatusBadge(entry.status)}
                             </TableCell>
                             <TableCell
@@ -1233,7 +1237,7 @@ export default function HistoryPage() {
           ) : filteredMedia.length === 0 ? (
             <Card>
               <CardContent className="flex flex-col items-center justify-center p-8 text-center">
-                <Image className="h-12 w-12 text-muted-foreground mb-4" />
+                <ImageIcon className="h-12 w-12 text-muted-foreground mb-4" />
                 <h3 className="text-lg font-medium">No media found</h3>
                 <p className="text-sm text-muted-foreground mt-1">
                   Try adjusting your filters or search query

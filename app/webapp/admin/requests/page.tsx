@@ -533,10 +533,10 @@ export default function RequestsPage() {
         {isLoading || isSearching ? (
           <div className="px-4 pt-4">
             <Tabs defaultValue="new" className="w-full">
-              <TabsList className="w-full grid grid-cols-2 h-14 p-1 bg-muted/30 dark:bg-muted/20 rounded-lg overflow-x-auto scrollbar-hide">
+              <TabsList className="w-full grid grid-cols-2 h-14 p-1 bg-muted/50 dark:bg-muted/30 rounded-lg overflow-x-auto scrollbar-hide">
                 <TabsTrigger
                   value="new"
-                  className="flex items-center justify-center gap-2 rounded-md transition-all h-12 text-base"
+                  className="flex items-center justify-center gap-2 rounded-md transition-all h-12 text-base bg-muted/40 dark:bg-muted/20 shadow-lg hover:shadow-xl"
                 >
                   <FileText className="h-5 w-5" />
                   <span className="hidden sm:inline">New Requests</span>
@@ -545,7 +545,7 @@ export default function RequestsPage() {
                 </TabsTrigger>
                 <TabsTrigger
                   value="rejected"
-                  className="flex items-center justify-center gap-2 rounded-md transition-all h-12 text-base"
+                  className="flex items-center justify-center gap-2 rounded-md transition-all h-12 text-base bg-muted/40 dark:bg-muted/20 shadow-lg hover:shadow-xl"
                 >
                   <X className="h-5 w-5" />
                   <span className="hidden sm:inline">Rejected Requests</span>
@@ -571,13 +571,13 @@ export default function RequestsPage() {
             onValueChange={setActiveTab}
           >
             <div className="px-4 pt-4">
-              <TabsList className="w-full grid grid-cols-2 h-14 p-1 bg-muted/30 dark:bg-muted/20 rounded-lg overflow-x-auto scrollbar-hide">
+              <TabsList className="w-full grid grid-cols-2 h-14 p-1 bg-muted/50 dark:bg-muted/30 rounded-lg overflow-x-auto scrollbar-hide">
                 <TabsTrigger
                   value="new"
-                  className={`flex items-center justify-center gap-2 rounded-md transition-all h-12 text-base ${
+                  className={`flex items-center justify-center gap-2 rounded-md transition-all h-12 text-base shadow-lg hover:shadow-xl ${
                     activeTab === "new"
-                      ? "bg-background shadow-sm font-medium text-primary"
-                      : "text-muted-foreground hover:text-foreground"
+                      ? "bg-background shadow-xl font-medium text-primary"
+                      : "bg-muted/40 dark:bg-muted/20 text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   <FileText className="h-5 w-5" />
@@ -608,10 +608,10 @@ export default function RequestsPage() {
                 </TabsTrigger>
                 <TabsTrigger
                   value="rejected"
-                  className={`flex items-center justify-center gap-2 rounded-md transition-all h-12 text-base ${
+                  className={`flex items-center justify-center gap-2 rounded-md transition-all h-12 text-base shadow-lg hover:shadow-xl ${
                     activeTab === "rejected"
-                      ? "bg-background shadow-sm font-medium text-primary"
-                      : "text-muted-foreground hover:text-foreground"
+                      ? "bg-background shadow-xl font-medium text-primary"
+                      : "bg-muted/40 dark:bg-muted/20 text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   <div className="flex items-center gap-2">
@@ -1708,7 +1708,8 @@ function RejectedRequestCard({
             ) : isUndoAvailable ? (
               <>
                 <RotateCcw className="mr-2 h-4 w-4" />
-                Undo {/*{" "} {remainingTime > 0 && <span>({formatRemainingTime()})</span>} */} 
+                Undo{" "}
+                {/*{" "} {remainingTime > 0 && <span>({formatRemainingTime()})</span>} */}
               </>
             ) : (
               <>
