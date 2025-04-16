@@ -591,7 +591,7 @@ export default function LoginPage() {
 
           <div className="mt-8 text-center space-y-4">
             <Button variant="outline" asChild>
-              <Link href="/webapp">Back to Welcome</Link>
+              <Link href="/">Back to Welcome</Link>
             </Button>
 
             <Button variant="default" asChild className="ml-4">
