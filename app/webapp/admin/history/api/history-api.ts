@@ -1,7 +1,7 @@
 // BACKEND INTEGRATION: This file contains API functions for the history module
 // Replace these functions with actual API calls to your backend
 
-import type { HistoryEntry, MediaEntry } from "../data/sample-data"
+import type { HistoryEntry, MediaEntry } from "@/app/webapp/admin/data/history-sample-data"
 
 /**
  * Fetches history entries from the backend
