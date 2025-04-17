@@ -27,7 +27,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ChatBubble } from "./chat-bubble";
-import { Camera, Clock, Scissors, Video } from "lucide-react";
+import { Clock, Scissors } from "lucide-react";
 
 interface CompletedRequestCardProps {
   request: any;
@@ -186,12 +186,12 @@ export function CompletedRequestCard({ request }: CompletedRequestCardProps) {
                         : "Price not specified"}
                     </div>
                   </div>
-                  <div>
+                  {/* <div>
                     <span className="text-muted-foreground">Duration:</span>
                     <div className="font-medium">
                       {request.duration || "1-2 hours"}
                     </div>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             )}
@@ -242,79 +242,58 @@ export function CompletedRequestCard({ request }: CompletedRequestCardProps) {
               </div>
             )}
 
-            {request.type === "video" && (
+            {/* {request.type === "video" && (
               <div className="p-3 bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800 rounded-md space-y-2">
                 <h4 className="font-medium text-purple-800 dark:text-purple-300 flex items-center">
                   <Video className="h-4 w-4 mr-2" /> Video Request Details
                 </h4>
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
-                    <span className="text-muted-foreground">
-                      Video Duration:
-                    </span>
-                    <div className="font-medium">
-                      {request.videoDuration || "Up to 60 seconds"}
-                    </div>
+                    <span className="text-muted-foreground">Video Duration:</span>
+                    <div className="font-medium">{request.videoDuration || "Up to 60 seconds"}</div>
                   </div>
                   <div>
-                    <span className="text-muted-foreground">
-                      Background Music:
-                    </span>
+                    <span className="text-muted-foreground">Background Music:</span>
                     <div className="font-medium">
-                      {request.selectedAudioName ||
-                        (request.audioMerged ? "Added" : "None")}
+                      {request.selectedAudioName || (request.audioMerged ? "Added" : "None")}
                     </div>
                   </div>
                   {request.videoSpecialRequests && (
                     <div className="col-span-2">
-                      <span className="text-muted-foreground">
-                        Special Requests:
-                      </span>
-                      <div className="font-medium">
-                        {request.videoSpecialRequests}
-                      </div>
+                      <span className="text-muted-foreground">Special Requests:</span>
+                      <div className="font-medium">{request.videoSpecialRequests}</div>
                     </div>
                   )}
                 </div>
               </div>
-            )}
+            )} */}
 
-            {request.type === "photo" && (
+            {/* {request.type === "photo" && (
               <div className="p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-md space-y-2">
                 <h4 className="font-medium text-blue-800 dark:text-blue-300 flex items-center">
                   <Camera className="h-4 w-4 mr-2" /> Photo Request Details
                 </h4>
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
-                    <span className="text-muted-foreground">
-                      Number of Photos:
-                    </span>
-                    <div className="font-medium">
-                      {request.mediaFiles?.count || "Multiple"}
-                    </div>
+                    <span className="text-muted-foreground">Number of Photos:</span>
+                    <div className="font-medium">{request.mediaFiles?.count || "Multiple"}</div>
                   </div>
                   <div>
                     <span className="text-muted-foreground">Photo Type:</span>
-                    <div className="font-medium">
-                      {request.photoType || "Standard"}
-                    </div>
+                    <div className="font-medium">{request.photoType || "Standard"}</div>
                   </div>
                   {request.photoSpecialRequests && (
                     <div className="col-span-2">
-                      <span className="text-muted-foreground">
-                        Special Requests:
-                      </span>
-                      <div className="font-medium">
-                        {request.photoSpecialRequests}
-                      </div>
+                      <span className="text-muted-foreground">Special Requests:</span>
+                      <div className="font-medium">{request.photoSpecialRequests}</div>
                     </div>
                   )}
                 </div>
               </div>
-            )}
+            )} */}
 
             {/* Processing notes if available */}
-            {request.processingNotes && (
+            {/* {request.processingNotes && (
               <div>
                 <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
                   Processing Notes
@@ -323,36 +302,40 @@ export function CompletedRequestCard({ request }: CompletedRequestCardProps) {
                   {request.processingNotes}
                 </div>
               </div>
-            )}
+            )} */}
 
             {/* Media files if available */}
-            {/* {request.mediaFiles && request.mediaFiles.urls && request.mediaFiles.urls.length > 0 && (
-              <div>
-                <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-                  {request.mediaFiles.type === "photo" ? "Photos" : "Videos"}
-                </span>
-                <div className="mt-2 grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  {request.mediaFiles.urls.map((url: string, index: number) => (
-                    <div key={index} className="relative aspect-square rounded-md overflow-hidden">
-                      {request.mediaFiles.type === "photo" ? (
-                        <img
-                          src={url || "/placeholder.svg"}
-                          alt={`${request.petName} - ${index + 1}`}
+            {/* {request.mediaFiles &&
+              request.mediaFiles.urls &&
+              request.mediaFiles.urls.length > 0 &&
+              request.type !== "grooming" && (
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  {request.mediaFiles.urls.slice(0, 2).map((url, index) => (
+                    <div
+                      key={index}
+                      className="relative rounded-md overflow-hidden aspect-video"
+                    >
+                      {request.type === "video" ? (
+                        <video
+                          src={url}
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <video
-                          src={url}
-                          controls
+                        <img
+                          src={url || "/placeholder.svg"}
+                          alt={`Media ${index + 1}`}
                           className="w-full h-full object-cover"
-                          poster="/placeholder.svg?height=200&width=200"
                         />
                       )}
                     </div>
                   ))}
+                  {request.mediaFiles.urls.length > 2 && (
+                    <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-full">
+                      +{request.mediaFiles.urls.length - 2} more
+                    </div>
+                  )}
                 </div>
-              </div>
-            )} */}
+              )} */}
 
             {/* Chat-like interface for the request timeline */}
             <div className="mt-6">
@@ -381,32 +364,7 @@ export function CompletedRequestCard({ request }: CompletedRequestCardProps) {
                   />
                 )}
 
-                {request.type === "grooming" &&
-                  request.mediaFiles &&
-                  request.mediaFiles.urls &&
-                  request.mediaFiles.urls.length > 0 && (
-                    <ChatBubble
-                      sender={request.completedBy || "Admin"}
-                      message={
-                        request.processingNotes
-                          ? request.processingNotes
-                          : `Grooming service completed for ${request.petName}`
-                      }
-                      timestamp={request.completedAt}
-                      avatar={(request.completedBy || "Admin")
-                        .charAt(0)
-                        .toUpperCase()}
-                      isAdmin={true}
-                      type="photo"
-                      media={{
-                        url: request.mediaFiles.urls[0] || "",
-                        type: "image",
-                        urls: request.mediaFiles.urls,
-                      }}
-                    />
-                  )}
-
-                {request.completedAt && request.type !== "grooming" && (
+                {request.completedAt && (
                   <ChatBubble
                     sender={request.completedBy || "Admin"}
                     message={

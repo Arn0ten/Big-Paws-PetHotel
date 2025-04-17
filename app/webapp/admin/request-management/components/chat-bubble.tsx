@@ -423,7 +423,7 @@ export function ChatBubble({
             </div>
             <p className="whitespace-pre-wrap">{message}</p>
 
-            {media && (
+            {media && type !== "grooming" && (
               <div className="mt-2">
                 {media.type === "image" && media.urls && media.urls.length > 0 ? (
                   <div className={`grid ${media.urls.length > 1 ? "grid-cols-2 gap-2" : "grid-cols-1"}`}>

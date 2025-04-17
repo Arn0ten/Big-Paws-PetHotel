@@ -156,7 +156,7 @@ export default function RequestManagementPage() {
         processingNotes: processingNotes,
         // Store media information for display in chat bubbles
         mediaFiles:
-          selectedFiles.length > 0
+          selectedFiles.length > 0 && selectedRequest.type !== "grooming"
             ? {
                 type: selectedRequest.type,
                 // In a real implementation, these would be URLs from your storage service
@@ -532,14 +532,14 @@ export default function RequestManagementPage() {
       <div className="bg-card rounded-lg shadow-sm border">
         <Tabs value={activeTab} onValueChange={switchToTab} className="w-full">
           <div className="px-4 pt-4">
-            <TabsList className="w-full grid grid-cols-2 h-14 p-1 bg-muted/70 dark:bg-muted/60 rounded-lg shadow-sm">
+            <TabsList className="w-full grid grid-cols-2 h-14 p-1 bg-muted/30 dark:bg-muted/20 rounded-lg">
               <TabsTrigger
                 value="in-progress"
                 data-value="in-progress"
                 className={`flex items-center justify-center gap-2 rounded-md transition-all h-12 text-base ${
                   activeTab === "in-progress"
-                    ? "bg-blue-500 shadow-lg font-semibold text-white"
-                    : "bg-muted/70 dark:bg-muted/60 text-muted-foreground hover:text-foreground"
+                    ? "bg-background shadow-sm font-medium text-primary"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 <Loader2 className="h-5 w-5" />
@@ -560,8 +560,8 @@ export default function RequestManagementPage() {
                 data-value="completed"
                 className={`flex items-center justify-center gap-2 rounded-md transition-all h-12 text-base relative ${
                   activeTab === "completed"
-                    ? "bg-green-500 shadow-lg font-semibold text-white"
-                    : "bg-muted/70 dark:bg-muted/60 text-muted-foreground hover:text-foreground"
+                    ? "bg-background shadow-sm font-medium text-primary"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 <CheckCircle className="h-5 w-5" />

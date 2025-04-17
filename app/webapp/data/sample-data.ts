@@ -372,6 +372,7 @@ export const requests: Request[] = [
     createdAt: "2025-03-18T10:30:00Z",
     completedAt: "2025-03-18T14:45:00Z",
     description: "Would love to see how Max is doing today!",
+    processingNotes: "Here are some photos of Max! He's been having a great time and is very well-behaved.",
     mediaFiles: {
       type: "photo",
       urls: [
@@ -404,6 +405,7 @@ export const requests: Request[] = [
     createdAt: "2025-03-19T09:15:00Z",
     completedAt: "2025-03-19T13:30:00Z",
     description: "Would like a short video of Max playing.",
+    processingNotes: "Here's a video of Max playing with his favorite toy! He's been very active today.",
     mediaFiles: {
       type: "video",
       urls: [
@@ -437,11 +439,13 @@ export const requests: Request[] = [
     description: "Max needs a haircut, please make it short for the summer.",
     groomingService: "full-grooming",
     price: 65, // BACKEND: This should be calculated based on pet size and service type
+    processingNotes:
+      "Max's grooming is complete! He looks great with his summer cut and was very well-behaved during the session.",
     mediaFiles: {
       type: "photo",
       urls: [
-        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/481341330_645628184644218_5977888978271770501_n.jpg-WAAmLbaijRIf2MdPbmpcKeIbTGXXnx.jpeg",
-        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/480064874_3971175603130199_8445389685285733814_n.jpg-4Br3hEVwqETCJBgdNUUynhTZ1pJ8ey.jpeg",
+        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/480958858_1347138986475614_3113605541324887048_n.jpg-CJzY6RUEoyVXERrDrst4UUZweYKNx2.jpeg",
+        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/475884722_1437552477217404_9052949441849644312_n.jpg-7uhDVp5OlcnO0bA2dRO3y4AJKWX7Eu.jpeg",
       ],
       count: 2,
     },
@@ -463,7 +467,7 @@ export const requests: Request[] = [
         sender: "admin",
         timestamp: "2025-03-20T15:45:00Z",
         content:
-          "Max's grooming is complete! Here are some photos of the finished result. He looks great with his summer cut!",
+          "Max's grooming is complete! He looks great with his summer cut and was very well-behaved during the session.",
       },
     ],
   },
@@ -483,6 +487,7 @@ export const requests: Request[] = [
     price: 55, // BACKEND: This should be calculated based on pet size and duration
     currentEndDate: "2025-03-15T18:00:00Z",
     newEndDate: "2025-03-16T18:00:00Z",
+    processingNotes: "Your extension request has been approved. Max's stay has been extended until March 16th.",
     conversation: [
       {
         id: "msg-001",
@@ -622,6 +627,7 @@ export const requests: Request[] = [
     createdAt: "2025-03-10T10:30:00Z",
     completedAt: "2025-03-10T14:45:00Z",
     description: "Would love to see how Max is doing today!",
+    processingNotes: "Here are some photos of Max! He's been having a great time and is very well-behaved.",
     mediaFiles: {
       type: "photo",
       urls: [
@@ -661,12 +667,6 @@ export const requests: Request[] = [
         sender: "owner",
         timestamp: "2025-03-11T09:15:00Z",
         content: "Please give Max a bath and trim his nails.",
-      },
-      {
-        id: "msg-002",
-        sender: "admin",
-        timestamp: "2025-03-11T09:30:00Z",
-        content: "We've scheduled Max's grooming for this afternoon. We'll update you once it's completed.",
       },
     ],
   },
