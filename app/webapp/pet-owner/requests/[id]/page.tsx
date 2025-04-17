@@ -453,13 +453,13 @@ export default function RequestDetailPage(): JSX.Element {
               </Alert>
             )}
 
-            {/* Conversation Section - Moved to the top */}
+            {/*    Section - Moved to the top */}
             <div>
               <h3 className="text-base font-medium mb-2">Conversation</h3>
               <Card className="bg-muted/50 dark:bg-muted/20">
                 <CardContent className="p-4 space-y-4">
                   {/* Initial request message */}
-                  <div className="flex gap-3 justify-end">
+                  {/* <div className="flex gap-3 justify-end">
                     <div className="max-w-[80%] rounded-lg p-3 bg-primary text-primary-foreground ml-auto">
                       <p className="text-sm whitespace-pre-wrap">
                         {request.description}
@@ -468,12 +468,42 @@ export default function RequestDetailPage(): JSX.Element {
                         {formatDate(request.createdAt)}
                       </p>
                     </div>
-                  </div>
+                  </div> */}
 
+                  {/* Owner request message */}
+                  {request.conversation &&
+                    request.conversation.length > 0 &&
+                    request.conversation.map((message) => (
+                      <div
+                        key={message.id}
+                        className={`flex gap-3 ${message.sender === "owner" ? "justify-end" : ""}`}
+                      >
+                        {message.sender !== "owner" && (
+                          <div className="flex-shrink-0 h-8 w-8 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 flex items-center justify-center">
+                            A
+                          </div>
+                        )}
+                        <div
+                          className={`max-w-[80%] rounded-lg p-3
+                            ${
+                              message.sender === "owner"
+                                ? "bg-primary text-primary-foreground ml-auto"
+                                : "bg-gray-100 dark:bg-gray-800 text-foreground dark:text-foreground"
+                            }`}
+                        >
+                          <p className="text-sm whitespace-pre-wrap">
+                            {message.content}
+                          </p>
+                          <p className="text-xs opacity-70 mt-1 text-right">
+                            {formatDate(message.timestamp)}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
                   {/* Admin response with media for photo/video requests */}
                   {request.status === "completed" && (
                     <>
-                      {/* Admin text response */}
+                      {/* Admin text response
                       <div className="flex gap-3">
                         <div className="flex-shrink-0 h-8 w-8 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 flex items-center justify-center">
                           A
@@ -487,7 +517,7 @@ export default function RequestDetailPage(): JSX.Element {
                             {formatDate(request.completedAt || "")}
                           </p>
                         </div>
-                      </div>
+                      </div> */}
 
                       {/* Media response for photo/video requests */}
                       {(request.type === "photo" || request.type === "video") &&
@@ -606,37 +636,6 @@ export default function RequestDetailPage(): JSX.Element {
                         )}
                     </>
                   )}
-
-                  {/* Include existing conversation messages if available */}
-                  {request.conversation &&
-                    request.conversation.length > 0 &&
-                    request.conversation.map((message) => (
-                      <div
-                        key={message.id}
-                        className={`flex gap-3 ${message.sender === "owner" ? "justify-end" : ""}`}
-                      >
-                        {message.sender !== "owner" && (
-                          <div className="flex-shrink-0 h-8 w-8 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 flex items-center justify-center">
-                            A
-                          </div>
-                        )}
-                        <div
-                          className={`max-w-[80%] rounded-lg p-3
-                            ${
-                              message.sender === "owner"
-                                ? "bg-primary text-primary-foreground ml-auto"
-                                : "bg-gray-100 dark:bg-gray-800 text-foreground dark:text-foreground"
-                            }`}
-                        >
-                          <p className="text-sm whitespace-pre-wrap">
-                            {message.content}
-                          </p>
-                          <p className="text-xs opacity-70 mt-1 text-right">
-                            {formatDate(message.timestamp)}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
                 </CardContent>
               </Card>
             </div>
@@ -711,7 +710,7 @@ export default function RequestDetailPage(): JSX.Element {
                             request.groomingService,
                             request.extensionDetails?.duration
                               ? Number.parseInt(
-                                  request.extensionDetails.duration,
+                                  request.extensionDetails.duration.toString(),
                                 )
                               : undefined,
                             request.extensionDetails?.unit,
