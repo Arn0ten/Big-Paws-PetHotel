@@ -1,44 +1,33 @@
-/**
- * Address Step Component
- *
- * This component handles the collection of address information
- * for the pet owner registration process.
- */
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { AlertCircle, MapPin, ChevronRight } from "lucide-react";
+import { useFormContext } from "react-hook-form";
+import { useToast } from "@/hooks/use-toast";
 
-"use client"
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 
-import { motion } from "framer-motion"
-import { AlertCircle, MapPin } from "lucide-react"
-import { useFormContext } from "react-hook-form"
-import { useToast } from "@/hooks/use-toast"
-
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Skeleton } from "@/components/ui/skeleton"
-import { ChevronRight } from "lucide-react"
-import { cn } from "@/lib/utils"
-
-import type { FormValues, Province, City } from "../types"
-import { TOAST_MESSAGES } from "../constants"
+import type { FormValues } from "../types";
+import { TOAST_MESSAGES } from "../constants";
 
 interface AddressStepProps {
-  navigateToPreviousStep: () => void
-  navigateToNextStep: () => void
-  provinces: Province[]
-  cities: City[]
-  isLoadingProvinces: boolean
-  isLoadingCities: boolean
+  navigateToPreviousStep: () => void;
+  navigateToNextStep: () => void;
 }
 
 export function AddressStep({
   navigateToPreviousStep,
   navigateToNextStep,
-  provinces,
-  cities,
-  isLoadingProvinces,
-  isLoadingCities,
 }: AddressStepProps) {
   const {
     register,
@@ -46,41 +35,80 @@ export function AddressStep({
     watch,
     setValue,
     trigger,
-  } = useFormContext<FormValues>()
+  } = useFormContext<FormValues>();
 
-  const { toast } = useToast()
+  const { toast } = useToast();
+
+  const [provinces, setProvinces] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [isLoadingProvinces, setIsLoadingProvinces] = useState(true);
+  const [isLoadingCities, setIsLoadingCities] = useState(false);
+
+  useEffect(() => {
+    // Fetch provinces from the API
+    const fetchProvinces = async () => {
+      try {
+        setIsLoadingProvinces(true);
+        const response = await fetch("https://psgc.gitlab.io/api/provinces/");
+        const data = await response.json();
+        setProvinces(data);
+      } catch (error) {
+        console.error("Error fetching provinces:", error);
+      } finally {
+        setIsLoadingProvinces(false);
+      }
+    };
+
+    fetchProvinces();
+  }, []);
+
+  const fetchCities = async (provinceCode: string) => {
+    try {
+      setIsLoadingCities(true);
+      const response = await fetch(
+        `https://psgc.gitlab.io/api/provinces/${provinceCode}/cities-municipalities/`,
+      );
+      const data = await response.json();
+      setCities(data);
+    } catch (error) {
+      console.error("Error fetching cities:", error);
+    } finally {
+      setIsLoadingCities(false);
+    }
+  };
 
   const handleNext = async () => {
-    // Validate only the address fields
-    const isValid = await trigger(["streetAddress", "province", "city"])
+    const isValid = await trigger(["streetAddress", "province", "city"]);
 
     if (isValid) {
-      // Show success toast
       toast({
         title: TOAST_MESSAGES.VALIDATION_SUCCESS.ADDRESS.title,
         description: TOAST_MESSAGES.VALIDATION_SUCCESS.ADDRESS.description,
-        variant: "default",
-      })
-
-      // Navigate to next step
-      navigateToNextStep()
+      });
+      navigateToNextStep();
     } else {
-      // Show error toast
       toast({
         title: TOAST_MESSAGES.VALIDATION_ERROR.title,
         description: TOAST_MESSAGES.VALIDATION_ERROR.description,
         variant: "destructive",
-      })
+      });
 
-      // Scroll to the first error field
-      const firstErrorField = Object.keys(errors)[0] as keyof FormValues
-      const element = document.getElementById(firstErrorField)
+      const firstErrorField = Object.keys(errors)[0] as keyof FormValues;
+      const element = document.getElementById(firstErrorField);
       if (element) {
-        element.scrollIntoView({ behavior: "smooth", block: "center" })
-        element.focus()
+        element.scrollIntoView({ behavior: "smooth", block: "center" });
+        element.focus();
       }
     }
-  }
+  };
+
+  const renderError = (field: keyof FormValues) =>
+    errors[field] && (
+      <p className="text-destructive dark:text-red-400 text-sm flex items-center mt-1.5">
+        <AlertCircle className="h-4 w-4 mr-1" />
+        {errors[field]?.message}
+      </p>
+    );
 
   return (
     <motion.div
@@ -91,6 +119,7 @@ export function AddressStep({
       className="space-y-6"
     >
       <div className="space-y-4">
+        {/* Street Address */}
         <div>
           <Label htmlFor="streetAddress" className="text-base font-medium">
             Street Address <span className="text-destructive">*</span>
@@ -105,18 +134,17 @@ export function AddressStep({
                 errors.streetAddress &&
                   "border-destructive dark:border-red-400 focus-visible:ring-destructive dark:focus-visible:ring-red-400",
               )}
-              {...register("streetAddress", { required: "Street address is required" })}
+              {...register("streetAddress", {
+                required: "Street address is required",
+              })}
             />
           </div>
-          {errors.streetAddress && (
-            <p className="text-destructive dark:text-red-400 text-sm flex items-center mt-1.5">
-              <AlertCircle className="h-4 w-4 mr-1" />
-              {errors.streetAddress.message}
-            </p>
-          )}
+          {renderError("streetAddress")}
         </div>
 
+        {/* Province & City */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Province */}
           <div>
             <Label htmlFor="province" className="text-base font-medium">
               Province <span className="text-destructive">*</span>
@@ -127,10 +155,10 @@ export function AddressStep({
               ) : (
                 <Select
                   onValueChange={(value) => {
-                    // Extract the province data from the selected value
-                    const [id, name] = value.split("|")
-                    setValue("province", name, { shouldValidate: true })
-                    setValue("provinceCode", id, { shouldValidate: true })
+                    const [id, name] = value.split("|");
+                    setValue("province", name, { shouldValidate: true });
+                    setValue("provinceCode", id, { shouldValidate: true });
+                    fetchCities(id); // Fetch cities based on selected province
                   }}
                 >
                   <SelectTrigger
@@ -143,25 +171,27 @@ export function AddressStep({
                     <SelectValue placeholder="Select province" />
                   </SelectTrigger>
                   <SelectContent className="max-h-[300px]">
-                    {provinces.map((province) => (
-                      <SelectItem key={province.id} value={`${province.id}|${province.name}`}>
+                    {provinces.map((province: any) => (
+                      <SelectItem
+                        key={province.code}
+                        value={`${province.code}|${province.name}`}
+                      >
                         {province.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               )}
-              <input {...register("province", { required: "Province is required" })} type="hidden" />
+              <input
+                {...register("province", { required: "Province is required" })}
+                type="hidden"
+              />
               <input {...register("provinceCode")} type="hidden" />
             </div>
-            {errors.province && (
-              <p className="text-destructive dark:text-red-400 text-sm flex items-center mt-1.5">
-                <AlertCircle className="h-4 w-4 mr-1" />
-                {errors.province.message}
-              </p>
-            )}
+            {renderError("province")}
           </div>
 
+          {/* City */}
           <div>
             <Label htmlFor="city" className="text-base font-medium">
               City/Municipality <span className="text-destructive">*</span>
@@ -171,12 +201,13 @@ export function AddressStep({
                 <Skeleton className="h-10 w-full rounded-md" />
               ) : (
                 <Select
-                  disabled={cities.length === 0 || isLoadingCities}
+                  disabled={
+                    !watch("province") || cities.length === 0 || isLoadingCities
+                  }
                   onValueChange={(value) => {
-                    // Extract the city data from the selected value
-                    const [id, name] = value.split("|")
-                    setValue("city", name, { shouldValidate: true })
-                    setValue("cityCode", id, { shouldValidate: true })
+                    const [id, name] = value.split("|");
+                    setValue("city", name, { shouldValidate: true });
+                    setValue("cityCode", id, { shouldValidate: true });
                   }}
                 >
                   <SelectTrigger
@@ -188,45 +219,56 @@ export function AddressStep({
                   >
                     <SelectValue
                       placeholder={
-                        watch("province")
-                          ? cities.length === 0
+                        !watch("province")
+                          ? "Select province first"
+                          : cities.length === 0
                             ? "Loading cities..."
                             : "Select city/municipality"
-                          : "Select province first"
                       }
                     />
                   </SelectTrigger>
                   <SelectContent className="max-h-[300px]">
-                    {cities.map((city) => (
-                      <SelectItem key={city.id} value={`${city.id}|${city.name}`}>
+                    {cities.map((city: any) => (
+                      <SelectItem
+                        key={city.code}
+                        value={`${city.code}|${city.name}`}
+                      >
                         {city.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               )}
-              <input {...register("city", { required: "City/Municipality is required" })} type="hidden" />
+              <input
+                {...register("city", {
+                  required: "City/Municipality is required",
+                })}
+                type="hidden"
+              />
               <input {...register("cityCode")} type="hidden" />
             </div>
-            {errors.city && (
-              <p className="text-destructive dark:text-red-400 text-sm flex items-center mt-1.5">
-                <AlertCircle className="h-4 w-4 mr-1" />
-                {errors.city.message}
-              </p>
-            )}
+            {renderError("city")}
           </div>
         </div>
       </div>
 
+      {/* Buttons */}
       <div className="flex justify-between pt-4">
-        <Button type="button" variant="outline" onClick={navigateToPreviousStep}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={navigateToPreviousStep}
+        >
           Back
         </Button>
-        <Button type="button" onClick={handleNext} className="bg-green-600 hover:bg-green-700">
+        <Button
+          type="button"
+          onClick={handleNext}
+          className="bg-green-600 hover:bg-green-700"
+        >
           Next Step <ChevronRight className="ml-1 h-4 w-4" />
         </Button>
       </div>
     </motion.div>
-  )
+  );
 }
-

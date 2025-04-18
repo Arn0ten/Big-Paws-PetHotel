@@ -18,7 +18,6 @@ import {
   Check,
   ChevronRight,
   Smartphone,
-  MapPin,
   User,
   Home,
   ClipboardList,
@@ -33,13 +32,6 @@ import {
   type SubmitHandler,
 } from "react-hook-form";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -47,10 +39,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
-import { Skeleton } from "@/components/ui/skeleton";
+import {
+  mockRegistrationApi,
+  type PetOwnerFormData,
+  type RegistrationResponse,
+  type CredentialResponse,
+} from "./api/registration-api";
+
+// Import the Address Step component
+import { AddressStep } from "./components/address-step";
 
 /**
  * Pet Owner Registration Form
@@ -59,30 +58,10 @@ import { Skeleton } from "@/components/ui/skeleton";
  * It collects all necessary information in a structured format ready for backend consumption.
  *
  * Backend Integration Points:
- * 1. API fetch for provinces and cities (currently using mock PSGC API)
- * 2. Form submission in onSubmit handler - sends data to backend
- * 3. Credential sending in handleSendCredentials - integrates with email/SMS service
- *
- * Data Structure:
- * The FormValues interface defines the exact structure of data that will be sent to the backend.
- * All fields are properly typed and validated before submission.
+ * 1. API fetch for provinces and cities (using the registration-api service)
+ * 2. Form submission in onSubmit handler - sends data to backend via registration-api
+ * 3. Credential sending in handleSendCredentials - integrates with email/SMS service via registration-api
  */
-
-// Define the structure of our form data
-// This will help backend developers understand what data to expect
-interface FormValues {
-  // Basic Information
-  fullName: string; // Pet owner's full name
-  email: string; // Email address (either this or contactNumber is required)
-  contactNumber: string; // Phone number (either this or email is required)
-
-  // Address Information
-  streetAddress: string; // Street address including house/building number
-  province: string; // Selected province (from API)
-  provinceCode: string; // Province code for API reference
-  city: string; // Selected city/municipality (from API)
-  cityCode: string; // City code for API reference
-}
 
 // Interface for the location API response
 interface Province {
@@ -114,7 +93,8 @@ export default function RegistrationPage() {
     "email" | "phone" | null
   >(null);
   const [contactValue, setContactValue] = useState("");
-  const [formData, setFormData] = useState<FormValues | null>(null);
+  const [formData, setFormData] = useState<PetOwnerFormData | null>(null);
+  const [petOwnerId, setPetOwnerId] = useState<string>("");
 
   // API data and loading states
   const [provinces, setProvinces] = useState<Province[]>([]);
@@ -123,7 +103,7 @@ export default function RegistrationPage() {
   const [isLoadingCities, setIsLoadingCities] = useState(false);
 
   // Set up form with React Hook Form
-  const methods = useForm<FormValues>({
+  const methods = useForm<PetOwnerFormData>({
     mode: "onChange",
     defaultValues: {
       fullName: "",
@@ -154,83 +134,60 @@ export default function RegistrationPage() {
   const { toast } = useToast();
 
   // Fetch provinces on component mount
-  useEffect(() => {
-    const fetchProvinces = async () => {
-      try {
-        setIsLoadingProvinces(true);
-        // In a real application, use an actual API endpoint
-        // This is a mock implementation
-        const response = await fetch("https://psgc.gitlab.io/api/provinces/");
-        if (!response.ok) throw new Error("Failed to fetch provinces");
-        const data = await response.json();
+  // useEffect(() => {
+  //   const fetchProvinces = async () => {
+  //     try {
+  //       setIsLoadingProvinces(true);
+  //       // Use the API service to fetch provinces
+  //       const data = await mockRegistrationApi.fetchProvinces();
+  //       setProvinces(data);
+  //     } catch (error) {
+  //       console.error("Error fetching provinces:", error);
+  //       toast({
+  //         title: "Error",
+  //         description: "Failed to load provinces. Please try again.",
+  //         variant: "destructive",
+  //       });
+  //     } finally {
+  //       setIsLoadingProvinces(false);
+  //     }
+  //   };
 
-        // Transform API data to our format
-        const formattedProvinces = data.map((province: any) => ({
-          id: province.code,
-          name: province.name,
-        }));
-
-        setProvinces(formattedProvinces);
-      } catch (error) {
-        console.error("Error fetching provinces:", error);
-        toast({
-          title: "Error",
-          description: "Failed to load provinces. Please try again.",
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoadingProvinces(false);
-      }
-    };
-
-    fetchProvinces();
-  }, []);
+  //   fetchProvinces();
+  // }, []);
 
   // Fetch cities when province changes
-  useEffect(() => {
-    if (!watchProvinceCode) return;
+  // useEffect(() => {
+  //   if (!watchProvinceCode) return;
 
-    const fetchCities = async () => {
-      try {
-        setCities([]);
-        setIsLoadingCities(true);
-        // In a real implementation, use the actual API endpoint
-        // This is a mock implementation
-        const response = await fetch(
-          `https://psgc.gitlab.io/api/provinces/${watchProvinceCode}/cities-municipalities/`,
-        );
-        if (!response.ok) throw new Error("Failed to fetch cities");
-        const data = await response.json();
+  //   const fetchCities = async () => {
+  //     try {
+  //       setCities([]);
+  //       setIsLoadingCities(true);
+  //       // Use the API service to fetch cities
+  //       const data = await mockRegistrationApi.fetchCities(watchProvinceCode);
+  //       setCities(data);
 
-        // Transform API data to our format
-        const formattedCities = data.map((city: any) => ({
-          id: city.code,
-          name: city.name,
-          provinceId: watchProvinceCode,
-        }));
+  //       // Reset city selection when province changes
+  //       setValue("city", "");
+  //       setValue("cityCode", "");
+  //     } catch (error) {
+  //       console.error("Error fetching cities:", error);
+  //       toast({
+  //         title: "Error",
+  //         description: "Failed to load cities. Please try again.",
+  //         variant: "destructive",
+  //       });
+  //     } finally {
+  //       setIsLoadingCities(false);
+  //     }
+  //   };
 
-        setCities(formattedCities);
-
-        // Reset city selection when province changes
-        setValue("city", "");
-        setValue("cityCode", "");
-      } catch (error) {
-        console.error("Error fetching cities:", error);
-        toast({
-          title: "Error",
-          description: "Failed to load cities. Please try again.",
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoadingCities(false);
-      }
-    };
-
-    fetchCities();
-  }, [watchProvinceCode, setValue]);
+  //   fetchCities();
+  // }, [watchProvinceCode, setValue]);
 
   // Handle form submission
-  const onSubmit: SubmitHandler<FormValues> = (data) => {
+  const onSubmit: SubmitHandler<PetOwnerFormData> = async (data) => {
     // Store the form data for potential backend submission
     setFormData(data);
 
@@ -245,199 +202,100 @@ export default function RegistrationPage() {
 
     // Show confirmation dialog
     setShowConfirmDialog(true);
-
-    // BACKEND INTEGRATION POINT:
-    // This is where you would typically prepare the data for backend submission.
-    // The data object contains all form values in a structured format.
-    // Example backend call (commented out):
-    /*
-    async function submitToBackend(data: FormValues) {
-      try {
-        const response = await fetch('/api/pet-owners', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data),
-        });
-        
-        if (!response.ok) throw new Error('Failed to register pet owner');
-        
-        const result = await response.json();
-        return result.id; // Return the new pet owner ID
-      } catch (error) {
-        console.error('Error registering pet owner:', error);
-        toast({
-          title: "Registration Error",
-          description: "Failed to register pet owner. Please try again.",
-          variant: "destructive",
-        });
-        throw error;
-      }
-    }
-    */
   };
 
-  // Confirm registration and simulate backend submission
-  const handleConfirmRegistration = () => {
+  // Confirm registration and submit to backend
+  const handleConfirmRegistration = async () => {
     setShowConfirmDialog(false);
 
-    // Log the data that would be sent to the backend
-    console.log("Data to be sent to backend:", formData);
+    if (!formData) return;
 
-    // BACKEND INTEGRATION POINT:
-    // This is where the actual API call to register the pet owner would happen
-    // Example implementation:
-    /*
-    submitToBackend(formData)
-      .then(petOwnerId => {
-        // Store the pet owner ID for reference
-        setPetOwnerId(petOwnerId);
+    try {
+      // Use the API service to register the pet owner
+      const response: RegistrationResponse =
+        await mockRegistrationApi.registerPetOwner(formData);
+
+      if (response.success) {
+        setPetOwnerId(response.petOwnerId);
         setShowSuccessCard(true);
         setShowCredentialOptions(true);
-        
-        // Log the successful registration
-        logAdminActivity({
-          module: "pet-owner",
-          action: "register",
-          description: `Registered new pet owner: ${formData?.fullName}`,
-          status: "completed",
-          entityId: petOwnerId
+
+        toast({
+          title: "Registration Successful",
+          description: "Pet owner has been registered successfully.",
+          variant: "success",
         });
-      })
-      .catch(error => {
-        // Error handling is done in the submitToBackend function
-        console.error("Registration failed:", error);
+      } else {
+        toast({
+          title: "Registration Failed",
+          description:
+            response.error || "Failed to register pet owner. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Registration failed:", error);
+      toast({
+        title: "Registration Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
       });
-    */
-
-    // Simulate API call to backend
-    setTimeout(() => {
-      // Generate a mock pet owner ID
-      const mockPetOwnerId = `PO-${Math.floor(Math.random() * 10000)}`;
-
-      // Log the successful registration
-      logAdminActivity({
-        module: "pet-owner",
-        action: "register",
-        description: `Registered new pet owner: ${formData?.fullName}`,
-        status: "completed",
-        entityId: mockPetOwnerId,
-        metadata: {
-          email: formData?.email,
-          contactNumber: formData?.contactNumber,
-          province: formData?.province,
-          city: formData?.city,
-        },
-      });
-
-      setShowSuccessCard(true);
-      setShowCredentialOptions(true);
-    }, 1500);
+    }
   };
 
   // Handle sending credentials with loading animation
-  const handleSendCredentials = (method: "email" | "phone") => {
+  const handleSendCredentials = async (method: "email" | "phone") => {
     setCredentialMethod(method);
 
-    // Show loading state but don't hide options yet
+    // Show loading state
     toast({
       title: "Sending credentials",
       description: `Preparing to send via ${method}...`,
       variant: "default",
     });
 
-    // BACKEND INTEGRATION POINT:
-    // This is where you would make an API call to send credentials
-    // Example implementation:
-    /*
-    async function sendCredentials(method: "email" | "phone", contactValue: string, petOwnerId: string) {
-      try {
-        const response = await fetch('/api/send-credentials', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            method,
-            contactValue,
-            petOwnerId,
-          }),
+    try {
+      // Use the API service to send credentials
+      const response: CredentialResponse =
+        await mockRegistrationApi.sendCredentials(
+          method,
+          contactValue,
+          petOwnerId,
+        );
+
+      if (response.success) {
+        setShowCredentialOptions(false);
+
+        // Show success after a short delay
+        setTimeout(() => {
+          setShowFinalSuccess(true);
+          toast({
+            title: "Credentials Sent",
+            description: `Login credentials have been sent via ${method}`,
+            variant: "success",
+          });
+        }, 500);
+      } else {
+        toast({
+          title: "Failed to Send Credentials",
+          description:
+            response.error ||
+            `Failed to send credentials via ${method}. Please try again.`,
+          variant: "destructive",
         });
-      
-      if (!response.ok) throw new Error(`Failed to send credentials via ${method}`);
-      
-      return await response.json();
+        // Reset credential method to allow retry
+        setCredentialMethod(null);
+      }
     } catch (error) {
-      console.error(`Error sending credentials via ${method}:`, error);
+      console.error("Failed to send credentials:", error);
       toast({
         title: "Error",
         description: `Failed to send credentials via ${method}. Please try again.`,
         variant: "destructive",
       });
-      throw error;
-    }
-  }
-  
-  sendCredentials(method, contactValue, petOwnerId)
-    .then(() => {
-      setShowCredentialOptions(false);
-      setShowFinalSuccess(true);
-      
-      // Log the successful credential sending
-      logAdminActivity({
-        module: "pet-owner",
-        action: "send-credentials",
-        description: `Sent login credentials to pet owner via ${method}`,
-        status: "completed",
-        entityId: petOwnerId,
-        metadata: {
-          method,
-          contactValue
-        }
-      });
-    })
-    .catch(error => {
-      // Error is handled in the sendCredentials function
-      console.error("Failed to send credentials:", error);
       // Reset credential method to allow retry
       setCredentialMethod(null);
-    });
-  */
-
-    // Simulate API call with loading animation
-    setTimeout(() => {
-      setShowCredentialOptions(false);
-
-      // This is where you'd make an API call to send credentials
-      console.log(`Sending credentials via ${method} to ${contactValue}`);
-
-      // Generate a mock pet owner ID
-      const mockPetOwnerId = `PO-${Math.floor(Math.random() * 10000)}`;
-
-      // Log the successful credential sending
-      logAdminActivity({
-        module: "pet-owner",
-        action: "send-credentials",
-        description: `Sent login credentials to pet owner via ${method}`,
-        status: "completed",
-        entityId: mockPetOwnerId,
-        metadata: {
-          method,
-          contactValue,
-        },
-      });
-
-      // Show success after a short delay
-      setTimeout(() => {
-        setShowFinalSuccess(true);
-        toast({
-          title: "Credentials sent",
-          description: `Login credentials have been sent via ${method}`,
-          variant: "success",
-        });
-      }, 1000);
-    }, 1500);
+    }
   };
 
   // Reset form to register another pet owner
@@ -447,6 +305,7 @@ export default function RegistrationPage() {
     setShowFinalSuccess(false);
     setCredentialMethod(null);
     setContactValue("");
+    setPetOwnerId("");
     setActiveStep("personal");
     setCompletedSteps([]);
     reset();
@@ -491,7 +350,7 @@ export default function RegistrationPage() {
   const steps = [
     {
       id: "personal",
-      title: "Personal Info",
+      title: "Personal",
       icon: <User className="h-5 w-5" />,
       progress: 33,
     },
@@ -508,37 +367,6 @@ export default function RegistrationPage() {
       progress: 100,
     },
   ];
-
-  interface LogActivityParams {
-    module: string;
-    action: string;
-    description: string;
-    status: string;
-    entityId: string;
-    relatedEntityId?: string;
-    metadata?: Record<string, any>;
-  }
-
-  function logAdminActivity(params: LogActivityParams): void {
-    // In a real implementation, this would send a POST request to your API
-    // Example:
-    // fetch('/api/admin/activity-log', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({
-    //     ...params,
-    //     timestamp: new Date().toISOString(),
-    //     performedBy: "Current Admin User", // This would come from auth context
-    //   })
-    // });
-
-    // For now, just log to console
-    console.log("Admin Activity Log:", {
-      ...params,
-      timestamp: new Date().toISOString(),
-      performedBy: "Current Admin User", // This would come from auth context
-    });
-  }
 
   return (
     <FormProvider {...methods}>
@@ -708,7 +536,7 @@ export default function RegistrationPage() {
                       )}
 
                       {activeStep === "address" && (
-                        <StepAddress
+                        <AddressStep
                           navigateToPreviousStep={() =>
                             navigateToStep("personal")
                           }
@@ -811,7 +639,7 @@ const StepPersonalInfo = ({
     formState: { errors },
     watch,
     trigger,
-  } = useFormContext<FormValues>();
+  } = useFormContext<PetOwnerFormData>();
   const watchEmail = watch("email");
   const watchContactNumber = watch("contactNumber");
 
@@ -840,7 +668,7 @@ const StepPersonalInfo = ({
       });
 
       // Scroll to the first error field
-      const firstErrorField = Object.keys(errors)[0] as keyof FormValues;
+      const firstErrorField = Object.keys(errors)[0] as keyof PetOwnerFormData;
       const element = document.getElementById(firstErrorField);
       if (element) {
         element.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -973,236 +801,6 @@ const StepPersonalInfo = ({
   );
 };
 
-// Step 2: Address Information Component
-const StepAddress = ({
-  navigateToPreviousStep,
-  navigateToNextStep,
-  provinces,
-  cities,
-  isLoadingProvinces,
-  isLoadingCities,
-}: {
-  navigateToPreviousStep: () => void;
-  navigateToNextStep: () => void;
-  provinces: Province[];
-  cities: City[];
-  isLoadingProvinces: boolean;
-  isLoadingCities: boolean;
-}) => {
-  const {
-    register,
-    formState: { errors },
-    watch,
-    setValue,
-    trigger,
-  } = useFormContext<FormValues>();
-
-  const { toast } = useToast();
-
-  const handleNext = async () => {
-    // Validate only the address fields
-    const isValid = await trigger(["streetAddress", "province", "city"]);
-
-    if (isValid) {
-      // Add animation before navigating
-      toast({
-        title: "Address information validated",
-        description: "Moving to summary",
-        variant: "default",
-      });
-
-      // Navigate immediately without delay
-      navigateToNextStep();
-    } else {
-      // Show error toast
-      toast({
-        title: "Validation Error",
-        description: "Please fill in all required fields before proceeding",
-        variant: "destructive",
-      });
-
-      // Scroll to the first error field
-      const firstErrorField = Object.keys(errors)[0] as keyof FormValues;
-      const element = document.getElementById(firstErrorField);
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth", block: "center" });
-        element.focus();
-      }
-    }
-  };
-
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.3 }}
-      className="space-y-6"
-    >
-      <div className="space-y-4">
-        <div>
-          <Label htmlFor="streetAddress" className="text-base font-medium">
-            Street Address <span className="text-destructive">*</span>
-          </Label>
-          <div className="relative">
-            <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Textarea
-              id="streetAddress"
-              placeholder="House/Unit number, street name, building"
-              className={cn(
-                "pl-10 mt-1.5 min-h-[80px]",
-                errors.streetAddress &&
-                  "border-destructive dark:border-red-400 focus-visible:ring-destructive dark:focus-visible:ring-red-400",
-              )}
-              {...register("streetAddress", {
-                required: "Street address is required",
-              })}
-            />
-          </div>
-          {errors.streetAddress && (
-            <p className="text-destructive dark:text-red-400 text-sm flex items-center mt-1.5">
-              <AlertCircle className="h-4 w-4 mr-1" />
-              {errors.streetAddress.message}
-            </p>
-          )}
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor="province" className="text-base font-medium">
-              Province <span className="text-destructive">*</span>
-            </Label>
-            <div className="relative mt-1.5">
-              {isLoadingProvinces ? (
-                <Skeleton className="h-10 w-full rounded-md" />
-              ) : (
-                <Select
-                  onValueChange={(value) => {
-                    // Extract the province data from the selected value
-                    const [id, name] = value.split("|");
-                    setValue("province", name, { shouldValidate: true });
-                    setValue("provinceCode", id, { shouldValidate: true });
-                  }}
-                >
-                  <SelectTrigger
-                    id="province"
-                    className={cn(
-                      errors.province &&
-                        "border-destructive dark:border-red-400 focus-visible:ring-destructive dark:focus-visible:ring-red-400",
-                    )}
-                  >
-                    <SelectValue placeholder="Select province" />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-[300px]">
-                    {provinces.map((province) => (
-                      <SelectItem
-                        key={province.id}
-                        value={`${province.id}|${province.name}`}
-                      >
-                        {province.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-              <input
-                {...register("province", { required: "Province is required" })}
-                type="hidden"
-              />
-              <input {...register("provinceCode")} type="hidden" />
-            </div>
-            {errors.province && (
-              <p className="text-destructive dark:text-red-400 text-sm flex items-center mt-1.5">
-                <AlertCircle className="h-4 w-4 mr-1" />
-                {errors.province.message}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <Label htmlFor="city" className="text-base font-medium">
-              City/Municipality <span className="text-destructive">*</span>
-            </Label>
-            <div className="relative mt-1.5">
-              {isLoadingCities ? (
-                <Skeleton className="h-10 w-full rounded-md" />
-              ) : (
-                <Select
-                  disabled={cities.length === 0 || isLoadingCities}
-                  onValueChange={(value) => {
-                    // Extract the city data from the selected value
-                    const [id, name] = value.split("|");
-                    setValue("city", name, { shouldValidate: true });
-                    setValue("cityCode", id, { shouldValidate: true });
-                  }}
-                >
-                  <SelectTrigger
-                    id="city"
-                    className={cn(
-                      errors.city &&
-                        "border-destructive dark:border-red-400 focus-visible:ring-destructive dark:focus-visible:ring-red-400",
-                    )}
-                  >
-                    <SelectValue
-                      placeholder={
-                        watch("province")
-                          ? cities.length === 0
-                            ? "Loading cities..."
-                            : "Select city/municipality"
-                          : "Select province first"
-                      }
-                    />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-[300px]">
-                    {cities.map((city) => (
-                      <SelectItem
-                        key={city.id}
-                        value={`${city.id}|${city.name}`}
-                      >
-                        {city.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-              <input
-                {...register("city", {
-                  required: "City/Municipality is required",
-                })}
-                type="hidden"
-              />
-              <input {...register("cityCode")} type="hidden" />
-            </div>
-            {errors.city && (
-              <p className="text-destructive dark:text-red-400 text-sm flex items-center mt-1.5">
-                <AlertCircle className="h-4 w-4 mr-1" />
-                {errors.city.message}
-              </p>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div className="flex justify-between pt-4">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={navigateToPreviousStep}
-        >
-          Back
-        </Button>
-        <Button
-          type="button"
-          onClick={handleNext}
-          className="bg-green-600 hover:bg-green-700"
-        >
-          Next Step <ChevronRight className="ml-1 h-4 w-4" />
-        </Button>
-      </div>
-    </motion.div>
-  );
-};
-
 // Step 3: Summary Component
 const StepSummary = ({
   navigateToPreviousStep,
@@ -1213,7 +811,7 @@ const StepSummary = ({
   handleCancel: () => void;
   isSubmitting: boolean;
 }) => {
-  const { watch } = useFormContext<FormValues>();
+  const { watch } = useFormContext<PetOwnerFormData>();
 
   // Get all form values for summary
   const formValues = watch();
