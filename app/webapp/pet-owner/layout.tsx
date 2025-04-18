@@ -22,6 +22,7 @@ import ThemeToggle from "./components/theme-toggle";
 import BottomNavigation from "./components/bottom-navigation";
 import { getUnreadNotificationsCount } from "../data/sample-data";
 import { LogoutConfirmationDialog } from "@/components/ui/logout-confirmation-dialog";
+import { getTheme } from "../utils/theme-helpers"; // for theme detection
 
 export default function PetOwnerLayout({
   children,
@@ -29,20 +30,19 @@ export default function PetOwnerLayout({
   children: React.ReactNode;
 }) {
   const [isMounted, setIsMounted] = useState(false);
+  const [theme, setTheme] = useState("light");
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const pathname = usePathname();
 
-  // Simple mount effect without dependencies to avoid re-renders
   useEffect(() => {
     setIsMounted(true);
-    // No cleanup needed for this simple state
+    const currentTheme = getTheme();
+    setTheme(currentTheme);
   }, []);
 
-  // Get unread count only once when component mounts
   const unreadCount = getUnreadNotificationsCount();
 
-  //Nav items ni pag desktop view
   const navItems = [
     {
       name: "Home",
@@ -82,9 +82,7 @@ export default function PetOwnerLayout({
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
-    // Simulate logout process
     await new Promise((resolve) => setTimeout(resolve, 1500));
-    // In a real app, you would call your logout API here
     window.location.href = "/webapp/auth/login";
   };
 
@@ -94,22 +92,25 @@ export default function PetOwnerLayout({
       <header className="sticky top-0 z-40 w-full border-b border-border dark:border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-between px-4">
           <Link href="/webapp/pet-owner" className="flex items-center gap-2">
-            <div className="relative h-10 w-10 overflow-hidden rounded-full border border-border">
+            <div className="flex items-center">
               <Image
-                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/BigPawsLogo-AkdNb3dVilOpSFaUX922eFxqhj5Dq2.png"
+                src={
+                  isMounted && theme === "dark"
+                    ? "/main-logo-dark.png"
+                    : "/main-logo-light.png"
+                }
                 alt="Big Paws Logo"
-                fill
-                className="object-cover"
-                priority
+                width={215}
+                height={70}
+                className="h-8 w-auto sm:h-10 md:h-12"
               />
             </div>
-            <span className="font-bold text-lg text-foreground dark:text-foreground">
-              Big Paws
-            </span>
           </Link>
 
           <div className="flex items-center gap-2">
-            {isMounted && <ThemeToggle />}
+            {isMounted && (
+              <ThemeToggle onThemeChange={(t: string) => setTheme(t)} />
+            )}
             <Button variant="ghost" size="icon" className="md:hidden" asChild>
               <Link href="/webapp/pet-owner/pricing" aria-label="Pricing">
                 <PhilippinePesoIcon className="h-5 w-5 text-emerald-600 dark:text-emerald-500" />
@@ -130,7 +131,7 @@ export default function PetOwnerLayout({
         </div>
       </header>
 
-      {/* Desktop Sidebar */}
+      {/* Sidebar */}
       <div className="hidden md:fixed md:inset-y-0 md:left-0 md:z-30 md:w-64 md:flex md:flex-col md:border-r md:border-border dark:md:border-border/50 md:bg-background/95 md:pt-16">
         <div className="flex flex-col gap-4 p-4">
           <div className="flex items-center gap-2 px-2">
@@ -207,14 +208,13 @@ export default function PetOwnerLayout({
         </div>
       </div>
 
-      {/* Main Content */}
+      {/* Main */}
       <main className="flex-1 md:pl-64">
         <div className="container max-w-screen-md mx-auto p-4 sm:p-6 pb-20 md:pb-6">
           {children}
         </div>
       </main>
 
-      {/* Bottom Navigation */}
       <BottomNavigation />
       <LogoutConfirmationDialog
         open={logoutDialogOpen}

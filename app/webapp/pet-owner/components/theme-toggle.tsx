@@ -1,31 +1,31 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Moon, Sun } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { getTheme, setTheme } from "../../utils/theme-helpers"
+import { useState, useEffect } from "react";
+import { Moon, Sun } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { getTheme, setTheme } from "../../utils/theme-helpers";
 
-export default function ThemeToggle() {
-  const [theme, setThemeState] = useState<string>("light")
+export default function ThemeToggle({
+  onThemeChange,
+}: {
+  onThemeChange?: (theme: string) => void;
+}) {
+  const [theme, setThemeState] = useState<string>("light");
 
   useEffect(() => {
-    // Initialize theme on component mount
-    const currentTheme = getTheme()
-    setThemeState(currentTheme)
-
-    // Apply theme to document
-    if (currentTheme === "dark") {
-      document.documentElement.classList.add("dark")
-    } else {
-      document.documentElement.classList.remove("dark")
-    }
-  }, [])
+    const currentTheme = getTheme();
+    setThemeState(currentTheme);
+    document.documentElement.classList.toggle("dark", currentTheme === "dark");
+    onThemeChange?.(currentTheme);
+  }, []);
 
   const toggleTheme = () => {
-    const newTheme = theme === "dark" ? "light" : "dark"
-    setThemeState(newTheme)
-    setTheme(newTheme)
-  }
+    const newTheme = theme === "dark" ? "light" : "dark";
+    setThemeState(newTheme);
+    setTheme(newTheme);
+    document.documentElement.classList.toggle("dark", newTheme === "dark");
+    onThemeChange?.(newTheme);
+  };
 
   return (
     <Button
@@ -33,10 +33,13 @@ export default function ThemeToggle() {
       size="icon"
       onClick={toggleTheme}
       aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
-      className="text-primary"
+      className="border border-gray-300"
     >
-      {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+      {theme === "dark" ? (
+        <Sun className="h-5 w-5" />
+      ) : (
+        <Moon className="h-5 w-5" />
+      )}
     </Button>
-  )
+  );
 }
-
