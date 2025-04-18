@@ -1,9 +1,6 @@
 // API functions for the Pet Management module
 import type { Pet, PetOwner } from "./types";
-import {
-  MOCK_PETS,
-  MOCK_PET_OWNERS,
-} from "@/app/webapp/admin/data/pet-management-sample-data";
+import { MOCK_PETS, MOCK_PET_OWNERS } from "./constants";
 import { generatePetId } from "./helpers";
 
 // Update the API functions with proper comments for backend integration
@@ -69,6 +66,16 @@ export async function addNewPet(petData: Partial<Pet>): Promise<Pet> {
     image: "/placeholder.svg?height=200&width=200",
   };
 
+  // Log the successful operation
+  logAdminActivity({
+    module: "pet",
+    action: "add",
+    description: `Added new pet: ${newPet.name} (${newPet.type}, ${newPet.breed})`,
+    status: "completed",
+    entityId: newPet.id,
+    relatedEntityId: newPet.ownerId,
+  });
+
   return newPet;
 }
 
@@ -126,6 +133,16 @@ export async function updatePetData(
     ...petData,
   };
 
+  // Log the successful operation
+  logAdminActivity({
+    module: "pet",
+    action: "update",
+    description: `Updated pet: ${updatedPet.name} (ID: ${id})`,
+    status: "completed",
+    entityId: id,
+    relatedEntityId: updatedPet.ownerId,
+  });
+
   return updatedPet;
 }
 
@@ -136,6 +153,30 @@ export async function updatePetData(
 export async function deletePet(id: string): Promise<boolean> {
   // Simulate API call
   await delay(1000);
+
+  // Find the pet to get its details before deletion
+  const pet = MOCK_PETS.find((pet) => pet.id === id);
+
+  // Log the successful operation
+  if (pet) {
+    logAdminActivity({
+      module: "pet",
+      action: "delete",
+      description: `Deleted pet: ${pet.name} (ID: ${id})`,
+      status: "completed",
+      entityId: id,
+      relatedEntityId: pet.ownerId,
+    });
+  } else {
+    logAdminActivity({
+      module: "pet",
+      action: "delete",
+      description: `Deleted pet with ID: ${id}`,
+      status: "completed",
+      entityId: id,
+    });
+  }
+
   return true;
 }
 
@@ -162,5 +203,48 @@ export async function togglePetBoardingStatus(
     isBoarding: !MOCK_PETS[petIndex].isBoarding,
   };
 
+  // Log the successful operation
+  logAdminActivity({
+    module: "pet",
+    action: "toggle-boarding",
+    description: `${updatedPet.isBoarding ? "Started" : "Ended"} boarding for pet: ${updatedPet.name} (ID: ${id})`,
+    status: "completed",
+    entityId: id,
+    relatedEntityId: updatedPet.ownerId,
+    metadata: boardingDetails,
+  });
+
   return updatedPet;
+}
+
+// Add the logAdminActivity helper function at the end of the file
+interface LogActivityParams {
+  module: string;
+  action: string;
+  description: string;
+  status: string;
+  entityId: string;
+  relatedEntityId?: string;
+  metadata?: Record<string, any>;
+}
+
+function logAdminActivity(params: LogActivityParams): void {
+  // In a real implementation, this would send a POST request to your API
+  // Example:
+  // fetch('/api/admin/activity-log', {
+  //   method: 'POST',
+  //   headers: { 'Content-Type': 'application/json' },
+  //   body: JSON.stringify({
+  //     ...params,
+  //     timestamp: new Date().toISOString(),
+  //     performedBy: "Current Admin User", // This would come from auth context
+  //   })
+  // });
+
+  // For now, just log to console
+  console.log("Admin Activity Log:", {
+    ...params,
+    timestamp: new Date().toISOString(),
+    performedBy: "Current Admin User", // This would come from auth context
+  });
 }

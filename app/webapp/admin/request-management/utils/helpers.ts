@@ -146,12 +146,30 @@ export const validateVideoDuration = async (
   });
 };
 
-// NOTE FOR BACKEND: Replace these utility functions with actual API calls
+// Add logging to the uploadMedia function
 export const uploadMedia = async (file: File): Promise<string> => {
   // Simulate upload delay
   await new Promise((resolve) => setTimeout(resolve, 1000));
-  return createObjectURL(file);
+  const url = createObjectURL(file);
+
+  // Log the successful operation
+  logAdminActivity({
+    module: "request-management",
+    action: "upload-media",
+    description: `Uploaded media file: ${file.name} (${file.type}, ${(file.size / 1024).toFixed(2)} KB)`,
+    status: "completed",
+    entityId: generateRandomId(),
+    metadata: {
+      fileType: file.type,
+      fileSize: file.size,
+      fileName: file.name,
+    },
+  });
+
+  return url;
 };
+
+// NOTE FOR BACKEND: Replace these utility functions with actual API calls
 
 export const searchRequests = (
   requests: Request[],
@@ -184,3 +202,40 @@ export const markRequestAsNew = (request: Request): Request => {
     isNew: true,
   };
 };
+
+// Add a helper function to generate random IDs for logging
+function generateRandomId(): string {
+  return `log-${Math.random().toString(36).substring(2, 11)}`;
+}
+
+// Add the logAdminActivity helper function at the end of the file
+interface LogActivityParams {
+  module: string;
+  action: string;
+  description: string;
+  status: string;
+  entityId: string;
+  relatedEntityId?: string;
+  metadata?: Record<string, any>;
+}
+
+function logAdminActivity(params: LogActivityParams): void {
+  // In a real implementation, this would send a POST request to your API
+  // Example:
+  // fetch('/api/admin/activity-log', {
+  //   method: 'POST',
+  //   headers: { 'Content-Type': 'application/json' },
+  //   body: JSON.stringify({
+  //     ...params,
+  //     timestamp: new Date().toISOString(),
+  //     performedBy: "Current Admin User", // This would come from auth context
+  //   })
+  // });
+
+  // For now, just log to console
+  console.log("Admin Activity Log:", {
+    ...params,
+    timestamp: new Date().toISOString(),
+    performedBy: "Current Admin User", // This would come from auth context
+  });
+}

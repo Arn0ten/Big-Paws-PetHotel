@@ -295,6 +295,15 @@ export default function RegistrationPage() {
         setPetOwnerId(petOwnerId);
         setShowSuccessCard(true);
         setShowCredentialOptions(true);
+        
+        // Log the successful registration
+        logAdminActivity({
+          module: "pet-owner",
+          action: "register",
+          description: `Registered new pet owner: ${formData?.fullName}`,
+          status: "completed",
+          entityId: petOwnerId
+        });
       })
       .catch(error => {
         // Error handling is done in the submitToBackend function
@@ -304,6 +313,24 @@ export default function RegistrationPage() {
 
     // Simulate API call to backend
     setTimeout(() => {
+      // Generate a mock pet owner ID
+      const mockPetOwnerId = `PO-${Math.floor(Math.random() * 10000)}`;
+
+      // Log the successful registration
+      logAdminActivity({
+        module: "pet-owner",
+        action: "register",
+        description: `Registered new pet owner: ${formData?.fullName}`,
+        status: "completed",
+        entityId: mockPetOwnerId,
+        metadata: {
+          email: formData?.email,
+          contactNumber: formData?.contactNumber,
+          province: formData?.province,
+          city: formData?.city,
+        },
+      });
+
       setShowSuccessCard(true);
       setShowCredentialOptions(true);
     }, 1500);
@@ -337,33 +364,46 @@ export default function RegistrationPage() {
             petOwnerId,
           }),
         });
-        
-        if (!response.ok) throw new Error(`Failed to send credentials via ${method}`);
-        
-        return await response.json();
-      } catch (error) {
-        console.error(`Error sending credentials via ${method}:`, error);
-        toast({
-          title: "Error",
-          description: `Failed to send credentials via ${method}. Please try again.`,
-          variant: "destructive",
-        });
-        throw error;
-      }
-    }
-    
-    sendCredentials(method, contactValue, petOwnerId)
-      .then(() => {
-        setShowCredentialOptions(false);
-        setShowFinalSuccess(true);
-      })
-      .catch(error => {
-        // Error is handled in the sendCredentials function
-        console.error("Failed to send credentials:", error);
-        // Reset credential method to allow retry
-        setCredentialMethod(null);
+      
+      if (!response.ok) throw new Error(`Failed to send credentials via ${method}`);
+      
+      return await response.json();
+    } catch (error) {
+      console.error(`Error sending credentials via ${method}:`, error);
+      toast({
+        title: "Error",
+        description: `Failed to send credentials via ${method}. Please try again.`,
+        variant: "destructive",
       });
-    */
+      throw error;
+    }
+  }
+  
+  sendCredentials(method, contactValue, petOwnerId)
+    .then(() => {
+      setShowCredentialOptions(false);
+      setShowFinalSuccess(true);
+      
+      // Log the successful credential sending
+      logAdminActivity({
+        module: "pet-owner",
+        action: "send-credentials",
+        description: `Sent login credentials to pet owner via ${method}`,
+        status: "completed",
+        entityId: petOwnerId,
+        metadata: {
+          method,
+          contactValue
+        }
+      });
+    })
+    .catch(error => {
+      // Error is handled in the sendCredentials function
+      console.error("Failed to send credentials:", error);
+      // Reset credential method to allow retry
+      setCredentialMethod(null);
+    });
+  */
 
     // Simulate API call with loading animation
     setTimeout(() => {
@@ -371,6 +411,22 @@ export default function RegistrationPage() {
 
       // This is where you'd make an API call to send credentials
       console.log(`Sending credentials via ${method} to ${contactValue}`);
+
+      // Generate a mock pet owner ID
+      const mockPetOwnerId = `PO-${Math.floor(Math.random() * 10000)}`;
+
+      // Log the successful credential sending
+      logAdminActivity({
+        module: "pet-owner",
+        action: "send-credentials",
+        description: `Sent login credentials to pet owner via ${method}`,
+        status: "completed",
+        entityId: mockPetOwnerId,
+        metadata: {
+          method,
+          contactValue,
+        },
+      });
 
       // Show success after a short delay
       setTimeout(() => {
@@ -435,7 +491,7 @@ export default function RegistrationPage() {
   const steps = [
     {
       id: "personal",
-      title: "Personal",
+      title: "Personal Info",
       icon: <User className="h-5 w-5" />,
       progress: 33,
     },
@@ -452,6 +508,37 @@ export default function RegistrationPage() {
       progress: 100,
     },
   ];
+
+  interface LogActivityParams {
+    module: string;
+    action: string;
+    description: string;
+    status: string;
+    entityId: string;
+    relatedEntityId?: string;
+    metadata?: Record<string, any>;
+  }
+
+  function logAdminActivity(params: LogActivityParams): void {
+    // In a real implementation, this would send a POST request to your API
+    // Example:
+    // fetch('/api/admin/activity-log', {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify({
+    //     ...params,
+    //     timestamp: new Date().toISOString(),
+    //     performedBy: "Current Admin User", // This would come from auth context
+    //   })
+    // });
+
+    // For now, just log to console
+    console.log("Admin Activity Log:", {
+      ...params,
+      timestamp: new Date().toISOString(),
+      performedBy: "Current Admin User", // This would come from auth context
+    });
+  }
 
   return (
     <FormProvider {...methods}>

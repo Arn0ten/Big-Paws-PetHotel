@@ -232,7 +232,8 @@ export default function HistoryPage() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   // Add these state variables for pagination
   // Add after the other state declarations in the HistoryPage component
-  const [currentPage, setCurrentPage] = useState(1);
+  const [activityCurrentPage, setActivityCurrentPage] = useState(1);
+  const [mediaCurrentPage, setMediaCurrentPage] = useState(1);
   const itemsPerPage = 10; // Standardized to 10 items per page
   // Add isSearching state and searchTimeoutRef
   const [isSearching, setIsSearching] = useState(false);
@@ -405,7 +406,11 @@ export default function HistoryPage() {
   // Add after the other useEffect hooks
   useEffect(() => {
     // Reset to page 1 when filters change
-    setCurrentPage(1);
+    if (activeTab === "activity") {
+      setActivityCurrentPage(1);
+    } else {
+      setMediaCurrentPage(1);
+    }
   }, [
     searchQuery,
     moduleFilter,
@@ -413,12 +418,13 @@ export default function HistoryPage() {
     dateFilter,
     mediaTypeFilter,
     petOwnerFilter,
+    activeTab,
   ]);
 
   // Calculate pagination values for history data
   const totalHistoryItems = filteredHistory.length;
   const totalHistoryPages = Math.ceil(totalHistoryItems / itemsPerPage);
-  const historyStartIndex = (currentPage - 1) * itemsPerPage;
+  const historyStartIndex = (activityCurrentPage - 1) * itemsPerPage;
   const historyEndIndex = Math.min(
     historyStartIndex + itemsPerPage,
     totalHistoryItems,
@@ -431,7 +437,7 @@ export default function HistoryPage() {
   // Calculate pagination values for media data
   const totalMediaItems = filteredMedia.length;
   const totalMediaPages = Math.ceil(totalMediaItems / itemsPerPage);
-  const mediaStartIndex = (currentPage - 1) * itemsPerPage;
+  const mediaStartIndex = (mediaCurrentPage - 1) * itemsPerPage;
   const mediaEndIndex = Math.min(
     mediaStartIndex + itemsPerPage,
     totalMediaItems,
@@ -439,8 +445,12 @@ export default function HistoryPage() {
   const currentMediaItems = filteredMedia.slice(mediaStartIndex, mediaEndIndex);
 
   // Handle page change
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+  const handleActivityPageChange = (page: number) => {
+    setActivityCurrentPage(page);
+  };
+
+  const handleMediaPageChange = (page: number) => {
+    setMediaCurrentPage(page);
   };
 
   // Handle refresh button click
@@ -985,9 +995,9 @@ export default function HistoryPage() {
 
                   {/* Standardized Pagination Controls */}
                   <PaginationControls
-                    currentPage={currentPage}
+                    currentPage={activityCurrentPage}
                     totalPages={totalHistoryPages}
-                    onPageChange={handlePageChange}
+                    onPageChange={handleActivityPageChange}
                   />
                 </>
               )}
@@ -1263,9 +1273,9 @@ export default function HistoryPage() {
 
               {/* Standardized Pagination Controls */}
               <PaginationControls
-                currentPage={currentPage}
+                currentPage={mediaCurrentPage}
                 totalPages={totalMediaPages}
-                onPageChange={handlePageChange}
+                onPageChange={handleMediaPageChange}
               />
             </>
           )}

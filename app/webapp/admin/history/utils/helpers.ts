@@ -1,7 +1,7 @@
 // Helper functions for the history module
 // BACKEND INTEGRATION: These functions can be shared across modules
 
-import type { HistoryEntry, MediaEntry } from "../data/sample-data"
+import type { HistoryEntry, MediaEntry } from "@/app/webapp/admin/data/history-sample-data"
 
 // Format date with or without time
 export const formatDate = (dateString: string, includeTime = true): string => {
@@ -67,9 +67,12 @@ export const filterHistoryByModule = (entries: HistoryEntry[], module: string): 
   return entries.filter((entry) => entry.module === module)
 }
 
-// Filter history entries by status
+// Update the filterHistoryByStatus function to default to completed/succeeding statuses
 export const filterHistoryByStatus = (entries: HistoryEntry[], status: string): HistoryEntry[] => {
-  if (status === "all") return entries
+  if (status === "all") {
+    // Even when "all" is selected, we only show completed/succeeding events
+    return entries.filter((entry) => entry.status === "completed" || entry.status === "succeeding")
+  }
   return entries.filter((entry) => entry.status === status)
 }
 
@@ -214,4 +217,3 @@ export const downloadMultipleMedia = async (urls: string[], filename: string): P
     return false
   }
 }
-

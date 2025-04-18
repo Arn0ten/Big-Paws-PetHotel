@@ -529,6 +529,7 @@ export default function RequestDetailPage(): JSX.Element {
                               A
                             </div>
                             <div className="max-w-[80%] rounded-lg p-3 bg-gray-100 dark:bg-gray-800 text-foreground dark:text-foreground">
+                              {/* Auto Build og chatbubble for informing petowner sa update*/}
                               <p className="text-sm whitespace-pre-wrap">
                                 Here's the{" "}
                                 {request.type === "photo"

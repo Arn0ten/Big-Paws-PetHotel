@@ -4,7 +4,51 @@
 import type { HistoryEntry, MediaEntry } from "@/app/webapp/admin/data/history-sample-data"
 
 /**
+ * BACKEND INTEGRATION GUIDE FOR EVENT LOGGING:
+ *
+ * Implement a centralized logging service with the following features:
+ *
+ * 1. Create a logEvent function that can be called from any admin module:
+ *
+ *    export async function logEvent(
+ *      module: string,
+ *      action: string,
+ *      description: string,
+ *      performedBy: string,
+ *      status: "completed" | "succeeding",
+ *      details: any
+ *    ) {
+ *      // Only log if status is completed or succeeding
+ *      if (status !== "completed" && status !== "succeeding") {
+ *        return;
+ *      }
+ *
+ *      // Create history entry
+ *      const entry = {
+ *        id: generateUniqueId(),
+ *        timestamp: new Date().toISOString(),
+ *        module,
+ *        action,
+ *        description,
+ *        performedBy,
+ *        status,
+ *        ...extractRelevantDetails(details)
+ *      };
+ *
+ *      // Save to database
+ *      return await db.collection("history").insertOne(entry);
+ *    }
+ *
+ * 2. Add this logging call at the end of each successful operation in admin modules
+ *
+ * 3. For media-related events, include media URLs and types in the details
+ *
+ * 4. Create API endpoints to fetch history data with filtering capabilities
+ */
+
+/**
  * Fetches history entries from the backend
+ * Only returns completed/successful events
  *
  * @returns Promise<HistoryEntry[]> Array of history entries
  */
@@ -12,7 +56,7 @@ export const fetchHistoryEntries = async (): Promise<HistoryEntry[]> => {
   try {
     // BACKEND INTEGRATION: Replace with actual API call
     // Example:
-    // const response = await fetch('/api/admin/history');
+    // const response = await fetch('/api/admin/history?status=completed,succeeding');
     // if (!response.ok) throw new Error('Failed to fetch history data');
     // const data = await response.json();
     // return data;
@@ -27,6 +71,7 @@ export const fetchHistoryEntries = async (): Promise<HistoryEntry[]> => {
 
 /**
  * Fetches media entries from the backend
+ * Only returns entries from completed requests
  *
  * @returns Promise<MediaEntry[]> Array of media entries
  */
@@ -34,7 +79,7 @@ export const fetchMediaEntries = async (): Promise<MediaEntry[]> => {
   try {
     // BACKEND INTEGRATION: Replace with actual API call
     // Example:
-    // const response = await fetch('/api/admin/media');
+    // const response = await fetch('/api/admin/media?status=completed');
     // if (!response.ok) throw new Error('Failed to fetch media data');
     // const data = await response.json();
     // return data;
@@ -148,6 +193,7 @@ export const downloadMultipleMedia = async (urls: string[], zipFilename: string)
 
 /**
  * Fetches history statistics for dashboard or reports
+ * Only includes completed/successful events
  *
  * @returns Promise<object> Statistics object
  */
@@ -163,7 +209,7 @@ export const fetchHistoryStats = async (): Promise<{
   try {
     // BACKEND INTEGRATION: Replace with actual API call
     // Example:
-    // const response = await fetch('/api/admin/history/stats');
+    // const response = await fetch('/api/admin/history/stats?status=completed,succeeding');
     // if (!response.ok) throw new Error('Failed to fetch history stats');
     // const data = await response.json();
     // return data;
@@ -186,6 +232,7 @@ export const fetchHistoryStats = async (): Promise<{
 
 /**
  * Exports history data to CSV or Excel format
+ * Only exports completed/successful events
  *
  * @param format The export format ('csv' or 'excel')
  * @param filters Optional filters to apply before export
@@ -207,7 +254,7 @@ export const exportHistoryData = async (
     // const queryParams = new URLSearchParams();
     // queryParams.append('format', format);
     // if (filters?.module) queryParams.append('module', filters.module);
-    // if (filters?.status) queryParams.append('status', filters.status);
+    // if (filters?.status) queryParams.append('status', filters.status || 'completed,succeeding');
     // if (filters?.startDate) queryParams.append('startDate', filters.startDate);
     // if (filters?.endDate) queryParams.append('endDate', filters.endDate);
     // if (filters?.searchQuery) queryParams.append('search', filters.searchQuery);
@@ -226,4 +273,3 @@ export const exportHistoryData = async (
     throw error
   }
 }
-

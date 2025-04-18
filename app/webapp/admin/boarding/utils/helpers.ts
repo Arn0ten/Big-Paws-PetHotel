@@ -158,6 +158,16 @@ export const updateBoardingStatus = (
 
   // If the order is overdue and the new payment status is 'Paid', don't change the boarding status
   if (order.isOverdue && newPaymentStatus === "Paid") {
+    // Log the successful operation
+    logAdminActivity({
+      module: "boarding",
+      action: "update-payment",
+      description: `Updated payment status to ${newPaymentStatus} for overdue boarding: ${order.pet.name}`,
+      status: "completed",
+      entityId: order.id,
+      relatedEntityId: order.pet.id,
+    });
+
     return updatedOrder;
   }
 
@@ -165,6 +175,26 @@ export const updateBoardingStatus = (
   if (order.boardingStatus === "Done Boarding" && newPaymentStatus === "Paid") {
     updatedOrder.boardingStatus = "Released";
     updatedOrder.releaseTimestamp = new Date().toISOString();
+
+    // Log the successful operation with release info
+    logAdminActivity({
+      module: "boarding",
+      action: "update-payment-and-release",
+      description: `Updated payment status to Paid and released pet: ${order.pet.name}`,
+      status: "completed",
+      entityId: order.id,
+      relatedEntityId: order.pet.id,
+    });
+  } else {
+    // Log just the payment update
+    logAdminActivity({
+      module: "boarding",
+      action: "update-payment",
+      description: `Updated payment status to ${newPaymentStatus} for boarding: ${order.pet.name}`,
+      status: "completed",
+      entityId: order.id,
+      relatedEntityId: order.pet.id,
+    });
   }
 
   return updatedOrder;
@@ -247,17 +277,10 @@ export const isEligibleForForceRelease = (order: BoardingOrder): boolean => {
   return order.paymentStatus === "Paid" && order.boardingStatus === "Boarding";
 };
 
-/**
- * Release a pet
- * @param order BoardingOrder object
- * @returns Updated BoardingOrder object with release information
- *
- * @dev This function should be called when a pet is released to its owner
- * In production, this should trigger notifications and receipt generation
- */
+// Add logging to the releasePet function
 export const releasePet = (order: BoardingOrder): BoardingOrder => {
   const now = new Date().toISOString();
-  return {
+  const updatedOrder = {
     ...order,
     boardingStatus: "Released",
     releaseTimestamp: now,
@@ -269,20 +292,31 @@ export const releasePet = (order: BoardingOrder): BoardingOrder => {
     lastModificationReason: "Payment completed at pet release",
     paymentStatus: "Paid", // Ensure payment status is set to Paid when releasing
   };
+
+  // Log the successful operation
+  logAdminActivity({
+    module: "boarding",
+    action: "release",
+    description: `Released pet: ${order.pet.name} (Owner: ${order.owner.name})`,
+    status: "completed",
+    entityId: order.id,
+    relatedEntityId: order.pet.id,
+    metadata: {
+      boardingType: order.boardingType,
+      totalPrice: order.totalPrice,
+      startDate: order.startDate,
+      endDate: order.endDate,
+      releaseDate: now,
+    },
+  });
+
+  return updatedOrder;
 };
 
-/**
- * Force release a pet regardless of its current boarding status
- * @param order BoardingOrder object
- * @returns Updated BoardingOrder object with release information
- *
- * @dev This function should be called when an admin force releases a pet
- * In production, this should trigger notifications and receipt generation
- * BACKEND INTEGRATION: This function should call the appropriate API endpoint
- */
+// Add logging to the forceReleasePet function
 export const forceReleasePet = (order: BoardingOrder): BoardingOrder => {
   const now = new Date().toISOString();
-  return {
+  const updatedOrder = {
     ...order,
     boardingStatus: "Released",
     releaseTimestamp: now,
@@ -294,6 +328,26 @@ export const forceReleasePet = (order: BoardingOrder): BoardingOrder => {
     lastModificationReason: "Payment completed at force release",
     paymentStatus: "Paid", // Ensure payment status is set to Paid when force releasing
   };
+
+  // Log the successful operation
+  logAdminActivity({
+    module: "boarding",
+    action: "force-release",
+    description: `Force released pet: ${order.pet.name} (Owner: ${order.owner.name})`,
+    status: "completed",
+    entityId: order.id,
+    relatedEntityId: order.pet.id,
+    metadata: {
+      boardingType: order.boardingType,
+      totalPrice: order.totalPrice,
+      startDate: order.startDate,
+      endDate: order.endDate,
+      releaseDate: now,
+      wasOverdue: order.isOverdue,
+    },
+  });
+
+  return updatedOrder;
 };
 
 /**
@@ -408,3 +462,35 @@ export const calculateNewEndDate = (
 
   return endDate;
 };
+
+// Add the logAdminActivity helper function at the end of the file
+interface LogActivityParams {
+  module: string;
+  action: string;
+  description: string;
+  status: string;
+  entityId: string;
+  relatedEntityId?: string;
+  metadata?: Record<string, any>;
+}
+
+function logAdminActivity(params: LogActivityParams): void {
+  // In a real implementation, this would send a POST request to your API
+  // Example:
+  // fetch('/api/admin/activity-log', {
+  //   method: 'POST',
+  //   headers: { 'Content-Type': 'application/json' },
+  //   body: JSON.stringify({
+  //     ...params,
+  //     timestamp: new Date().toISOString(),
+  //     performedBy: "Current Admin User", // This would come from auth context
+  //   })
+  // });
+
+  // For now, just log to console
+  console.log("Admin Activity Log:", {
+    ...params,
+    timestamp: new Date().toISOString(),
+    performedBy: "Current Admin User", // This would come from auth context
+  });
+}
