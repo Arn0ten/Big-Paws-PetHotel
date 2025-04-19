@@ -445,11 +445,15 @@ export default function RequestDetailPage(): JSX.Element {
             {request.status === "rejected" && request.rejectionReason && (
               <Alert
                 variant="destructive"
-                className="bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800/30"
+                className="bg-red-50 border-red-200 dark:bg-red-400/10 dark:border-red-400/30"
               >
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Request Rejected</AlertTitle>
-                <AlertDescription>{request.rejectionReason}</AlertDescription>
+                <AlertCircle className="h-4 w-4 text-red-600 dark:text-red-300" />
+                <AlertTitle className="text-red-800 dark:text-red-200">
+                  Request Rejected
+                </AlertTitle>
+                <AlertDescription className="text-red-600 dark:text-red-200">
+                  {request.rejectionReason}
+                </AlertDescription>
               </Alert>
             )}
 
@@ -459,19 +463,19 @@ export default function RequestDetailPage(): JSX.Element {
               <Card className="bg-muted/50 dark:bg-muted/20">
                 <CardContent className="p-4 space-y-4">
                   {/* Initial request message */}
-                  {/* <div className="flex gap-3 justify-end">
-                    <div className="max-w-[80%] rounded-lg p-3 bg-primary text-primary-foreground ml-auto">
-                      <p className="text-sm whitespace-pre-wrap">
+                  <div className="flex gap-3 justify-end">
+                    <div className="max-w-[80%] rounded-xl p-5 bg-primary text-primary-foreground ml-auto shadow-lg border border-primary/30 dark:border-primary/40 transition-colors">
+                      <p className="text-lg font-semibold whitespace-pre-wrap text-primary-foreground dark:text-primary-foreground">
                         {request.description}
                       </p>
-                      <p className="text-xs opacity-70 mt-1 text-right">
+                      <p className="text-xs opacity-70 mt-2 text-right text-primary-foreground/80 dark:text-primary-foreground/70">
                         {formatDate(request.createdAt)}
                       </p>
                     </div>
-                  </div> */}
+                  </div>
 
                   {/* Owner request message */}
-                  {request.conversation &&
+                  {/* {request.conversation &&
                     request.conversation.length > 0 &&
                     request.conversation.map((message) => (
                       <div
@@ -499,7 +503,7 @@ export default function RequestDetailPage(): JSX.Element {
                           </p>
                         </div>
                       </div>
-                    ))}
+                    ))} */}
                   {/* Admin response with media for photo/video requests */}
                   {request.status === "completed" && (
                     <>
