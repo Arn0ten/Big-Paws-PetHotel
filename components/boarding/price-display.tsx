@@ -1,24 +1,24 @@
-// import { Badge } from "@/components/ui/badge"
-// import { Clock, Calendar, DollarSign } from "lucide-react"
-// import { cn } from "@/lib/utils"
+// import { Badge } from "@/components/ui/badge";
+// import { Clock, Calendar, DollarSign } from "lucide-react";
+// import { cn } from "@/lib/utils";
 
 // interface PriceBreakdownItem {
-//   petName: string
-//   price: number
-//   details?: string
+//   petName: string;
+//   price: number;
+//   details?: string;
 // }
 
 // interface PriceDisplayProps {
-//   total: number
-//   breakdown?: PriceBreakdownItem[]
-//   currency?: string
-//   className?: string
-//   showDetails?: boolean
-//   boardingType: "Daycare" | "LongStay"
+//   total: number;
+//   breakdown?: PriceBreakdownItem[];
+//   currency?: string;
+//   className?: string;
+//   showDetails?: boolean;
+//   boardingType: "Daycare" | "LongStay";
 //   duration: {
-//     days?: number
-//     hours?: number
-//   }
+//     days?: number;
+//     hours?: number;
+//   };
 // }
 
 // export function PriceDisplay({
@@ -40,14 +40,20 @@
 //           </Badge>
 
 //           {boardingType === "Daycare" && duration.hours && (
-//             <Badge variant="outline" className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+//             <Badge
+//               variant="outline"
+//               className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
+//             >
 //               <Clock className="h-3 w-3 mr-1" />
 //               {duration.hours} {duration.hours === 1 ? "hour" : "hours"}
 //             </Badge>
 //           )}
 
 //           {boardingType === "LongStay" && duration.days && (
-//             <Badge variant="outline" className="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+//             <Badge
+//               variant="outline"
+//               className="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+//             >
 //               <Calendar className="h-3 w-3 mr-1" />
 //               {duration.days} {duration.days === 1 ? "day" : "days"}
 //             </Badge>
@@ -61,7 +67,11 @@
 //             <div key={index} className="flex justify-between text-sm">
 //               <span className="text-muted-foreground">
 //                 {item.petName}
-//                 {item.details && <span className="text-xs ml-1 opacity-70">({item.details})</span>}
+//                 {item.details && (
+//                   <span className="text-xs ml-1 opacity-70">
+//                     ({item.details})
+//                   </span>
+//                 )}
 //               </span>
 //               <span className="font-medium">
 //                 {currency}
@@ -80,5 +90,5 @@
 //         </span>
 //       </div>
 //     </div>
-//   )
+//   );
 // }
