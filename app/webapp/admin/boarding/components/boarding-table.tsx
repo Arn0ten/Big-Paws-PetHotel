@@ -257,16 +257,18 @@ export function BoardingTable({
                     {order ? (
                       <>
                         <TableCell>
-                          <Image
-                            src={
-                              order.pet.imageUrl ||
-                              "/placeholder.svg?height=40&width=40"
-                            }
-                            alt={order.pet.name}
-                            width={40}
-                            height={40}
-                            className="rounded-full object-cover"
-                          />
+                          <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-gray-100">
+                            <Image
+                              src={
+                                order.pet.imageUrl ||
+                                "/placeholder.svg?height=40&width=40"
+                              }
+                              alt={order.pet.name}
+                              width={40}
+                              height={40}
+                              className="object-cover w-10 h-10"
+                            />
+                          </div>
                         </TableCell>
                         <TableCell className="font-medium">
                           <div className="flex flex-col">
