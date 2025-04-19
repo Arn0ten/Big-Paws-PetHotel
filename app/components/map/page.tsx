@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Navigation, ArrowLeft, Crosshair } from "lucide-react";
 
-const MapWithNoSSR = dynamic(() => import("../components/MapComponent"), {
+const MapWithNoSSR = dynamic(() => import("../MapComponent"), {
   ssr: false,
 });
 
