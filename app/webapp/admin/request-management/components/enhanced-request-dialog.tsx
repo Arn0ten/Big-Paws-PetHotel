@@ -1635,7 +1635,7 @@ export default function EnhancedRequestDialog({
                     </div>
                   )}
 
-                  <div className="p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-md">
+                  {/* <div className="p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-md">
                     <p className="text-sm text-blue-700 dark:text-blue-300">
                       Completing this request will notify the pet owner and
                       update the status to "Completed".
@@ -1643,7 +1643,7 @@ export default function EnhancedRequestDialog({
                         request.type === "boarding-extension") &&
                         " It will also update the boarding record with the additional charges."}
                     </p>
-                  </div>
+                  </div> */}
                 </CardContent>
               </Card>
             </div>

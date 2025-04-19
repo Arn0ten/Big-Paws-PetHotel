@@ -1,48 +1,60 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { Wand2, RefreshCw, Loader2 } from "lucide-react"
-import { generateProcessingNote } from "@/lib/note-templates"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Wand2, RefreshCw, Loader2 } from "lucide-react";
+import { generateProcessingNote } from "@/lib/note-templates";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface NoteGeneratorProps {
-  request: any
-  selectedFiles: File[]
-  value: string
-  onChange: (value: string) => void
-  className?: string
+  request: any;
+  selectedFiles: File[];
+  value: string;
+  onChange: (value: string) => void;
+  className?: string;
 }
 
-export function NoteGenerator({ request, selectedFiles, value, onChange, className }: NoteGeneratorProps) {
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [hasGenerated, setHasGenerated] = useState(false)
+export function NoteGenerator({
+  request,
+  selectedFiles,
+  value,
+  onChange,
+  className,
+}: NoteGeneratorProps) {
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [hasGenerated, setHasGenerated] = useState(false);
 
   const handleGenerateNote = () => {
-    setIsGenerating(true)
+    setIsGenerating(true);
 
     // Simulate a brief delay to make the generation feel more natural
     setTimeout(() => {
       try {
         // Generate a note based on the request type and selected files
-        const generatedNote = generateProcessingNote(request, selectedFiles.length)
-        onChange(generatedNote)
-        setHasGenerated(true)
+        const generatedNote = generateProcessingNote(
+          request,
+          selectedFiles.length,
+        );
+        onChange(generatedNote);
+        setHasGenerated(true);
       } catch (error) {
-        console.error("Error generating note:", error)
+        console.error("Error generating note:", error);
       } finally {
-        setIsGenerating(false)
+        setIsGenerating(false);
       }
-    }, 600)
-  }
+    }, 600);
+  };
 
   return (
     <div className={`space-y-2 ${className}`}>
       <div className="flex items-center justify-between">
-        <label htmlFor="processing-notes" className="text-sm font-medium">
-          Processing Notes
-        </label>
+        <div />
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -87,10 +99,6 @@ export function NoteGenerator({ request, selectedFiles, value, onChange, classNa
         rows={5}
         className="resize-none"
       />
-      <p className="text-xs text-muted-foreground">
-        These notes will be visible to the pet owner and will appear in the chat conversation.
-      </p>
     </div>
-  )
+  );
 }
-
