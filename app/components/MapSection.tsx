@@ -41,7 +41,7 @@ export default function MapSection() {
 
   const handleClick = () => {
     setIsLoading(true);
-    router.push("@/app/components/map");
+    router.push("/components/map");
   };
 
   return (
