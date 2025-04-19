@@ -50,7 +50,7 @@ export function CompletedRequestCard({ request }: CompletedRequestCardProps) {
           request.isNewlyCompleted
             ? "ring-2 ring-green-500 dark:ring-green-400"
             : ""
-        } ${getCardBgColor(request.type, false)}`}
+        } ${getCardBgColor(request.type)}`}
         onClick={() => setShowDetailsDialog(true)}
       >
         <CardHeader className="p-4 pb-2">
@@ -109,7 +109,7 @@ export function CompletedRequestCard({ request }: CompletedRequestCardProps) {
 
       {/* Details Dialog */}
       <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
-        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-xl font-semibold">
               <span
@@ -125,221 +125,129 @@ export function CompletedRequestCard({ request }: CompletedRequestCardProps) {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 py-4">
-            {/* Request details */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="py-4 grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Left: Details, description, type-specific info */}
+            <div className="space-y-4 md:pr-6 border-b md:border-b-0 md:border-r border-border">
+              {/* Request details */}
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+                    Pet Owner
+                  </span>
+                  <div className="text-base font-medium mt-1">
+                    {request.petOwnerName}
+                  </div>
+                </div>
+                <div>
+                  <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+                    Pet
+                  </span>
+                  <div className="text-base font-medium mt-1">
+                    {request.petName}
+                  </div>
+                </div>
+              </div>
+
+              {/* Request description */}
               <div>
                 <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-                  Pet Owner
-                </span>
-                <div className="text-base font-medium mt-1">
-                  {request.petOwnerName}
-                </div>
-              </div>
-              <div>
-                <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-                  Pet
-                </span>
-                <div className="text-base font-medium mt-1">
-                  {request.petName}
-                </div>
-              </div>
-            </div>
-
-            {/* Request description */}
-            <div>
-              <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-                Request
-              </span>
-              <div className="mt-1 p-3 bg-muted/30 rounded-md text-base whitespace-pre-wrap">
-                {request.description}
-              </div>
-            </div>
-
-            {/* Request type specific details */}
-            {request.type === "grooming" && (
-              <div className="p-3 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-md space-y-2">
-                <h4 className="font-medium text-green-800 dark:text-green-300 flex items-center">
-                  <Scissors className="h-4 w-4 mr-2" /> Grooming Service Details
-                </h4>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">Service Type:</span>
-                    <div className="font-medium">
-                      {request.groomingService
-                        ?.replace(/-/g, " ")
-                        .replace(/\b\w/g, (l) => l.toUpperCase()) ||
-                        "Standard Grooming"}
-                    </div>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Pet Size:</span>
-                    <div className="font-medium">
-                      {request.petSize || "Medium"}
-                    </div>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Price:</span>
-                    <div className="font-medium text-green-700 dark:text-green-400">
-                      {request.price
-                        ? `₱${request.price.toFixed(2)}`
-                        : "Price not specified"}
-                    </div>
-                  </div>
-                  {/* <div>
-                    <span className="text-muted-foreground">Duration:</span>
-                    <div className="font-medium">
-                      {request.duration || "1-2 hours"}
-                    </div>
-                  </div> */}
-                </div>
-              </div>
-            )}
-
-            {request.type === "boarding-extension" && (
-              <div className="p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-md space-y-2">
-                <h4 className="font-medium text-amber-800 dark:text-amber-300 flex items-center">
-                  <Clock className="h-4 w-4 mr-2" /> Boarding Extension Details
-                </h4>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">
-                      Original End Date:
-                    </span>
-                    <div className="font-medium">
-                      {request.currentEndDate
-                        ? formatDate(request.currentEndDate)
-                        : "Not specified"}
-                    </div>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Extension:</span>
-                    <div className="font-medium text-amber-700 dark:text-amber-400">
-                      {request.extensionDetails
-                        ? `${request.extensionDetails.duration} ${request.extensionDetails.unit}`
-                        : "Not specified"}
-                    </div>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">New End Date:</span>
-                    <div className="font-medium">
-                      {request.newEndDate
-                        ? formatDate(request.newEndDate)
-                        : "Not specified"}
-                    </div>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">
-                      Additional Cost:
-                    </span>
-                    <div className="font-medium text-green-700 dark:text-green-400">
-                      {request.price
-                        ? `₱${request.price.toFixed(2)}`
-                        : "Price not specified"}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* {request.type === "video" && (
-              <div className="p-3 bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800 rounded-md space-y-2">
-                <h4 className="font-medium text-purple-800 dark:text-purple-300 flex items-center">
-                  <Video className="h-4 w-4 mr-2" /> Video Request Details
-                </h4>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">Video Duration:</span>
-                    <div className="font-medium">{request.videoDuration || "Up to 60 seconds"}</div>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Background Music:</span>
-                    <div className="font-medium">
-                      {request.selectedAudioName || (request.audioMerged ? "Added" : "None")}
-                    </div>
-                  </div>
-                  {request.videoSpecialRequests && (
-                    <div className="col-span-2">
-                      <span className="text-muted-foreground">Special Requests:</span>
-                      <div className="font-medium">{request.videoSpecialRequests}</div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )} */}
-
-            {/* {request.type === "photo" && (
-              <div className="p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-md space-y-2">
-                <h4 className="font-medium text-blue-800 dark:text-blue-300 flex items-center">
-                  <Camera className="h-4 w-4 mr-2" /> Photo Request Details
-                </h4>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">Number of Photos:</span>
-                    <div className="font-medium">{request.mediaFiles?.count || "Multiple"}</div>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Photo Type:</span>
-                    <div className="font-medium">{request.photoType || "Standard"}</div>
-                  </div>
-                  {request.photoSpecialRequests && (
-                    <div className="col-span-2">
-                      <span className="text-muted-foreground">Special Requests:</span>
-                      <div className="font-medium">{request.photoSpecialRequests}</div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )} */}
-
-            {/* Processing notes if available */}
-            {/* {request.processingNotes && (
-              <div>
-                <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-                  Processing Notes
+                  Request
                 </span>
                 <div className="mt-1 p-3 bg-muted/30 rounded-md text-base whitespace-pre-wrap">
-                  {request.processingNotes}
+                  {request.description}
                 </div>
               </div>
-            )} */}
 
-            {/* Media files if available */}
-            {/* {request.mediaFiles &&
-              request.mediaFiles.urls &&
-              request.mediaFiles.urls.length > 0 &&
-              request.type !== "grooming" && (
-                <div className="mt-3 grid grid-cols-2 gap-2">
-                  {request.mediaFiles.urls.slice(0, 2).map((url, index) => (
-                    <div
-                      key={index}
-                      className="relative rounded-md overflow-hidden aspect-video"
-                    >
-                      {request.type === "video" ? (
-                        <video
-                          src={url}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <img
-                          src={url || "/placeholder.svg"}
-                          alt={`Media ${index + 1}`}
-                          className="w-full h-full object-cover"
-                        />
-                      )}
+              {/* Request type specific details */}
+              {request.type === "grooming" && (
+                <div className="p-3 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-md space-y-2">
+                  <h4 className="font-medium text-green-800 dark:text-green-300 flex items-center">
+                    <Scissors className="h-4 w-4 mr-2" /> Grooming Service
+                    Details
+                  </h4>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div>
+                      <span className="text-muted-foreground">
+                        Service Type:
+                      </span>
+                      <div className="font-medium">
+                        {request.groomingService
+                          ?.replace(/-/g, " ")
+                          .replace(/\b\w/g, (l: string) => l.toUpperCase()) ||
+                          "Standard Grooming"}
+                      </div>
                     </div>
-                  ))}
-                  {request.mediaFiles.urls.length > 2 && (
-                    <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-full">
-                      +{request.mediaFiles.urls.length - 2} more
+                    <div>
+                      <span className="text-muted-foreground">Pet Size:</span>
+                      <div className="font-medium">
+                        {request.petSize || "Medium"}
+                      </div>
                     </div>
-                  )}
+                    <div>
+                      <span className="text-muted-foreground">Price:</span>
+                      <div className="font-medium text-green-700 dark:text-green-400">
+                        {request.price
+                          ? `₱${request.price.toFixed(2)}`
+                          : "Price not specified"}
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              )} */}
+              )}
 
-            {/* Chat-like interface for the request timeline */}
-            <div className="mt-6">
-              <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+              {request.type === "boarding-extension" && (
+                <div className="p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-md space-y-2">
+                  <h4 className="font-medium text-amber-800 dark:text-amber-300 flex items-center">
+                    <Clock className="h-4 w-4 mr-2" /> Boarding Extension
+                    Details
+                  </h4>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div>
+                      <span className="text-muted-foreground">
+                        Original End Date:
+                      </span>
+                      <div className="font-medium">
+                        {request.currentEndDate
+                          ? formatDate(request.currentEndDate)
+                          : "Not specified"}
+                      </div>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Extension:</span>
+                      <div className="font-medium text-amber-700 dark:text-amber-400">
+                        {request.extensionDetails
+                          ? `${request.extensionDetails.duration} ${request.extensionDetails.unit}`
+                          : "Not specified"}
+                      </div>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">
+                        New End Date:
+                      </span>
+                      <div className="font-medium">
+                        {request.newEndDate
+                          ? formatDate(request.newEndDate)
+                          : "Not specified"}
+                      </div>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">
+                        Additional Cost:
+                      </span>
+                      <div className="font-medium text-green-700 dark:text-green-400">
+                        {request.price
+                          ? `₱${request.price.toFixed(2)}`
+                          : "Price not specified"}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Right: Request Timeline */}
+            <div className="space-y-4 md:pl-6">
+              <span className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">
                 Request Timeline
               </span>
               <div className="mt-2 space-y-3">

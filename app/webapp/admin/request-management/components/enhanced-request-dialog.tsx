@@ -635,10 +635,10 @@ export default function EnhancedRequestDialog({
   // Handle audio selection for video
   const handleAudioSelect = (
     audioUrl: string | null,
-    audioName: string | null,
+    audioName?: string | null,
   ) => {
     setSelectedAudioUrl(audioUrl);
-    setSelectedAudioName(audioName);
+    setSelectedAudioName(audioName ?? null);
 
     // Reset merged state when new audio is selected
     if (audioUrl !== selectedAudioUrl) {
@@ -948,7 +948,7 @@ export default function EnhancedRequestDialog({
                 Process {request.petName}'s{" "}
                 {request.type
                   .replace(/-/g, " ")
-                  .replace(/\b\w/g, (l) => l.toUpperCase())}{" "}
+                  .replace(/\b\w/g, (l: string) => l.toUpperCase())}{" "}
                 Request
               </DialogTitle>
               <p className="text-sm text-muted-foreground mt-1">
@@ -1064,7 +1064,7 @@ export default function EnhancedRequestDialog({
                         <div className="mt-1 text-base font-medium text-green-700 dark:text-green-400">
                           {request.groomingService
                             .replace(/-/g, " ")
-                            .replace(/\b\w/g, (l) => l.toUpperCase())}
+                            .replace(/\b\w/g, (l: string) => l.toUpperCase())}
                         </div>
                       </div>
                     )}
@@ -1163,12 +1163,14 @@ export default function EnhancedRequestDialog({
                         Requested Service:
                       </Label>
                       <Badge className="bg-green-100 text-green-700 hover:bg-green-100 dark:bg-green-900 dark:text-green-300 text-sm font-medium">
-                        {request.groomingService
+                        {(
+                          request.groomingService
                           ?.replace(/-/g, " ")
-                          .replace(/\b\w/g, (l) => l.toUpperCase()) ||
+                          .replace(/\b\w/g, (l: string) => l.toUpperCase()) ||
                           selectedGroomingService
-                            .replace(/-/g, " ")
-                            .replace(/\b\w/g, (l) => l.toUpperCase())}
+                          .replace(/-/g, " ")
+                          .replace(/\b\w/g, (l: string) => l.toUpperCase())
+                        ) as string}
                       </Badge>
                     </div>
 
@@ -1249,52 +1251,11 @@ export default function EnhancedRequestDialog({
                     ) : (
                       <>
                         <div className="space-y-1">
-                          <Label
-                            htmlFor="extension-date"
-                            className="text-sm font-medium"
-                          >
+                          <Label className="text-sm font-medium">
                             New End Date:
                           </Label>
-                          <div className="flex flex-col space-y-2">
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <Button
-                                  variant={"outline"}
-                                  className={cn(
-                                    "w-full justify-start text-left font-normal",
-                                    !date && "text-muted-foreground",
-                                  )}
-                                >
-                                  <CalendarIcon className="mr-2 h-4 w-4" />
-                                  {date ? (
-                                    format(date, "PPP")
-                                  ) : (
-                                    <span>Select date</span>
-                                  )}
-                                </Button>
-                              </PopoverTrigger>
-                              <PopoverContent className="w-auto p-0">
-                                <Calendar
-                                  mode="single"
-                                  selected={date}
-                                  onSelect={(newDate) => {
-                                    setDate(newDate);
-                                    setExtensionDate(newDate);
-                                  }}
-                                  initialFocus
-                                  disabled={(date) => {
-                                    // Disable dates before current end date
-                                    if (request.currentEndDate) {
-                                      const currentEndDate = parseISO(
-                                        request.currentEndDate,
-                                      );
-                                      return isBefore(date, currentEndDate);
-                                    }
-                                    return false;
-                                  }}
-                                />
-                              </PopoverContent>
-                            </Popover>
+                          <div className="text-base font-medium break-words">
+                            {formattedNewEndDate}
                           </div>
                         </div>
                       </>

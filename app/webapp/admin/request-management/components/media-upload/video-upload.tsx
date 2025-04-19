@@ -1056,15 +1056,19 @@ export function VideoUpload({
                       <span>Original Audio</span>
                       <span>{Math.round(originalVolume * 100)}%</span>
                     </Label>
-                    <Input
+                    <input
                       id="original-volume"
                       type="range"
                       min="0"
                       max="1"
-                      step="0.1"
+                      step="0.01"
                       value={originalVolume}
                       onChange={handleOriginalVolumeChange}
-                      className="h-2"
+                      className="h-2 w-full appearance-none bg-transparent"
+                      style={{
+                        background: `linear-gradient(to right, #2563eb ${originalVolume * 100}%, #e5e7eb ${originalVolume * 100}%)`,
+                        borderRadius: 4,
+                      }}
                     />
                   </div>
                   <div className="space-y-2">
@@ -1075,17 +1079,21 @@ export function VideoUpload({
                       <span>Background Music</span>
                       <span>{Math.round(backgroundVolume * 100)}%</span>
                     </Label>
-                    <Input
+                    <input
                       id="background-volume"
                       type="range"
                       min="0"
                       max="1"
-                      step="0.1"
+                      step="0.01"
                       value={backgroundVolume}
                       onChange={(e) =>
                         setBackgroundVolume(Number.parseFloat(e.target.value))
                       }
-                      className="h-2"
+                      className="h-2 w-full appearance-none bg-transparent"
+                      style={{
+                        background: `linear-gradient(to right, #22c55e ${backgroundVolume * 100}%, #e5e7eb ${backgroundVolume * 100}%)`,
+                        borderRadius: 4,
+                      }}
                     />
                   </div>
                 </div>
