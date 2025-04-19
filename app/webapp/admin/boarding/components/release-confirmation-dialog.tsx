@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   AlertDialog,
@@ -9,16 +9,16 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import type { BoardingOrder } from "../types"
-import { formatCurrency } from "../utils/helpers"
-import { LogOut } from "lucide-react"
+} from "@/components/ui/alert-dialog";
+import type { BoardingOrder } from "../types";
+import { formatCurrency } from "../utils/helpers";
+import { LogOut } from "lucide-react";
 
 interface ReleaseConfirmationDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  boardingOrder: BoardingOrder
-  onConfirmRelease: (orderId: string) => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  boardingOrder: BoardingOrder;
+  onConfirmRelease: (orderId: string) => void;
 }
 
 export function ReleaseConfirmationDialog({
@@ -28,9 +28,9 @@ export function ReleaseConfirmationDialog({
   onConfirmRelease,
 }: ReleaseConfirmationDialogProps) {
   const handleConfirm = () => {
-    onConfirmRelease(boardingOrder.id)
-    onOpenChange(false)
-  }
+    onConfirmRelease(boardingOrder.id);
+    onOpenChange(false);
+  };
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -41,15 +41,21 @@ export function ReleaseConfirmationDialog({
             Confirm Pet Release
           </AlertDialogTitle>
           <AlertDialogDescription>
-            You are about to release <span className="font-medium">{boardingOrder.pet.name}</span> to its owner. This
-            action will:
+            You are about to release{" "}
+            <span className="font-medium">{boardingOrder.pet.name}</span> to its
+            owner. This action will:
             <ul className="list-disc pl-5 mt-2 space-y-1 text-sm text-muted-foreground">
               <li>Mark the pet as released</li>
-              <li>Generate a receipt for {formatCurrency(boardingOrder.totalPrice)}</li>
+              <li>
+                Generate a receipt for{" "}
+                {formatCurrency(boardingOrder.totalPrice)}
+              </li>
               <li>Send a notification to the owner</li>
               <li>Remove the pet from active boarding list</li>
             </ul>
-            <div className="mt-4 text-sm font-medium">Are you sure you want to proceed?</div>
+            <div className="mt-4 text-sm font-medium">
+              Are you sure you want to proceed?
+            </div>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -60,5 +66,5 @@ export function ReleaseConfirmationDialog({
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  )
+  );
 }

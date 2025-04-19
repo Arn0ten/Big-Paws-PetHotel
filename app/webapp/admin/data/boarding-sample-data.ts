@@ -4,7 +4,11 @@
  * This file contains centralized sample data for the Boarding Management module.
  */
 
-import type { BaseBoardingOrder, PaymentStatus } from "./shared-sample-data";
+import {
+  type BaseBoardingOrder,
+  type PaymentStatus,
+  getPetImageByType,
+} from "./shared-sample-data";
 
 // Extend the base boarding order interface with additional properties
 export interface BoardingOrder extends BaseBoardingOrder {
@@ -41,6 +45,7 @@ export interface BoardingOrder extends BaseBoardingOrder {
   releaseTimestamp?: string;
   receiptGenerated?: boolean;
   notificationSent?: boolean;
+  originalEndDate?: string;
 }
 
 // Helper function to generate random time between 1 and 22 hours
@@ -59,7 +64,7 @@ export const sampleBoardingOrders: BoardingOrder[] = [
       breed: "Golden Retriever",
       size: "Large",
       age: 3,
-      imageUrl: "/placeholder.svg?height=40&width=40",
+      imageUrl: getPetImageByType("Dog"),
     },
     owner: {
       id: "O-1001",
@@ -85,7 +90,7 @@ export const sampleBoardingOrders: BoardingOrder[] = [
     ],
     createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days ago
     updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
-    isOverdue: false,
+    isOverdue: false, 
     lastModifiedBy: "Admin",
     lastModificationReason: "Grooming service added",
     paymentHistory: [
@@ -115,7 +120,7 @@ export const sampleBoardingOrders: BoardingOrder[] = [
       breed: "Shih Tzu",
       size: "Small",
       age: 4,
-      imageUrl: "/placeholder.svg?height=40&width=40",
+      imageUrl: getPetImageByType("Dog"),
     },
     owner: {
       id: "O-1009",
@@ -177,7 +182,7 @@ export const sampleBoardingOrders: BoardingOrder[] = [
       breed: "Pomeranian",
       size: "Small",
       age: 2,
-      imageUrl: "/placeholder.svg?height=40&width=40",
+      imageUrl: getPetImageByType("Dog"),
     },
     owner: {
       id: "O-1010",
@@ -236,7 +241,7 @@ export const sampleBoardingOrders: BoardingOrder[] = [
       breed: "Siamese",
       size: "Small",
       age: 2,
-      imageUrl: "/placeholder.svg?height=40&width=40",
+      imageUrl: getPetImageByType("Cat"),
     },
     owner: {
       id: "O-1002",
@@ -266,7 +271,7 @@ export const sampleBoardingOrders: BoardingOrder[] = [
       breed: "Beagle",
       size: "Medium",
       age: 4,
-      imageUrl: "/placeholder.svg?height=40&width=40",
+      imageUrl: getPetImageByType("Dog"),
     },
     owner: {
       id: "O-1003",
@@ -301,7 +306,7 @@ export const sampleBoardingOrders: BoardingOrder[] = [
       breed: "Maine Coon",
       size: "Medium",
       age: 3,
-      imageUrl: "/placeholder.svg?height=40&width=40",
+      imageUrl: getPetImageByType("Cat"),
     },
     owner: {
       id: "O-1004",
@@ -356,7 +361,7 @@ export const sampleBoardingOrders: BoardingOrder[] = [
       breed: "German Shepherd",
       size: "Large",
       age: 5,
-      imageUrl: "/placeholder.svg?height=40&width=40",
+      imageUrl: getPetImageByType("Dog"),
     },
     owner: {
       id: "O-1005",
@@ -386,7 +391,7 @@ export const sampleBoardingOrders: BoardingOrder[] = [
       breed: "Poodle",
       size: "Small",
       age: 2,
-      imageUrl: "/placeholder.svg?height=40&width=40",
+      imageUrl: getPetImageByType("Dog"),
     },
     owner: {
       id: "O-1006",
@@ -418,7 +423,7 @@ export const sampleBoardingOrders: BoardingOrder[] = [
       breed: "Persian",
       size: "Small",
       age: 4,
-      imageUrl: "/placeholder.svg?height=40&width=40",
+      imageUrl: getPetImageByType("Cat"),
     },
     owner: {
       id: "O-1007",
@@ -450,7 +455,7 @@ export const sampleBoardingOrders: BoardingOrder[] = [
       breed: "Labrador Retriever",
       size: "Large",
       age: 3,
-      imageUrl: "/placeholder.svg?height=40&width=40",
+      imageUrl: getPetImageByType("Dog"),
     },
     owner: {
       id: "O-1008",
