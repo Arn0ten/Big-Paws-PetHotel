@@ -37,7 +37,7 @@ export function HistoryDetailsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl">Activity Details</DialogTitle>
           <DialogDescription>
@@ -110,9 +110,9 @@ export function HistoryDetailsDialog({
           <div className="space-y-4">
             {/* Pet Information Section */}
             {entry.petName && (
-              <div className="border border-border rounded-md p-3">
-                <h4 className="text-sm font-semibold mb-2">Pet Information</h4>
-                <div className="grid grid-cols-2 gap-4">
+              <div className="border border-border rounded-md p-4 w-full">
+                <h4 className="text-sm font-semibold mb-3">Pet Information</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
                       Pet Name
@@ -160,11 +160,11 @@ export function HistoryDetailsDialog({
 
             {/* Owner Information Section */}
             {entry.ownerName && (
-              <div className="border border-border rounded-md p-3">
-                <h4 className="text-sm font-semibold mb-2">
+              <div className="border border-border rounded-md p-4 w-full">
+                <h4 className="text-sm font-semibold mb-3">
                   Owner Information
                 </h4>
-                <div className="grid grid-cols-1 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
                       Owner Name
@@ -197,7 +197,7 @@ export function HistoryDetailsDialog({
                   )}
 
                   {entry.ownerAddress && (
-                    <div>
+                    <div className="sm:col-span-2">
                       <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
                         Address
                       </span>
@@ -212,11 +212,11 @@ export function HistoryDetailsDialog({
 
             {/* Boarding Information Section */}
             {entry.module === "boarding" && (
-              <div className="border-4 border-border rounded-lg p-4 w-full">
+              <div className="border border-border rounded-md p-4 w-full">
                 <h4 className="text-sm font-semibold mb-3">
                   Boarding Information
                 </h4>
-                <div className="grid grid-cols-1 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {entry.boardingType && (
                     <div>
                       <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
@@ -264,38 +264,90 @@ export function HistoryDetailsDialog({
               </div>
             )}
 
-            {/* {entry.mediaUrls && entry.mediaUrls.length > 0 && (
-              <div>
-                <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-                  Media
-                </span>
-                <div className="mt-1 bg-muted rounded-md overflow-hidden space-y-2">
-                  {entry.mediaUrls.map((url, index) => (
-                    <div key={index}>
-                      {entry.mediaTypes?.[index] === "image" && (
-                        <img
-                          src={url || "/placeholder.svg"}
-                          alt={`Media ${index + 1}`}
-                          className="w-full h-auto object-contain"
-                        />
-                      )}
-                      {entry.mediaTypes?.[index] === "video" && (
-                        <video src={url} controls className="w-full h-auto" />
-                      )}
+            {/* Grooming Request Information Section */}
+            {entry.module === "request-management" &&
+              entry.requestType === "grooming" &&
+              entry.groomingType && (
+                <div className="border border-border rounded-md p-4 w-full">
+                  <h4 className="text-sm font-semibold mb-3">
+                    Request Details
+                  </h4>
+                  <div className="grid grid-cols-1 gap-4">
+                    <div>
+                      <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+                        Grooming Type
+                      </span>
+                      <div className="text-base font-medium mt-1">
+                        {entry.groomingType}
+                      </div>
                     </div>
-                  ))}
+                  </div>
                 </div>
-              </div>
-            )} */}
+              )}
+
+            {/* Boarding Extension Request Information Section */}
+            {entry.module === "request-management" &&
+              entry.requestType === "boarding-extension" && (
+                <div className="border border-border rounded-md p-4 w-full">
+                  <h4 className="text-sm font-semibold mb-3">
+                    Request Details
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {entry.boardingType && (
+                      <div>
+                        <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+                          Boarding Type
+                        </span>
+                        <div className="text-base font-medium mt-1">
+                          {entry.boardingType}
+                        </div>
+                      </div>
+                    )}
+
+                    {entry.boardingDuration && (
+                      <div>
+                        <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+                          Duration
+                        </span>
+                        <div className="text-base font-medium mt-1">
+                          {entry.boardingDuration}
+                        </div>
+                      </div>
+                    )}
+
+                    {entry.boardingType === "Long stay" && (
+                      <>
+                        {entry.currentEndDate && (
+                          <div>
+                            <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+                              Current End Date
+                            </span>
+                            <div className="text-base font-medium mt-1">
+                              {formatDate(entry.currentEndDate)}
+                            </div>
+                          </div>
+                        )}
+                        {entry.newEndDate && (
+                          <div>
+                            <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+                              New End Date
+                            </span>
+                            <div className="text-base font-medium mt-1">
+                              {formatDate(entry.newEndDate)}
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
           </div>
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Close
-          </Button>
+        <DialogFooter className="flex justify-between">
           <Button variant="destructive" onClick={onDelete}>
-            <Trash2 className="h-4 w-4 mr-2" />
+            <Trash2 className="mr-2 h-4 w-4" />
             Delete
           </Button>
         </DialogFooter>

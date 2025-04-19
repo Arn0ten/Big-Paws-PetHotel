@@ -11,30 +11,36 @@
 export interface HistoryEntry {
   id: string;
   timestamp: string;
-  module: "pet-owner" | "pet" | "boarding" | "request-management"; // Removed "request" and "registration" from visible modules
+  module: "pet-owner" | "pet" | "boarding" | "request-management";
   action: string;
   description: string;
   performedBy: string;
-  status: "completed" | "succeeding"; // Only completed or succeeding statuses
+  status: "completed" | "succeeding";
   petId?: string;
   petName?: string;
-  petType?: string; // Added pet type
-  petBreed?: string; // Added pet breed
-  petSize?: string; // Added pet size
+  petType?: string;
+  petBreed?: string;
+  petSize?: string;
   ownerId?: string;
   ownerName?: string;
-  ownerEmail?: string; // Added owner email
-  ownerPhone?: string; // Added owner phone
-  ownerAddress?: string; // Added owner address
+  ownerEmail?: string;
+  ownerPhone?: string;
+  ownerAddress?: string;
   amount?: number;
   requestId?: string;
   requestType?: string;
-  boardingType?: string; // Added boarding type
-  boardingDuration?: string; // Added boarding duration
-  boardingStartDate?: string; // Added boarding start date
-  boardingEndDate?: string; // Added boarding end date
-  mediaUrls?: string[]; // Updated to support multiple media URLs
-  mediaTypes?: ("image" | "video")[]; // Updated to track media types for each URL
+  boardingType?: string;
+  boardingDuration?: string;
+  boardingStartDate?: string;
+  boardingEndDate?: string;
+  mediaUrls?: string[];
+  mediaTypes?: ("image" | "video")[];
+  groomingType?: string;
+  // Boarding extension specific fields
+  currentEndDate?: string;
+  newEndDate?: string;
+  currentEndTime?: string;
+  newEndTime?: string;
 }
 
 export interface MediaEntry {
@@ -503,6 +509,7 @@ export const generateSampleHistoryData = (): HistoryEntry[] => {
     ownerId: "owner-004",
     ownerName: "Carlos Tan",
     requestId: "req-006",
+    groomingType: "Basic Wash",
     requestType: "grooming",
     amount: 800.0,
   });
@@ -525,10 +532,12 @@ export const generateSampleHistoryData = (): HistoryEntry[] => {
     ownerName: "Elena Cruz",
     requestId: "req-007",
     requestType: "boarding-extension",
-    boardingType: "LongStay",
+    boardingType: "Long stay",
     boardingDuration: "Extended by 3 days",
     boardingStartDate: "2023-12-01T09:00:00Z",
     boardingEndDate: "2023-12-08T09:00:00Z",
+    currentEndDate: "2023-12-05T09:00:00Z",
+    newEndDate: "2023-12-08T09:00:00Z",
     amount: 900.0,
   });
 
