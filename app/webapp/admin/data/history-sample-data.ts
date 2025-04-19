@@ -9,36 +9,46 @@
 
 // Types for history module
 export interface HistoryEntry {
-  id: string
-  timestamp: string
-  module: "pet-owner" | "pet" | "boarding" | "request" | "request-management" | "registration"
-  action: string
-  description: string
-  performedBy: string
-  status: "completed" | "succeeding" // Only completed or succeeding statuses
-  petId?: string
-  petName?: string
-  ownerId?: string
-  ownerName?: string
-  amount?: number
-  requestId?: string
-  requestType?: string
-  mediaUrls?: string[] // Updated to support multiple media URLs
-  mediaTypes?: ("image" | "video")[] // Updated to track media types for each URL
+  id: string;
+  timestamp: string;
+  module: "pet-owner" | "pet" | "boarding" | "request-management"; // Removed "request" and "registration" from visible modules
+  action: string;
+  description: string;
+  performedBy: string;
+  status: "completed" | "succeeding"; // Only completed or succeeding statuses
+  petId?: string;
+  petName?: string;
+  petType?: string; // Added pet type
+  petBreed?: string; // Added pet breed
+  petSize?: string; // Added pet size
+  ownerId?: string;
+  ownerName?: string;
+  ownerEmail?: string; // Added owner email
+  ownerPhone?: string; // Added owner phone
+  ownerAddress?: string; // Added owner address
+  amount?: number;
+  requestId?: string;
+  requestType?: string;
+  boardingType?: string; // Added boarding type
+  boardingDuration?: string; // Added boarding duration
+  boardingStartDate?: string; // Added boarding start date
+  boardingEndDate?: string; // Added boarding end date
+  mediaUrls?: string[]; // Updated to support multiple media URLs
+  mediaTypes?: ("image" | "video")[]; // Updated to track media types for each URL
 }
 
 export interface MediaEntry {
-  id: string
-  timestamp: string
-  petName: string
-  ownerName: string
-  requestId: string
-  requestType: "photo" | "video"
-  description: string
-  mediaUrls: string[] // Array of media URLs
-  mediaTypes: ("image" | "video")[] // Array of media types corresponding to each URL
-  completedBy: string
-  completedAt: string
+  id: string;
+  timestamp: string;
+  petName: string;
+  ownerName: string;
+  requestId: string;
+  requestType: "photo" | "video"; // Added this if needed "grooming" | "boarding-extension"
+  description: string;
+  mediaUrls: string[]; // Array of media URLs
+  mediaTypes: ("image" | "video")[]; // Array of media types corresponding to each URL
+  completedBy: string;
+  completedAt: string;
 }
 
 /**
@@ -80,7 +90,7 @@ export interface MediaEntry {
 // Generate sample history data with only successful events
 // BACKEND INTEGRATION: Replace this with actual API calls to fetch history data
 export const generateSampleHistoryData = (): HistoryEntry[] => {
-  const historyEntries: HistoryEntry[] = []
+  const historyEntries: HistoryEntry[] = [];
 
   // Pet Owner Management: Adding a new pet owner
   historyEntries.push({
@@ -93,7 +103,10 @@ export const generateSampleHistoryData = (): HistoryEntry[] => {
     status: "completed",
     ownerId: "owner-001",
     ownerName: "Maria Santos",
-  })
+    ownerEmail: "maria.santos@example.com",
+    ownerPhone: "(555) 123-4567",
+    ownerAddress: "123 Main St, Quezon City, Metro Manila",
+  });
 
   // Pet Owner Management: Updating pet owner information
   historyEntries.push({
@@ -106,7 +119,10 @@ export const generateSampleHistoryData = (): HistoryEntry[] => {
     status: "completed",
     ownerId: "owner-002",
     ownerName: "John Reyes",
-  })
+    ownerEmail: "john.reyes@example.com",
+    ownerPhone: "(555) 234-5678",
+    ownerAddress: "456 Park Ave, Makati City, Metro Manila",
+  });
 
   // Pet Management: Adding a new pet
   historyEntries.push({
@@ -119,9 +135,12 @@ export const generateSampleHistoryData = (): HistoryEntry[] => {
     status: "completed",
     petId: "pet-001",
     petName: "Buddy",
+    petType: "Dog",
+    petBreed: "Golden Retriever",
+    petSize: "Large",
     ownerId: "owner-001",
     ownerName: "Maria Santos",
-  })
+  });
 
   // Pet Management: Updating pet information
   historyEntries.push({
@@ -134,9 +153,12 @@ export const generateSampleHistoryData = (): HistoryEntry[] => {
     status: "completed",
     petId: "pet-002",
     petName: "Max",
+    petType: "Dog",
+    petBreed: "Beagle",
+    petSize: "Medium",
     ownerId: "owner-002",
     ownerName: "John Reyes",
-  })
+  });
 
   // Boarding Management: Boarding a pet
   historyEntries.push({
@@ -149,10 +171,17 @@ export const generateSampleHistoryData = (): HistoryEntry[] => {
     status: "completed",
     petId: "pet-001",
     petName: "Buddy",
+    petType: "Dog",
+    petBreed: "Golden Retriever",
+    petSize: "Large",
     ownerId: "owner-001",
     ownerName: "Maria Santos",
     amount: 1200.0,
-  })
+    boardingType: "LongStay",
+    boardingDuration: "5 days",
+    boardingStartDate: "2023-11-05T08:30:00Z",
+    boardingEndDate: "2023-11-10T08:30:00Z",
+  });
 
   // Boarding Management: Releasing a pet
   historyEntries.push({
@@ -165,27 +194,17 @@ export const generateSampleHistoryData = (): HistoryEntry[] => {
     status: "completed",
     petId: "pet-001",
     petName: "Buddy",
+    petType: "Dog",
+    petBreed: "Golden Retriever",
+    petSize: "Large",
     ownerId: "owner-001",
     ownerName: "Maria Santos",
     amount: 1200.0,
-  })
-
-  // Requests: Approving a request
-  historyEntries.push({
-    id: "hist-007",
-    timestamp: "2023-11-12T09:15:00Z",
-    module: "request",
-    action: "approve",
-    description: "Photo request approved",
-    performedBy: "Admin",
-    status: "completed",
-    petId: "pet-001",
-    petName: "Buddy",
-    ownerId: "owner-001",
-    ownerName: "Maria Santos",
-    requestId: "req-001",
-    requestType: "photo",
-  })
+    boardingType: "LongStay",
+    boardingDuration: "5 days",
+    boardingStartDate: "2023-11-05T08:30:00Z",
+    boardingEndDate: "2023-11-10T08:30:00Z",
+  });
 
   // Request Management: Successful request processing (photo)
   historyEntries.push({
@@ -198,34 +217,15 @@ export const generateSampleHistoryData = (): HistoryEntry[] => {
     status: "completed",
     petId: "pet-001",
     petName: "Buddy",
+    petType: "Dog",
+    petBreed: "Golden Retriever",
     ownerId: "owner-001",
     ownerName: "Maria Santos",
     requestId: "req-001",
     requestType: "photo",
-    mediaUrls: [
-      "/images/pet-photos/sample-1.png",
-      "/images/pet-photos/sample-2.png",
-      "/images/pet-photos/sample-3.png",
-    ],
+    mediaUrls: ["/pet-hotel-1.jpg", "/pet-hotel-2.jpg", "/pet-hotel-3.jpg"],
     mediaTypes: ["image", "image", "image"],
-  })
-
-  // Requests: Approving a video request
-  historyEntries.push({
-    id: "hist-009",
-    timestamp: "2023-11-14T13:45:00Z",
-    module: "request",
-    action: "approve",
-    description: "Video request approved",
-    performedBy: "Admin",
-    status: "completed",
-    petId: "pet-002",
-    petName: "Max",
-    ownerId: "owner-002",
-    ownerName: "John Reyes",
-    requestId: "req-002",
-    requestType: "video",
-  })
+  });
 
   // Request Management: Successful request processing (video)
   historyEntries.push({
@@ -238,26 +238,15 @@ export const generateSampleHistoryData = (): HistoryEntry[] => {
     status: "completed",
     petId: "pet-002",
     petName: "Max",
+    petType: "Dog",
+    petBreed: "Beagle",
     ownerId: "owner-002",
     ownerName: "John Reyes",
     requestId: "req-002",
     requestType: "video",
-    mediaUrls: ["/videos/pet-videos/sample-video-1.mp4"],
+    mediaUrls: ["/video-montage.mp4"],
     mediaTypes: ["video"],
-  })
-
-  // Pet Owner Registration: Successful registration
-  historyEntries.push({
-    id: "hist-011",
-    timestamp: "2023-11-16T09:00:00Z",
-    module: "registration",
-    action: "register",
-    description: "New pet owner registered through admin interface",
-    performedBy: "Admin",
-    status: "completed",
-    ownerId: "owner-003",
-    ownerName: "Ana Lim",
-  })
+  });
 
   // Pet Management: Adding another pet
   historyEntries.push({
@@ -270,9 +259,12 @@ export const generateSampleHistoryData = (): HistoryEntry[] => {
     status: "completed",
     petId: "pet-003",
     petName: "Luna",
+    petType: "Cat",
+    petBreed: "Siamese",
+    petSize: "Small",
     ownerId: "owner-003",
     ownerName: "Ana Lim",
-  })
+  });
 
   // Boarding Management: Boarding another pet
   historyEntries.push({
@@ -285,10 +277,17 @@ export const generateSampleHistoryData = (): HistoryEntry[] => {
     status: "completed",
     petId: "pet-003",
     petName: "Luna",
+    petType: "Cat",
+    petBreed: "Siamese",
+    petSize: "Small",
     ownerId: "owner-003",
     ownerName: "Ana Lim",
     amount: 900.0,
-  })
+    boardingType: "LongStay",
+    boardingDuration: "3 days",
+    boardingStartDate: "2023-11-18T08:45:00Z",
+    boardingEndDate: "2023-11-21T08:45:00Z",
+  });
 
   // Pet Owner Management: Adding another pet owner
   historyEntries.push({
@@ -301,7 +300,10 @@ export const generateSampleHistoryData = (): HistoryEntry[] => {
     status: "completed",
     ownerId: "owner-004",
     ownerName: "Carlos Tan",
-  })
+    ownerEmail: "carlos.tan@example.com",
+    ownerPhone: "(555) 345-6789",
+    ownerAddress: "789 Ocean Blvd, Pasay City, Metro Manila",
+  });
 
   // Pet Management: Adding a pet for the new owner
   historyEntries.push({
@@ -314,9 +316,12 @@ export const generateSampleHistoryData = (): HistoryEntry[] => {
     status: "completed",
     petId: "pet-004",
     petName: "Coco",
+    petType: "Dog",
+    petBreed: "Shih Tzu",
+    petSize: "Small",
     ownerId: "owner-004",
     ownerName: "Carlos Tan",
-  })
+  });
 
   // Boarding Management: Forced release of a pet
   historyEntries.push({
@@ -329,10 +334,17 @@ export const generateSampleHistoryData = (): HistoryEntry[] => {
     status: "completed",
     petId: "pet-003",
     petName: "Luna",
+    petType: "Cat",
+    petBreed: "Siamese",
+    petSize: "Small",
     ownerId: "owner-003",
     ownerName: "Ana Lim",
     amount: 900.0,
-  })
+    boardingType: "LongStay",
+    boardingDuration: "3 days",
+    boardingStartDate: "2023-11-18T08:45:00Z",
+    boardingEndDate: "2023-11-21T08:45:00Z",
+  });
 
   // Pet Management: Updating pet information
   historyEntries.push({
@@ -345,28 +357,14 @@ export const generateSampleHistoryData = (): HistoryEntry[] => {
     status: "completed",
     petId: "pet-004",
     petName: "Coco",
+    petType: "Dog",
+    petBreed: "Shih Tzu",
+    petSize: "Small",
     ownerId: "owner-004",
     ownerName: "Carlos Tan",
-  })
+  });
 
-  // Requests: Approving another photo request
-  historyEntries.push({
-    id: "hist-018",
-    timestamp: "2023-11-23T10:30:00Z",
-    module: "request",
-    action: "approve",
-    description: "Photo request approved",
-    performedBy: "Admin",
-    status: "completed",
-    petId: "pet-004",
-    petName: "Coco",
-    ownerId: "owner-004",
-    ownerName: "Carlos Tan",
-    requestId: "req-003",
-    requestType: "photo",
-  })
-
-  // Request Management: Successful request processing
+  // Request Management: Successful request processing (photo)
   historyEntries.push({
     id: "hist-019",
     timestamp: "2023-11-24T11:15:00Z",
@@ -377,13 +375,15 @@ export const generateSampleHistoryData = (): HistoryEntry[] => {
     status: "completed",
     petId: "pet-004",
     petName: "Coco",
+    petType: "Dog",
+    petBreed: "Shih Tzu",
     ownerId: "owner-004",
     ownerName: "Carlos Tan",
     requestId: "req-003",
     requestType: "photo",
-    mediaUrls: ["/images/pet-photos/sample-4.png", "/images/pet-photos/sample-5.png"],
+    mediaUrls: ["/pet-hotel-4.jpg", "/pet-hotel-5.jpg"],
     mediaTypes: ["image", "image"],
-  })
+  });
 
   // Pet Owner Management: Updating owner information
   historyEntries.push({
@@ -396,7 +396,10 @@ export const generateSampleHistoryData = (): HistoryEntry[] => {
     status: "completed",
     ownerId: "owner-001",
     ownerName: "Maria Santos",
-  })
+    ownerEmail: "maria.santos.updated@example.com",
+    ownerPhone: "(555) 987-6543",
+    ownerAddress: "321 New St, Quezon City, Metro Manila",
+  });
 
   // Request Management: Another successful photo request
   historyEntries.push({
@@ -409,17 +412,15 @@ export const generateSampleHistoryData = (): HistoryEntry[] => {
     status: "completed",
     petId: "pet-001",
     petName: "Buddy",
+    petType: "Dog",
+    petBreed: "Golden Retriever",
     ownerId: "owner-001",
     ownerName: "Maria Santos",
     requestId: "req-004",
     requestType: "photo",
-    mediaUrls: [
-      "/images/pet-photos/sample-6.png",
-      "/images/pet-photos/sample-7.png",
-      "/images/pet-photos/sample-8.png",
-    ],
+    mediaUrls: ["/pet-hotel-1.jpg", "/pet-hotel-4.jpg", "/pet-hotel-2.jpg"],
     mediaTypes: ["image", "image", "image"],
-  })
+  });
 
   // Boarding Management: Another pet boarding
   historyEntries.push({
@@ -432,23 +433,17 @@ export const generateSampleHistoryData = (): HistoryEntry[] => {
     status: "completed",
     petId: "pet-002",
     petName: "Max",
+    petType: "Dog",
+    petBreed: "Beagle",
+    petSize: "Medium",
     ownerId: "owner-002",
     ownerName: "John Reyes",
     amount: 1500.0,
-  })
-
-  // Pet Owner Registration: Another successful registration
-  historyEntries.push({
-    id: "hist-023",
-    timestamp: "2023-11-28T11:45:00Z",
-    module: "registration",
-    action: "register",
-    description: "New pet owner registered through admin interface",
-    performedBy: "Admin",
-    status: "completed",
-    ownerId: "owner-005",
-    ownerName: "Elena Cruz",
-  })
+    boardingType: "LongStay",
+    boardingDuration: "7 days",
+    boardingStartDate: "2023-11-27T09:15:00Z",
+    boardingEndDate: "2023-12-04T09:15:00Z",
+  });
 
   // Pet Management: Adding a pet for the new owner
   historyEntries.push({
@@ -461,9 +456,12 @@ export const generateSampleHistoryData = (): HistoryEntry[] => {
     status: "completed",
     petId: "pet-005",
     petName: "Rocky",
+    petType: "Dog",
+    petBreed: "German Shepherd",
+    petSize: "Large",
     ownerId: "owner-005",
     ownerName: "Elena Cruz",
-  })
+  });
 
   // Boarding Management: Another pet release
   historyEntries.push({
@@ -476,70 +474,99 @@ export const generateSampleHistoryData = (): HistoryEntry[] => {
     status: "completed",
     petId: "pet-002",
     petName: "Max",
+    petType: "Dog",
+    petBreed: "Beagle",
+    petSize: "Medium",
     ownerId: "owner-002",
     ownerName: "John Reyes",
     amount: 1500.0,
-  })
+    boardingType: "LongStay",
+    boardingDuration: "7 days",
+    boardingStartDate: "2023-11-27T09:15:00Z",
+    boardingEndDate: "2023-12-04T09:15:00Z",
+  });
 
-  // Requests: Approving a video request
+  // Request Management: Successful grooming request processing
   historyEntries.push({
-    id: "hist-026",
-    timestamp: "2023-12-01T10:15:00Z",
-    module: "request",
-    action: "approve",
-    description: "Video request approved",
-    performedBy: "Admin",
-    status: "completed",
-    petId: "pet-005",
-    petName: "Rocky",
-    ownerId: "owner-005",
-    ownerName: "Elena Cruz",
-    requestId: "req-005",
-    requestType: "video",
-  })
-
-  // Request Management: Successful video request processing
-  historyEntries.push({
-    id: "hist-027",
-    timestamp: "2023-12-02T15:30:00Z",
+    id: "hist-028",
+    timestamp: "2023-12-03T13:45:00Z",
     module: "request-management",
     action: "complete",
-    description: "Video request completed",
+    description: "Grooming request completed",
+    performedBy: "Admin",
+    status: "completed",
+    petId: "pet-004",
+    petName: "Coco",
+    petType: "Dog",
+    petBreed: "Shih Tzu",
+    petSize: "Small",
+    ownerId: "owner-004",
+    ownerName: "Carlos Tan",
+    requestId: "req-006",
+    requestType: "grooming",
+    amount: 800.0,
+  });
+
+  // Request Management: Successful boarding extension request
+  historyEntries.push({
+    id: "hist-029",
+    timestamp: "2023-12-05T10:15:00Z",
+    module: "request-management",
+    action: "complete",
+    description: "Boarding extension request completed",
     performedBy: "Admin",
     status: "completed",
     petId: "pet-005",
     petName: "Rocky",
+    petType: "Dog",
+    petBreed: "German Shepherd",
+    petSize: "Large",
     ownerId: "owner-005",
     ownerName: "Elena Cruz",
-    requestId: "req-005",
-    requestType: "video",
-    mediaUrls: ["/videos/pet-videos/sample-video-2.mp4", "/videos/pet-videos/sample-video-3.mp4"],
-    mediaTypes: ["video", "video"],
-  })
+    requestId: "req-007",
+    requestType: "boarding-extension",
+    boardingType: "LongStay",
+    boardingDuration: "Extended by 3 days",
+    boardingStartDate: "2023-12-01T09:00:00Z",
+    boardingEndDate: "2023-12-08T09:00:00Z",
+    amount: 900.0,
+  });
 
-  return historyEntries.sort((a, b) => {
-    return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-  })
-}
+  // Filter out entries from "request" and "registration" modules
+  return historyEntries
+    .filter(
+      (entry) =>
+        (entry.module as string) !== "request" &&
+        (entry.module as string) !== "registration",
+    )
+    .sort((a, b) => {
+      return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+    });
+};
 
 // Generate sample media entries based on history data
 // BACKEND INTEGRATION: Replace this with actual API calls to fetch media data
-export const generateSampleMediaData = (historyData: HistoryEntry[]): MediaEntry[] => {
-  const mediaEntries: MediaEntry[] = []
+export const generateSampleMediaData = (
+  historyData: HistoryEntry[],
+): MediaEntry[] => {
+  const mediaEntries: MediaEntry[] = [];
 
   // Filter history entries for completed media requests
   const completedMediaRequests = historyData.filter(
     (entry) =>
       entry.module === "request-management" &&
       entry.action === "complete" &&
-      (entry.requestType === "photo" || entry.requestType === "video") &&
+      (entry.requestType === "photo" ||
+        entry.requestType === "video" ||
+        entry.requestType === "grooming" ||
+        entry.requestType === "boarding-extension") &&
       entry.mediaUrls &&
       entry.mediaUrls.length > 0,
-  )
+  );
 
   // Create media entries from completed requests
   completedMediaRequests.forEach((entry) => {
-    if ((entry.requestType === "photo" || entry.requestType === "video") && entry.mediaUrls && entry.mediaTypes) {
+    if (entry.mediaUrls && entry.mediaTypes) {
       mediaEntries.push({
         id: entry.id,
         timestamp: entry.timestamp,
@@ -552,14 +579,14 @@ export const generateSampleMediaData = (historyData: HistoryEntry[]): MediaEntry
         mediaTypes: entry.mediaTypes,
         completedBy: entry.performedBy,
         completedAt: entry.timestamp,
-      })
+      });
     }
-  })
+  });
 
   return mediaEntries.sort((a, b) => {
-    return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-  })
-}
+    return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+  });
+};
 
-export const sampleHistoryData = generateSampleHistoryData()
-export const sampleMediaData = generateSampleMediaData(sampleHistoryData)
+export const sampleHistoryData = generateSampleHistoryData();
+export const sampleMediaData = generateSampleMediaData(sampleHistoryData);

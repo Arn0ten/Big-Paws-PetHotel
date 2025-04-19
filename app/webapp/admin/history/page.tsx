@@ -77,6 +77,8 @@ import {
   Dog,
   Cat,
   X,
+  Scissors,
+  CalendarPlus,
 } from "lucide-react";
 import { formatCurrency, formatDate } from "./utils/helpers";
 import { HistoryTableSkeleton } from "./components/history-table-skeleton";
@@ -88,22 +90,32 @@ import {
   generateSampleHistoryData,
   generateSampleMediaData,
 } from "@/app/webapp/admin/data/history-sample-data";
-// Add import for PaginationControls at the top with other imports
 import { PaginationControls } from "@/app/webapp/admin/components/pagination-controls";
+import { HistoryDetailsDialog } from "./components/history-details-dialog";
+import { MdPets } from "react-icons/md";
+import { HiUsers } from "react-icons/hi2";
+import { RiCalendarScheduleFill } from "react-icons/ri";
+import {
+  VscGitPullRequestNewChanges,
+  VscGitPullRequestGoToChanges,
+} from "react-icons/vsc";
+import { FaHistory } from "react-icons/fa";
 
 // Update module names and icons
 const getModuleIcon = (module: string) => {
   switch (module) {
     case "pet-owner":
-      return <User className="h-4 w-4 text-blue-500" />;
+      return <HiUsers className="h-4 w-4 text-blue-500" />;
     case "pet":
-      return <PawPrint className="h-4 w-4 text-green-500" />;
+      return <MdPets className="h-4 w-4 text-green-500" />;
     case "boarding":
-      return <Home className="h-4 w-4 text-orange-500" />;
+      return <RiCalendarScheduleFill className="h-4 w-4 text-orange-500" />;
     case "request":
       return <FileText className="h-4 w-4 text-purple-500" />;
     case "request-management":
-      return <CheckSquare className="h-4 w-4 text-indigo-500" />;
+      return (
+        <VscGitPullRequestGoToChanges className="h-4 w-4 text-indigo-500" />
+      );
     default:
       return <Activity className="h-4 w-4 text-gray-500" />;
   }
@@ -169,7 +181,7 @@ const getStatusBadge = (status: string | undefined) => {
   }
 };
 
-// Update the getMediaTypeBadge function to use solid backgrounds
+// Update the getMediaTypeBadge function to include new request types
 const getMediaTypeBadge = (mediaType: string) => {
   switch (mediaType) {
     case "photo":
@@ -184,6 +196,20 @@ const getMediaTypeBadge = (mediaType: string) => {
         <Badge className="bg-purple-600 text-white w-[80px] flex justify-center">
           <Video className="h-3 w-3 mr-1" />
           Video
+        </Badge>
+      );
+    case "grooming":
+      return (
+        <Badge className="bg-green-600 text-white w-[90px] flex justify-center">
+          <Scissors className="h-3 w-3 mr-1" />
+          Grooming
+        </Badge>
+      );
+    case "boarding-extension":
+      return (
+        <Badge className="bg-orange-600 text-white w-[140px] flex justify-center">
+          <CalendarPlus className="h-3 w-3 mr-1" />
+          Extension
         </Badge>
       );
     case "dog":
@@ -230,12 +256,9 @@ export default function HistoryPage() {
   const [entryToDelete, setEntryToDelete] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  // Add these state variables for pagination
-  // Add after the other state declarations in the HistoryPage component
   const [activityCurrentPage, setActivityCurrentPage] = useState(1);
   const [mediaCurrentPage, setMediaCurrentPage] = useState(1);
   const itemsPerPage = 10; // Standardized to 10 items per page
-  // Add isSearching state and searchTimeoutRef
   const [isSearching, setIsSearching] = useState(false);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -245,30 +268,6 @@ export default function HistoryPage() {
 
   // Fetch history data on component mount
   useEffect(() => {
-    // BACKEND INTEGRATION: Replace with actual API call
-    // Example:
-    // const fetchHistoryData = async () => {
-    //   try {
-    //     setIsLoading(true)
-    //     const response = await fetch('/api/admin/history')
-    //     if (!response.ok) throw new Error('Failed to fetch history data')
-    //     const data = await response.json()
-    //     setHistoryData(data)
-    //     setFilteredHistory(data)
-    //     setIsLoading(false)
-    //   } catch (error) {
-    //     console.error('Error fetching history data:', error)
-    //     toast({
-    //       title: "Error",
-    //       description: "Failed to load history data. Please try again.",
-    //       variant: "destructive",
-    //     })
-    //     setIsLoading(false)
-    //   }
-    // }
-    // fetchHistoryData()
-
-    // Simulate API call with sample data
     setTimeout(() => {
       const sampleHistoryData = generateSampleHistoryData();
       setHistoryData(sampleHistoryData);
@@ -402,8 +401,6 @@ export default function HistoryPage() {
     sortOrder,
   ]);
 
-  // Add this useEffect to handle pagination reset
-  // Add after the other useEffect hooks
   useEffect(() => {
     // Reset to page 1 when filters change
     if (activeTab === "activity") {
@@ -453,67 +450,6 @@ export default function HistoryPage() {
     setMediaCurrentPage(page);
   };
 
-  // Handle refresh button click
-  const handleRefresh = () => {
-    setIsLoading(true);
-    setSearchQuery("");
-    setModuleFilter("all");
-    setStatusFilter("all");
-    setDateFilter(undefined);
-    setMediaTypeFilter("all");
-    setPetOwnerFilter("all");
-
-    // BACKEND INTEGRATION: Replace with actual API call
-    // Example:
-    // const refreshData = async () => {
-    //   try {
-    //     const response = await fetch('/api/admin/history')
-    //     if (!response.ok) throw new Error('Failed to fetch history data')
-    //     const data = await response.json()
-    //     setHistoryData(data)
-    //     setFilteredHistory(data)
-    //
-    //     const mediaResponse = await fetch('/api/admin/media')
-    //     if (!mediaResponse.ok) throw new Error('Failed to fetch media data')
-    //     const mediaData = await mediaResponse.json()
-    //     setMediaData(mediaData)
-    //     setFilteredMedia(mediaData)
-    //
-    //     setIsLoading(false)
-    //     toast({
-    //       title: "Success",
-    //       description: "Data refreshed successfully",
-    //     })
-    //   } catch (error) {
-    //     console.error('Error refreshing data:', error)
-    //     toast({
-    //       title: "Error",
-    //       description: "Failed to refresh data. Please try again.",
-    //       variant: "destructive",
-    //     })
-    //     setIsLoading(false)
-    //   }
-    // }
-    // refreshData()
-
-    // Simulate API call with sample data
-    setTimeout(() => {
-      const sampleHistoryData = generateSampleHistoryData();
-      setHistoryData(sampleHistoryData);
-      setFilteredHistory(sampleHistoryData);
-
-      const sampleMediaData = generateSampleMediaData(sampleHistoryData);
-      setMediaData(sampleMediaData);
-      setFilteredMedia(sampleMediaData);
-
-      setIsLoading(false);
-      toast({
-        title: "Success",
-        description: "Data refreshed successfully",
-      });
-    }, 1000);
-  };
-
   // Handle view details button click
   const handleViewDetails = (entry: HistoryEntry) => {
     setSelectedEntry(entry);
@@ -537,41 +473,7 @@ export default function HistoryPage() {
   const handleConfirmDelete = () => {
     if (!entryToDelete) return;
 
-    setIsLoading(true);
-
-    // BACKEND INTEGRATION: Replace with actual API call
-    // Example:
-    // const deleteEntry = async () => {
-    //   try {
-    //     const response = await fetch(`/api/admin/history/${entryToDelete}`, {
-    //       method: 'DELETE',
-    //     })
-    //     if (!response.ok) throw new Error('Failed to delete entry')
-    //
-    //     // Update local state
-    //     setHistoryData(prev => prev.filter(entry => entry.id !== entryToDelete))
-    //     setFilteredHistory(prev => prev.filter(entry => entry.id !== entryToDelete))
-    //
-    //     // Also remove from media data if it exists there
-    //     setMediaData(prev => prev.filter(entry => entry.id !== entryToDelete))
-    //     setFilteredMedia(prev => prev.filter(entry => entry.id !== entryToDelete))
-    //
-    //     setIsLoading(false)
-    //     toast({
-    //       title: "Success",
-    //       description: "Entry deleted successfully",
-    //     })
-    //   } catch (error) {
-    //     console.error('Error deleting entry:', error)
-    //     toast({
-    //       title: "Error",
-    //       description: "Failed to delete entry. Please try again.",
-    //       variant: "destructive",
-    //     })
-    //     setIsLoading(false)
-    //   }
-    // }
-    // deleteEntry()
+    // setIsLoading(true);
 
     // Simulate API call
     setTimeout(() => {
@@ -606,9 +508,6 @@ export default function HistoryPage() {
   const handleDownload = (url: string, filename = "media") => {
     // For client-side download of a single file:
     window.open(url, "_blank");
-
-    // For server-side handling with proper filename:
-    // window.location.href = `/api/admin/media/download?url=${encodeURIComponent(url)}&filename=${encodeURIComponent(filename)}`;
   };
 
   // BACKEND INTEGRATION: Implement this function to download multiple media files as a zip
@@ -1147,6 +1046,10 @@ export default function HistoryPage() {
                   <SelectItem value="all">All Media</SelectItem>
                   <SelectItem value="photo">Photos</SelectItem>
                   <SelectItem value="video">Videos</SelectItem>
+                  <SelectItem value="grooming">Grooming</SelectItem>
+                  <SelectItem value="boarding-extension">
+                    Boarding Extension
+                  </SelectItem>
                 </SelectContent>
               </Select>
 
@@ -1222,14 +1125,6 @@ export default function HistoryPage() {
                 </Button>
               )}
             </div>
-
-            {/* Right side - Actions (if needed) */}
-            {/* <div className="flex justify-end order-2 md:order-2 w-full md:w-auto">
-              <Button variant="outline" onClick={handleRefresh} className="whitespace-nowrap">
-                <RefreshCw className="mr-2 h-4 w-4" />
-                Refresh
-              </Button>
-            </div> */}
           </div>
 
           {/* Media Gallery */}
@@ -1283,214 +1178,20 @@ export default function HistoryPage() {
       </Tabs>
 
       {/* Details Dialog */}
-      <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
-        <DialogContent
-          className={`${isMobile ? "max-w-[95%]" : "sm:max-w-md"} max-h-[90vh] overflow-y-auto`}
-        >
-          <DialogHeader>
-            <DialogTitle className="text-xl">Activity Details</DialogTitle>
-            <DialogDescription>
-              Detailed information about this activity
-            </DialogDescription>
-          </DialogHeader>
-
-          {selectedEntry && (
-            <div className="space-y-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-                    Timestamp
-                  </span>
-                  <div className="text-base font-medium mt-1">
-                    {formatDate(selectedEntry.timestamp)}
-                  </div>
-                </div>
-
-                <div>
-                  <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-                    Module
-                  </span>
-                  <div className="text-base font-medium mt-1 flex items-center gap-2">
-                    {getModuleIcon(selectedEntry.module)}
-                    <span>{getModuleLabel(selectedEntry.module)}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-                  Description
-                </span>
-                <div className="text-base font-medium mt-1">
-                  {selectedEntry.description}
-                </div>
-              </div>
-
-              <div>
-                <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-                  Performed By
-                </span>
-                <div className="text-base font-medium mt-1">
-                  {selectedEntry.performedBy}
-                </div>
-              </div>
-
-              <div>
-                <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-                  Status
-                </span>
-                <div className="text-base font-medium mt-1">
-                  {getStatusBadge(selectedEntry.status)}
-                </div>
-              </div>
-
-              {(selectedEntry.petName || selectedEntry.ownerName) && (
-                <div className="grid grid-cols-2 gap-4">
-                  {selectedEntry.petName && (
-                    <div>
-                      <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-                        Pet
-                      </span>
-                      <div className="text-base font-medium mt-1">
-                        {selectedEntry.petName}
-                      </div>
-                    </div>
-                  )}
-
-                  {selectedEntry.ownerName && (
-                    <div>
-                      <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-                        Owner
-                      </span>
-                      <div className="text-base font-medium mt-1">
-                        {selectedEntry.ownerName}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {selectedEntry.amount && (
-                <div>
-                  <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-                    Amount
-                  </span>
-                  <div className="text-base font-medium mt-1 text-green-600 dark:text-green-400">
-                    {formatCurrency(selectedEntry.amount)}
-                  </div>
-                </div>
-              )}
-
-              {/* Enhanced media display with support for multiple images */}
-              {selectedEntry.mediaUrls &&
-                selectedEntry.mediaUrls.length > 0 && (
-                  <div>
-                    <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-                      Media ({selectedEntry.mediaUrls.length}{" "}
-                      {selectedEntry.mediaUrls.length === 1 ? "item" : "items"})
-                    </span>
-
-                    {selectedEntry.mediaUrls.length === 1 ? (
-                      // Single media display
-                      <div className="mt-1 bg-muted rounded-md overflow-hidden">
-                        {selectedEntry.mediaTypes &&
-                        selectedEntry.mediaTypes[0] === "image" ? (
-                          <img
-                            src={
-                              selectedEntry.mediaUrls[0] || "/placeholder.svg"
-                            }
-                            alt="Media"
-                            className="w-full h-auto object-contain"
-                          />
-                        ) : (
-                          <video
-                            src={selectedEntry.mediaUrls[0]}
-                            controls
-                            className="w-full h-auto"
-                          />
-                        )}
-                      </div>
-                    ) : (
-                      // Multiple media display with thumbnails
-                      <div className="mt-1 space-y-2">
-                        <div className="grid grid-cols-3 gap-2">
-                          {selectedEntry.mediaUrls
-                            .slice(0, 3)
-                            .map((url, idx) => (
-                              <div
-                                key={idx}
-                                className="bg-muted rounded-md overflow-hidden aspect-square"
-                              >
-                                {selectedEntry.mediaTypes &&
-                                selectedEntry.mediaTypes[idx] === "image" ? (
-                                  <img
-                                    src={url || "/placeholder.svg"}
-                                    alt={`Media ${idx + 1}`}
-                                    className="w-full h-full object-cover"
-                                  />
-                                ) : (
-                                  <div className="w-full h-full flex items-center justify-center bg-black">
-                                    <Video className="h-6 w-6 text-white" />
-                                  </div>
-                                )}
-                              </div>
-                            ))}
-                        </div>
-
-                        {selectedEntry.mediaUrls.length > 3 && (
-                          <div className="text-sm text-muted-foreground">
-                            +{selectedEntry.mediaUrls.length - 3} more items
-                          </div>
-                        )}
-
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="w-full mt-2"
-                          onClick={() => {
-                            // Find the corresponding media entry and open the media details dialog
-                            const mediaEntry = mediaData.find(
-                              (m) => m.id === selectedEntry.id,
-                            );
-                            if (mediaEntry) {
-                              setSelectedMedia(mediaEntry);
-                              setCurrentImageIndex(0);
-                              setShowDetailsDialog(false);
-                              setShowMediaDetailsDialog(true);
-                            }
-                          }}
-                        >
-                          View All Media
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                )}
-            </div>
-          )}
-
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowDetailsDialog(false)}
-            >
-              Close
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={() => {
-                setShowDetailsDialog(false);
-                if (selectedEntry) {
-                  handleDelete(selectedEntry.id);
-                }
-              }}
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Delete
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <HistoryDetailsDialog
+        open={showDetailsDialog}
+        onOpenChange={setShowDetailsDialog}
+        entry={selectedEntry}
+        onDelete={() => {
+          setShowDetailsDialog(false);
+          if (selectedEntry) {
+            handleDelete(selectedEntry.id);
+          }
+        }}
+        getModuleIcon={getModuleIcon}
+        getModuleLabel={getModuleLabel}
+        getStatusBadge={getStatusBadge}
+      />
 
       {/* Media Details Dialog */}
       <Dialog

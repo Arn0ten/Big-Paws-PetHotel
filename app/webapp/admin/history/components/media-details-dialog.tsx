@@ -11,7 +11,8 @@ import {
 } from "@/components/ui/dialog"
 import { Download, Trash2 } from "lucide-react"
 import { formatDate } from "../utils/helpers"
-import type { MediaEntry } from "../data/sample-data"
+import type { MediaEntry } from "../../data/history-sample-data"
+import { JSX } from "react/jsx-runtime"
 
 interface MediaDetailsDialogProps {
   open: boolean
