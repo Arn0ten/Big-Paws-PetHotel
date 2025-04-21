@@ -223,16 +223,16 @@ export default function PetOwnerRequestsPage() {
       case "in-progress":
         return (
           <div className="self-start">
-            <Badge className="bg-green-600 text-white inline-flex whitespace-nowrap">
-              <CheckCircle2 className="h-3 w-3 mr-1" /> In Progress
+            <Badge className="bg-blue-600 text-white inline-flex whitespace-nowrap">
+              In Progress
             </Badge>
           </div>
         );
       case "completed":
         return (
           <div className="self-start">
-            <Badge className="bg-blue-600 text-white inline-flex whitespace-nowrap">
-              <CheckCircle2 className="h-3 w-3 mr-1" /> Completed
+            <Badge className="bg-green-600 text-white inline-flex whitespace-nowrap">
+              Completed
             </Badge>
           </div>
         );
@@ -240,16 +240,14 @@ export default function PetOwnerRequestsPage() {
         return (
           <div className="self-start">
             <Badge className="bg-red-600 text-white inline-flex whitespace-nowrap">
-              <XCircle className="h-3 w-3 mr-1" /> Rejected
+              Rejected
             </Badge>
           </div>
         );
       default:
         return (
           <div className="self-start">
-            <Badge className="bg-gray-600 text-white">
-              <AlertCircle className="h-3 w-3 mr-1" /> {status}
-            </Badge>
+            <Badge className="bg-gray-600 text-white">{status}</Badge>
           </div>
         );
     }

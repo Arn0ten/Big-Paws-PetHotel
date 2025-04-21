@@ -241,13 +241,13 @@ export default function EnhancedRequestCreationPage() {
       description: "Request to extend your pet's current stay",
       color: "amber",
     },
-    {
-      id: REQUEST_TYPES.CUSTOM,
-      name: REQUEST_TYPE_LABELS[REQUEST_TYPES.CUSTOM],
-      icon: HelpCircle,
-      description: "Make a special request not covered by other options",
-      color: "gray",
-    },
+    // {
+    //   id: REQUEST_TYPES.CUSTOM,
+    //   name: REQUEST_TYPE_LABELS[REQUEST_TYPES.CUSTOM],
+    //   icon: HelpCircle,
+    //   description: "Make a special request not covered by other options",
+    //   color: "gray",
+    // },
   ];
 
   // Photo type options
@@ -698,7 +698,7 @@ export default function EnhancedRequestCreationPage() {
           </div>
         )}
 
-        {selectedRequestType === REQUEST_TYPES.CUSTOM && (
+        {/* {selectedRequestType === REQUEST_TYPES.CUSTOM && (
           <div className="space-y-2">
             <Label
               htmlFor="customRequestCategory"
@@ -725,7 +725,7 @@ export default function EnhancedRequestCreationPage() {
               Select a category that best describes your request
             </p>
           </div>
-        )}
+        )} */}
 
         {/* Description */}
         <div className="space-y-2">
@@ -759,8 +759,8 @@ export default function EnhancedRequestCreationPage() {
               "Provide any specific instructions or preferences for the grooming service."}
             {selectedRequestType === REQUEST_TYPES.BOARDING_EXTENSION &&
               "Please explain why you need to extend your pet's stay."}
-            {selectedRequestType === REQUEST_TYPES.CUSTOM &&
-              "Describe your request in detail."}
+            {/* {selectedRequestType === REQUEST_TYPES.CUSTOM &&
+              "Describe your request in detail."} */}
             {!selectedRequestType && "Provide details about your request."}
           </p>
         </div>
@@ -822,8 +822,8 @@ export default function EnhancedRequestCreationPage() {
                     "Schedule a grooming service for your pet."}
                   {type.id === REQUEST_TYPES.BOARDING_EXTENSION &&
                     "Request to extend your pet's current stay."}
-                  {type.id === REQUEST_TYPES.CUSTOM &&
-                    "Make a special request not covered by other options."}
+                  {/* {type.id === REQUEST_TYPES.CUSTOM &&
+                    "Make a special request not covered by other options."} */}
                 </p>
               </CardContent>
             </Card>

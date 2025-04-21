@@ -17,7 +17,7 @@ export const REQUEST_STATUS = {
   COMPLETED: "completed",
   REJECTED: "rejected",
   CANCELLED: "cancelled",
-}
+};
 
 // Request status labels
 export const REQUEST_STATUS_LABELS = {
@@ -27,7 +27,7 @@ export const REQUEST_STATUS_LABELS = {
   [REQUEST_STATUS.COMPLETED]: "Completed",
   [REQUEST_STATUS.REJECTED]: "Rejected",
   [REQUEST_STATUS.CANCELLED]: "Cancelled",
-}
+};
 
 // Request types
 export const REQUEST_TYPES = {
@@ -35,8 +35,8 @@ export const REQUEST_TYPES = {
   VIDEO: "video",
   GROOMING: "grooming",
   BOARDING_EXTENSION: "boarding-extension",
-  CUSTOM: "custom",
-}
+  // CUSTOM: "custom",
+};
 
 // Request type labels
 export const REQUEST_TYPE_LABELS = {
@@ -44,8 +44,8 @@ export const REQUEST_TYPE_LABELS = {
   [REQUEST_TYPES.VIDEO]: "Video Request",
   [REQUEST_TYPES.GROOMING]: "Grooming Service",
   [REQUEST_TYPES.BOARDING_EXTENSION]: "Boarding Extension",
-  [REQUEST_TYPES.CUSTOM]: "Custom Request",
-}
+  // [REQUEST_TYPES.CUSTOM]: "Custom Request",
+};
 
 // Pet types
 export const PET_TYPES = {
@@ -55,7 +55,7 @@ export const PET_TYPES = {
   SMALL_ANIMAL: "small-animal",
   REPTILE: "reptile",
   OTHER: "other",
-}
+};
 
 // Pet sizes
 export const PET_SIZES = {
@@ -63,7 +63,7 @@ export const PET_SIZES = {
   MEDIUM: "medium",
   LARGE: "large",
   EXTRA_LARGE: "extra-large",
-}
+};
 
 // Notification types
 export const NOTIFICATION_TYPES = {
@@ -74,7 +74,7 @@ export const NOTIFICATION_TYPES = {
   REQUEST_COMPLETED: "request-completed",
   NEW_MESSAGE: "new-message",
   MEDIA_ADDED: "media-added",
-}
+};
 
 // Notification channels
 export const NOTIFICATION_CHANNELS = {
@@ -82,7 +82,7 @@ export const NOTIFICATION_CHANNELS = {
   SMS: "sms",
   IN_APP: "in-app",
   PUSH: "push",
-}
+};
 
 // API endpoints
 export const API_ENDPOINTS = {
@@ -92,19 +92,18 @@ export const API_ENDPOINTS = {
   MEDIA: "/api/media",
   NOTIFICATIONS: "/api/notifications",
   USER: "/api/users",
-}
+};
 
 // Media types
 export const MEDIA_TYPES = {
   PHOTO: "photo",
   VIDEO: "video",
   DOCUMENT: "document",
-}
+};
 
 // Pagination defaults
 export const PAGINATION = {
   DEFAULT_PAGE: 1,
   DEFAULT_LIMIT: 10,
   MAX_LIMIT: 100,
-}
-
+};
