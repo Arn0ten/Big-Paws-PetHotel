@@ -22,6 +22,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "@/components/ui/use-toast";
+import { JSX } from "react/jsx-runtime";
 
 // Add these interfaces at the top of the file, before the component
 
@@ -254,7 +255,7 @@ export default function NotificationsPage() {
 
           {notificationsList.some((n) => !n.isRead) && (
             <Button variant="outline" size="sm" onClick={markAllAsRead}>
-              Mark All Read
+              Mark all as read
             </Button>
           )}
         </div>
@@ -330,7 +331,7 @@ export default function NotificationsPage() {
             <TabsTrigger value="unread">
               Unread
               {notificationsList.filter((n) => !n.isRead).length > 0 && (
-                <Badge className="ml-2 bg-primary text-primary-foreground">
+                <Badge className="ml-2 bg-red-600 hover:bg-red-600 text-white dark:text-white">
                   {notificationsList.filter((n) => !n.isRead).length}
                 </Badge>
               )}
@@ -423,7 +424,7 @@ export default function NotificationsPage() {
                             <div className="flex items-center gap-2">
                               {/* Updated badge styling for consistency */}
                               {!notification.isRead && (
-                                <Badge className="bg-blue-600 text-white">
+                                <Badge className="bg-green-600 hover:bg-green-500 text-white">
                                   New
                                 </Badge>
                               )}

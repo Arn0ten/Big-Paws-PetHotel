@@ -262,35 +262,15 @@ export default function PetOwnerHomePage() {
     switch (status) {
       case "new":
       case "pending":
-        return (
-          <Badge className="bg-yellow-600 text-white">
-            <Clock className="h-3 w-3 mr-1" /> Pending
-          </Badge>
-        );
+        return <Badge className="bg-yellow-600 text-white">Pending</Badge>;
       case "in-progress":
-        return (
-          <Badge className="bg-blue-600 text-white">
-            <CheckCircle2 className="h-3 w-3 mr-1" /> In Progress
-          </Badge>
-        );
+        return <Badge className="bg-blue-600 text-white">In Progress</Badge>;
       case "completed":
-        return (
-          <Badge className="bg-green-600 text-white">
-            <CheckCircle2 className="h-3 w-3 mr-1" /> Completed
-          </Badge>
-        );
+        return <Badge className="bg-green-600 text-white">Completed</Badge>;
       case "rejected":
-        return (
-          <Badge className="bg-red-600 text-white">
-            <XCircle className="h-3 w-3 mr-1" /> Rejected
-          </Badge>
-        );
+        return <Badge className="bg-red-600 text-white">Rejected</Badge>;
       default:
-        return (
-          <Badge className="bg-gray-600 text-white">
-            <AlertCircle className="h-3 w-3 mr-1" /> {status}
-          </Badge>
-        );
+        return <Badge className="bg-gray-600 text-white">{status}</Badge>;
     }
   };
 
@@ -473,7 +453,7 @@ export default function PetOwnerHomePage() {
                     ) : activeBoardingPet.boarding?.remainingAmount &&
                       activeBoardingPet.boarding?.remainingAmount > 0 &&
                       getPetRequests(activeBoardingPet.id).length > 0 ? (
-                      <Badge className="bg-yellow-600 text-white">
+                      <Badge className="bg-yellow-600 hover:bg-yellow-600 text-white">
                         Pending
                       </Badge>
                     ) : (
@@ -747,12 +727,12 @@ export default function PetOwnerHomePage() {
               </div>
             )}
 
-            <Link href="/webapp/pet-owner/requests/new">
+            {/* <Link href="/webapp/pet-owner/requests/new">
               <Button className="w-full">
                 <Plus className="h-4 w-4 mr-2" />
                 New Request
               </Button>
-            </Link>
+            </Link> */}
           </TabsContent>
         </Tabs>
       </motion.div>
@@ -772,7 +752,9 @@ export default function PetOwnerHomePage() {
               href="/webapp/pet-owner/notifications"
               className="text-sm text-primary hover:underline"
             >
-              View All
+              <span className="inline-flex items-center gap-1">
+                View All <ArrowRight className="h-4 w-4" />
+              </span>
             </Link>
           </div>
 
@@ -792,7 +774,9 @@ export default function PetOwnerHomePage() {
                       <h3 className="font-medium text-foreground dark:text-foreground">
                         {notification.title}
                       </h3>
-                      <Badge className="bg-blue-600 text-white">New</Badge>
+                      <Badge className="bg-green-600 hover:bg-green-600 text-white">
+                        New
+                      </Badge>
                     </div>
                     <p className="text-sm mt-1 line-clamp-1 text-foreground/80 dark:text-foreground/80">
                       {notification.message}

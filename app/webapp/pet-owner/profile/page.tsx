@@ -1,119 +1,143 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect } from "react"
-import { motion } from "framer-motion"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { User, Mail, Phone, MapPin, Pencil, Info, Lock, ChevronRight, LogOut } from "lucide-react"
-import Link from "next/link"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { useRouter } from "next/navigation"
-import { getPetOwnerPets, getUserProfile } from "@/app/webapp/data/sample-data"
-import { JSX } from "react/jsx-runtime"
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  Pencil,
+  Info,
+  Lock,
+  ChevronRight,
+  LogOut,
+} from "lucide-react";
+import Link from "next/link";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useRouter } from "next/navigation";
+import { getPetOwnerPets, getUserProfile } from "@/app/webapp/data/sample-data";
+import { JSX } from "react/jsx-runtime";
 
 // Define interfaces for our data structures
 interface EmergencyContact {
-  name: string
-  relationship: string
-  phone: string
+  name: string;
+  relationship: string;
+  phone: string;
 }
 
 interface Vaccination {
-  name: string
-  expiry: string
+  name: string;
+  expiry: string;
 }
 
 interface Pet {
-  id: string
-  name: string
-  avatar: string
-  type: string
-  breed: string
-  age: string
-  gender: string
-  size: string
-  boarding: boolean
-  medicalInfo: string
-  dietaryRestrictions: string
-  behavioralNotes: string
-  emergencyContact: EmergencyContact
-  vaccinations?: Vaccination[]
+  id: string;
+  name: string;
+  avatar: string;
+  type: string;
+  breed: string;
+  age: string;
+  gender: string;
+  size: string;
+  boarding: boolean;
+  // medicalInfo: string;
+  // dietaryRestrictions: string;
+  // behavioralNotes: string;
+  // emergencyContact: EmergencyContact;
+  // vaccinations?: Vaccination[];
 }
 
 interface UserProfile {
-  id: string
-  name: string
-  email: string
-  phone: string
-  address: string
-  avatar: string
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  avatar: string;
 }
 
 export default function ProfilePage(): JSX.Element {
-  const [activeTab, setActiveTab] = useState<string>("profile")
-  const [isEditing, setIsEditing] = useState<boolean>(false)
-  const [profile, setProfile] = useState<UserProfile>(getUserProfile())
+  const [activeTab, setActiveTab] = useState<string>("profile");
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [profile, setProfile] = useState<UserProfile>(getUserProfile());
 
   // BACKEND INTEGRATION POINT:
   // Fetch pet data from the API
   // This data should be read-only for pet owners
   // Only administrators can modify pet information
-  const [pets, setPets] = useState<Pet[]>([])
-  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [pets, setPets] = useState<Pet[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     // Simulate API call to fetch pets
     const fetchPets = async (): Promise<void> => {
       try {
-        setIsLoading(true)
+        setIsLoading(true);
         // In a real app, this would be an API call
         // const response = await fetch('/api/pets');
         // const data = await response.json();
         // setPets(data);
 
         // For demo, use the sample data
-        const petsData = getPetOwnerPets() as Pet[]
-        setPets(petsData)
+        const petsData = getPetOwnerPets() as Pet[];
+        setPets(petsData);
       } catch (error) {
-        console.error("Error fetching pets:", error)
+        console.error("Error fetching pets:", error);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    fetchPets()
-  }, [])
+    fetchPets();
+  }, []);
 
   // Form state for editing
-  const [formData, setFormData] = useState<UserProfile>({ ...profile })
+  const [formData, setFormData] = useState<UserProfile>({ ...profile });
 
   // Handle form input change
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   // Handle form submission
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>): void => {
+  const handleSubmit = (
+    e: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>,
+  ): void => {
     if (e.type === "submit") {
-      e.preventDefault()
+      e.preventDefault();
     }
     // In a real app, this would be an API call to update the profile
     // const updatedProfile = await updateUserProfile(formData);
     // setProfile(updatedProfile);
 
     // For demo, just update the local state
-    setProfile(formData)
-    setIsEditing(false)
-  }
+    setProfile(formData);
+    setIsEditing(false);
+  };
 
-  const router = useRouter()
+  const router = useRouter();
 
   // Add this function to handle logout
   const handleLogout = (): void => {
@@ -122,18 +146,24 @@ export default function ProfilePage(): JSX.Element {
 
     // For demo purposes, we'll just redirect to the login page
     // You might want to clear local storage, cookies, etc.
-    localStorage.removeItem("auth_token") // Remove any stored tokens
-    sessionStorage.clear() // Clear session storage
+    localStorage.removeItem("auth_token"); // Remove any stored tokens
+    sessionStorage.clear(); // Clear session storage
 
     // Redirect to login page
-    router.push("/webapp/auth/login")
-  }
+    router.push("/webapp/auth/login");
+  };
 
   return (
     <div className="space-y-6">
-      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5 }}>
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
         <h1 className="text-2xl font-bold tracking-tight">My Profile</h1>
-        <p className="text-muted-foreground">Manage your account and view your pets</p>
+        <p className="text-muted-foreground">
+          Manage your account and view your pets
+        </p>
       </motion.div>
 
       <motion.div
@@ -141,7 +171,11 @@ export default function ProfilePage(): JSX.Element {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.1 }}
       >
-        <Tabs defaultValue="profile" value={activeTab} onValueChange={setActiveTab}>
+        <Tabs
+          defaultValue="profile"
+          value={activeTab}
+          onValueChange={setActiveTab}
+        >
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="profile">Profile</TabsTrigger>
             <TabsTrigger value="pets">My Pets</TabsTrigger>
@@ -153,14 +187,20 @@ export default function ProfilePage(): JSX.Element {
                 <div className="flex justify-between items-center">
                   <CardTitle>Personal Information</CardTitle>
                   {!isEditing && (
-                    <Button variant="ghost" size="sm" onClick={() => setIsEditing(true)}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setIsEditing(true)}
+                    >
                       <Pencil className="h-4 w-4 mr-2" />
                       Edit
                     </Button>
                   )}
                 </div>
                 <CardDescription>
-                  {isEditing ? "Update your personal information" : "Your personal information"}
+                  {isEditing
+                    ? "Update your personal information"
+                    : "Your personal information"}
                 </CardDescription>
               </CardHeader>
 
@@ -170,7 +210,9 @@ export default function ProfilePage(): JSX.Element {
                     <div className="flex justify-center mb-4">
                       <Avatar className="h-24 w-24">
                         <AvatarImage src={profile.avatar} alt={profile.name} />
-                        <AvatarFallback>{profile.name.charAt(0)}</AvatarFallback>
+                        <AvatarFallback>
+                          {profile.name.charAt(0)}
+                        </AvatarFallback>
                       </Avatar>
                     </div>
 
@@ -236,7 +278,9 @@ export default function ProfilePage(): JSX.Element {
                     <div className="flex justify-center mb-4">
                       <Avatar className="h-24 w-24">
                         <AvatarImage src={profile.avatar} alt={profile.name} />
-                        <AvatarFallback>{profile.name.charAt(0)}</AvatarFallback>
+                        <AvatarFallback>
+                          {profile.name.charAt(0)}
+                        </AvatarFallback>
                       </Avatar>
                     </div>
 
@@ -244,7 +288,9 @@ export default function ProfilePage(): JSX.Element {
                       <div className="flex items-center gap-3">
                         <User className="h-5 w-5 text-muted-foreground" />
                         <div>
-                          <p className="text-sm text-muted-foreground">Full Name</p>
+                          <p className="text-sm text-muted-foreground">
+                            Full Name
+                          </p>
                           <p className="font-medium">{profile.name}</p>
                         </div>
                       </div>
@@ -268,7 +314,9 @@ export default function ProfilePage(): JSX.Element {
                       <div className="flex items-center gap-3">
                         <MapPin className="h-5 w-5 text-muted-foreground" />
                         <div>
-                          <p className="text-sm text-muted-foreground">Address</p>
+                          <p className="text-sm text-muted-foreground">
+                            Address
+                          </p>
                           <p className="font-medium">{profile.address}</p>
                         </div>
                       </div>
@@ -280,7 +328,11 @@ export default function ProfilePage(): JSX.Element {
               {isEditing && (
                 <CardFooter>
                   <div className="flex gap-2 w-full">
-                    <Button variant="outline" className="flex-1" onClick={() => setIsEditing(false)}>
+                    <Button
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => setIsEditing(false)}
+                    >
                       Cancel
                     </Button>
                     <Button className="flex-1" onClick={handleSubmit}>
@@ -316,7 +368,9 @@ export default function ProfilePage(): JSX.Element {
                   <div className="flex justify-between items-center">
                     <div>
                       <h3 className="font-medium">Change Password</h3>
-                      <p className="text-sm text-muted-foreground">Update your account password</p>
+                      <p className="text-sm text-muted-foreground">
+                        Update your account password
+                      </p>
                     </div>
                     <Link
                       href="/webapp/auth/change-password?from=pet-owner"
@@ -332,7 +386,11 @@ export default function ProfilePage(): JSX.Element {
                 </div>
               </CardContent>
             </Card>
-            <Button variant="destructive" className="w-full mt-4" onClick={handleLogout}>
+            <Button
+              variant="destructive"
+              className="w-full mt-4"
+              onClick={handleLogout}
+            >
               <LogOut className="mr-2 h-4 w-4" />
               Sign Out
             </Button>
@@ -370,69 +428,98 @@ export default function ProfilePage(): JSX.Element {
                         <div className="flex-1">
                           <div className="flex justify-between items-start">
                             <div>
-                              <h3 className="font-semibold text-lg">{pet.name}</h3>
+                              <h3 className="font-bold text-xl uppercase">
+                                {pet.name}
+                              </h3>
                               <p className="text-sm text-muted-foreground">
-                                {pet.breed} • {pet.age}
+                                {pet.breed}
                               </p>
                             </div>
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8"
+                                >
                                   <Info className="h-4 w-4" />
                                   <span className="sr-only">Pet Details</span>
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent side="left" className="max-w-xs">
-                                <div className="text-xs space-y-1">
+                                {/* <div className="text-xs space-y-1">
                                   <p>
-                                    <span className="font-semibold">Medical Info:</span> {pet.medicalInfo}
+                                    <span className="font-semibold">
+                                      Medical Info:
+                                    </span>{" "}
+                                    {pet.medicalInfo}
                                   </p>
                                   <p>
-                                    <span className="font-semibold">Dietary Restrictions:</span>{" "}
+                                    <span className="font-semibold">
+                                      Dietary Restrictions:
+                                    </span>{" "}
                                     {pet.dietaryRestrictions}
                                   </p>
                                   <p>
-                                    <span className="font-semibold">Behavioral Notes:</span> {pet.behavioralNotes}
+                                    <span className="font-semibold">
+                                      Behavioral Notes:
+                                    </span>{" "}
+                                    {pet.behavioralNotes}
                                   </p>
                                   <p>
-                                    <span className="font-semibold">Emergency Contact:</span>{" "}
-                                    {pet.emergencyContact.name} ({pet.emergencyContact.relationship}) -{" "}
+                                    <span className="font-semibold">
+                                      Emergency Contact:
+                                    </span>{" "}
+                                    {pet.emergencyContact.name} (
+                                    {pet.emergencyContact.relationship}) -{" "}
                                     {pet.emergencyContact.phone}
                                   </p>
-                                </div>
+                                </div> */}
                               </TooltipContent>
                             </Tooltip>
                           </div>
 
                           <div className="grid grid-cols-2 gap-x-4 gap-y-2 mt-3">
                             <div>
-                              <p className="text-xs text-muted-foreground">Type</p>
-                              <p className="text-sm">{pet.type}</p>
-                            </div>
-
-                            <div>
-                              <p className="text-xs text-muted-foreground">Gender</p>
-                              <p className="text-sm">{pet.gender}</p>
-                            </div>
-
-                            <div>
-                              <p className="text-xs text-muted-foreground">Size</p>
-                              <p className="text-sm">{pet.size}</p>
-                            </div>
-
-                            <div>
-                              <p className="text-xs text-muted-foreground">Status</p>
-                              <p className="text-sm">
-                                {pet.boarding ? (
-                                  <span className="text-amber-600 dark:text-amber-400">Currently Boarding</span>
-                                ) : (
-                                  <span className="text-green-600 dark:text-green-400">Available</span>
-                                )}
+                              <p className="text-xs text-muted-foreground">
+                                Type
                               </p>
+                              <p className="text-sm font-bold">{pet.type}</p>
+                            </div>
+
+                            <div>
+                              <p className="text-xs text-muted-foreground">
+                                Age
+                              </p>
+                              <p className="text-sm font-bold">{pet.age}</p>
+                            </div>
+
+                            <div>
+                              <p className="text-xs text-muted-foreground">
+                                Size
+                              </p>
+                              <p className="text-sm font-bold">{pet.size}</p>
+                            </div>
+
+                            <div>
+                              <p className="text-xs text-muted-foreground">
+                                Status
+                              </p>
+                              <span
+                                className={`inline-block px-2 py-0.5 rounded-full text-xs font-bold ${
+                                  pet.boarding
+                                    ? "bg-amber-600 text-white"
+                                    : "bg-green-600 text-white"
+                                }`}
+                              >
+                                {pet.boarding
+                                  ? "Currently Boarding"
+                                  : "Available"}
+                              </span>
                             </div>
                           </div>
 
-                          {pet.vaccinations && pet.vaccinations.length > 0 && (
+                          {/* {pet.vaccinations && pet.vaccinations.length > 0 && (
                             <div className="mt-4">
                               <p className="text-xs text-muted-foreground mb-1">Vaccinations</p>
                               <div className="flex flex-wrap gap-2">
@@ -443,7 +530,7 @@ export default function ProfilePage(): JSX.Element {
                                 ))}
                               </div>
                             </div>
-                          )}
+                          )} */}
                         </div>
                       </div>
                     </CardContent>
@@ -459,6 +546,5 @@ export default function ProfilePage(): JSX.Element {
         </Tabs>
       </motion.div>
     </div>
-  )
+  );
 }
-

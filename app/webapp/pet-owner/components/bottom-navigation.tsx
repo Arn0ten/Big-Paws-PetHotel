@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, FileText, Bell, User, ImageIcon } from "lucide-react";
 import { AiFillHome } from "react-icons/ai";
 import { VscGitPullRequestNewChanges } from "react-icons/vsc";
 import { IoNotifications } from "react-icons/io5";
@@ -48,7 +47,7 @@ export default function BottomNavigation() {
       // 5. Store the read/unread status in the database for each notification
       // 6. Add a markAsRead endpoint: POST /api/notifications/:id/read
       // 7. Add a markAllAsRead endpoint: POST /api/notifications/read-all
-      badgeColor: "bg-emerald-500 text-white",
+      badgeColor: "bg-red-500 text-white",
     },
     {
       name: "Profile",
@@ -77,7 +76,7 @@ export default function BottomNavigation() {
               )}
             >
               <div className="relative">
-                <item.icon className={cn("h-5 w-5", item.iconColor)} />
+                <item.icon className={cn("h-5 w-5")} />
                 {item.badge && (
                   <span
                     className={cn(
