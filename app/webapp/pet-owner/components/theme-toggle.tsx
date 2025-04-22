@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Moon, Sun } from "lucide-react";
+import { MdSunny } from "react-icons/md";
+import { TbMoonFilled } from "react-icons/tb";
 import { Button } from "@/components/ui/button";
 import { getTheme, setTheme } from "../../utils/theme-helpers";
 
@@ -36,9 +37,9 @@ export default function ThemeToggle({
       className="border border-gray-300"
     >
       {theme === "dark" ? (
-        <Sun className="h-5 w-5" />
+        <MdSunny className="h-5 w-5" />
       ) : (
-        <Moon className="h-5 w-5" />
+        <TbMoonFilled className="h-5 w-5" />
       )}
     </Button>
   );

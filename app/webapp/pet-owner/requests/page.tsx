@@ -27,6 +27,10 @@ import {
   Info,
   Loader2,
 } from "lucide-react";
+import { TbClockPlus } from "react-icons/tb";
+import { IoVideocam } from "react-icons/io5";
+import { BsFillCameraFill } from "react-icons/bs";
+import { FaCut } from "react-icons/fa";
 import { getPetOwnerRequests } from "@/app/webapp/data/sample-data";
 import { formatDate } from "@/app/webapp/utils/date-utils";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -195,13 +199,13 @@ export default function PetOwnerRequestsPage() {
   const getRequestTypeIcon = (type: string) => {
     switch (type) {
       case "photo":
-        return <Camera className="h-4 w-4" />;
+        return <BsFillCameraFill className="h-5 w-5" />;
       case "video":
-        return <Video className="h-4 w-4" />;
+        return <IoVideocam className="h-5 w-5" />;
       case "grooming":
-        return <Scissors className="h-4 w-4" />;
+        return <FaCut className="h-5 w-5" />;
       case "boarding-extension":
-        return <Clock className="h-4 w-4" />;
+        return <TbClockPlus className="h-5 w-5" />;
       default:
         return <FileText className="h-4 w-4" />;
     }
@@ -215,7 +219,7 @@ export default function PetOwnerRequestsPage() {
         return (
           <div className="self-start">
             <Badge className="bg-yellow-600 text-white inline-flex whitespace-nowrap">
-              <Clock className="h-3 w-3 mr-1" /> Pending
+              Pending
             </Badge>
           </div>
         );

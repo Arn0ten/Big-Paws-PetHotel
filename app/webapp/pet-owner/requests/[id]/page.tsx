@@ -24,6 +24,10 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import { TbClockPlus } from "react-icons/tb";
+import { IoVideocam } from "react-icons/io5";
+import { BsFillCameraFill } from "react-icons/bs";
+import { FaCut } from "react-icons/fa";
 import { requests, getPricingData } from "@/app/webapp/data/sample-data";
 import { formatDate } from "@/app/webapp/utils/date-utils";
 
@@ -217,13 +221,13 @@ export default function RequestDetailPage(): JSX.Element {
   const getRequestTypeIcon = (type: string): JSX.Element => {
     switch (type) {
       case "photo":
-        return <Camera className="h-5 w-5" />;
+        return <BsFillCameraFill className="h-5 w-5" />;
       case "video":
-        return <Video className="h-5 w-5" />;
+        return <IoVideocam className="h-5 w-5" />;
       case "grooming":
-        return <Scissors className="h-5 w-5" />;
+        return <FaCut className="h-5 w-5" />;
       case "boarding-extension":
-        return <Clock className="h-5 w-5" />;
+        return <TbClockPlus className="h-5 w-5" />;
       default:
         return <Calendar className="h-5 w-5" />;
     }
@@ -237,7 +241,7 @@ export default function RequestDetailPage(): JSX.Element {
         return (
           <div className="self-start">
             <Badge className="bg-yellow-600 text-white inline-flex whitespace-nowrap">
-              <Clock className="h-3 w-3 mr-1" /> Pending
+              Pending
             </Badge>
           </div>
         );
@@ -245,31 +249,31 @@ export default function RequestDetailPage(): JSX.Element {
       case "in-progress":
         return (
           <div className="self-start">
-            <Badge className="bg-green-600 text-white inline-flex whitespace-nowrap">
-              <CheckCircle2 className="h-3 w-3 mr-1" /> In Progress
+            <Badge className="bg-blue-600 hover:bg-blue-600 text-white inline-flex whitespace-nowrap">
+              In Progress
             </Badge>
           </div>
         );
       case "completed":
         return (
           <div className="self-start">
-            <Badge className="bg-blue-600 text-white inline-flex whitespace-nowrap">
-              <CheckCircle2 className="h-3 w-3 mr-1" /> Completed
+            <Badge className="bg-green-600 hover:bg-green-600 text-white inline-flex whitespace-nowrap">
+              Completed
             </Badge>
           </div>
         );
       case "rejected":
         return (
           <div className="self-start">
-            <Badge className="bg-red-600 text-white inline-flex whitespace-nowrap">
-              <XCircle className="h-3 w-3 mr-1" /> Rejected
+            <Badge className="bg-red-600 hover:bg-red-600 text-white inline-flex whitespace-nowrap">
+              Rejected
             </Badge>
           </div>
         );
       default:
         return (
           <div className="self-start">
-            <Badge className="bg-gray-600 text-white inline-flex whitespace-nowrap">
+            <Badge className="bg-gray-600 hover:bg-gray-600 text-white inline-flex whitespace-nowrap">
               <AlertCircle className="h-3 w-3 mr-1" /> {status}
             </Badge>
           </div>
@@ -534,7 +538,7 @@ export default function RequestDetailPage(): JSX.Element {
                             </div>
                             <div className="max-w-[80%] rounded-lg p-3 bg-gray-100 dark:bg-gray-800 text-foreground dark:text-foreground">
                               {/* Auto Build og chatbubble for informing petowner sa update*/}
-                              <p className="text-sm whitespace-pre-wrap">
+                              <p className="text-lg font-semibold text-foreground whitespace-pre-wrap">
                                 Here's the{" "}
                                 {request.type === "photo"
                                   ? request.mediaFiles.urls.length > 1
@@ -605,7 +609,7 @@ export default function RequestDetailPage(): JSX.Element {
                             A
                           </div>
                           <div className="max-w-[80%] rounded-lg p-3 bg-gray-100 dark:bg-gray-800 text-foreground dark:text-foreground">
-                            <p className="text-sm whitespace-pre-wrap">
+                            <p className="text-lg font-semibold text-foreground whitespace-pre-wrap">
                               The grooming service (
                               {request.groomingService
                                 ?.replace(/-/g, " ")
@@ -628,7 +632,7 @@ export default function RequestDetailPage(): JSX.Element {
                               A
                             </div>
                             <div className="max-w-[80%] rounded-lg p-3 bg-gray-100 dark:bg-gray-800 text-foreground dark:text-foreground">
-                              <p className="text-sm whitespace-pre-wrap">
+                              <p className="text-lg font-semibold text-foreground whitespace-pre-wrap">
                                 The boarding extension has been approved. The
                                 new end date is {formatDate(request.newEndDate)}
                                 .
@@ -661,66 +665,76 @@ export default function RequestDetailPage(): JSX.Element {
               <div>
                 <h3 className="text-base font-medium mb-2">Request Details</h3>
                 <Card className="bg-muted/50 dark:bg-muted/20">
-                  <CardContent className="p-4 space-y-3">
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">
-                        Request Type
-                      </p>
-                      <p className="text-sm text-foreground dark:text-foreground">
-                        {getRequestTypeTitle(request.type)}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">
-                        Pet
-                      </p>
-                      <p className="text-sm text-foreground dark:text-foreground">
-                        {request.petName}
-                      </p>
-                    </div>
-                    {request.type === "grooming" && request.groomingService && (
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">
-                          Grooming Service
-                        </p>
-                        <p className="text-sm text-foreground dark:text-foreground">
-                          {request.groomingService
-                            .replace(/-/g, " ")
-                            .replace(/\b\w/g, (l) => l.toUpperCase())}
-                        </p>
-                      </div>
-                    )}
-                    {request.type === "boarding-extension" &&
-                      request.extensionDetails && (
+                  <CardContent className="p-4">
+                    <div className="flex flex-col md:flex-row justify-between gap-6">
+                      {/* Left Section */}
+                      <div className="space-y-3 w-full md:w-1/2">
                         <div>
                           <p className="text-sm font-medium text-muted-foreground">
-                            Extension Details
+                            Request Type
                           </p>
-                          <p className="text-sm text-foreground dark:text-foreground">
-                            {request.extensionDetails.duration}{" "}
-                            {request.extensionDetails.unit}
+                          <p className="text-sm text-foreground dark:text-foreground font-semibold">
+                            {getRequestTypeTitle(request.type)}
                           </p>
                         </div>
-                      )}
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">
-                        Price
-                      </p>
-                      <p className="text-sm text-foreground dark:text-foreground">
-                        ₱
-                        {request.price ||
-                          calculatePrice(
-                            request.type,
-                            "medium", // You would ideally get the pet size from the pet data
-                            request.groomingService,
-                            request.extensionDetails?.duration
-                              ? Number.parseInt(
-                                  request.extensionDetails.duration.toString(),
-                                )
-                              : undefined,
-                            request.extensionDetails?.unit,
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">
+                            Pet
+                          </p>
+                          <p className="text-sm text-foreground dark:text-foreground font-semibold">
+                            {request.petName}
+                          </p>
+                        </div>
+                        {request.type === "grooming" &&
+                          request.groomingService && (
+                            <div>
+                              <p className="text-sm font-medium text-muted-foreground">
+                                Grooming Service
+                              </p>
+                              <p className="text-sm text-foreground dark:text-foreground font-semibold">
+                                {request.groomingService
+                                  .replace(/-/g, " ")
+                                  .replace(/\b\w/g, (l) => l.toUpperCase())}
+                              </p>
+                            </div>
                           )}
-                      </p>
+                      </div>
+
+                      {/* Right Section */}
+                      <div className="space-y-3 w-full md:w-1/2">
+                        {request.type === "boarding-extension" &&
+                          request.extensionDetails && (
+                            <div>
+                              <p className="text-sm font-medium text-muted-foreground">
+                                Extension Details
+                              </p>
+                              <p className="text-sm text-foreground dark:text-foreground font-semibold">
+                                {request.extensionDetails.duration}{" "}
+                                {request.extensionDetails.unit}
+                              </p>
+                            </div>
+                          )}
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">
+                            Price
+                          </p>
+                          <p className="text-lg text-primary font-bold">
+                            ₱{" "}
+                            {request.price ||
+                              calculatePrice(
+                                request.type,
+                                "medium", // Ideally get pet size
+                                request.groomingService,
+                                request.extensionDetails?.duration
+                                  ? Number.parseInt(
+                                      request.extensionDetails.duration.toString(),
+                                    )
+                                  : undefined,
+                                request.extensionDetails?.unit,
+                              )}
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -746,8 +760,8 @@ export default function RequestDetailPage(): JSX.Element {
 
                     {request.status === "in-progress" && (
                       <div className="flex gap-3 items-start">
-                        <div className="flex items-center justify-center h-6 w-6 rounded-full bg-green-600 text-white">
-                          <CheckCircle2 className="h-3 w-3" />
+                        <div className="flex items-center justify-center h-6 w-6 rounded-full bg-green-600 text-white flex-shrink-0 flex-grow-0">
+                          <CheckCircle2 className="h-6 w-6" />
                         </div>
                         <div>
                           <p className="text-sm font-medium text-foreground dark:text-foreground">
@@ -760,12 +774,13 @@ export default function RequestDetailPage(): JSX.Element {
                       </div>
                     )}
 
-                    {request.completedAt && (
+                    {(request.status === "pending" ||
+                      request.status === "new") && (
                       <div className="flex gap-3 items-start">
-                        <div className="flex items-center justify-center h-6 w-6 rounded-full bg-green-600 text-white">
-                          <CheckCircle2 className="h-3 w-3" />
+                        <div className="flex items-center justify-center h-6 w-6 rounded-full bg-green-600 text-white  flex-shrink-0 flex-grow-0">
+                          <CheckCircle2 className="h-6 w-6" />
                         </div>
-                        <div>
+                        <div className="flex-1">
                           <p className="text-sm font-medium text-foreground dark:text-foreground">
                             Completed
                           </p>
@@ -778,8 +793,8 @@ export default function RequestDetailPage(): JSX.Element {
 
                     {request.status === "rejected" && (
                       <div className="flex gap-3 items-start">
-                        <div className="flex items-center justify-center h-6 w-6 rounded-full bg-red-600 text-white">
-                          <XCircle className="h-3 w-3" />
+                        <div className="flex items-center justify-center h-6 w-6 rounded-full bg-red-600 text-white flex-shrink-0 flex-grow-0">
+                          <XCircle className="h-6 w-6" />
                         </div>
                         <div>
                           <p className="text-sm font-medium text-foreground dark:text-foreground">

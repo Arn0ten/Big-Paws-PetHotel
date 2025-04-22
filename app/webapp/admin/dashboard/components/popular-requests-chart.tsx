@@ -19,6 +19,10 @@ import {
   Tooltip,
 } from "recharts";
 import { useMediaQuery } from "@/hooks/use-media-query";
+import { TbClockPlus } from "react-icons/tb";
+import { IoVideocam } from "react-icons/io5";
+import { BsFillCameraFill } from "react-icons/bs";
+import { FaCut } from "react-icons/fa";
 
 interface PopularRequestsChartProps {
   data: any[];
@@ -59,21 +63,23 @@ export function PopularRequestsChart({ data = [] }: PopularRequestsChartProps) {
   const getRequestIcon = (type: string) => {
     switch (type.toLowerCase()) {
       case "photo":
-        return <Camera className="h-4 w-4 text-blue-600 dark:text-blue-400" />;
+        return (
+          <BsFillCameraFill className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+        );
       case "video":
         return (
-          <Video className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+          <IoVideocam className="h-4 w-4 text-purple-600 dark:text-purple-400" />
         );
       case "grooming":
-        return (
-          <Scissors className="h-4 w-4 text-pink-600 dark:text-pink-400" />
-        );
+        return <FaCut className="h-4 w-4 text-pink-600 dark:text-pink-400" />;
       case "extension":
         return (
-          <Clock className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+          <TbClockPlus className="h-4 w-4 text-orange-600 dark:text-orange-400" />
         );
       default:
-        return <Camera className="h-4 w-4 text-blue-600 dark:text-blue-400" />;
+        return (
+          <BsFillCameraFill className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+        );
     }
   };
 

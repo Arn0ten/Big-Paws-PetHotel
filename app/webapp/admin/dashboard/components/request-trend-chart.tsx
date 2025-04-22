@@ -1,21 +1,44 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { MoreHorizontal, Download, Printer } from "lucide-react"
-import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from "recharts"
-import { useToast } from "@/hooks/use-toast"
-import { exportToCsv, printChart } from "../utils/export-utils"
+import { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { MoreHorizontal } from "lucide-react";
+import {
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+} from "recharts";
+import { useToast } from "@/hooks/use-toast";
+import { exportToCsv, printChart } from "../utils/export-utils";
+import { MdDownload } from "react-icons/md";
+import { MdLocalPrintshop } from "react-icons/md";
 
 interface RequestTrendChartProps {
-  data: any[]
+  data: any[];
 }
 
 export function RequestTrendChart({ data = [] }: RequestTrendChartProps) {
-  const { toast } = useToast()
-  const [timeRange, setTimeRange] = useState<"7days" | "30days" | "90days">("30days")
+  const { toast } = useToast();
+  const [timeRange, setTimeRange] = useState<"7days" | "30days" | "90days">(
+    "30days",
+  );
 
   /**
    * BACKEND INTEGRATION POINT: Request Trend Data
@@ -46,68 +69,70 @@ export function RequestTrendChart({ data = [] }: RequestTrendChartProps) {
 
   // Filter data based on selected time range
   const getFilteredData = () => {
-    if (!data || data.length === 0) return []
+    if (!data || data.length === 0) return [];
 
-    let daysToShow = 30
+    let daysToShow = 30;
 
     switch (timeRange) {
       case "7days":
-        daysToShow = 7
-        break
+        daysToShow = 7;
+        break;
       case "30days":
-        daysToShow = 30
-        break
+        daysToShow = 30;
+        break;
       case "90days":
-        daysToShow = 90
-        break
+        daysToShow = 90;
+        break;
     }
 
     // Return the last X days of data
-    return data.slice(-daysToShow)
-  }
+    return data.slice(-daysToShow);
+  };
 
-  const filteredData = getFilteredData()
+  const filteredData = getFilteredData();
 
   // Handle CSV export
   const handleExportCsv = () => {
     try {
-      exportToCsv(filteredData, "request-trends.csv")
+      exportToCsv(filteredData, "request-trends.csv");
       toast({
         title: "Export successful",
         description: "Request trend data has been exported to CSV",
-      })
+      });
     } catch (error) {
       toast({
         title: "Export failed",
         description: "There was an error exporting the data",
         variant: "destructive",
-      })
+      });
     }
-  }
+  };
 
   // Handle chart printing
   const handlePrintChart = () => {
     try {
-      printChart("request-trend-chart", "Request Trends")
+      printChart("request-trend-chart", "Request Trends");
       toast({
         title: "Print initiated",
         description: "The chart print dialog has been opened",
-      })
+      });
     } catch (error) {
       toast({
         title: "Print failed",
         description: "There was an error printing the chart",
         variant: "destructive",
-      })
+      });
     }
-  }
+  };
 
   return (
     <Card className="overflow-hidden">
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
           <CardTitle className="text-foreground">Request Trend</CardTitle>
-          <CardDescription>Pet owner service requests over time</CardDescription>
+          <CardDescription>
+            Pet owner service requests over time
+          </CardDescription>
         </div>
         <div className="flex items-center gap-2">
           <div className="flex rounded-md border overflow-hidden">
@@ -144,11 +169,11 @@ export function RequestTrendChart({ data = [] }: RequestTrendChartProps) {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={handleExportCsv}>
-                <Download className="mr-2 h-4 w-4 text-blue-500" />
+                <MdDownload className="mr-2 h-4 w-4 text-blue-500" />
                 Download CSV
               </DropdownMenuItem>
               <DropdownMenuItem onClick={handlePrintChart}>
-                <Printer className="mr-2 h-4 w-4 text-purple-500" />
+                <MdLocalPrintshop className="mr-2 h-4 w-4 text-purple-500" />
                 Print Chart
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -158,28 +183,42 @@ export function RequestTrendChart({ data = [] }: RequestTrendChartProps) {
       <CardContent>
         <div className="h-[300px]" id="request-trend-chart">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={filteredData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+            <AreaChart
+              data={filteredData}
+              margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+            >
               <defs>
                 <linearGradient id="colorRequests" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
                   <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#ccc" opacity={0.3} />
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="#ccc"
+                opacity={0.3}
+              />
               <XAxis
                 dataKey="date"
                 tick={{ fontSize: 12 }}
                 tickFormatter={(value) => {
                   // On small screens, show fewer ticks
-                  if (typeof window !== "undefined" && window.innerWidth < 768) {
+                  if (
+                    typeof window !== "undefined" &&
+                    window.innerWidth < 768
+                  ) {
                     // Only show every 5th date
-                    const day = Number.parseInt(value.split(" ")[1])
-                    return day % 5 === 0 ? `${day}` : ""
+                    const day = Number.parseInt(value.split(" ")[1]);
+                    return day % 5 === 0 ? `${day}` : "";
                   }
-                  return value
+                  return value;
                 }}
               />
-              <YAxis tick={{ fontSize: 12 }} width={40} tickFormatter={(value) => value} />
+              <YAxis
+                tick={{ fontSize: 12 }}
+                width={40}
+                tickFormatter={(value) => value}
+              />
               <Tooltip
                 contentStyle={{
                   backgroundColor: "rgba(255, 255, 255, 0.9)",
@@ -202,5 +241,5 @@ export function RequestTrendChart({ data = [] }: RequestTrendChartProps) {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

@@ -32,6 +32,10 @@ import {
   Info,
   Eye,
 } from "lucide-react";
+import { RiHome5Fill } from "react-icons/ri";
+
+import { TiEye } from "react-icons/ti";
+import { FaDog, FaCat } from "react-icons/fa";
 import type { Pet, PetOwner } from "../utils/types";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -245,9 +249,9 @@ export function PetsTable({
                       />
                       <AvatarFallback className="bg-primary/10">
                         {pet.type === "Dog" ? (
-                          <Dog className="h-4 w-4 text-primary" />
+                          <FaDog className="h-4 w-4 text-primary" />
                         ) : (
-                          <Cat className="h-4 w-4 text-primary" />
+                          <FaCat className="h-4 w-4 text-primary" />
                         )}
                       </AvatarFallback>
                     </Avatar>
@@ -263,9 +267,9 @@ export function PetsTable({
                       }`}
                     >
                       {pet.type === "Dog" ? (
-                        <Dog className="mr-1 h-3 w-3" />
+                        <FaDog className="mr-1 h-3 w-3" />
                       ) : (
-                        <Cat className="mr-1 h-3 w-3" />
+                        <FaCat className="mr-1 h-3 w-3" />
                       )}
                       {pet.type}
                     </Badge>
@@ -322,7 +326,7 @@ export function PetsTable({
                             onBoard(pet);
                           }}
                         >
-                          <Hotel className="h-4 w-4 mr-1" />
+                          <RiHome5Fill className="h-4 w-4 mr-1" />
                           Board Pet
                         </Button>
                       ) : (
@@ -334,7 +338,7 @@ export function PetsTable({
                             handleViewBoarding(pet);
                           }}
                         >
-                          <Eye className="h-4 w-4 mr-1" />
+                          <TiEye className="h-4 w-4 mr-1" />
                           View Board
                         </Button>
                       )}

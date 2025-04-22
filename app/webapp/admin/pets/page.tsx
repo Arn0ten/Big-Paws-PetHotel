@@ -21,16 +21,8 @@ import type React from "react";
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
-import {
-  PawPrint,
-  Search,
-  Plus,
-  Dog,
-  Cat,
-  Filter,
-  X,
-  Loader2,
-} from "lucide-react";
+import { PawPrint, Search, Plus, Filter, X, Loader2 } from "lucide-react";
+import { FaDog, FaCat } from "react-icons/fa";
 import {
   Card,
   CardContent,
@@ -544,13 +536,13 @@ export default function PetsPage() {
                             <SelectItem value="all">All Types</SelectItem>
                             <SelectItem value="Dog">
                               <div className="flex items-center">
-                                <Dog className="mr-2 h-4 w-4 text-primary" />
+                                <FaDog className="mr-2 h-4 w-4 text-blue" />
                                 Dogs
                               </div>
                             </SelectItem>
                             <SelectItem value="Cat">
                               <div className="flex items-center">
-                                <Cat className="mr-2 h-4 w-4 text-secondary" />
+                                <FaCat className="mr-2 h-4 w-4 text-violet" />
                                 Cats
                               </div>
                             </SelectItem>

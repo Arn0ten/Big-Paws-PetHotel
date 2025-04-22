@@ -25,13 +25,14 @@ import {
   ArrowRight,
   Calendar,
   Info,
-  AlertCircle,
-  CheckCircle2,
-  XCircle,
   PhilippinePesoIcon,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import { TbClockPlus } from "react-icons/tb";
+import { IoVideocam } from "react-icons/io5";
+import { BsFillCameraFill } from "react-icons/bs";
+import { FaCut } from "react-icons/fa";
 import { formatDate, formatTime } from "../utils/date-helpers";
 import { requests, notifications, getBoardingPets } from "../data/sample-data";
 import type { JSX } from "react/jsx-runtime";
@@ -223,13 +224,13 @@ export default function PetOwnerHomePage() {
   const getRequestTypeIcon = (type: string): JSX.Element => {
     switch (type) {
       case "photo":
-        return <Camera className="h-5 w-5" />;
+        return <BsFillCameraFill className="h-5 w-5" />;
       case "video":
-        return <Video className="h-5 w-5" />;
+        return <IoVideocam className="h-5 w-5" />;
       case "grooming":
-        return <Scissors className="h-5 w-5" />;
+        return <FaCut className="h-5 w-5" />;
       case "boarding-extension":
-        return <Clock className="h-5 w-5" />;
+        return <TbClockPlus className="h-5 w-5" />;
       case "custom":
         return <FileText className="h-5 w-5" />;
       default:
@@ -262,15 +263,35 @@ export default function PetOwnerHomePage() {
     switch (status) {
       case "new":
       case "pending":
-        return <Badge className="bg-yellow-600 text-white">Pending</Badge>;
+        return (
+          <Badge className="bg-yellow-600 hover:bg-yellow-600 text-white">
+            Pending
+          </Badge>
+        );
       case "in-progress":
-        return <Badge className="bg-blue-600 text-white">In Progress</Badge>;
+        return (
+          <Badge className="bg-blue-600 hover:bg-blue-600 text-white">
+            In Progress
+          </Badge>
+        );
       case "completed":
-        return <Badge className="bg-green-600 text-white">Completed</Badge>;
+        return (
+          <Badge className="bg-green-600 hover:bg-green-600 text-white">
+            Completed
+          </Badge>
+        );
       case "rejected":
-        return <Badge className="bg-red-600 text-white">Rejected</Badge>;
+        return (
+          <Badge className="bg-red-600 hover:bg-red-600 text-white">
+            Rejected
+          </Badge>
+        );
       default:
-        return <Badge className="bg-gray-600 text-white">{status}</Badge>;
+        return (
+          <Badge className="bg-gray-600 hover:bg-gray-600 text-white">
+            {status}
+          </Badge>
+        );
     }
   };
 
