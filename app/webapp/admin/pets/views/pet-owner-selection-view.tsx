@@ -20,8 +20,6 @@ import {
   Mail,
   Check,
   ArrowRight,
-  Dog,
-  Cat,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,7 +36,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import PageLayout from "@/app/webapp/components/PageLayout";
 import type { PetOwner } from "../utils/types";
-
+import { FaShieldDog, FaShieldCat } from "react-icons/fa6";
+import { FaUserCheck } from "react-icons/fa";
+import { IoMdArrowDropright } from "react-icons/io";
 interface PetOwnerSelectionViewProps {
   petOwners: PetOwner[];
   isLoading: boolean;
@@ -274,9 +274,9 @@ export default function PetOwnerSelectionView({
                             `}
                           >
                             {pet.type === "Dog" ? (
-                              <Dog className="h-4 w-4 mr-2 flex-shrink-0" />
+                              <FaShieldDog className="h-4 w-4 mr-2 flex-shrink-0" />
                             ) : (
-                              <Cat className="h-4 w-4 mr-2 flex-shrink-0" />
+                              <FaShieldCat className="h-4 w-4 mr-2 flex-shrink-0" />
                             )}
                             <span className="truncate font-medium">
                               {pet.name}
@@ -296,11 +296,11 @@ export default function PetOwnerSelectionView({
                 <CardFooter className="flex justify-end">
                   <Button
                     onClick={handleSelectOwner}
-                    className="bg-green-600 hover:bg-green-700"
+                    className="bg-green-600 hover:bg-green-700 text-white"
                   >
-                    <User className="mr-2 h-4 w-4" />
+                    <FaUserCheck className="mr-2 h-4 w-4" />
                     Select Owner
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                    <IoMdArrowDropright className="ml-2 h-4 w-4" />
                   </Button>
                 </CardFooter>
               </>

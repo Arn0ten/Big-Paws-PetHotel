@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
+import { IoMdArrowDropleft } from "react-icons/io";
 import { useRouter } from "next/navigation"
 
 interface BackButtonProps {
@@ -26,7 +26,7 @@ export default function BackButton({ href, label = "Back", variant = "outline", 
 
   return (
     <Button variant={variant} onClick={handleClick} className="flex items-center gap-2">
-      <ArrowLeft size={16} />
+      <IoMdArrowDropleft size={16} />
       {label}
     </Button>
   )

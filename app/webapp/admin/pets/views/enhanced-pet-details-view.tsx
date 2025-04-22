@@ -30,6 +30,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Separator } from "@/components/ui/separator"
 import type { Pet } from "../utils/types"
 import PageLayout from "@/app/webapp/components/PageLayout"
+import { FaShieldDog, FaShieldCat } from "react-icons/fa6";
 
 // Sample boarding history data
 const sampleBoardingHistory = [
@@ -178,9 +179,9 @@ export default function EnhancedPetDetailsView({
                     <AvatarImage src={pet.image} alt={pet.name} />
                     <AvatarFallback className="bg-primary/10">
                       {pet.type === "Dog" ? (
-                        <Dog className="h-8 w-8 text-primary" />
+                        <FaShieldDog className="h-8 w-8 text-primary" />
                       ) : (
-                        <Cat className="h-8 w-8 text-primary" />
+                        <FaShieldCat className="h-8 w-8 text-primary" />
                       )}
                     </AvatarFallback>
                   </Avatar>
@@ -195,7 +196,7 @@ export default function EnhancedPetDetailsView({
                             : "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400"
                         }
                       >
-                        {pet.type === "Dog" ? <Dog className="mr-1 h-3 w-3" /> : <Cat className="mr-1 h-3 w-3" />}
+                        {pet.type === "Dog" ? <FaShieldDog className="mr-1 h-3 w-3" /> : <FaShieldCat className="mr-1 h-3 w-3" />}
                         {pet.type}
                       </Badge>
                       <Badge variant="outline" className="text-sm px-3 py-1">

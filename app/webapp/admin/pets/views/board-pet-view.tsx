@@ -2,18 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
-import {
-  CalendarIcon,
-  Clock,
-  Hotel,
-  Dog,
-  Cat,
-  Loader2,
-  CalendarDays,
-  CalendarClock,
-} from "lucide-react";
+import { Hotel, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import { FaCalendarDay } from "react-icons/fa";
+import { GoClockFill } from "react-icons/go";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -26,6 +19,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { Pet } from "../utils/types";
 import PageLayout from "@/app/webapp/components/PageLayout";
+import { FaShieldDog, FaShieldCat } from "react-icons/fa6";
 
 // Custom time picker component
 const TimePicker = ({
@@ -332,9 +326,9 @@ export default function BoardPetView({
             <AvatarImage src={pet.image} alt={pet.name} />
             <AvatarFallback className="bg-primary/10">
               {pet.type === "Dog" ? (
-                <Dog className="h-8 w-8 text-primary" />
+                <FaShieldDog className="h-8 w-8 text-primary" />
               ) : (
-                <Cat className="h-8 w-8 text-primary" />
+                <FaShieldCat className="h-8 w-8 text-primary" />
               )}
             </AvatarFallback>
           </Avatar>
@@ -351,9 +345,9 @@ export default function BoardPetView({
                 }`}
               >
                 {pet.type === "Dog" ? (
-                  <Dog className="mr-1 h-3 w-3" />
+                  <FaShieldDog className="mr-1 h-3 w-3" />
                 ) : (
-                  <Cat className="mr-1 h-3 w-3" />
+                  <FaShieldCat className="mr-1 h-3 w-3" />
                 )}
                 {pet.type}
               </Badge>
@@ -393,7 +387,7 @@ export default function BoardPetView({
                     htmlFor="daycare"
                     className="flex items-center cursor-pointer"
                   >
-                    <CalendarClock className="h-4 w-4 mr-2 text-blue-500" />
+                    <GoClockFill className="h-4 w-4 mr-2 text-blue-500" />
                     <div>
                       <span className="font-medium">Daycare (Same Day)</span>
                       <p className="text-sm text-muted-foreground">
@@ -418,7 +412,7 @@ export default function BoardPetView({
                     htmlFor="longstay"
                     className="flex items-center cursor-pointer"
                   >
-                    <CalendarDays className="h-4 w-4 mr-2 text-amber-500" />
+                    <FaCalendarDay className="h-4 w-4 mr-2 text-amber-500" />
                     <div>
                       <span className="font-medium">
                         Long Stay (Multiple Days)
@@ -446,7 +440,7 @@ export default function BoardPetView({
                           variant="outline"
                           className="w-full justify-start text-left font-normal"
                         >
-                          <Clock className="mr-2 h-4 w-4 text-blue-500" />
+                          <GoClockFill className="mr-2 h-4 w-4 text-blue-500" />
                           {boardingDetails.startTime
                             ? formatTime(boardingDetails.startTime)
                             : "Select time"}
@@ -474,7 +468,7 @@ export default function BoardPetView({
                           variant="outline"
                           className="w-full justify-start text-left font-normal"
                         >
-                          <Clock className="mr-2 h-4 w-4 text-amber-500" />
+                          <GoClockFill className="mr-2 h-4 w-4 text-amber-500" />
                           {boardingDetails.endTime
                             ? formatTime(boardingDetails.endTime)
                             : "Select time"}
@@ -503,7 +497,7 @@ export default function BoardPetView({
                         variant="outline"
                         className="w-full justify-start text-left font-normal"
                       >
-                        <CalendarIcon className="mr-2 h-4 w-4 text-primary" />
+                        <FaCalendarDay className="mr-2 h-4 w-4 text-primary" />
                         {formatDate(boardingDetails.startDate)}
                       </Button>
                     </PopoverTrigger>
@@ -542,7 +536,7 @@ export default function BoardPetView({
                           variant="outline"
                           className="w-full justify-start text-left font-normal"
                         >
-                          <CalendarIcon className="mr-2 h-4 w-4 text-blue-500" />
+                          <FaCalendarDay className="mr-2 h-4 w-4 text-blue-500" />
                           {formatDate(boardingDetails.startDate)}
                         </Button>
                       </PopoverTrigger>
@@ -584,7 +578,7 @@ export default function BoardPetView({
                           variant="outline"
                           className="w-full justify-start text-left font-normal"
                         >
-                          <CalendarIcon className="mr-2 h-4 w-4 text-amber-500" />
+                          <FaCalendarDay className="mr-2 h-4 w-4 text-amber-500" />
                           {formatDate(boardingDetails.endDate)}
                         </Button>
                       </PopoverTrigger>
@@ -639,14 +633,22 @@ export default function BoardPetView({
                     <div key={index} className="flex justify-between text-sm">
                       <span>{item.petName}</span>
                       <span className="font-medium">
-                        ₱{item.price.toFixed(2)}
+                        ₱
+                        {item.price.toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
                       </span>
                     </div>
                   ))}
                   <div className="flex justify-between pt-2 border-t mt-2">
                     <span className="font-medium">Total</span>
                     <span className="text-lg font-bold text-primary">
-                      ₱{boardingDetails.pricing.total.toFixed(2)}
+                      ₱
+                      {boardingDetails.pricing.total.toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
                     </span>
                   </div>
                 </div>
@@ -671,10 +673,7 @@ export default function BoardPetView({
                 Creating...
               </>
             ) : (
-              <>
-                <Hotel className="mr-2 h-4 w-4" />
-                Create Boarding
-              </>
+              <>Create Boarding</>
             )}
           </Button>
         </div>

@@ -22,20 +22,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  MoreHorizontal,
-  Edit,
-  Trash2,
-  Hotel,
-  Dog,
-  Cat,
-  Info,
-  Eye,
-} from "lucide-react";
+import { MoreHorizontal, Edit, Trash2, Info } from "lucide-react";
 import { RiHome5Fill } from "react-icons/ri";
-
+import { FaShieldDog, FaShieldCat } from "react-icons/fa6";
 import { TiEye } from "react-icons/ti";
-import { FaDog, FaCat } from "react-icons/fa";
 import type { Pet, PetOwner } from "../utils/types";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -63,11 +53,6 @@ export function PetsTable({
   onDelete,
   onBoard,
   onViewBoarding,
-  currentPage,
-  totalPages,
-  goToPage,
-  nextPage,
-  prevPage,
   isLoading = false,
 }: PetsTableProps) {
   // Find owner name by pet's ownerId
@@ -249,9 +234,9 @@ export function PetsTable({
                       />
                       <AvatarFallback className="bg-primary/10">
                         {pet.type === "Dog" ? (
-                          <FaDog className="h-4 w-4 text-primary" />
+                          <FaShieldDog className="h-4 w-4 text-primary" />
                         ) : (
-                          <FaCat className="h-4 w-4 text-primary" />
+                          <FaShieldCat className="h-4 w-4 text-primary" />
                         )}
                       </AvatarFallback>
                     </Avatar>
@@ -267,9 +252,9 @@ export function PetsTable({
                       }`}
                     >
                       {pet.type === "Dog" ? (
-                        <FaDog className="mr-1 h-3 w-3" />
+                        <FaShieldDog className="mr-1 h-3 w-3" />
                       ) : (
-                        <FaCat className="mr-1 h-3 w-3" />
+                        <FaShieldCat className="mr-1 h-3 w-3" />
                       )}
                       {pet.type}
                     </Badge>
