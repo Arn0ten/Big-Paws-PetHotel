@@ -1,28 +1,51 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { ArrowLeft, Info, Hotel, Dog, Cat, Clock, CalendarDays, CalendarClock, Mail, CalendarIcon } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Label } from "@/components/ui/label"
-import { Badge } from "@/components/ui/badge"
-import { Textarea } from "@/components/ui/textarea"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { format } from "date-fns"
-import type { PetOwner, BoardingDetails } from "../utils/types"
-import PageLayout from "@/app/webapp/components/PageLayout"
-import { Calendar } from "@/components/ui/calendar"
+import { useState } from "react";
+import {
+  ArrowLeft,
+  Info,
+  Dog,
+  Cat,
+
+  CalendarIcon,
+} from "lucide-react";
+import { IoMdMail } from "react-icons/io";
+
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { format } from "date-fns";
+import type { PetOwner, BoardingDetails } from "../utils/types";
+import PageLayout from "@/app/webapp/components/PageLayout";
+import { Calendar } from "@/components/ui/calendar";
+import { FaCalendarDay } from "react-icons/fa";
+import { GoClockFill } from "react-icons/go";
 
 // Custom time picker component
-const TimePicker = ({ value, onChange }: { value: string; onChange: (time: string) => void }) => {
-  const hours = Array.from({ length: 24 }, (_, i) => i)
-  const minutes = ["00", "15", "30", "45"]
+const TimePicker = ({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (time: string) => void;
+}) => {
+  const hours = Array.from({ length: 24 }, (_, i) => i);
+  const minutes = ["00", "15", "30", "45"];
 
-  const [selectedHour, selectedMinute] = value.split(":").map((v, i) => (i === 0 ? Number.parseInt(v) : v))
+  const [selectedHour, selectedMinute] = value
+    .split(":")
+    .map((v, i) => (i === 0 ? Number.parseInt(v) : v));
 
   return (
     <PopoverContent className="w-auto p-0" align="start">
@@ -32,10 +55,14 @@ const TimePicker = ({ value, onChange }: { value: string; onChange: (time: strin
             <div
               key={hour}
               className={`cursor-pointer rounded-md p-2 text-center text-sm hover:bg-muted ${
-                selectedHour === hour ? "bg-primary text-primary-foreground hover:bg-primary/90" : ""
+                selectedHour === hour
+                  ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                  : ""
               }`}
               onClick={() => {
-                onChange(`${hour.toString().padStart(2, "0")}:${selectedMinute}`)
+                onChange(
+                  `${hour.toString().padStart(2, "0")}:${selectedMinute}`,
+                );
               }}
             >
               {hour.toString().padStart(2, "0")}
@@ -47,10 +74,14 @@ const TimePicker = ({ value, onChange }: { value: string; onChange: (time: strin
             <div
               key={minute}
               className={`cursor-pointer rounded-md p-2 text-center text-sm hover:bg-muted ${
-                selectedMinute === minute ? "bg-primary text-primary-foreground hover:bg-primary/90" : ""
+                selectedMinute === minute
+                  ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                  : ""
               }`}
               onClick={() => {
-                onChange(`${selectedHour.toString().padStart(2, "0")}:${minute}`)
+                onChange(
+                  `${selectedHour.toString().padStart(2, "0")}:${minute}`,
+                );
               }}
             >
               {minute}
@@ -59,8 +90,8 @@ const TimePicker = ({ value, onChange }: { value: string; onChange: (time: strin
         </div>
       </div>
     </PopoverContent>
-  )
-}
+  );
+};
 
 // Pricing tiers based on pet size
 const dogDaycarePricing = {
@@ -68,14 +99,14 @@ const dogDaycarePricing = {
   Medium: 30,
   Large: 40,
   XL: 50,
-}
+};
 
 const dogAccommodationPricing = {
   Small: 320,
   Medium: 400,
   Large: 480,
   XL: 550,
-}
+};
 
 const catPricing = {
   standard: {
@@ -86,22 +117,27 @@ const catPricing = {
     smallToMedium: 200,
     large: 300,
   },
-}
+};
 
 // Boarding type
-type BoardingType = "Daycare" | "LongStay"
+type BoardingType = "Daycare" | "LongStay";
 
 interface BoardPetsViewProps {
-  owner: PetOwner | null
-  onBack: () => void
-  onSubmit: (data: BoardingDetails) => Promise<boolean>
-  isSubmitting: boolean
+  owner: PetOwner | null;
+  onBack: () => void;
+  onSubmit: (data: BoardingDetails) => Promise<boolean>;
+  isSubmitting: boolean;
 }
 
-export default function BoardPetsView({ owner, onBack, onSubmit, isSubmitting }: BoardPetsViewProps) {
-  const today = new Date()
-  const tomorrow = new Date(today)
-  tomorrow.setDate(tomorrow.getDate() + 1)
+export default function BoardPetsView({
+  owner,
+  onBack,
+  onSubmit,
+  isSubmitting,
+}: BoardPetsViewProps) {
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
 
   // Form state
   const [formData, setFormData] = useState<BoardingDetails>({
@@ -112,28 +148,30 @@ export default function BoardPetsView({ owner, onBack, onSubmit, isSubmitting }:
     startTime: "09:00",
     endTime: "17:00",
     notes: "",
-  })
+  });
 
   // Form validation
-  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   if (!owner) {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
           <h2 className="text-xl font-semibold">Pet owner not found</h2>
-          <p className="text-muted-foreground mt-2">The requested pet owner could not be found.</p>
+          <p className="text-muted-foreground mt-2">
+            The requested pet owner could not be found.
+          </p>
           <Button onClick={onBack} className="mt-4">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back
           </Button>
         </div>
       </div>
-    )
+    );
   }
 
   // Get available pets (not currently boarding)
-  const availablePets = owner.pets.filter((pet) => !pet.isBoarding)
+  const availablePets = owner.pets.filter((pet) => !pet.isBoarding);
 
   // Handle pet selection
   const handlePetSelection = (petId: string) => {
@@ -142,23 +180,23 @@ export default function BoardPetsView({ owner, onBack, onSubmit, isSubmitting }:
         return {
           ...prev,
           petIds: prev.petIds.filter((id) => id !== petId),
-        }
+        };
       } else {
         return {
           ...prev,
           petIds: [...prev.petIds, petId],
-        }
+        };
       }
-    })
+    });
 
     // Clear error if it exists
     if (errors.petIds) {
       setErrors({
         ...errors,
         petIds: "",
-      })
+      });
     }
-  }
+  };
 
   // Handle boarding type change
   const handleBoardingTypeChange = (type: BoardingType) => {
@@ -179,8 +217,8 @@ export default function BoardPetsView({ owner, onBack, onSubmit, isSubmitting }:
             startTime: undefined,
             endTime: undefined,
           }),
-    }))
-  }
+    }));
+  };
 
   // Handle date changes
   const handleStartDateChange = (date: Date | undefined) => {
@@ -188,175 +226,181 @@ export default function BoardPetsView({ owner, onBack, onSubmit, isSubmitting }:
       setFormData({
         ...formData,
         startDate: date,
-      })
+      });
 
       // Clear error if it exists
       if (errors.startDate) {
         setErrors({
           ...errors,
           startDate: "",
-        })
+        });
       }
     }
-  }
+  };
 
   const handleEndDateChange = (date: Date | undefined) => {
     if (date) {
       setFormData({
         ...formData,
         endDate: date,
-      })
+      });
 
       // Clear error if it exists
       if (errors.endDate) {
         setErrors({
           ...errors,
           endDate: "",
-        })
+        });
       }
     }
-  }
+  };
 
   // Handle time changes
   const handleStartTimeChange = (time: string) => {
     setFormData({
       ...formData,
       startTime: time,
-    })
-  }
+    });
+  };
 
   const handleEndTimeChange = (time: string) => {
     setFormData({
       ...formData,
       endTime: time,
-    })
-  }
+    });
+  };
 
   // Handle notes change
   const handleNotesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setFormData({
       ...formData,
       notes: e.target.value,
-    })
-  }
+    });
+  };
 
   // Format date for display
   const formatDate = (date: Date) => {
-    return format(date, "PPP")
-  }
+    return format(date, "PPP");
+  };
 
   // Format time for display
   const formatTime = (time: string) => {
-    const [hour, minute] = time.split(":")
-    const hourNum = Number.parseInt(hour)
-    const period = hourNum >= 12 ? "PM" : "AM"
-    const hour12 = hourNum % 12 || 12
-    return `${hour12}:${minute} ${period}`
-  }
+    const [hour, minute] = time.split(":");
+    const hourNum = Number.parseInt(hour);
+    const period = hourNum >= 12 ? "PM" : "AM";
+    const hour12 = hourNum % 12 || 12;
+    return `${hour12}:${minute} ${period}`;
+  };
 
   // Calculate boarding duration in days
   const calculateDuration = () => {
-    if (formData.type === "Daycare") return 1
+    if (formData.type === "Daycare") return 1;
 
-    const start = new Date(formData.startDate)
-    const end = new Date(formData.endDate)
-    const diffTime = Math.abs(end.getTime() - start.getTime())
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-    return diffDays
-  }
+    const start = new Date(formData.startDate);
+    const end = new Date(formData.endDate);
+    const diffTime = Math.abs(end.getTime() - start.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
 
   // Calculate estimated cost
   const calculateEstimatedCost = () => {
-    let totalCost = 0
-    const duration = calculateDuration()
+    let totalCost = 0;
+    const duration = calculateDuration();
 
     // Calculate cost for each selected pet
     formData.petIds.forEach((petId) => {
-      const pet = owner.pets.find((p) => p.id === petId)
-      if (!pet) return
+      const pet = owner.pets.find((p) => p.id === petId);
+      if (!pet) return;
 
       if (formData.type === "Daycare") {
         // Calculate hours for daycare
-        let hours = 8 // Default to 8 hours if times not provided
+        let hours = 8; // Default to 8 hours if times not provided
 
         if (formData.startTime && formData.endTime) {
-          const startHour = Number.parseInt(formData.startTime.split(":")[0])
-          const startMinute = Number.parseInt(formData.startTime.split(":")[1])
-          const endHour = Number.parseInt(formData.endTime.split(":")[0])
-          const endMinute = Number.parseInt(formData.endTime.split(":")[1])
+          const startHour = Number.parseInt(formData.startTime.split(":")[0]);
+          const startMinute = Number.parseInt(formData.startTime.split(":")[1]);
+          const endHour = Number.parseInt(formData.endTime.split(":")[0]);
+          const endMinute = Number.parseInt(formData.endTime.split(":")[1]);
 
           // Calculate total hours including partial hours
-          hours = endHour - startHour
-          if (endMinute > startMinute) hours += 0.5
-          else if (endMinute < startMinute) hours -= 0.5
+          hours = endHour - startHour;
+          if (endMinute > startMinute) hours += 0.5;
+          else if (endMinute < startMinute) hours -= 0.5;
 
           // Minimum 1 hour
-          hours = Math.max(1, hours)
+          hours = Math.max(1, hours);
         }
 
         // Get hourly rate based on size
-        const hourlyRate = dogDaycarePricing[pet.size as keyof typeof dogDaycarePricing] || dogDaycarePricing.Medium
-        totalCost += hourlyRate * hours
+        const hourlyRate =
+          dogDaycarePricing[pet.size as keyof typeof dogDaycarePricing] ||
+          dogDaycarePricing.Medium;
+        totalCost += hourlyRate * hours;
       } else {
         if (pet.type === "Dog") {
           const dailyRate =
-            dogAccommodationPricing[pet.size as keyof typeof dogAccommodationPricing] || dogAccommodationPricing.Medium
-          totalCost += dailyRate * duration
+            dogAccommodationPricing[
+              pet.size as keyof typeof dogAccommodationPricing
+            ] || dogAccommodationPricing.Medium;
+          totalCost += dailyRate * duration;
         } else if (pet.type === "Cat") {
-          const isKitten = pet.age < 1
-          const dailyRate = isKitten ? catPricing.standard.kitten : catPricing.standard.adult
-          totalCost += dailyRate * duration
+          const isKitten = pet.age < 1;
+          const dailyRate = isKitten
+            ? catPricing.standard.kitten
+            : catPricing.standard.adult;
+          totalCost += dailyRate * duration;
         }
       }
-    })
+    });
 
-    return totalCost
-  }
+    return totalCost;
+  };
 
   // Validate form
   const validateForm = () => {
-    const newErrors: Record<string, string> = {}
+    const newErrors: Record<string, string> = {};
 
     // Validate pet selection
     if (formData.petIds.length === 0) {
-      newErrors.petIds = "Please select at least one pet"
+      newErrors.petIds = "Please select at least one pet";
     }
 
     // Validate dates
     if (!formData.startDate) {
-      newErrors.startDate = "Start date is required"
+      newErrors.startDate = "Start date is required";
     }
 
     if (!formData.endDate) {
-      newErrors.endDate = "End date is required"
+      newErrors.endDate = "End date is required";
     }
 
     if (formData.startDate && formData.endDate) {
-      const start = new Date(formData.startDate)
-      const end = new Date(formData.endDate)
+      const start = new Date(formData.startDate);
+      const end = new Date(formData.endDate);
 
       if (end < start) {
-        newErrors.endDate = "End date must be after start date"
+        newErrors.endDate = "End date must be after start date";
       }
     }
 
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!validateForm()) {
-      return
+      return;
     }
 
-    const success = await onSubmit(formData)
+    const success = await onSubmit(formData);
     if (success) {
       // Form was submitted successfully, navigation will be handled by the parent component
     }
-  }
+  };
 
   return (
     <PageLayout title={`Board Pet: ${owner.name}`} onBack={onBack}>
@@ -370,7 +414,7 @@ export default function BoardPetsView({ owner, onBack, onSubmit, isSubmitting }:
           <div>
             <h4 className="text-lg font-medium">{owner.name}</h4>
             <div className="flex items-center text-sm text-muted-foreground">
-              <Mail className="h-4 w-4 mr-1" />
+              <IoMdMail className="h-4 w-4 mr-1" />
               {owner.email}
             </div>
           </div>
@@ -379,15 +423,22 @@ export default function BoardPetsView({ owner, onBack, onSubmit, isSubmitting }:
         {/* Pet Selection - Move outside the grid to span full width */}
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <h3 className="text-sm font-medium text-muted-foreground">Select Pets to Board</h3>
-            {errors.petIds && <p className="text-xs text-destructive">{errors.petIds}</p>}
+            <h3 className="text-sm font-medium text-muted-foreground">
+              Select Pets to Board
+            </h3>
+            {errors.petIds && (
+              <p className="text-xs text-destructive">{errors.petIds}</p>
+            )}
           </div>
 
           {availablePets.length === 0 ? (
             <div className="rounded-md border p-4 text-center">
-              <p className="text-muted-foreground">No pets available for boarding.</p>
+              <p className="text-muted-foreground">
+                No pets available for boarding.
+              </p>
               <p className="text-sm text-muted-foreground mt-1">
-                All of {owner.name}'s pets are currently boarding or no pets have been registered.
+                All of {owner.name}'s pets are currently boarding or no pets
+                have been registered.
               </p>
             </div>
           ) : (
@@ -396,7 +447,9 @@ export default function BoardPetsView({ owner, onBack, onSubmit, isSubmitting }:
                 <div
                   key={pet.id}
                   className={`rounded-md border p-4 cursor-pointer transition-all ${
-                    formData.petIds.includes(pet.id) ? "border-primary bg-primary/10 shadow-sm" : "hover:bg-muted/50"
+                    formData.petIds.includes(pet.id)
+                      ? "border-primary bg-primary/10 shadow-sm"
+                      : "hover:bg-muted/50"
                   }`}
                   onClick={() => handlePetSelection(pet.id)}
                 >
@@ -408,7 +461,10 @@ export default function BoardPetsView({ owner, onBack, onSubmit, isSubmitting }:
                       className="mt-1"
                     />
                     <div className="flex-1">
-                      <Label htmlFor={`pet-${pet.id}`} className="text-base font-medium cursor-pointer">
+                      <Label
+                        htmlFor={`pet-${pet.id}`}
+                        className="text-base font-medium cursor-pointer"
+                      >
                         {pet.name}
                       </Label>
                       <div className="flex items-center gap-2 mt-1">
@@ -419,7 +475,11 @@ export default function BoardPetsView({ owner, onBack, onSubmit, isSubmitting }:
                               : "bg-purple-600 text-white hover:bg-purple-700 dark:bg-purple-700 dark:text-white dark:hover:bg-purple-600"
                           }
                         >
-                          {pet.type === "Dog" ? <Dog className="mr-1 h-3 w-3" /> : <Cat className="mr-1 h-3 w-3" />}
+                          {pet.type === "Dog" ? (
+                            <Dog className="mr-1 h-3 w-3" />
+                          ) : (
+                            <Cat className="mr-1 h-3 w-3" />
+                          )}
                           {pet.type}
                         </Badge>
                         <Badge variant="outline">{pet.size}</Badge>
@@ -443,7 +503,9 @@ export default function BoardPetsView({ owner, onBack, onSubmit, isSubmitting }:
               <Label className="text-base font-medium">Boarding Type</Label>
               <RadioGroup
                 value={formData.type}
-                onValueChange={(value) => handleBoardingTypeChange(value as BoardingType)}
+                onValueChange={(value) =>
+                  handleBoardingTypeChange(value as BoardingType)
+                }
                 className="flex flex-col space-y-2"
               >
                 <div
@@ -453,12 +515,21 @@ export default function BoardPetsView({ owner, onBack, onSubmit, isSubmitting }:
                       : "hover:bg-muted/50 border-border"
                   }`}
                 >
-                  <RadioGroupItem value="Daycare" id="daycare" className="text-primary" />
-                  <Label htmlFor="daycare" className="flex items-center cursor-pointer">
-                    <CalendarClock className="h-4 w-4 mr-2 text-blue-500" />
+                  <RadioGroupItem
+                    value="Daycare"
+                    id="daycare"
+                    className="text-primary"
+                  />
+                  <Label
+                    htmlFor="daycare"
+                    className="flex items-center cursor-pointer"
+                  >
+                    <GoClockFill className="h-4 w-4 mr-2 text-blue-500" />
                     <div>
                       <span className="font-medium">Daycare (Same Day)</span>
-                      <p className="text-sm text-muted-foreground">For short-term pet care during the day</p>
+                      <p className="text-sm text-muted-foreground">
+                        For short-term pet care during the day
+                      </p>
                     </div>
                   </Label>
                 </div>
@@ -469,12 +540,23 @@ export default function BoardPetsView({ owner, onBack, onSubmit, isSubmitting }:
                       : "hover:bg-muted/50 border-border"
                   }`}
                 >
-                  <RadioGroupItem value="LongStay" id="longstay" className="text-primary" />
-                  <Label htmlFor="longstay" className="flex items-center cursor-pointer">
-                    <CalendarDays className="h-4 w-4 mr-2 text-amber-500" />
+                  <RadioGroupItem
+                    value="LongStay"
+                    id="longstay"
+                    className="text-primary"
+                  />
+                  <Label
+                    htmlFor="longstay"
+                    className="flex items-center cursor-pointer"
+                  >
+                    <FaCalendarDay className="h-4 w-4 mr-2 text-amber-500" />
                     <div>
-                      <span className="font-medium">Long Stay (Multiple Days)</span>
-                      <p className="text-sm text-muted-foreground">For extended boarding periods</p>
+                      <span className="font-medium">
+                        Long Stay (Multiple Days)
+                      </span>
+                      <p className="text-sm text-muted-foreground">
+                        For extended boarding periods
+                      </p>
                     </div>
                   </Label>
                 </div>
@@ -495,11 +577,16 @@ export default function BoardPetsView({ owner, onBack, onSubmit, isSubmitting }:
                           variant="outline"
                           className="w-full justify-start text-left font-normal"
                         >
-                          <Clock className="mr-2 h-4 w-4 text-blue-500" />
-                          {formData.startTime ? formatTime(formData.startTime) : "Select time"}
+                          <GoClockFill className="mr-2 h-4 w-4 text-blue-500" />
+                          {formData.startTime
+                            ? formatTime(formData.startTime)
+                            : "Select time"}
                         </Button>
                       </PopoverTrigger>
-                      <TimePicker value={formData.startTime || "09:00"} onChange={handleStartTimeChange} />
+                      <TimePicker
+                        value={formData.startTime || "09:00"}
+                        onChange={handleStartTimeChange}
+                      />
                     </Popover>
                   </div>
                   <div className="space-y-2">
@@ -508,12 +595,21 @@ export default function BoardPetsView({ owner, onBack, onSubmit, isSubmitting }:
                     </Label>
                     <Popover>
                       <PopoverTrigger asChild>
-                        <Button id="end-time" variant="outline" className="w-full justify-start text-left font-normal">
-                          <Clock className="mr-2 h-4 w-4 text-amber-500" />
-                          {formData.endTime ? formatTime(formData.endTime) : "Select time"}
+                        <Button
+                          id="end-time"
+                          variant="outline"
+                          className="w-full justify-start text-left font-normal"
+                        >
+                          <GoClockFill className="mr-2 h-4 w-4 text-amber-500" />
+                          {formData.endTime
+                            ? formatTime(formData.endTime)
+                            : "Select time"}
                         </Button>
                       </PopoverTrigger>
-                      <TimePicker value={formData.endTime || "17:00"} onChange={handleEndTimeChange} />
+                      <TimePicker
+                        value={formData.endTime || "17:00"}
+                        onChange={handleEndTimeChange}
+                      />
                     </Popover>
                   </div>
                 </div>
@@ -528,7 +624,7 @@ export default function BoardPetsView({ owner, onBack, onSubmit, isSubmitting }:
                         variant="outline"
                         className="w-full justify-start text-left font-normal"
                       >
-                        <CalendarIcon className="mr-2 h-4 w-4 text-primary" />
+                        <FaCalendarDay className="mr-2 h-4 w-4 text-primary" />
                         {formatDate(formData.startDate)}
                       </Button>
                     </PopoverTrigger>
@@ -545,11 +641,17 @@ export default function BoardPetsView({ owner, onBack, onSubmit, isSubmitting }:
                           }))
                         }
                         initialFocus
-                        disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                        disabled={(date) =>
+                          date < new Date(new Date().setHours(0, 0, 0, 0))
+                        }
                       />
                     </PopoverContent>
                   </Popover>
-                  {errors.startDate && <p className="text-xs text-destructive">{errors.startDate}</p>}
+                  {errors.startDate && (
+                    <p className="text-xs text-destructive">
+                      {errors.startDate}
+                    </p>
+                  )}
                 </div>
               </div>
             ) : (
@@ -566,7 +668,7 @@ export default function BoardPetsView({ owner, onBack, onSubmit, isSubmitting }:
                           variant="outline"
                           className="w-full justify-start text-left font-normal"
                         >
-                          <CalendarIcon className="mr-2 h-4 w-4 text-blue-500" />
+                          <FaCalendarDay className="mr-2 h-4 w-4 text-blue-500" />
                           {formatDate(formData.startDate)}
                         </Button>
                       </PopoverTrigger>
@@ -575,23 +677,30 @@ export default function BoardPetsView({ owner, onBack, onSubmit, isSubmitting }:
                           mode="single"
                           selected={formData.startDate}
                           onSelect={(date) => {
-                            if (!date) return
+                            if (!date) return;
 
                             // Ensure end date is not before start date
-                            const newEndDate = formData.endDate < date ? date : formData.endDate
+                            const newEndDate =
+                              formData.endDate < date ? date : formData.endDate;
 
                             setFormData((prev) => ({
                               ...prev,
                               startDate: date,
                               endDate: newEndDate,
-                            }))
+                            }));
                           }}
                           initialFocus
-                          disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                          disabled={(date) =>
+                            date < new Date(new Date().setHours(0, 0, 0, 0))
+                          }
                         />
                       </PopoverContent>
                     </Popover>
-                    {errors.startDate && <p className="text-xs text-destructive">{errors.startDate}</p>}
+                    {errors.startDate && (
+                      <p className="text-xs text-destructive">
+                        {errors.startDate}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="end-date" className="text-sm font-medium">
@@ -599,8 +708,12 @@ export default function BoardPetsView({ owner, onBack, onSubmit, isSubmitting }:
                     </Label>
                     <Popover>
                       <PopoverTrigger asChild>
-                        <Button id="end-date" variant="outline" className="w-full justify-start text-left font-normal">
-                          <CalendarIcon className="mr-2 h-4 w-4 text-amber-500" />
+                        <Button
+                          id="end-date"
+                          variant="outline"
+                          className="w-full justify-start text-left font-normal"
+                        >
+                          <FaCalendarDay className="mr-2 h-4 w-4 text-amber-500" />
                           {formatDate(formData.endDate)}
                         </Button>
                       </PopoverTrigger>
@@ -608,13 +721,20 @@ export default function BoardPetsView({ owner, onBack, onSubmit, isSubmitting }:
                         <Calendar
                           mode="single"
                           selected={formData.endDate}
-                          onSelect={(date) => date && setFormData((prev) => ({ ...prev, endDate: date }))}
+                          onSelect={(date) =>
+                            date &&
+                            setFormData((prev) => ({ ...prev, endDate: date }))
+                          }
                           initialFocus
                           disabled={(date) => date < formData.startDate}
                         />
                       </PopoverContent>
                     </Popover>
-                    {errors.endDate && <p className="text-xs text-destructive">{errors.endDate}</p>}
+                    {errors.endDate && (
+                      <p className="text-xs text-destructive">
+                        {errors.endDate}
+                      </p>
+                    )}
                   </div>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -627,8 +747,6 @@ export default function BoardPetsView({ owner, onBack, onSubmit, isSubmitting }:
 
           {/* Right column: Pet selection, notes and pricing */}
           <div className="space-y-4">
-            
-
             <div className="space-y-2">
               <Label htmlFor="notes" className="text-sm font-medium">
                 Additional Notes
@@ -651,7 +769,11 @@ export default function BoardPetsView({ owner, onBack, onSubmit, isSubmitting }:
                 </div>
                 <div className="flex justify-between text-sm">
                   <span>Duration:</span>
-                  <span>{formData.type === "Daycare" ? "1 day" : `${calculateDuration()} days`}</span>
+                  <span>
+                    {formData.type === "Daycare"
+                      ? "1 day"
+                      : `${calculateDuration()} days`}
+                  </span>
                 </div>
                 <div className="flex justify-between pt-2 border-t mt-2">
                   <span className="font-medium">Total</span>
@@ -668,8 +790,6 @@ export default function BoardPetsView({ owner, onBack, onSubmit, isSubmitting }:
           </div>
         </div>
 
-        
-
         {/* Submit button */}
         <div className="pt-4 border-t flex justify-end gap-2">
           <Button variant="outline" onClick={onBack}>
@@ -677,7 +797,11 @@ export default function BoardPetsView({ owner, onBack, onSubmit, isSubmitting }:
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={isSubmitting || availablePets.length === 0 || formData.petIds.length === 0}
+            disabled={
+              isSubmitting ||
+              availablePets.length === 0 ||
+              formData.petIds.length === 0
+            }
             className="bg-green-600 hover:bg-green-700 text-white dark:bg-green-600 dark:hover:bg-green-700 dark:text-white"
           >
             {isSubmitting ? (
@@ -688,7 +812,14 @@ export default function BoardPetsView({ owner, onBack, onSubmit, isSubmitting }:
                   fill="none"
                   viewBox="0 0 24 24"
                 >
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
                   <path
                     className="opacity-75"
                     fill="currentColor"
@@ -698,14 +829,11 @@ export default function BoardPetsView({ owner, onBack, onSubmit, isSubmitting }:
                 Processing...
               </>
             ) : (
-              <>
-                <Hotel className="mr-2 h-4 w-4" />
-                Create Boarding
-              </>
+              <>Create Boarding</>
             )}
           </Button>
         </div>
       </div>
     </PageLayout>
-  )
+  );
 }
