@@ -4,6 +4,10 @@ import type React from "react";
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { FaClipboardList } from "react-icons/fa";
+import { BsClipboard2XFill } from "react-icons/bs";
+import { FaThumbsUp, FaThumbsDown } from "react-icons/fa6";
+import { MdDelete } from "react-icons/md";
 import {
   Card,
   CardContent,
@@ -61,6 +65,10 @@ import { useMediaQuery } from "@/hooks/use-media-query";
 import { Textarea } from "@/components/ui/textarea";
 import { formatDistanceToNow } from "date-fns";
 import { useRequestStore } from "@/lib/shared-request-data";
+import { TbClockPlus } from "react-icons/tb";
+import { IoVideocam } from "react-icons/io5";
+import { BsFillCameraFill } from "react-icons/bs";
+import { FaCut } from "react-icons/fa";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -75,13 +83,13 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 const getRequestTypeIcon = (type: string) => {
   switch (type) {
     case "photo":
-      return <Camera className="h-5 w-5" />;
+      return <BsFillCameraFill className="h-5 w-5" />;
     case "video":
-      return <Video className="h-5 w-5" />;
+      return <IoVideocam className="h-5 w-5" />;
     case "grooming":
-      return <Scissors className="h-5 w-5" />;
+      return <FaCut className="h-5 w-5" />;
     case "boarding-extension":
-      return <Clock className="h-5 w-5" />;
+      return <TbClockPlus className="h-5 w-5" />;
     case "custom":
       return <FileText className="h-5 w-5" />;
     case "dog":
@@ -538,7 +546,7 @@ export default function RequestsPage() {
                   value="new"
                   className="flex items-center justify-center gap-2 rounded-md transition-all h-12 text-base bg-muted/40 dark:bg-muted/20 shadow-lg hover:shadow-xl"
                 >
-                  <FileText className="h-5 w-5" />
+                  <FaClipboardList className="h-5 w-5" />
                   <span className="hidden sm:inline">New Requests</span>
                   <span className="sm:hidden">New</span>
                   <Skeleton className="h-5 w-8 rounded-full" />
@@ -547,7 +555,7 @@ export default function RequestsPage() {
                   value="rejected"
                   className="flex items-center justify-center gap-2 rounded-md transition-all h-12 text-base bg-muted/40 dark:bg-muted/20 shadow-lg hover:shadow-xl"
                 >
-                  <X className="h-5 w-5" />
+                  <BsClipboard2XFill className="h-5 w-5" />
                   <span className="hidden sm:inline">Rejected Requests</span>
                   <span className="sm:hidden">Rejected</span>
                   <Skeleton className="h-5 w-8 rounded-full" />
@@ -580,7 +588,7 @@ export default function RequestsPage() {
                       : "bg-muted/40 dark:bg-muted/20 text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  <FileText className="h-5 w-5" />
+                  <FaClipboardList className="h-5 w-5" />
                   <span className="hidden sm:inline">New Requests</span>
                   <span className="sm:hidden">New</span>
                   <Badge
@@ -615,7 +623,7 @@ export default function RequestsPage() {
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <X className="h-5 w-5" />
+                    <BsClipboard2XFill className="h-5 w-5" />
                     <span className="hidden sm:inline">Rejected Requests</span>
                     <span className="sm:hidden">Rejected</span>
                     <Badge
@@ -955,7 +963,7 @@ export default function RequestsPage() {
                         disabled={isProcessing}
                         className={`${isMobile ? "w-full" : ""}`}
                       >
-                        <ThumbsDown className="mr-2 h-4 w-4 text" />
+                        <FaThumbsDown className="mr-2 h-4 w-4 text" />
                         Reject
                       </Button>
                       <Button
@@ -971,7 +979,7 @@ export default function RequestsPage() {
                           </>
                         ) : (
                           <>
-                            <ThumbsUp className="mr-2 h-4 w-4" />
+                            <FaThumbsUp className="mr-2 h-4 w-4" />
                             Approve
                           </>
                         )}
@@ -1013,7 +1021,7 @@ export default function RequestsPage() {
                             }}
                             className={`${isMobile ? "w-full" : ""}`}
                           >
-                            <Trash2 className="mr-2 h-4 w-4" />
+                            <MdDelete className="mr-2 h-4 w-4" />
                             Delete Request
                           </Button>
                         );
@@ -1216,7 +1224,7 @@ export default function RequestsPage() {
                 </>
               ) : (
                 <>
-                  <Trash2 className="mr-2 h-4 w-4" />
+                  <MdDelete className="mr-2 h-4 w-4" />
                   Delete Permanently
                 </>
               )}
@@ -1457,7 +1465,7 @@ function NewRequestCard({
                 </>
               ) : (
                 <>
-                  <ThumbsUp className="mr-1 sm:mr-2 h-4 w-4" />
+                  <FaThumbsUp className="mr-1 sm:mr-2 h-4 w-4" />
                   <span>Approve</span>
                 </>
               )}
@@ -1468,7 +1476,7 @@ function NewRequestCard({
               onClick={handleReject}
               size={isSmallCard ? "sm" : "default"}
             >
-              <ThumbsDown className="mr-1 sm:mr-2 h-4 w-4" />
+              <FaThumbsDown className="mr-1 sm:mr-2 h-4 w-4" />
               <span>Reject</span>
             </Button>
           </div>
@@ -1713,7 +1721,7 @@ function RejectedRequestCard({
               </>
             ) : (
               <>
-                <Trash2 className="mr-2 h-4 w-4" />
+                <MdDelete className="mr-2 h-4 w-4" />
                 Delete
               </>
             )}
@@ -1763,7 +1771,7 @@ function RejectedRequestCard({
                 </>
               ) : (
                 <>
-                  <Trash2 className="mr-2 h-4 w-4" />
+                  <MdDelete className="mr-2 h-4 w-4" />
                   Delete Permanently
                 </>
               )}
