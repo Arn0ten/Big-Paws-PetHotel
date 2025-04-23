@@ -28,6 +28,9 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import type { BoardingOrder } from "../types";
+import { IoIosPrint } from "react-icons/io";
+import { RiDownload2Fill } from "react-icons/ri";
+import { BsEnvelopeArrowUpFill } from "react-icons/bs";
 import {
   formatDate,
   formatCurrency,
@@ -733,7 +736,7 @@ export function ReceiptDialog({
               onClick={handlePrint}
               className="flex-1 sm:flex-none"
             >
-              <Printer className="mr-2 h-4 w-4" />
+              <IoIosPrint className="mr-2 h-4 w-4" />
               Print
             </Button>
             <Button
@@ -741,7 +744,7 @@ export function ReceiptDialog({
               onClick={handleDownload}
               className="flex-1 sm:flex-none"
             >
-              <Download className="mr-2 h-4 w-4" />
+              <RiDownload2Fill className="mr-2 h-4 w-4" />
               Download
             </Button>
             <Button
@@ -749,7 +752,7 @@ export function ReceiptDialog({
               onClick={handleSendEmail}
               className="flex-1 sm:flex-none"
             >
-              <Send className="mr-2 h-4 w-4" />
+              <BsEnvelopeArrowUpFill className="mr-2 h-4 w-4" />
               Email
             </Button>
           </div>

@@ -25,6 +25,7 @@ import {
 import { MoreHorizontal, Edit, Trash2, Info } from "lucide-react";
 import { RiHome5Fill } from "react-icons/ri";
 import { FaShieldDog, FaShieldCat } from "react-icons/fa6";
+import { IoAlertCircle } from "react-icons/io5";
 import { TiEye } from "react-icons/ti";
 import type { Pet, PetOwner } from "../utils/types";
 import { Skeleton } from "@/components/ui/skeleton";

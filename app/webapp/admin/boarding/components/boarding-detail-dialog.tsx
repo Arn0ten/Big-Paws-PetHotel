@@ -21,6 +21,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { IoIosListBox } from "react-icons/io";
 import {
   Dialog,
   DialogContent,
@@ -41,6 +42,11 @@ import {
   calculateAdditionalServicesTotal,
   calculateBasePrice,
 } from "../utils/helpers";
+import { FaCircleInfo } from "react-icons/fa6";
+import { FaTags } from "react-icons/fa6";
+import { FaHourglassHalf } from "react-icons/fa";
+import { GoHomeFill } from "react-icons/go";
+import { FaCircleCheck } from "react-icons/fa6";
 import {
   CalendarClock,
   MapPin,
@@ -68,7 +74,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { getIconBgColorClass } from "../../request-management/utils/ui-helpers";
-
+import { IoReceipt } from "react-icons/io5";
+import { GrContactInfo } from "react-icons/gr";
 interface BoardingDetailDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -267,7 +274,7 @@ export function BoardingDetailDialog({
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-base flex items-center gap-2">
-                    <PawPrint className="h-4 w-4 text-primary" />
+                    <FaCircleInfo className="h-4 w-4 text-primary" />
                     PET INFORMATION
                   </CardTitle>
                 </CardHeader>
@@ -335,7 +342,7 @@ export function BoardingDetailDialog({
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-base flex items-center gap-2">
-                    <User className="h-4 w-4 text-primary" />
+                    <GrContactInfo className="h-4 w-4 text-primary" />
                     OWNER INFORMATION
                   </CardTitle>
                 </CardHeader>
@@ -373,7 +380,6 @@ export function BoardingDetailDialog({
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-base flex items-center gap-2">
-                  <CalendarClock className="h-4 w-4 text-primary" />
                   BOARDING DETAILS
                 </CardTitle>
               </CardHeader>
@@ -383,7 +389,7 @@ export function BoardingDetailDialog({
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-muted/20 p-3 rounded-lg">
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <Tag className="h-4 w-4 text-primary" />
+                        <FaTags className="h-4 w-4 text-primary" />
                         <span className="text-sm font-semibold">
                           SERVICE TYPE
                         </span>
@@ -408,7 +414,7 @@ export function BoardingDetailDialog({
                     </div>
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <Clock className="h-4 w-4 text-primary" />
+                        <FaHourglassHalf className="h-4 w-4 text-primary" />
                         <span className="text-sm font-semibold">DURATION</span>
                       </div>
                       <div className="flex items-center justify-between">
@@ -426,7 +432,7 @@ export function BoardingDetailDialog({
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-muted/20 p-3 rounded-lg">
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <Calendar className="h-4 w-4 text-primary" />
+                        <GoHomeFill className="h-4 w-4 text-primary" />
                         <span className="text-sm font-semibold">
                           CHECK-IN / CHECK-OUT
                         </span>
@@ -450,7 +456,7 @@ export function BoardingDetailDialog({
                       {boardingOrder.releaseTimestamp ? (
                         <>
                           <div className="flex items-center gap-2 mb-1">
-                            <LogOut className="h-4 w-4 text-primary" />
+                            <FaCircleCheck className="h-4 w-4 text-primary" />
                             <span className="text-sm font-semibold">
                               RELEASED
                             </span>
@@ -467,7 +473,7 @@ export function BoardingDetailDialog({
                       ) : (
                         <>
                           <div className="flex items-center gap-2 mb-1">
-                            <Tag className="h-4 w-4 text-primary" />
+                            <FaTags className="h-4 w-4 text-primary" />
                             <span className="text-sm font-semibold">RATE</span>
                           </div>
                           <div className="flex justify-between text-sm">
@@ -496,7 +502,7 @@ export function BoardingDetailDialog({
                   {/* Pricing Breakdown */}
                   <div className="border rounded-lg p-3 mt-4">
                     <h4 className="text-sm font-semibold flex items-center gap-2 mb-3">
-                      <PhilippinePesoIcon className="h-4 w-4 text-primary" />
+                      <IoIosListBox className="h-4 w-4 text-primary" />
                       PRICING BREAKDOWN
                     </h4>
                     <div className="space-y-2">
@@ -636,7 +642,7 @@ export function BoardingDetailDialog({
                   className="flex-1 sm:flex-none"
                   variant="outline"
                 >
-                  <Receipt className="mr-2 h-4 w-4" />
+                  <IoReceipt className="mr-2 h-4 w-4" />
                   View Receipt
                 </Button>
               )}

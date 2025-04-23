@@ -2,19 +2,16 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { BoardingOrder } from "../types";
-import {
-  CalendarClock,
-  CheckCircle,
-  AlertTriangle,
-  LogOut,
-  AlertCircle,
-} from "lucide-react";
 
+import { GiDogHouse } from "react-icons/gi";
+import { FaSignOutAlt } from "react-icons/fa";
+import { TbAlertCircleFilled } from "react-icons/tb";
 interface StatsCardsProps {
   boardingOrders: BoardingOrder[];
   isLoading?: boolean;
   onCardClick?: (tabValue: string) => void; // Add this prop for card click handling
 }
+import { FaClipboardCheck } from "react-icons/fa6";
 
 export function StatsCards({
   boardingOrders,
@@ -57,7 +54,7 @@ export function StatsCards({
           <CardTitle className="text-sm font-medium text-white">
             Total Boardings
           </CardTitle>
-          <CalendarClock className="h-4 w-4 text-white" />
+          <GiDogHouse className="h-4 w-4 text-white" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-white">{totalBoardings}</div>
@@ -73,7 +70,7 @@ export function StatsCards({
           <CardTitle className="text-sm font-medium text-white">
             Active Boardings
           </CardTitle>
-          <CheckCircle className="h-4 w-4 text-white" />
+          <FaClipboardCheck className="h-4 w-4 text-white" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-white">{activeBoardings}</div>
@@ -90,7 +87,7 @@ export function StatsCards({
           <CardTitle className="text-sm font-medium text-white">
             Overdue Pickups
           </CardTitle>
-          <AlertCircle className="h-4 w-4 text-white" />
+          <TbAlertCircleFilled className="h-4 w-4 text-white" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-white">{overduePickups}</div>
@@ -109,15 +106,13 @@ export function StatsCards({
           <CardTitle className="text-sm font-medium text-white">
             Released Pets
           </CardTitle>
-          <LogOut className="h-4 w-4 text-white" />
+          <FaSignOutAlt className="h-4 w-4 text-white" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-white">{releasedPets}</div>
           <p className="text-xs text-purple-100">Completed boardings</p>
         </CardContent>
       </Card>
-
-      
     </div>
   );
 }

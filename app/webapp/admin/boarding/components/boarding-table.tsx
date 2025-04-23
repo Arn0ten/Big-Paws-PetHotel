@@ -10,6 +10,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { FaTrashCan } from "react-icons/fa6";
+import { FiMoreVertical } from "react-icons/fi";
+import { IoReceipt } from "react-icons/io5";
+import { FaCheckCircle } from "react-icons/fa";
+import { MdOutlineMoreHoriz } from "react-icons/md";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,18 +27,16 @@ import {
   MoreHorizontal,
   Clock,
   Receipt,
-  Dog,
-  Cat,
-  LogOut,
   Trash2,
   Loader2,
-  AlertCircle,
   PhilippinePesoIcon,
   Eye,
   CheckCircle,
   XCircle,
 } from "lucide-react";
 import type { BoardingOrder, PaymentStatus } from "../types";
+import { GoCheckCircleFill } from "react-icons/go";
+import { FaRegHourglassHalf } from "react-icons/fa6";
 import {
   formatDate,
   calculateDuration,
@@ -43,7 +46,11 @@ import {
 import { BoardingDetailDialog } from "./boarding-detail-dialog";
 import { ReceiptDialog } from "./receipt-dialog";
 import { ConfirmationDialog } from "./confirmation-dialog";
-
+import { IoAlertCircle } from "react-icons/io5";
+import { FaShieldDog, FaShieldCat } from "react-icons/fa6";
+import { FaCircleXmark } from "react-icons/fa6";
+import { FaSignOutAlt } from "react-icons/fa";
+import { MdPendingActions } from "react-icons/md";
 interface BoardingTableProps {
   boardingOrders: BoardingOrder[];
   onUpdatePaymentStatus: (orderId: string, status: PaymentStatus) => void;
@@ -157,9 +164,9 @@ export function BoardingTable({
   const getPetTypeIcon = (type: string) => {
     switch (type.toLowerCase()) {
       case "dog":
-        return <Dog className="h-3 w-3 mr-1" />;
+        return <FaShieldDog className="h-3 w-3 mr-1" />;
       case "cat":
-        return <Cat className="h-3 w-3 mr-1" />;
+        return <FaShieldCat className="h-3 w-3 mr-1" />;
       default:
         return null;
     }
@@ -223,7 +230,7 @@ export function BoardingTable({
                 </TableHead>
                 <TableHead className="hidden sm:table-cell text-center">
                   <div className="flex items-center justify-center">
-                    <Clock className="h-4 w-4 mr-1" />
+                    <FaRegHourglassHalf className="h-4 w-4 mr-1" />
                     <span>Duration</span>
                   </div>
                 </TableHead>
@@ -278,7 +285,7 @@ export function BoardingTable({
                             </span>
                             {order.isOverdue && (
                               <div className="flex items-center text-xs text-red-600 mt-1">
-                                <AlertCircle className="h-3 w-3 mr-1 flex-shrink-0" />{" "}
+                                <IoAlertCircle className="h-3 w-3 mr-1 flex-shrink-0" />{" "}
                                 Overdue
                               </div>
                             )}
@@ -370,7 +377,7 @@ export function BoardingTable({
                                   title="Release Pet"
                                   className="bg-green-600 hover:bg-green-700 text-white w-[100px]"
                                 >
-                                  <LogOut className="h-3.5 w-3.5 mr-1" />
+                                  <GoCheckCircleFill className="h-3.5 w-3.5 mr-1" />
                                   Release
                                 </Button>
                               )}
@@ -384,7 +391,7 @@ export function BoardingTable({
                                   title="Force Release Pet"
                                   className="bg-amber-600 hover:bg-amber-700 text-white w-[100px]"
                                 >
-                                  <LogOut className="h-3.5 w-3.5 mr-1" />
+                                  <FaSignOutAlt className="h-3.5 w-3.5 mr-1" />
                                   Force
                                 </Button>
                               )}
@@ -406,7 +413,7 @@ export function BoardingTable({
                                     <DropdownMenuItem
                                       onClick={() => handleViewDetails(order)}
                                     >
-                                      <Eye className="h-4 w-4 mr-2 text-blue-600" />
+                                      <MdOutlineMoreHoriz className="h-4 w-4 mr-2 text-blue-600" />
                                       View Boarding Details
                                     </DropdownMenuItem>
                                     {order.boardingStatus === "Released" && (
@@ -416,7 +423,7 @@ export function BoardingTable({
                                             handleViewReceipt(order)
                                           }
                                         >
-                                          <Receipt className="h-4 w-4 mr-2 text-purple-600" />
+                                          <IoReceipt className="h-4 w-4 mr-2 text-purple-600" />
                                           View Receipt
                                         </DropdownMenuItem>
                                         <DropdownMenuItem
@@ -425,7 +432,7 @@ export function BoardingTable({
                                           }
                                           className="text-red-600"
                                         >
-                                          <Trash2 className="h-4 w-4 mr-2" />
+                                          <FaTrashCan className="h-4 w-4 mr-2" />
                                           Delete Record
                                         </DropdownMenuItem>
                                       </>
@@ -436,7 +443,7 @@ export function BoardingTable({
                                     <DropdownMenuItem
                                       onClick={() => handleViewDetails(order)}
                                     >
-                                      <Eye className="h-4 w-4 mr-2 text-blue-600" />
+                                      <MdOutlineMoreHoriz className="h-4 w-4 mr-2 text-blue-600" />
                                       View Boarding Details
                                     </DropdownMenuItem>
                                     {order.paymentStatus !== "Paid" && (
@@ -453,7 +460,7 @@ export function BoardingTable({
                                         {isProcessing ? (
                                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                         ) : (
-                                          <CheckCircle className="mr-2 h-4 w-4" />
+                                          <FaCheckCircle className="mr-2 h-4 w-4" />
                                         )}
                                         Mark as Paid
                                       </DropdownMenuItem>
@@ -472,7 +479,7 @@ export function BoardingTable({
                                         {isProcessing ? (
                                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                         ) : (
-                                          <Clock className="mr-2 h-4 w-4" />
+                                          <MdPendingActions className="mr-2 h-4 w-4" />
                                         )}
                                         Mark as Pending
                                       </DropdownMenuItem>
@@ -491,7 +498,7 @@ export function BoardingTable({
                                         {isProcessing ? (
                                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                         ) : (
-                                          <XCircle className="mr-2 h-4 w-4" />
+                                          <FaCircleXmark className="mr-2 h-4 w-4" />
                                         )}
                                         Mark as Not Paid
                                       </DropdownMenuItem>
@@ -503,7 +510,7 @@ export function BoardingTable({
                                             handleReleasePet(order.id)
                                           }
                                         >
-                                          <LogOut className="mr-2 h-4 w-4 text-green-600" />
+                                          <GoCheckCircleFill className="mr-2 h-4 w-4 text-green-600" />
                                           Release Pet
                                         </DropdownMenuItem>
                                       )}
@@ -515,7 +522,7 @@ export function BoardingTable({
                                             handleForceRelease(order.id)
                                           }
                                         >
-                                          <LogOut className="mr-2 h-4 w-4 text-amber-600" />
+                                          <FaSignOutAlt className="mr-2 h-4 w-4 text-amber-600" />
                                           Force Release Pet
                                         </DropdownMenuItem>
                                       )}
