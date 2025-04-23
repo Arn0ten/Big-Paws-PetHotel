@@ -29,6 +29,8 @@ import type { PetOwner } from "../utils/types"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import PageLayout from "@/app/webapp/components/PageLayout"
 
+import { IoAlertCircle } from "react-icons/io5";
+
 interface EditPetOwnerViewProps {
   owner: PetOwner | null
   onBack: () => void

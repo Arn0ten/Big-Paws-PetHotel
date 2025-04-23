@@ -20,6 +20,7 @@ import { useState, useEffect, useRef } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { IoAlertCircle } from "react-icons/io5";
 import {
   Select,
   SelectContent,
@@ -323,7 +324,10 @@ export default function EditPetView({
               }
             />
             {formErrors.name && (
-              <p className="text-xs text-red-500">Pet name is required</p>
+              <p className="text-destructive dark:text-red-400 text-sm flex items-center mt-1.5">
+                <IoAlertCircle className="h-4 w-4 mr-1" />
+                Pet name is required
+              </p>
             )}
           </div>
 
@@ -361,7 +365,10 @@ export default function EditPetView({
               </SelectContent>
             </Select>
             {formErrors.ownerId && (
-              <p className="text-xs text-red-500">Pet owner is required</p>
+              <p className="text-destructive dark:text-red-400 text-sm flex items-center mt-1.5">
+                <IoAlertCircle className="h-4 w-4 mr-1" />
+                Pet owner is required
+              </p>
             )}
           </div>
 
@@ -402,7 +409,10 @@ export default function EditPetView({
               </SelectContent>
             </Select>
             {formErrors.type && (
-              <p className="text-xs text-red-500">Pet type is required</p>
+              <p className="text-destructive dark:text-red-400 text-sm flex items-center mt-1.5">
+                <IoAlertCircle className="h-4 w-4 mr-1" />
+                Pet type is required
+              </p>
             )}
           </div>
         </div>
@@ -440,7 +450,10 @@ export default function EditPetView({
               </SelectContent>
             </Select>
             {formErrors.breed && (
-              <p className="text-xs text-red-500">Breed is required</p>
+              <p className="text-destructive dark:text-red-400 text-sm flex items-center mt-1.5">
+                <IoAlertCircle className="h-4 w-4 mr-1" />
+                Breed is required
+              </p>
             )}
           </div>
 
@@ -467,7 +480,10 @@ export default function EditPetView({
               }
             />
             {formErrors.age && (
-              <p className="text-xs text-red-500">Age is required</p>
+              <p className="text-destructive dark:text-red-400 text-sm flex items-center mt-1.5">
+                <IoAlertCircle className="h-4 w-4 mr-1" />
+                Age is required
+              </p>
             )}
           </div>
 
@@ -500,7 +516,10 @@ export default function EditPetView({
               </SelectContent>
             </Select>
             {formErrors.size && (
-              <p className="text-xs text-red-500">Size is required</p>
+              <p className="text-destructive dark:text-red-400 text-sm flex items-center mt-1.5">
+                <IoAlertCircle className="h-4 w-4 mr-1" />
+                Size is required
+              </p>
             )}
           </div>
         </div>
