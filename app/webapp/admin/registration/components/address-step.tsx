@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { AlertCircle, MapPin, ChevronRight } from "lucide-react";
 import { useFormContext } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
-
+import { IoMdArrowDropright } from "react-icons/io";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-
+import { FaLocationDot } from "react-icons/fa6";
 import type { FormValues } from "../types";
 import { TOAST_MESSAGES } from "../constants";
 
@@ -125,7 +125,7 @@ export function AddressStep({
             Street Address <span className="text-destructive">*</span>
           </Label>
           <div className="relative">
-            <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <FaLocationDot className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Textarea
               id="streetAddress"
               placeholder="House/Unit number, street name, building"
@@ -266,7 +266,7 @@ export function AddressStep({
           onClick={handleNext}
           className="bg-green-600 hover:bg-green-700"
         >
-          Next Step <ChevronRight className="ml-1 h-4 w-4" />
+          Next Step <IoMdArrowDropright className="ml-1 h-4 w-4" />
         </Button>
       </div>
     </motion.div>

@@ -10,21 +10,20 @@ import {
   CardTitle,
   CardFooter,
 } from "@/components/ui/card";
-import {
-  UserPlus,
-  Mail,
-  Phone,
-  AlertCircle,
-  Check,
-  ChevronRight,
-  Smartphone,
-  User,
-  Home,
-  ClipboardList,
-} from "lucide-react";
+import { UserPlus, Check } from "lucide-react";
+import { IoAlertCircle } from "react-icons/io5";
+import { FaUserEdit } from "react-icons/fa";
+import { FaCircleCheck } from "react-icons/fa6";
+import { MdMobileFriendly } from "react-icons/md";
+import { MdAddLocationAlt } from "react-icons/md";
+import { MdMarkEmailRead } from "react-icons/md";
+import { FaPhone } from "react-icons/fa6";
+import { FaListCheck } from "react-icons/fa6";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { BsFillEnvelopeArrowDownFill } from "react-icons/bs";
+import { BsTelephoneInboundFill } from "react-icons/bs";
 import {
   useForm,
   FormProvider,
@@ -47,6 +46,7 @@ import {
   type RegistrationResponse,
   type CredentialResponse,
 } from "./api/registration-api";
+import { IoMdArrowDropright } from "react-icons/io";
 
 // Import the Address Step component
 import { AddressStep } from "./components/address-step";
@@ -351,19 +351,19 @@ export default function RegistrationPage() {
     {
       id: "personal",
       title: "Personal",
-      icon: <User className="h-5 w-5" />,
+      icon: <FaUserEdit className="h-5 w-5" />,
       progress: 33,
     },
     {
       id: "address",
       title: "Address",
-      icon: <Home className="h-5 w-5" />,
+      icon: <MdAddLocationAlt className="h-5 w-5" />,
       progress: 66,
     },
     {
       id: "summary",
       title: "Summary",
-      icon: <ClipboardList className="h-5 w-5" />,
+      icon: <FaListCheck className="h-5 w-5" />,
       progress: 100,
     },
   ];
@@ -704,7 +704,7 @@ const StepPersonalInfo = ({
           />
           {errors.fullName && (
             <p className="text-destructive dark:text-red-400 text-sm flex items-center mt-1.5">
-              <AlertCircle className="h-4 w-4 mr-1" />
+              <IoAlertCircle className="h-4 w-4 mr-1" />
               {errors.fullName.message}
             </p>
           )}
@@ -719,7 +719,7 @@ const StepPersonalInfo = ({
               )}
             </Label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <MdMarkEmailRead className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 id="email"
                 type="email"
@@ -744,7 +744,7 @@ const StepPersonalInfo = ({
             </div>
             {errors.email && (
               <p className="text-destructive dark:text-red-400 text-sm flex items-center mt-1.5">
-                <AlertCircle className="h-4 w-4 mr-1" />
+                <IoAlertCircle className="h-4 w-4 mr-1" />
                 {errors.email.message}
               </p>
             )}
@@ -756,7 +756,7 @@ const StepPersonalInfo = ({
               {!watchEmail && <span className="text-destructive">*</span>}
             </Label>
             <div className="relative">
-              <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <FaPhone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 id="contactNumber"
                 placeholder="09XXXXXXXXX or +639XXXXXXXXX"
@@ -780,7 +780,7 @@ const StepPersonalInfo = ({
             </div>
             {errors.contactNumber && (
               <p className="text-destructive dark:text-red-400 text-sm flex items-center mt-1.5">
-                <AlertCircle className="h-4 w-4 mr-1" />
+                <IoAlertCircle className="h-4 w-4 mr-1" />
                 {errors.contactNumber.message}
               </p>
             )}
@@ -794,7 +794,7 @@ const StepPersonalInfo = ({
           onClick={handleNext}
           className="bg-green-600 hover:bg-green-700"
         >
-          Next Step <ChevronRight className="ml-1 h-4 w-4" />
+          Next Step <IoMdArrowDropright className="ml-1 h-4 w-4" />
         </Button>
       </div>
     </motion.div>
@@ -827,7 +827,7 @@ const StepSummary = ({
       <div className="space-y-4">
         <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg mb-6">
           <p className="text-sm text-green-700 dark:text-green-300 flex items-center">
-            <Check className="h-5 w-5 mr-2 text-green-600 dark:text-green-400" />
+            <FaCircleCheck className="h-5 w-5 mr-2 text-green-600 dark:text-green-400" />
             <span className="font-medium">
               Please review the information below before submitting.
             </span>
@@ -837,7 +837,7 @@ const StepSummary = ({
         {/* Personal Information Summary */}
         <div className="border rounded-lg p-4 bg-muted/20">
           <h3 className="text-lg font-medium flex items-center mb-3 text-green-700 dark:text-green-400">
-            <User className="h-5 w-5 mr-2" />
+            <FaUserEdit className="h-5 w-5 mr-2" />
             Personal Information
           </h3>
           <div className="grid grid-cols-1 gap-4">
@@ -869,7 +869,7 @@ const StepSummary = ({
         {/* Address Information Summary */}
         <div className="border rounded-lg p-4 bg-muted/20">
           <h3 className="text-lg font-medium flex items-center mb-3 text-green-700 dark:text-green-400">
-            <Home className="h-5 w-5 mr-2" />
+            <MdAddLocationAlt className="h-5 w-5 mr-2" />
             Address Information
           </h3>
           <div className="grid grid-cols-1 gap-4">
@@ -1011,7 +1011,7 @@ const SuccessCard = ({
             }}
             className="mx-auto bg-green-100 dark:bg-green-900 rounded-full p-3 mb-4"
           >
-            <Check className="h-8 w-8 text-green-600 dark:text-green-300" />
+            <FaCircleCheck className="h-8 w-8 text-green-600 dark:text-green-300" />
           </motion.div>
           <CardTitle className="text-xl text-green-700 dark:text-green-400">
             Registration Successful!
@@ -1044,7 +1044,7 @@ const SuccessCard = ({
                     disabled={!watchEmail}
                   >
                     <div className="bg-green-100 dark:bg-green-900/30 rounded-full p-2 mb-2">
-                      <Mail className="h-6 w-6 text-green-600 dark:text-green-400" />
+                      <BsFillEnvelopeArrowDownFill className="h-6 w-6 text-green-600 dark:text-green-400" />
                     </div>
                     <span className="font-medium">Via Email</span>
                     {!watchEmail ? (
@@ -1075,7 +1075,7 @@ const SuccessCard = ({
                     disabled={!watchContactNumber}
                   >
                     <div className="bg-green-100 dark:bg-green-900/30 rounded-full p-2 mb-2">
-                      <Phone className="h-6 w-6 text-green-600 dark:text-green-400" />
+                      <BsTelephoneInboundFill className="h-6 w-6 text-green-600 dark:text-green-400" />
                     </div>
                     <span className="font-medium">Via SMS</span>
                     {!watchContactNumber ? (
@@ -1105,7 +1105,7 @@ const SuccessCard = ({
               >
                 {credentialMethod === "email" ? (
                   <div className="bg-green-100 dark:bg-green-900/30 rounded-full p-4">
-                    <Mail className="h-12 w-12 text-green-600 dark:text-green-400" />
+                    <MdMarkEmailRead className="h-12 w-12 text-green-600 dark:text-green-400" />
                   </div>
                 ) : (
                   <motion.div
@@ -1119,7 +1119,7 @@ const SuccessCard = ({
                       repeatType: "loop",
                     }}
                   >
-                    <Smartphone className="h-12 w-12 text-green-600 dark:text-green-400" />
+                    <MdMobileFriendly className="h-12 w-12 text-green-600 dark:text-green-400" />
                   </motion.div>
                 )}
               </motion.div>
@@ -1129,12 +1129,12 @@ const SuccessCard = ({
               <p className="font-medium text-lg">
                 {credentialMethod === "email" ? (
                   <span className="flex items-center justify-center">
-                    <Mail className="h-4 w-4 mr-2 text-green-600 dark:text-green-400" />{" "}
+                    <MdMarkEmailRead className="h-4 w-4 mr-2 text-green-600 dark:text-green-400" />{" "}
                     {contactValue}
                   </span>
                 ) : (
                   <span className="flex items-center justify-center">
-                    <Phone className="h-4 w-4 mr-2 text-green-600 dark:text-green-400" />{" "}
+                    <FaPhone className="h-4 w-4 mr-2 text-green-600 dark:text-green-400" />{" "}
                     {contactValue}
                   </span>
                 )}

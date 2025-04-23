@@ -337,6 +337,8 @@ export function PetOwnerTableRow({
                 className="text-red-600 hover:text-red-700 focus:text-red-700 dark:text-red-500 dark:hover:text-red-400"
                 onClick={(e) => {
                   e.stopPropagation(); // Prevent row click
+                  // Calls the onDeleteOwner prop with the owner's id.
+                  // The parent component handles the actual deletion logic (confirmation, API call, etc.).
                   onDeleteOwner(owner.id);
                 }}
               >

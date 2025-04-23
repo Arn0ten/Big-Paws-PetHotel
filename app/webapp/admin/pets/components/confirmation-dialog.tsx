@@ -22,7 +22,13 @@ interface ConfirmationDialogProps {
   description: string;
   isLoading?: boolean;
 }
-
+export interface DeleteConfirmDialogProps {
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  onConfirm: () => void;
+  title?: string;
+  description?: string;
+}
 // Update the ConfirmationDialog to match the standard layout
 export function ConfirmationDialog({
   isOpen,
@@ -65,7 +71,32 @@ export function ConfirmationDialog({
     </Dialog>
   );
 }
-
+export function DeleteConfirmDialog({
+  isOpen,
+  onOpenChange,
+  onConfirm,
+  title = "Delete Pet Owner",
+  description = "Are you sure you want to delete this pet owner? This action cannot be undone.",
+}: DeleteConfirmDialogProps) {
+  return (
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button variant="destructive" onClick={onConfirm}>
+            Delete
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
 export function SuccessDialog({
   isOpen,
   onClose,

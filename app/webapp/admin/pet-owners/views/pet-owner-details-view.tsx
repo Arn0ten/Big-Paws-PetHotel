@@ -459,6 +459,10 @@ export default function PetOwnerDetailsView({
           <Plus className="mr-2 h-4 w-4" />
           Add Pet
         </Button>
+        {/* 
+          When clicked, this button calls the onDelete prop function.
+          The actual delete logic (confirmation, API call, etc.) is handled by the parent component.
+        */}
         <Button
           variant="outline"
           className="bg-red-600 hover:bg-red-700 text-white border-transparent hover:text-white dark:bg-red-700 dark:hover:bg-red-600 dark:text-white"

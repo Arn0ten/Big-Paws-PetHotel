@@ -45,3 +45,4 @@ export interface BoardingDetails {
   endTime?: string;
   notes?: string;
 }
+export const ITEMS_PER_PAGE = 6;

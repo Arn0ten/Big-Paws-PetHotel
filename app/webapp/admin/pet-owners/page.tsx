@@ -42,15 +42,16 @@ import {
 import { FaUserCheck } from "react-icons/fa";
 
 // Import types and components from consolidated files
-import type { Pet, BoardingDetails } from "./utils/types";
-import { ITEMS_PER_PAGE } from "./utils/constants";
+import { ITEMS_PER_PAGE, type Pet, BoardingDetails } from "./utils/types";
 import { usePetOwners, usePagination } from "./hooks";
 import {
   PetOwnerTable,
   PaginationControls,
 } from "./components/table-components";
-import { DeleteConfirmDialog } from "./components/dialogs";
-import { SuccessDialog as ActionSuccessDialog } from "../pets/components/confirmation-dialog";
+import {
+  SuccessDialog as ActionSuccessDialog,
+  DeleteConfirmDialog,
+} from "../pets/components/confirmation-dialog";
 import type { PetOwner } from "./utils/types";
 import PetOwnerDetailsView from "./views/pet-owner-details-view";
 import BoardPetsView from "./views/board-pets-view";
