@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { IoIosArrowBack } from "react-icons/io";
+
 import {
   ArrowLeft,
   Calendar,
@@ -389,9 +391,9 @@ export default function RequestDetailPage(): JSX.Element {
           variant="ghost"
           size="icon"
           onClick={handleBackClick}
-          className="mr-4"
+          className="mr-4 border border-gray-300 dark:border-gray-600"
         >
-          <ArrowLeft className="h-5 w-5" />
+          <IoIosArrowBack className="h-6 w-6" />
         </Button>
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground dark:text-foreground">
