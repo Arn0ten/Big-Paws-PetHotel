@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Wand2, RefreshCw, Loader2 } from "lucide-react";
 import { generateProcessingNote } from "@/lib/note-templates";
+import { FaMagic } from "react-icons/fa";
 import {
   Tooltip,
   TooltipContent,
@@ -77,7 +78,7 @@ export function NoteGenerator({
                   </>
                 ) : (
                   <>
-                    <Wand2 className="mr-2 h-3.5 w-3.5" />
+                    <FaMagic className="mr-2 h-3.5 w-3.5" />
                     Generate Note
                   </>
                 )}

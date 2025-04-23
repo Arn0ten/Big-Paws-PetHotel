@@ -9,9 +9,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { FaListCheck } from "react-icons/fa6";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
+import { IoVolumeHigh } from "react-icons/io5";
+import { IoMdVolumeOff } from "react-icons/io";
+import { FaExpand } from "react-icons/fa6";
+import { RiFileUploadFill } from "react-icons/ri";
+import { BsInfoCircleFill } from "react-icons/bs";
+import { IoMdArrowDropright, IoMdArrowDropleft } from "react-icons/io";
+import { FaClipboardList } from "react-icons/fa6";
 import {
   Popover,
   PopoverContent,
@@ -19,6 +27,7 @@ import {
 } from "@/components/ui/popover";
 import { format, addDays, addHours, parseISO, isBefore } from "date-fns";
 import { cn } from "@/lib/utils";
+import { MdChecklist } from "react-icons/md";
 import {
   CalendarIcon,
   Clock,
@@ -39,6 +48,10 @@ import {
   Volume2,
   VolumeX,
 } from "lucide-react";
+import { TbClockPlus } from "react-icons/tb";
+import { IoVideocam } from "react-icons/io5";
+import { BsFillCameraFill } from "react-icons/bs";
+import { FaCut } from "react-icons/fa";
 import {
   Card,
   CardContent,
@@ -797,13 +810,13 @@ export default function EnhancedRequestDialog({
   const getRequestTypeIcon = () => {
     switch (request.type) {
       case "photo":
-        return <Camera className="h-5 w-5" />;
+        return <BsFillCameraFill className="h-5 w-5" />;
       case "video":
-        return <Video className="h-5 w-5" />;
+        return <IoVideocam className="h-5 w-5" />;
       case "grooming":
-        return <Scissors className="h-5 w-5" />;
+        return <FaCut className="h-5 w-5" />;
       case "boarding-extension":
-        return <Clock className="h-5 w-5" />;
+        return <TbClockPlus className="h-5 w-5" />;
       default:
         return <ClipboardList className="h-5 w-5" />;
     }
@@ -988,7 +1001,7 @@ export default function EnhancedRequestDialog({
               <Card className={`border ${getRequestTypeBorderClass()}`}>
                 <CardHeader className={`${getRequestTypeBgClass()} pb-2`}>
                   <CardTitle className="text-lg flex items-center gap-2">
-                    <Info className="h-5 w-5" />
+                    <BsInfoCircleFill className="h-5 w-5" />
                     Request Details
                   </CardTitle>
                 </CardHeader>
@@ -1089,7 +1102,7 @@ export default function EnhancedRequestDialog({
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-lg flex items-center gap-2">
-                    <Camera className="h-5 w-5 text-blue-600" />
+                    <RiFileUploadFill className="h-5 w-5 text-blue-600" />
                     Upload Photos
                   </CardTitle>
                   <CardDescription>
@@ -1117,7 +1130,7 @@ export default function EnhancedRequestDialog({
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-lg flex items-center gap-2">
-                    <Video className="h-5 w-5 text-purple-600" />
+                    <RiFileUploadFill className="h-5 w-5 text-purple-600" />
                     Upload Video
                   </CardTitle>
                   <CardDescription>
@@ -1148,7 +1161,7 @@ export default function EnhancedRequestDialog({
               <Card className="border-green-200 dark:border-green-800">
                 <CardHeader className="bg-green-50 dark:bg-green-950/20 pb-2">
                   <CardTitle className="text-lg flex items-center gap-2">
-                    <Scissors className="h-5 w-5 text-green-600" />
+                    <FaListCheck className="h-5 w-5 text-green-600" />
                     Confirm Grooming Service
                   </CardTitle>
                   <CardDescription>
@@ -1163,14 +1176,16 @@ export default function EnhancedRequestDialog({
                         Requested Service:
                       </Label>
                       <Badge className="bg-green-100 text-green-700 hover:bg-green-100 dark:bg-green-900 dark:text-green-300 text-sm font-medium">
-                        {(
-                          request.groomingService
-                          ?.replace(/-/g, " ")
-                          .replace(/\b\w/g, (l: string) => l.toUpperCase()) ||
-                          selectedGroomingService
-                          .replace(/-/g, " ")
-                          .replace(/\b\w/g, (l: string) => l.toUpperCase())
-                        ) as string}
+                        {
+                          (request.groomingService
+                            ?.replace(/-/g, " ")
+                            .replace(/\b\w/g, (l: string) => l.toUpperCase()) ||
+                            selectedGroomingService
+                              .replace(/-/g, " ")
+                              .replace(/\b\w/g, (l: string) =>
+                                l.toUpperCase(),
+                              )) as string
+                        }
                       </Badge>
                     </div>
 
@@ -1209,7 +1224,7 @@ export default function EnhancedRequestDialog({
               <Card className="border-amber-200 dark:border-amber-800">
                 <CardHeader className="bg-amber-50 dark:bg-amber-950/20 pb-2">
                   <CardTitle className="text-lg flex items-center gap-2">
-                    <Clock className="h-5 w-5 text-amber-600" />
+                    <FaListCheck className="h-5 w-5 text-amber-600" />
                     Confirm Boarding Extension
                   </CardTitle>
                   <CardDescription>
@@ -1284,7 +1299,7 @@ export default function EnhancedRequestDialog({
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-lg flex items-center gap-2">
-                    <ClipboardList className="h-5 w-5" />
+                    <FaClipboardList className="h-5 w-5" />
                     Processing Notes
                   </CardTitle>
                   <CardDescription>
@@ -1313,7 +1328,7 @@ export default function EnhancedRequestDialog({
               <Card className={`border ${getRequestTypeBorderClass()}`}>
                 <CardHeader className={`${getRequestTypeBgClass()} pb-2`}>
                   <CardTitle className="text-lg flex items-center gap-2">
-                    <CheckCircle2 className="h-5 w-5" />
+                    <MdChecklist className="h-5 w-5" />
                     Review and Complete
                   </CardTitle>
                   <CardDescription>
@@ -1504,7 +1519,7 @@ export default function EnhancedRequestDialog({
                           className="absolute top-2 right-2 bg-black/50 text-white p-1.5 rounded-full hover:bg-black/70 transition-colors opacity-0 group-hover:opacity-100 transition-opacity"
                           aria-label="View fullscreen"
                         >
-                          <Eye className="h-4 w-4" />
+                          <FaExpand className="h-4 w-4" />
                         </button>
 
                         {selectedAudioUrl && !audioMerged && (
@@ -1574,7 +1589,7 @@ export default function EnhancedRequestDialog({
                               className="absolute top-2 right-2 bg-black/50 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
                               aria-label="View fullscreen"
                             >
-                              <Eye className="h-4 w-4" />
+                              <FaExpand className="h-4 w-4" />
                             </button>
 
                             {/* Add a subtle overlay on hover to indicate it's clickable */}
@@ -1725,9 +1740,9 @@ export default function EnhancedRequestDialog({
                     onClick={toggleMute}
                   >
                     {isVideoMuted ? (
-                      <VolumeX className="h-5 w-5" />
+                      <IoMdVolumeOff className="h-5 w-5" />
                     ) : (
-                      <Volume2 className="h-5 w-5" />
+                      <IoVolumeHigh className="h-5 w-5" />
                     )}
                   </button>
                 </div>
@@ -1743,7 +1758,7 @@ export default function EnhancedRequestDialog({
               onClick={() => setCurrentStep(currentStep - 1)}
               className="flex items-center"
             >
-              <ArrowLeft className="mr-2 h-4 w-4" />
+              <IoMdArrowDropleft className="mr-2 h-4 w-4" />
               Back
             </Button>
           )}
@@ -1755,7 +1770,7 @@ export default function EnhancedRequestDialog({
               className="flex items-center"
             >
               Next
-              <ArrowRight className="ml-2 h-4 w-4" />
+              <IoMdArrowDropright className="ml-2 h-4 w-4" />
             </Button>
           )}
 
@@ -1771,10 +1786,7 @@ export default function EnhancedRequestDialog({
                   Processing...
                 </>
               ) : (
-                <>
-                  <CheckCircle2 className="mr-2 h-4 w-4" />
-                  Complete Request
-                </>
+                <>Complete Request</>
               )}
             </Button>
           )}

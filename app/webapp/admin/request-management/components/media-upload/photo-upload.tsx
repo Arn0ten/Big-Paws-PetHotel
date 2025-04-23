@@ -6,6 +6,9 @@ import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
+import { MdUpload } from "react-icons/md";
+import { BiSolidImageAdd } from "react-icons/bi";
+import { FaExpand } from "react-icons/fa";
 import {
   Upload,
   X,
@@ -220,7 +223,7 @@ export function PhotoUpload({
               className="hidden"
               ref={fileInputRef}
             />
-            <Upload className="h-8 w-8 text-muted-foreground mb-2" />
+            <BiSolidImageAdd className="h-8 w-8 text-muted-foreground mb-2" />
             <p className="text-sm font-medium mb-1">
               Drag and drop photos here or click to browse
             </p>
@@ -247,31 +250,31 @@ export function PhotoUpload({
                     className="w-full h-full object-cover"
                   />
                   {/* Improved hover overlay with centered buttons */}
+                  {/* Always-visible remove (X) button at top-right */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent opening fullscreen
+                      onRemoveFile(index);
+                    }}
+                    className="absolute top-2 right-2 bg-black/60 text-white p-1.5 rounded-full z-10 hover:bg-black/80 transition-colors"
+                    aria-label="Remove photo"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                  {/* Hover overlay for expand button */}
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <div className="flex gap-2">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation(); // Prevent opening fullscreen
-                          onRemoveFile(index);
-                        }}
-                        className="bg-red-500/90 text-white p-1.5 rounded-full hover:bg-red-600 transition-colors"
-                        aria-label="Remove photo"
-                      >
-                        <X className="h-4 w-4" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation(); // Prevent duplicate events
-                          openFullscreen(index);
-                        }}
-                        className="bg-white/90 text-gray-800 p-1.5 rounded-full hover:bg-white transition-colors"
-                        aria-label="View photo"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </button>
-                    </div>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent duplicate events
+                        openFullscreen(index);
+                      }}
+                      className="bg-white/90 text-gray-800 p-1.5 rounded-full hover:bg-white transition-colors"
+                      aria-label="View photo"
+                    >
+                      <FaExpand className="h-4 w-4" />
+                    </button>
                   </div>
                 </div>
                 <p className="text-xs text-muted-foreground mt-1 truncate">
@@ -287,7 +290,7 @@ export function PhotoUpload({
                 onClick={handleFileInputClick}
               >
                 <div className="flex flex-col items-center gap-1 p-4 text-center">
-                  <Upload className="h-6 w-6 text-muted-foreground mb-1" />
+                  <BiSolidImageAdd className="h-6 w-6 text-muted-foreground mb-1" />
                   <span className="text-sm font-medium">Add More</span>
                   <span className="text-xs text-muted-foreground">
                     {maxFiles - selectedFiles.length} remaining

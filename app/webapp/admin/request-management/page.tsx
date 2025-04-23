@@ -35,6 +35,8 @@ import { InProgressRequestCard } from "./components/in-progress-request-card";
 import { CompletedRequestCard } from "./components/completed-request-card";
 import { RequestCardSkeleton } from "./components/request-card-skeleton";
 import { EmptyState } from "./components/empty-state";
+import { GrInProgress } from "react-icons/gr";
+import { BsClipboard2CheckFill } from "react-icons/bs";
 
 // Enhance the tab interface in the main component
 export default function RequestManagementPage() {
@@ -542,7 +544,7 @@ export default function RequestManagementPage() {
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                <Loader2 className="h-5 w-5" />
+                <GrInProgress className="h-5 w-5" />
                 <span className="hidden sm:inline">In Progress</span>
                 <span className="sm:hidden">In Progress</span>
                 <Badge
@@ -564,7 +566,7 @@ export default function RequestManagementPage() {
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                <CheckCircle className="h-5 w-5" />
+                <BsClipboard2CheckFill className="h-5 w-5" />
                 <span className="hidden sm:inline">Completed</span>
                 <span className="sm:hidden">Completed</span>
                 <Badge

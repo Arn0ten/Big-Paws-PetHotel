@@ -1,5 +1,8 @@
-import { Camera, Video, Scissors, Clock, FileText } from "lucide-react";
-
+import { FileText } from "lucide-react";
+import { TbClockPlus } from "react-icons/tb";
+import { IoVideocam } from "react-icons/io5";
+import { BsFillCameraFill } from "react-icons/bs";
+import { FaCut } from "react-icons/fa";
 /**
  * UI Helper Functions for Request Management
  *
@@ -19,13 +22,13 @@ import { Camera, Video, Scissors, Clock, FileText } from "lucide-react";
 export const getRequestTypeIcon = (type: string) => {
   switch (type) {
     case "photo":
-      return <Camera className="h-5 w-5" />;
+      return <BsFillCameraFill className="h-5 w-5" />;
     case "video":
-      return <Video className="h-5 w-5" />;
+      return <IoVideocam className="h-5 w-5" />;
     case "grooming":
-      return <Scissors className="h-5 w-5" />;
+      return <FaCut className="h-5 w-5" />;
     case "boarding-extension":
-      return <Clock className="h-5 w-5" />;
+      return <TbClockPlus className="h-5 w-5" />;
     case "custom":
       return <FileText className="h-5 w-5" />;
     default:

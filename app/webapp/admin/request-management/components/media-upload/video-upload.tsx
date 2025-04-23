@@ -6,7 +6,16 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { MdUpload } from "react-icons/md";
+import { PiMusicNotesPlusFill } from "react-icons/pi";
+import { IoVolumeHigh } from "react-icons/io5";
+import { IoMdVolumeOff } from "react-icons/io";
+import { FaPlay } from "react-icons/fa";
+import { FaPause } from "react-icons/fa6";
+import { MdMusicNote } from "react-icons/md";
+import { IoIosCheckmarkCircle } from "react-icons/io";
+import { FaExpand } from "react-icons/fa";
+import { RiVideoAddFill } from "react-icons/ri";
 import {
   Loader2,
   Upload,
@@ -800,7 +809,7 @@ export function VideoUpload({
               className="hidden"
               ref={fileInputRef}
             />
-            <Upload className="h-8 w-8 text-muted-foreground mb-2" />
+            <RiVideoAddFill className="h-8 w-8 text-muted-foreground mb-2" />
             <p className="text-sm font-medium mb-1">
               Drag and drop video here or click to browse
             </p>
@@ -857,9 +866,9 @@ export function VideoUpload({
                     aria-label={isVideoPlaying ? "Pause video" : "Play video"}
                   >
                     {isVideoPlaying ? (
-                      <Pause className="h-6 w-6" />
+                      <FaPause className="h-6 w-6" />
                     ) : (
-                      <Play className="h-6 w-6 fill-white" />
+                      <FaPlay className="h-6 w-6 fill-white" />
                     )}
                   </button>
                 </div>
@@ -873,7 +882,7 @@ export function VideoUpload({
                   className="absolute top-2 right-2 bg-black/50 text-white p-1.5 rounded-full hover:bg-black/70 transition-colors opacity-0 group-hover:opacity-100 transition-opacity"
                   aria-label="View fullscreen"
                 >
-                  <Eye className="h-4 w-4" />
+                  <FaExpand className="h-4 w-4" />
                 </button>
 
                 {/* Custom video controls */}
@@ -896,9 +905,9 @@ export function VideoUpload({
                       }}
                     >
                       {isMuted ? (
-                        <VolumeX className="h-4 w-4" />
+                        <IoMdVolumeOff className="h-4 w-4" />
                       ) : (
-                        <Volume2 className="h-4 w-4" />
+                        <IoVolumeHigh className="h-4 w-4" />
                       )}
                     </Button>
                   </div>
@@ -999,31 +1008,20 @@ export function VideoUpload({
                   className="w-full sm:w-auto"
                   disabled={audioMerging}
                 >
-                  <Music className="h-4 w-4 mr-1" />
+                  <PiMusicNotesPlusFill className="h-4 w-4 mr-1" />
                   {selectedAudio ? "Change Music" : "Add Music"}
                 </Button>
-                {selectedAudio && (
+                {/* {selectedAudio && audioMerged && (
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={handleAudioMerge}
-                    className="w-full sm:w-auto"
-                    disabled={audioMerging || audioMerged}
+                    className="w-full sm:w-auto border-green-500 text-green-600 bg-green-50 hover:bg-green-100 dark:bg-green-950/20 dark:text-green-400 dark:border-green-400"
+                    disabled
                   >
-                    {audioMerging ? (
-                      <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-                    ) : audioMerged ? (
-                      <CheckCircle className="h-4 w-4 mr-1" />
-                    ) : (
-                      <Save className="h-4 w-4 mr-1" />
-                    )}
-                    {audioMerging
-                      ? "Merging..."
-                      : audioMerged
-                        ? "Merged"
-                        : "Save Audio"}
+                    <IoIosCheckmarkCircle className="h-4 w-4 mr-1 text-green-500" />
+                    Merged
                   </Button>
-                )}
+                )} */}
                 {/* <Button
                   variant="outline"
                   size="sm"
@@ -1044,7 +1042,7 @@ export function VideoUpload({
                 </Button>
               </div>
             </div>
-            {selectedAudio && (
+            {selectedAudio !== null && selectedAudio !== undefined && (
               <div className="mt-4 p-3 bg-muted/30 rounded-md">
                 <h4 className="text-sm font-medium mb-2">Audio Settings</h4>
                 <div className="grid grid-cols-2 gap-4">
@@ -1097,28 +1095,22 @@ export function VideoUpload({
                     />
                   </div>
                 </div>
-                <Button
-                  onClick={() => handleMergeAudio()}
-                  disabled={audioMerging || audioMerged}
-                  className="w-full mt-3 bg-green-600 hover:bg-green-700 text-white"
-                >
-                  {audioMerging ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Merging Audio...
-                    </>
-                  ) : audioMerged ? (
-                    <>
-                      <CheckCircle className="mr-2 h-4 w-4" />
-                      Audio Merged
-                    </>
-                  ) : (
-                    <>
-                      <Music className="mr-2 h-4 w-4" />
-                      Save with Audio
-                    </>
-                  )}
-                </Button>
+                {!audioMerged && (
+                  <Button
+                    onClick={() => handleMergeAudio()}
+                    disabled={audioMerging}
+                    className="w-full mt-3 bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    {audioMerging ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Merging Audio...
+                      </>
+                    ) : (
+                      <>Save with Audio</>
+                    )}
+                  </Button>
+                )}
               </div>
             )}
           </div>
@@ -1140,7 +1132,8 @@ export function VideoUpload({
                   className="mt-2"
                   onClick={handleFileInputClick}
                 >
-                  <Upload className="h-4 w-4 mr-1" /> Select Another Video
+                  <RiVideoAddFill className="h-4 w-4 mr-1" /> Select Another
+                  Video
                 </Button>
               </div>
             </div>
@@ -1153,7 +1146,7 @@ export function VideoUpload({
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Music className="h-5 w-5" />
+              <PiMusicNotesPlusFill className="h-5 w-5" />
               Select Background Music
             </DialogTitle>
           </DialogHeader>
@@ -1173,9 +1166,9 @@ export function VideoUpload({
                 >
                   <div className="flex items-center flex-grow">
                     {audio.url ? (
-                      <Music className="h-4 w-4 mr-2 flex-shrink-0" />
+                      <MdMusicNote className="h-4 w-4 mr-2 flex-shrink-0" />
                     ) : (
-                      <VolumeX className="h-4 w-4 mr-2 flex-shrink-0" />
+                      <IoMdVolumeOff className="h-4 w-4 mr-2 flex-shrink-0" />
                     )}
                     <div className="flex flex-col">
                       <span className="font-medium text-sm">{audio.name}</span>
@@ -1196,9 +1189,9 @@ export function VideoUpload({
                         onClick={(e) => toggleAudioPreview(audio.url, e)}
                       >
                         {isAudioPlaying === audio.url ? (
-                          <Pause className="h-4 w-4" />
+                          <FaPause className="h-4 w-4" />
                         ) : (
-                          <Play className="h-4 w-4" />
+                          <FaPlay className="h-4 w-4" />
                         )}
                       </Button>
                     )}
@@ -1262,9 +1255,9 @@ export function VideoUpload({
                     aria-label={isVideoPlaying ? "Pause" : "Play"}
                   >
                     {isVideoPlaying ? (
-                      <Pause className="h-8 w-8" />
+                      <FaPause className="h-8 w-8" />
                     ) : (
-                      <Play className="h-8 w-8" />
+                      <FaPlay className="h-8 w-8" />
                     )}
                   </button>
                 </div>
@@ -1327,9 +1320,9 @@ export function VideoUpload({
                   onClick={toggleMute}
                 >
                   {isMuted ? (
-                    <VolumeX className="h-5 w-5" />
+                    <IoMdVolumeOff className="h-5 w-5" />
                   ) : (
-                    <Volume2 className="h-5 w-5" />
+                    <IoVolumeHigh className="h-5 w-5" />
                   )}
                 </button>
               </div>
