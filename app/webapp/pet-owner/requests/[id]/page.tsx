@@ -386,7 +386,7 @@ export default function RequestDetailPage(): JSX.Element {
   return (
     <div className="space-y-6">
       <div className="flex items-center mb-6">
-        {/* Use the handleBackClick function for the back button */}
+        {/* Use the handleBackClick function for the back button  */}
         <Button
           variant="ghost"
           size="icon"
