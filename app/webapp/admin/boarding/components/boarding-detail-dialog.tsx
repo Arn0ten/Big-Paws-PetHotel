@@ -20,8 +20,12 @@
  */
 
 import { useState } from "react";
+import { IoLocationSharp } from "react-icons/io5";
 import Image from "next/image";
 import { IoIosListBox } from "react-icons/io";
+import { BiSolidUserCheck } from "react-icons/bi";
+import { FaPhone } from "react-icons/fa6";
+import { TbMailFilled } from "react-icons/tb";
 import {
   Dialog,
   DialogContent,
@@ -226,11 +230,11 @@ export function BoardingDetailDialog({
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-[650px] max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
+          {/* <DialogHeader>
             <DialogTitle className="text-xl flex items-center gap-2">
               Boarding Details
             </DialogTitle>
-          </DialogHeader>
+          </DialogHeader> */}
 
           <div className="grid gap-4 py-2">
             {/* Order Summary */}
@@ -272,12 +276,7 @@ export function BoardingDetailDialog({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Pet Information */}
               <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <FaCircleInfo className="h-4 w-4 text-primary" />
-                    PET INFORMATION
-                  </CardTitle>
-                </CardHeader>
+                <CardHeader className="pb-2"></CardHeader>
                 <CardContent>
                   <div className="flex items-start gap-3">
                     <div className="flex-shrink-0">
@@ -342,30 +341,30 @@ export function BoardingDetailDialog({
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-base flex items-center gap-2">
-                    <GrContactInfo className="h-4 w-4 text-primary" />
-                    OWNER INFORMATION
+                    PET OWNER
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
+                      <BiSolidUserCheck className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                       <span className="font-semibold text-base">
                         {boardingOrder.owner.name}
                       </span>
                     </div>
                     <div className="space-y-1.5 mt-2">
                       <div className="flex items-center gap-2 text-sm">
-                        <Mail className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                        <TbMailFilled className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                         <span className="truncate">
                           {boardingOrder.owner.email}
                         </span>
                       </div>
                       <div className="flex items-center gap-2 text-sm">
-                        <Phone className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                        <FaPhone className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                         <span>{boardingOrder.owner.phone}</span>
                       </div>
                       <div className="flex items-start gap-2 text-sm">
-                        <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                        <IoLocationSharp className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
                         <span className="break-words">
                           {boardingOrder.owner.address}
                         </span>
@@ -378,11 +377,11 @@ export function BoardingDetailDialog({
 
             {/* Enhanced Boarding Details Section */}
             <Card>
-              <CardHeader className="pb-2">
+              {/* <CardHeader className="pb-2">
                 <CardTitle className="text-base flex items-center gap-2">
                   BOARDING DETAILS
                 </CardTitle>
-              </CardHeader>
+              </CardHeader> */}
               <CardContent>
                 <div className="space-y-4">
                   {/* Service Type and Duration */}
