@@ -422,7 +422,7 @@ export default function RequestDetailPage(): JSX.Element {
                     {request.title || getRequestTypeTitle(request.type)}
                   </h2>
                   <p className="text-sm text-muted-foreground dark:text-muted-foreground/90">
-                    Request ID: {request.id}
+                    Request ID : {request.id}
                   </p>
                 </div>
               </div>
