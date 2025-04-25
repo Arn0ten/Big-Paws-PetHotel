@@ -79,7 +79,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
-// Utility functions for request management
+// Utility functions for request manage ment
 const getRequestTypeIcon = (type: string) => {
   switch (type) {
     case "photo":
