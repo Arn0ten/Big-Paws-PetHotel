@@ -3,9 +3,9 @@
 import type React from "react"
 
 /**
- * Reset Password Page Component
+ * Pet Owner Reset Password Page Component
  *
- * This component allows users to set a new password after receiving a reset link.
+ * This component allows pet owners to set a new password after receiving a reset link.
  * It handles password validation, strength checking, and submission to the backend API.
  *
  * Features:
@@ -23,19 +23,20 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ArrowLeft, AlertCircle, Loader2, CheckCircle2 } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { AuthLayout } from "../components/AuthLayout"
-import { PasswordStrengthMeter } from "../components/PasswordStrengthMeter"
-import { usePasswordValidation } from "../hooks/usePasswordValidation"
-import { resetPassword } from "../services/authService"
-import { validateContact, validatePassword, validatePasswordConfirmation } from "../utils/validation"
-import type { PasswordResetFormData } from "../types"
+import { AuthLayout } from "@/app/webapp/auth/components/AuthLayout"
+import { PasswordStrengthMeter } from "@/app/webapp/auth/components/PasswordStrengthMeter"
+import { usePasswordValidation } from "@/app/webapp/auth/hooks/usePasswordValidation"
+import { resetPassword } from "@/app/webapp/auth/services/authService"
+import { validateContact, validatePassword, validatePasswordConfirmation } from "@/app/webapp/auth/utils/validation"
+import type { PasswordResetFormData } from "@/app/webapp/auth/types"
 
-export default function ResetPasswordPage() {
+export default function PetOwnerResetPasswordPage() {
   // State management
   const [formData, setFormData] = useState<PasswordResetFormData>({
     contact: "",
     password: "",
     confirmPassword: "",
+    role: "pet-owner", // Explicitly set pet-owner role
   })
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -102,7 +103,7 @@ export default function ResetPasswordPage() {
     setError(null)
 
     try {
-      // Call the reset password service
+      // Call the reset password service with pet-owner role
       const response = await resetPassword(formData)
 
       if (response.success) {
@@ -212,7 +213,7 @@ export default function ResetPasswordPage() {
         </form>
 
         <div className="mt-6 text-center">
-          <Link href="/webapp/auth/login" className="inline-flex items-center text-primary hover:underline">
+          <Link href="/webapp/auth/pet-owner/login" className="inline-flex items-center text-primary hover:underline">
             <ArrowLeft size={16} className="mr-1" /> Back to Login
           </Link>
         </div>
@@ -253,7 +254,7 @@ export default function ResetPasswordPage() {
                   setShowSuccessModal(false)
                   // Redirect to login page after a short delay
                   setTimeout(() => {
-                    window.location.href = "/webapp/auth/login"
+                    window.location.href = "/webapp/auth/pet-owner/login"
                   }, 300)
                 }}
                 className="w-full"
@@ -267,4 +268,3 @@ export default function ResetPasswordPage() {
     </AuthLayout>
   )
 }
-

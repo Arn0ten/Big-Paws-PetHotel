@@ -150,7 +150,7 @@ export default function ProfilePage(): JSX.Element {
     sessionStorage.clear(); // Clear session storage
 
     // Redirect to login page
-    router.push("/webapp/auth/login");
+    router.push("/webapp/auth/pet-owner/login");
   };
 
   return (
@@ -373,7 +373,7 @@ export default function ProfilePage(): JSX.Element {
                       </p>
                     </div>
                     <Link
-                      href="/webapp/auth/change-password?from=pet-owner"
+                      href="/webapp/auth/pet-owner/change-password?from=pet-owner"
                       className="flex items-center justify-between rounded-md p-3 text-sm transition-colors hover:bg-accent"
                     >
                       <div className="flex items-center gap-3">

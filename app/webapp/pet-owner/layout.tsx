@@ -83,7 +83,7 @@ export default function PetOwnerLayout({
   const handleLogout = async () => {
     setIsLoggingOut(true);
     await new Promise((resolve) => setTimeout(resolve, 1500));
-    window.location.href = "/webapp/auth/login";
+    window.location.href = "/webapp/auth/pet-owner/login";
   };
 
   return (

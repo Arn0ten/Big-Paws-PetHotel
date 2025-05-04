@@ -3,20 +3,19 @@
 import type React from "react"
 
 /**
- * Change Password Page Component
+ * Pet Owner Forgot Password Page Component
  *
- * This component allows users to request a password change by providing
- * their email address or phone number. It handles validation, submission
- * to the backend API, and dynamic navigation based on the user's origin.
+ * This component allows pet owners to request a password reset by providing
+ * their email address or phone number. It handles validation and submission
+ * to the backend API.
  *
  * Features:
  * - Email/phone validation
- * - Dynamic back button based on origin
  * - Success state with animated confirmation
  * - Error handling and loading states
  */
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -24,62 +23,17 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ArrowLeft, Mail, Smartphone, AlertCircle, Loader2 } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { useRouter } from "next/navigation"
-import { AuthLayout } from "../components/AuthLayout"
-import { changePassword } from "../services/authService"
-import { validateContact } from "../utils/validation"
-import type { PasswordResetRequestFormData, ChangePasswordOrigin } from "../types"
+import { AuthLayout } from "@/app/webapp/auth/components/AuthLayout"
+import { requestPasswordReset } from "@/app/webapp/auth/services/authService"
+import { validateContact } from "@/app/webapp/auth/utils/validation"
+import type { PasswordResetRequestFormData } from "@/app/webapp/auth/types"
 
-export default function ChangePasswordPage() {
-  const router = useRouter()
-
+export default function PetOwnerForgotPasswordPage() {
   // State management
-  const [origin, setOrigin] = useState<ChangePasswordOrigin>("login")
   const [contact, setContact] = useState("")
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
-  // Detect where the user came from
-  useEffect(() => {
-    // Check for origin in query parameters
-    if (typeof window !== "undefined") {
-      const searchParams = new URLSearchParams(window.location.search)
-      const fromParam = searchParams.get("from")
-
-      if (fromParam === "pet-owner") {
-        setOrigin("pet-owner")
-      } else if (fromParam === "admin") {
-        setOrigin("admin")
-      } else {
-        // Try to detect referrer
-        const referrer = document.referrer
-        if (referrer && referrer.includes("/webapp/pet-owner")) {
-          setOrigin("pet-owner")
-        } else if (referrer && referrer.includes("/webapp/admin")) {
-          setOrigin("admin")
-        } else {
-          setOrigin("login")
-        }
-      }
-    }
-  }, [])
-
-  /**
-   * Handle back button click based on origin
-   */
-  const handleBack = () => {
-    switch (origin) {
-      case "pet-owner":
-        router.push("/webapp/pet-owner/profile")
-        break
-      case "admin":
-        router.push("/webapp/admin/dashboard")
-        break
-      default:
-        router.push("/webapp/auth/login")
-    }
-  }
 
   /**
    * Validate form inputs before submission
@@ -109,18 +63,21 @@ export default function ChangePasswordPage() {
     setError(null)
 
     try {
-      // Call the change password service
-      const formData: PasswordResetRequestFormData = { contact }
-      const response = await changePassword(formData)
+      // Call the password reset request service with pet-owner role flag
+      const formData: PasswordResetRequestFormData = {
+        contact,
+        role: "pet-owner", // Explicitly request pet-owner password reset
+      }
+      const response = await requestPasswordReset(formData)
 
       if (response.success) {
         setIsSubmitted(true)
       } else {
-        setError(response.error || "Failed to send change password instructions")
+        setError(response.error || "Failed to send reset instructions")
       }
     } catch (err) {
       setError("An unexpected error occurred. Please try again.")
-      console.error("Change password request error:", err)
+      console.error("Password reset request error:", err)
     } finally {
       setIsLoading(false)
     }
@@ -144,9 +101,9 @@ export default function ChangePasswordPage() {
               transition={{ duration: 0.3 }}
             >
               <div className="text-center mb-6">
-                <h1 className="text-2xl font-bold text-foreground">Change Password</h1>
+                <h1 className="text-2xl font-bold text-foreground">Forgot Password</h1>
                 <p className="text-muted-foreground mt-2">
-                  Enter your email address or phone number to receive password change instructions
+                  Enter your email address or phone number to receive password reset instructions
                 </p>
               </div>
 
@@ -186,18 +143,8 @@ export default function ChangePasswordPage() {
                       Sending...
                     </>
                   ) : (
-                    "Send Reset Link"
+                    "Send Reset Instructions"
                   )}
-                </Button>
-
-                {/* Back Button */}
-                <Button type="button" variant="outline" className="w-full mt-3" onClick={handleBack}>
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  {origin === "pet-owner"
-                    ? "Back to Profile"
-                    : origin === "admin"
-                      ? "Back to Dashboard"
-                      : "Back to Login"}
                 </Button>
               </form>
             </motion.div>
@@ -255,41 +202,27 @@ export default function ChangePasswordPage() {
                     </motion.div>
                   </motion.div>
                 )}
-                <p className="text-base sm:text-lg break-words">
-                  Password change instructions have been sent. Please check your{" "}
+                <p className="text-lg break-words text-sm sm:text-lg">
+                  Password reset instructions have been sent. Please check your{" "}
                   {contact.includes("@") ? "email" : "SMS"} at:
                 </p>
                 <p className="font-bold mt-2 text-base sm:text-lg break-all bg-white/20 dark:bg-black/20 p-2 rounded-md">
                   {contact}
                 </p>
               </div>
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <Button onClick={handleBack} variant="outline">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  {origin === "pet-owner"
-                    ? "Back to Profile"
-                    : origin === "admin"
-                      ? "Back to Dashboard"
-                      : "Back to Login"}
-                </Button>
-                <Button onClick={() => setIsSubmitted(false)} variant="outline">
-                  Try Another Email or Phone
-                </Button>
-              </div>
+              <Button onClick={() => setIsSubmitted(false)} variant="outline">
+                Try Another Email or Phone
+              </Button>
             </motion.div>
           )}
         </AnimatePresence>
 
-        <div className="mt-4 text-center text-sm text-muted-foreground">
-          <p>
-            For testing purposes:{" "}
-            <Link href="/webapp/auth/reset-password" className="text-primary hover:underline">
-              Go directly to reset password page
-            </Link>
-          </p>
+        <div className="mt-6 text-center">
+          <Link href="/webapp/auth/pet-owner/login" className="inline-flex items-center text-primary hover:underline">
+            <ArrowLeft size={16} className="mr-1" /> Back to Login
+          </Link>
         </div>
       </motion.div>
     </AuthLayout>
   )
 }
-
