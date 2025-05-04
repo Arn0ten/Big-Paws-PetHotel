@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
 /**
  * Pet Owner Login Page Component
@@ -16,47 +16,53 @@ import type React from "react"
  * - Links to forgot password and other pages
  */
 
-import { useState, useEffect } from "react"
-import { motion } from "framer-motion"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Eye, EyeOff, AlertCircle, Loader2 } from "lucide-react"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import LoginSlideshow from "@/app/webapp/components/LoginSlideshow"
-import { login } from "@/app/webapp/auth/services/authService"
-import type { LoginFormData } from "@/app/webapp/auth/types"
-import { validateContact } from "@/app/webapp/auth/utils/validation"
-import { ThemeToggle } from "@/components/theme-toggle"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Shield, FileText, Lock, AlertTriangle } from "lucide-react"
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Eye, EyeOff, AlertCircle, Loader2, ArrowLeft } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import LoginSlideshow from "@/app/webapp/components/LoginSlideshow";
+// Updated imports to use pet-owner specific files
+import { login } from "@/app/webapp/auth/pet-owner/services/authService";
+import type { LoginFormData } from "@/app/webapp/auth/pet-owner/types";
+import { validateContact } from "@/app/webapp/auth/pet-owner/utils/validation";
+import { ThemeToggle } from "@/components/theme-toggle";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Shield, FileText, Lock, AlertTriangle } from "lucide-react";
 
 export default function PetOwnerLoginPage() {
   // State management
-  const [mounted, setMounted] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [mounted, setMounted] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState<LoginFormData>({
     username: "",
     password: "",
     rememberMe: false,
-  })
+  });
 
-  const [dialogOpen, setDialogOpen] = useState(false)
-  const [dialogTitle, setDialogTitle] = useState("")
-  const [dialogContent, setDialogContent] = useState<React.ReactNode>(null)
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogTitle, setDialogTitle] = useState("");
+  const [dialogContent, setDialogContent] = useState<React.ReactNode>(null);
 
-  const router = useRouter()
+  const router = useRouter();
 
   // Handle client-side mounting
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
   /**
    * Handle input field changes
@@ -64,11 +70,11 @@ export default function PetOwnerLoginPage() {
    * @param {React.ChangeEvent<HTMLInputElement>} e - Input change event
    */
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
     // Clear error when user starts typing
-    if (error) setError(null)
-  }
+    if (error) setError(null);
+  };
 
   /**
    * Handle checkbox state changes
@@ -76,8 +82,8 @@ export default function PetOwnerLoginPage() {
    * @param {boolean} checked - New checkbox state
    */
   const handleCheckboxChange = (checked: boolean) => {
-    setFormData((prev) => ({ ...prev, rememberMe: checked }))
-  }
+    setFormData((prev) => ({ ...prev, rememberMe: checked }));
+  };
 
   /**
    * Validate form inputs before submission
@@ -86,20 +92,20 @@ export default function PetOwnerLoginPage() {
    */
   const validateForm = (): boolean => {
     // Validate username (email or phone)
-    const contactValidation = validateContact(formData.username)
+    const contactValidation = validateContact(formData.username);
     if (!contactValidation.isValid) {
-      setError(contactValidation.error || "Invalid email or phone number")
-      return false
+      setError(contactValidation.error || "Invalid email or phone number");
+      return false;
     }
 
     // Validate password
     if (!formData.password) {
-      setError("Password is required")
-      return false
+      setError("Password is required");
+      return false;
     }
 
-    return true
-  }
+    return true;
+  };
 
   /**
    * Handle form submission
@@ -107,19 +113,19 @@ export default function PetOwnerLoginPage() {
    * @param {React.FormEvent} e - Form submission event
    */
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    if (!validateForm()) return
+    if (!validateForm()) return;
 
-    setIsLoading(true)
-    setError(null)
+    setIsLoading(true);
+    setError(null);
 
     try {
       // Call the authentication service with pet-owner role flag
       const response = await login({
         ...formData,
         role: "pet-owner", // Explicitly request pet-owner authentication
-      })
+      });
 
       if (response.success) {
         // BACKEND INTEGRATION POINT:
@@ -131,17 +137,17 @@ export default function PetOwnerLoginPage() {
         // }
 
         // Redirect to pet owner dashboard
-        router.push("/webapp/pet-owner/requests")
+        router.push("/webapp/pet-owner/requests");
       } else {
-        setError(response.error || "Invalid credentials")
+        setError(response.error || "Invalid credentials");
       }
     } catch (err) {
-      setError("An unexpected error occurred. Please try again.")
-      console.error("Login error:", err)
+      setError("An unexpected error occurred. Please try again.");
+      console.error("Login error:", err);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   /**
    * Opens a dialog with the specified title and content
@@ -150,10 +156,10 @@ export default function PetOwnerLoginPage() {
    * @param content - The content to display in the dialog
    */
   const openDialog = (title: string, content: React.ReactNode) => {
-    setDialogTitle(title)
-    setDialogContent(content)
-    setDialogOpen(true)
-  }
+    setDialogTitle(title);
+    setDialogContent(content);
+    setDialogOpen(true);
+  };
 
   // Legal content for the Terms & Privacy dialog
   const legalContent = (
@@ -161,7 +167,9 @@ export default function PetOwnerLoginPage() {
       <main className="flex-grow bg-background py-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
           <div className="prose prose-lg dark:prose-invert max-w-none">
-            <h1 className="text-4xl font-bold mb-8 text-center">Terms & Privacy Policy</h1>
+            <h1 className="text-4xl font-bold mb-8 text-center">
+              Terms & Privacy Policy
+            </h1>
             <p className="text-center mb-8 text-muted-foreground">
               Last Updated: January 15, 2025 | Effective Date: February 1, 2025
             </p>
@@ -170,9 +178,11 @@ export default function PetOwnerLoginPage() {
               <p className="flex items-start">
                 <AlertTriangle className="h-5 w-5 mr-2 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-1" />
                 <span>
-                  This document is governed by the laws of the Republic of the Philippines, including but not limited to
-                  the Data Privacy Act of 2012 (Republic Act No. 10173), the Consumer Act of the Philippines (Republic
-                  Act No. 7394), and the E-Commerce Act (Republic Act No. 8792), as amended by subsequent legislation
+                  This document is governed by the laws of the Republic of the
+                  Philippines, including but not limited to the Data Privacy Act
+                  of 2012 (Republic Act No. 10173), the Consumer Act of the
+                  Philippines (Republic Act No. 7394), and the E-Commerce Act
+                  (Republic Act No. 8792), as amended by subsequent legislation
                   through 2025.
                 </span>
               </p>
@@ -184,49 +194,67 @@ export default function PetOwnerLoginPage() {
                 <h2 className="text-2xl font-semibold m-0">Terms of Service</h2>
               </div>
 
-              <h3 className="text-xl font-semibold mb-4">1. Service Agreement</h3>
+              <h3 className="text-xl font-semibold mb-4">
+                1. Service Agreement
+              </h3>
               <p className="mb-4">
-                By using Big Paws Pet Hotel services, you agree to comply with and be bound by the following terms and
-                conditions. We reserve the right to modify these terms at any time, with changes taking effect upon
-                posting to this site. Your continued use of our services constitutes acceptance of these terms.
+                By using Big Paws Pet Hotel services, you agree to comply with
+                and be bound by the following terms and conditions. We reserve
+                the right to modify these terms at any time, with changes taking
+                effect upon posting to this site. Your continued use of our
+                services constitutes acceptance of these terms.
               </p>
 
-              <h3 className="text-xl font-semibold mb-4">2. Pet Care Services</h3>
+              <h3 className="text-xl font-semibold mb-4">
+                2. Pet Care Services
+              </h3>
               <ul className="list-disc pl-6 mb-4">
                 <li>
-                  All pets must be up-to-date with vaccinations as required by the Philippine Veterinary Medical
-                  Association and the Bureau of Animal Industry
+                  All pets must be up-to-date with vaccinations as required by
+                  the Philippine Veterinary Medical Association and the Bureau
+                  of Animal Industry
                 </li>
                 <li>
-                  Owners must disclose any known health conditions, with liability for non-disclosure as stipulated
-                  under Philippine Civil Code Article 1170
+                  Owners must disclose any known health conditions, with
+                  liability for non-disclosure as stipulated under Philippine
+                  Civil Code Article 1170
                 </li>
                 <li>
-                  We reserve the right to refuse service to aggressive pets in accordance with the Animal Welfare Act of
-                  the Philippines (Republic Act No. 8485 as amended by RA 10631)
+                  We reserve the right to refuse service to aggressive pets in
+                  accordance with the Animal Welfare Act of the Philippines
+                  (Republic Act No. 8485 as amended by RA 10631)
                 </li>
                 <li>
-                  24-hour notice is required for cancellations, with applicable fees as detailed in our service contract
+                  24-hour notice is required for cancellations, with applicable
+                  fees as detailed in our service contract
                 </li>
                 <li>
-                  Emergency veterinary care may be sought at our discretion, with costs billed to the pet owner as
-                  permitted by Philippine law
+                  Emergency veterinary care may be sought at our discretion,
+                  with costs billed to the pet owner as permitted by Philippine
+                  law
                 </li>
               </ul>
 
               <h3 className="text-xl font-semibold mb-4">3. Payment Terms</h3>
               <p className="mb-4">
-                Payment is required at the time of service. We accept cash, credit cards, and digital payments including
-                GCash, Maya, and other Philippine electronic payment systems. All prices are in Philippine Pesos (PHP)
-                and include applicable Value Added Tax (VAT) as required by the National Internal Revenue Code, as
-                amended by the CREATE Act of 2021 and subsequent tax regulations through 2025.
+                Payment is required at the time of service. We accept cash,
+                credit cards, and digital payments including GCash, Maya, and
+                other Philippine electronic payment systems. All prices are in
+                Philippine Pesos (PHP) and include applicable Value Added Tax
+                (VAT) as required by the National Internal Revenue Code, as
+                amended by the CREATE Act of 2021 and subsequent tax regulations
+                through 2025.
               </p>
 
-              <h3 className="text-xl font-semibold mb-4">4. Limitation of Liability</h3>
+              <h3 className="text-xl font-semibold mb-4">
+                4. Limitation of Liability
+              </h3>
               <p className="mb-4">
-                In accordance with Philippine Civil Code Articles 1170-1174, our liability is limited to cases of
-                willful misconduct or gross negligence. We are not liable for force majeure events including but not
-                limited to natural disasters, as recognized under Philippine jurisprudence and the Civil Code.
+                In accordance with Philippine Civil Code Articles 1170-1174, our
+                liability is limited to cases of willful misconduct or gross
+                negligence. We are not liable for force majeure events including
+                but not limited to natural disasters, as recognized under
+                Philippine jurisprudence and the Civil Code.
               </p>
             </section>
 
@@ -237,28 +265,41 @@ export default function PetOwnerLoginPage() {
               </div>
 
               <p className="mb-4">
-                This Privacy Policy complies with the Data Privacy Act of 2012 (Republic Act No. 10173) and its
-                Implementing Rules and Regulations, as well as all applicable National Privacy Commission (NPC)
-                Circulars and Guidelines through 2025.
+                This Privacy Policy complies with the Data Privacy Act of 2012
+                (Republic Act No. 10173) and its Implementing Rules and
+                Regulations, as well as all applicable National Privacy
+                Commission (NPC) Circulars and Guidelines through 2025.
               </p>
 
-              <h3 className="text-xl font-semibold mb-4">1. Information Collection</h3>
-              <p className="mb-4">We collect information necessary to provide pet care services, including:</p>
+              <h3 className="text-xl font-semibold mb-4">
+                1. Information Collection
+              </h3>
+              <p className="mb-4">
+                We collect information necessary to provide pet care services,
+                including:
+              </p>
               <ul className="list-disc pl-6 mb-4">
-                <li>Owner contact information (name, address, phone number, email)</li>
+                <li>
+                  Owner contact information (name, address, phone number, email)
+                </li>
                 <li>Pet health records and medical history</li>
                 <li>Emergency contact details</li>
                 <li>Service preferences and special instructions</li>
                 <li>
-                  Payment information processed in compliance with Bangko Sentral ng Pilipinas (BSP) Circular No. 1048
-                  and subsequent regulations
+                  Payment information processed in compliance with Bangko
+                  Sentral ng Pilipinas (BSP) Circular No. 1048 and subsequent
+                  regulations
                 </li>
               </ul>
 
-              <h3 className="text-xl font-semibold mb-4">2. Information Usage</h3>
+              <h3 className="text-xl font-semibold mb-4">
+                2. Information Usage
+              </h3>
               <p className="mb-4">
-                Your information is used solely for providing pet care services and will never be sold to third parties.
-                As the data controller and processor under the Data Privacy Act, we may use your contact information to:
+                Your information is used solely for providing pet care services
+                and will never be sold to third parties. As the data controller
+                and processor under the Data Privacy Act, we may use your
+                contact information to:
               </p>
               <ul className="list-disc pl-6 mb-4">
                 <li>Confirm appointments and service bookings</li>
@@ -266,26 +307,36 @@ export default function PetOwnerLoginPage() {
                 <li>Share important updates about your pet's care</li>
                 <li>Provide emergency notifications</li>
                 <li>Process payments and generate receipts</li>
-                <li>Comply with legal requirements and government regulations</li>
+                <li>
+                  Comply with legal requirements and government regulations
+                </li>
               </ul>
 
               <h3 className="text-xl font-semibold mb-4">3. Data Security</h3>
               <p className="mb-4">
-                We implement appropriate security measures to protect your personal information and maintain
-                confidentiality in accordance with NPC Circular No. 16-01 on Security of Personal Data in Government
-                Processing and subsequent security guidelines. These measures include:
+                We implement appropriate security measures to protect your
+                personal information and maintain confidentiality in accordance
+                with NPC Circular No. 16-01 on Security of Personal Data in
+                Government Processing and subsequent security guidelines. These
+                measures include:
               </p>
               <ul className="list-disc pl-6 mb-4">
                 <li>Encryption of sensitive data</li>
                 <li>Regular security assessments and updates</li>
                 <li>Staff training on data protection</li>
                 <li>Access controls and authentication procedures</li>
-                <li>Data breach notification protocols as required by NPC Circular No. 16-03</li>
+                <li>
+                  Data breach notification protocols as required by NPC Circular
+                  No. 16-03
+                </li>
               </ul>
 
-              <h3 className="text-xl font-semibold mb-4">4. Data Subject Rights</h3>
+              <h3 className="text-xl font-semibold mb-4">
+                4. Data Subject Rights
+              </h3>
               <p className="mb-4">
-                Under the Data Privacy Act of 2012, you have the following rights regarding your personal information:
+                Under the Data Privacy Act of 2012, you have the following
+                rights regarding your personal information:
               </p>
               <ul className="list-disc pl-6 mb-4">
                 <li>Right to be informed</li>
@@ -298,37 +349,50 @@ export default function PetOwnerLoginPage() {
                 <li>Right to data portability</li>
               </ul>
               <p className="mb-4">
-                To exercise these rights, please contact our Data Protection Officer using the contact information
-                below.
+                To exercise these rights, please contact our Data Protection
+                Officer using the contact information below.
               </p>
 
-              <h3 className="text-xl font-semibold mb-4">5. Cookies and Tracking</h3>
+              <h3 className="text-xl font-semibold mb-4">
+                5. Cookies and Tracking
+              </h3>
               <p className="mb-4">
-                Our website uses cookies and similar technologies to enhance user experience and collect usage data. You
-                may manage cookie preferences through your browser settings. Our cookie usage complies with the NPC's
-                guidelines on online privacy and the E-Commerce Act.
+                Our website uses cookies and similar technologies to enhance
+                user experience and collect usage data. You may manage cookie
+                preferences through your browser settings. Our cookie usage
+                complies with the NPC's guidelines on online privacy and the
+                E-Commerce Act.
               </p>
 
-              <h3 className="text-xl font-semibold mb-4">6. Third-Party Services</h3>
+              <h3 className="text-xl font-semibold mb-4">
+                6. Third-Party Services
+              </h3>
               <p className="mb-4">
-                We may use third-party services for payment processing, email communication, and other business
-                functions. These service providers are required to maintain the confidentiality of your information and
-                comply with Philippine data protection laws.
+                We may use third-party services for payment processing, email
+                communication, and other business functions. These service
+                providers are required to maintain the confidentiality of your
+                information and comply with Philippine data protection laws.
               </p>
             </section>
 
             <section className="bg-card rounded-lg p-8 shadow-lg">
               <div className="flex items-center mb-6">
                 <Shield className="h-6 w-6 mr-2 text-primary" />
-                <h2 className="text-2xl font-semibold m-0">Contact Information</h2>
+                <h2 className="text-2xl font-semibold m-0">
+                  Contact Information
+                </h2>
               </div>
               <p className="mb-4">
-                If you have any questions about our Terms of Service or Privacy Policy, please contact us:
+                If you have any questions about our Terms of Service or Privacy
+                Policy, please contact us:
               </p>
               <ul className="list-none pl-6 mb-4">
                 <li className="mb-2">📞 Phone: +63 950 189 0933</li>
                 <li className="mb-2">📧 Email: galojanlloyn18@gmail.com</li>
-                <li className="mb-2">📍 Address: Bonifacio St., Tagum City, Davao del Norte, Philippines 8100</li>
+                <li className="mb-2">
+                  📍 Address: Bonifacio St., Tagum City, Davao del Norte,
+                  Philippines 8100
+                </li>
               </ul>
 
               <div className="mt-6 pt-6 border-t border-border">
@@ -340,30 +404,48 @@ export default function PetOwnerLoginPage() {
                   <strong>Phone:</strong> +63 950 189 0933
                 </p>
                 <p className="text-sm text-muted-foreground mt-4">
-                  For complaints not resolved by our DPO, you may contact the National Privacy Commission:
+                  For complaints not resolved by our DPO, you may contact the
+                  National Privacy Commission:
                   <br />
-                  5th Floor, Delegation Building, PICC Complex, Roxas Boulevard, Pasay City, Metro Manila
+                  5th Floor, Delegation Building, PICC Complex, Roxas Boulevard,
+                  Pasay City, Metro Manila
                   <br />
                   Email: info@privacy.gov.ph
                 </p>
-                <p className="text-sm text-muted-foreground mt-4">© 2025 Big Paws Pet Hotel. All rights reserved.</p>
+                <p className="text-sm text-muted-foreground mt-4">
+                  © 2025 Big Paws Pet Hotel. All rights reserved.
+                </p>
               </div>
             </section>
           </div>
         </div>
       </main>
     </div>
-  )
+  );
 
   // Don't render anything until client-side hydration is complete
   if (!mounted) {
-    return null
+    return null;
   }
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
       {/* Left Panel - Image Slideshow */}
       <div className="w-full md:w-1/2 relative h-64 md:h-screen overflow-hidden">
+        {/* Back to Welcome button */}
+        <div className="absolute top-4 left-4 z-30">
+          <Button
+            variant="secondary"
+            size="sm"
+            asChild
+            className="font-medium shadow-md border border-white/20 bg-white/90 text-black hover:bg-white dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
+          >
+            <Link href="/">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Go to Website
+            </Link>
+          </Button>
+        </div>
         <LoginSlideshow />
       </div>
 
@@ -380,8 +462,12 @@ export default function PetOwnerLoginPage() {
           className="w-full max-w-md"
         >
           <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-foreground mb-2">Pet Owner Login</h2>
-            <p className="text-muted-foreground">Access your pet management account</p>
+            <h2 className="text-2xl font-bold text-foreground mb-2">
+              Pet Owner Login
+            </h2>
+            <p className="text-muted-foreground">
+              Access your pet management account
+            </p>
           </div>
 
           {/* Error Alert */}
@@ -416,7 +502,10 @@ export default function PetOwnerLoginPage() {
                 <Label htmlFor="password" className="text-foreground">
                   Password
                 </Label>
-                <Link href="/webapp/auth/pet-owner/forgot-password" className="text-sm text-primary hover:underline">
+                <Link
+                  href="/webapp/auth/pet-owner/forgot-password"
+                  className="text-sm text-primary hover:underline"
+                >
                   Forgot Password?
                 </Link>
               </div>
@@ -472,7 +561,10 @@ export default function PetOwnerLoginPage() {
 
             {/* Change Password Link */}
             <div className="text-center">
-              <Link href="/webapp/auth/pet-owner/change-password" className="text-sm text-primary hover:underline">
+              <Link
+                href="/webapp/auth/pet-owner/change-password"
+                className="text-sm text-primary hover:underline"
+              >
                 Change Password
               </Link>
             </div>
@@ -480,7 +572,8 @@ export default function PetOwnerLoginPage() {
             {/* Registration Info */}
             <div className="mt-8 p-4 bg-primary/5 rounded-lg border border-primary/10">
               <p className="text-center text-sm text-foreground">
-                If you don't have an account, please visit Big Paws Pet Hotel for your credentials.
+                If you don't have an account, please visit Big Paws Pet Hotel
+                for your credentials.
               </p>
             </div>
 
@@ -489,7 +582,9 @@ export default function PetOwnerLoginPage() {
               <p>
                 By logging in, you agree to our{" "}
                 <button
-                  onClick={() => openDialog("Terms & Privacy Policy", legalContent)}
+                  onClick={() =>
+                    openDialog("Terms & Privacy Policy", legalContent)
+                  }
                   className="text-primary hover:underline"
                   type="button"
                 >
@@ -497,7 +592,9 @@ export default function PetOwnerLoginPage() {
                 </button>
                 {"  "}and{" "}
                 <button
-                  onClick={() => openDialog("Terms & Privacy Policy", legalContent)}
+                  onClick={() =>
+                    openDialog("Terms & Privacy Policy", legalContent)
+                  }
                   className="text-primary hover:underline"
                   type="button"
                 >
@@ -508,14 +605,8 @@ export default function PetOwnerLoginPage() {
             </div>
           </form>
 
-          <div className="mt-8 text-center space-y-4">
-            <Button variant="outline" asChild>
-              <Link href="/">Back to Welcome</Link>
-            </Button>
-
-            <Button variant="default" asChild className="ml-4">
-              <Link href="/webapp/auth/admin/login">Admin Login</Link>
-            </Button>
+          <div className="mt-8 text-center">
+            {/* Admin Login button removed */}
           </div>
 
           {/* Terms & Privacy Dialog */}
@@ -532,5 +623,5 @@ export default function PetOwnerLoginPage() {
         </motion.div>
       </div>
     </div>
-  )
+  );
 }

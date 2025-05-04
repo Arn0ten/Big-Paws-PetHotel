@@ -1,5 +1,5 @@
 /**
- * Password Strength Meter Component for Admin
+ * Password Strength Meter Component for Pet Owners
  *
  * This component displays a visual representation of password strength
  * and optionally shows criteria for a strong password.
@@ -12,15 +12,9 @@ interface PasswordStrengthMeterProps {
   strength: number
   criteria: PasswordCriteria
   showCriteria?: boolean
-  isAdmin?: boolean
 }
 
-export function PasswordStrengthMeter({
-  strength,
-  criteria,
-  showCriteria = false,
-  isAdmin = true,
-}: PasswordStrengthMeterProps) {
+export function PasswordStrengthMeter({ strength, criteria, showCriteria = false }: PasswordStrengthMeterProps) {
   // Determine color based on strength
   const getColor = () => {
     if (strength < 30) return "bg-red-500"
@@ -50,17 +44,11 @@ export function PasswordStrengthMeter({
         <div className="mt-4 space-y-1 text-sm">
           <p className="font-medium mb-2">Password requirements:</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
-            <CriteriaItem
-              isValid={criteria.length}
-              text={isAdmin ? "At least 10 characters" : "At least 8 characters"}
-            />
+            <CriteriaItem isValid={criteria.length} text="At least 8 characters" />
             <CriteriaItem isValid={criteria.uppercase} text="At least 1 uppercase letter" />
             <CriteriaItem isValid={criteria.lowercase} text="At least 1 lowercase letter" />
             <CriteriaItem isValid={criteria.number} text="At least 1 number" />
             <CriteriaItem isValid={criteria.symbol} text="At least 1 special character" />
-            {isAdmin && (
-              <CriteriaItem isValid={criteria.specialRequirement || false} text="At least 2 special characters" />
-            )}
             <CriteriaItem isValid={criteria.match} text="Passwords match" />
           </div>
         </div>
