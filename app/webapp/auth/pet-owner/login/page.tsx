@@ -3,9 +3,9 @@
 import type React from "react";
 
 /**
- * Login Page Component
+ * Pet Owner Login Page Component
  *
- * This component handles user authentication by collecting and validating
+ * This component handles pet owner authentication by collecting and validating
  * login credentials, then sending them to the backend for verification.
  *
  * Features:
@@ -24,12 +24,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Eye, EyeOff, AlertCircle, Loader2 } from "lucide-react";
+import { Eye, EyeOff, AlertCircle, Loader2, ArrowLeft } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import LoginSlideshow from "@/app/webapp/components/LoginSlideshow";
-import { login } from "../services/authService";
-import type { LoginFormData } from "../types";
-import { validateContact } from "../utils/validation";
+// Updated imports to use pet-owner specific files
+import { login } from "@/app/webapp/auth/pet-owner/services/authService";
+import type { LoginFormData } from "@/app/webapp/auth/pet-owner/types";
+import { validateContact } from "@/app/webapp/auth/pet-owner/utils/validation";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
   Dialog,
@@ -40,7 +41,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Shield, FileText, Lock, AlertTriangle } from "lucide-react";
 
-export default function LoginPage() {
+export default function PetOwnerLoginPage() {
   // State management
   const [mounted, setMounted] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -120,8 +121,11 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      // Call the authentication service
-      const response = await login(formData);
+      // Call the authentication service with pet-owner role flag
+      const response = await login({
+        ...formData,
+        role: "pet-owner", // Explicitly request pet-owner authentication
+      });
 
       if (response.success) {
         // BACKEND INTEGRATION POINT:
@@ -132,12 +136,8 @@ export default function LoginPage() {
         //   sessionStorage.setItem('user', JSON.stringify(response.user))
         // }
 
-        // Redirect based on user role
-        if (response.user?.role === "admin") {
-          router.push("/webapp/admin/dashboard");
-        } else {
-          router.push("/webapp/pet-owner/requests");
-        }
+        // Redirect to pet owner dashboard
+        router.push("/webapp/pet-owner/requests");
       } else {
         setError(response.error || "Invalid credentials");
       }
@@ -432,6 +432,20 @@ export default function LoginPage() {
     <div className="min-h-screen flex flex-col md:flex-row">
       {/* Left Panel - Image Slideshow */}
       <div className="w-full md:w-1/2 relative h-64 md:h-screen overflow-hidden">
+        {/* Back to Welcome button */}
+        <div className="absolute top-4 left-4 z-30">
+          <Button
+            variant="secondary"
+            size="sm"
+            asChild
+            className="font-medium shadow-md border border-white/20 bg-white/90 text-black hover:bg-white dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
+          >
+            <Link href="/">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Go to Website
+            </Link>
+          </Button>
+        </div>
         <LoginSlideshow />
       </div>
 
@@ -448,7 +462,9 @@ export default function LoginPage() {
           className="w-full max-w-md"
         >
           <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-foreground mb-2">Login</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-2">
+              Pet Owner Login
+            </h2>
             <p className="text-muted-foreground">
               Access your pet management account
             </p>
@@ -487,7 +503,7 @@ export default function LoginPage() {
                   Password
                 </Label>
                 <Link
-                  href="/webapp/auth/forgot-password"
+                  href="/webapp/auth/pet-owner/forgot-password"
                   className="text-sm text-primary hover:underline"
                 >
                   Forgot Password?
@@ -546,7 +562,7 @@ export default function LoginPage() {
             {/* Change Password Link */}
             <div className="text-center">
               <Link
-                href="/webapp/auth/change-password"
+                href="/webapp/auth/pet-owner/change-password"
                 className="text-sm text-primary hover:underline"
               >
                 Change Password
@@ -589,14 +605,8 @@ export default function LoginPage() {
             </div>
           </form>
 
-          <div className="mt-8 text-center space-y-4">
-            <Button variant="outline" asChild>
-              <Link href="/">Back to Welcome</Link>
-            </Button>
-
-            <Button variant="default" asChild className="ml-4">
-              <Link href="/webapp/admin/dashboard">Admin Login</Link>
-            </Button>
+          <div className="mt-8 text-center">
+            {/* Admin Login button removed */}
           </div>
 
           {/* Terms & Privacy Dialog */}

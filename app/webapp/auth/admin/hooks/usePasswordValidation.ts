@@ -1,11 +1,10 @@
 "use client"
 
 /**
- * Password Validation Hook
+ * Admin Password Validation Hook
  *
- * A custom hook that handles password validation logic.
- * This centralizes the password validation rules and provides a reusable way
- * to check password strength and criteria across different components.
+ * A custom hook that handles password validation logic for admin users.
+ * This includes stricter validation rules for admin passwords.
  */
 
 import { useState, useEffect } from "react"
@@ -14,6 +13,7 @@ import type { PasswordCriteria } from "../types"
 interface UsePasswordValidationProps {
   password: string
   confirmPassword?: string
+  isAdmin?: boolean
 }
 
 interface UsePasswordValidationReturn {
@@ -25,6 +25,7 @@ interface UsePasswordValidationReturn {
 export function usePasswordValidation({
   password,
   confirmPassword = "",
+  isAdmin = true,
 }: UsePasswordValidationProps): UsePasswordValidationReturn {
   const [passwordStrength, setPasswordStrength] = useState(0)
   const [passwordCriteria, setPasswordCriteria] = useState<PasswordCriteria>({
@@ -34,30 +35,33 @@ export function usePasswordValidation({
     number: false,
     symbol: false,
     match: false,
+    specialRequirement: false,
   })
   const [isValid, setIsValid] = useState(false)
 
   useEffect(() => {
     // Check criteria
     const criteria = {
-      length: password.length >= 8,
+      length: isAdmin ? password.length >= 10 : password.length >= 8,
       uppercase: /[A-Z]/.test(password),
       lowercase: /[a-z]/.test(password),
       number: /[0-9]/.test(password),
       symbol: /[^A-Za-z0-9]/.test(password),
       match: password === confirmPassword && password !== "",
+      specialRequirement: isAdmin ? (password.match(/[^A-Za-z0-9]/g) || []).length >= 2 : true,
     }
 
     setPasswordCriteria(criteria)
 
-    // Calculate strength percentage
+    // Calculate strength percentage - for admin, include the special requirement
     const criteriaCount = Object.values(criteria).filter(Boolean).length
-    const strengthPercentage = Math.floor((criteriaCount / 6) * 100)
+    const totalCriteria = isAdmin ? 7 : 6
+    const strengthPercentage = Math.floor((criteriaCount / totalCriteria) * 100)
     setPasswordStrength(strengthPercentage)
 
     // Password is valid if all criteria are met
     setIsValid(Object.values(criteria).every(Boolean))
-  }, [password, confirmPassword])
+  }, [password, confirmPassword, isAdmin])
 
   return {
     passwordStrength,
@@ -65,4 +69,3 @@ export function usePasswordValidation({
     isValid,
   }
 }
-

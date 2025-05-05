@@ -1,7 +1,7 @@
 /**
- * Authentication Layout Component
+ * Pet Owner Authentication Layout Component
  *
- * This component provides a consistent layout for all authentication pages.
+ * This component provides a consistent layout for all pet owner authentication pages.
  * It includes a header, main content area, and footer.
  */
 
@@ -24,7 +24,7 @@ export function AuthLayout({ children, showBackToLogin = false, showBackToWelcom
       <header className="w-full border-b py-3 sm:py-4 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <Link href="/webapp" className="text-lg sm:text-xl font-bold text-foreground">
-            Big Paws Pet Hotel
+            Big Paws Pet Hotel <span className="text-primary">Pet Owner</span>
           </Link>
           <ThemeToggle />
         </div>
@@ -40,8 +40,8 @@ export function AuthLayout({ children, showBackToLogin = false, showBackToWelcom
           {(showBackToLogin || showBackToWelcome) && (
             <div className="mt-2">
               {showBackToLogin && (
-                <Link href="/webapp/auth/login" className="text-primary hover:underline">
-                  Back to Login
+                <Link href="/webapp/auth/pet-owner/login" className="text-primary hover:underline">
+                  Back to Pet Owner Login
                 </Link>
               )}
               {showBackToWelcome && (
@@ -56,4 +56,3 @@ export function AuthLayout({ children, showBackToLogin = false, showBackToWelcom
     </div>
   )
 }
-

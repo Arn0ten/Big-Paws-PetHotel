@@ -1,6 +1,6 @@
 export type PetSize = "Small" | "Medium" | "Large" | "XLarge"
 export type BoardingType = "Daycare" | "LongStay" | "CatHotel"
-export type PaymentStatus = "Paid" | "Not Paid" | "Pending"
+export type PaymentStatus = "Paid" | "Pending"
 export type BoardingStatus = "Boarding" | "Done Boarding" | "Released"
 export type CatRoomType = "Standard" | "ExtraGuest"
 export type CatAgeCategory = "Kitten" | "Adult"
@@ -146,4 +146,3 @@ export function isLongStay(startDate: Date, endDate: Date): boolean {
   const durationHours = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60)
   return durationHours >= 24
 }
-

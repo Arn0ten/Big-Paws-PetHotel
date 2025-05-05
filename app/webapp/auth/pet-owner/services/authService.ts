@@ -1,7 +1,7 @@
 /**
- * Authentication Service
+ * Pet Owner Authentication Service
  *
- * This service handles all API calls related to authentication.
+ * This service handles all API calls related to pet owner authentication.
  * It provides a clean interface for components to interact with the backend.
  *
  * BACKEND INTEGRATION POINT:
@@ -14,38 +14,17 @@ import type { LoginFormData, PasswordResetRequestFormData, PasswordResetFormData
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "/api"
 
 /**
- * Login user
+ * Login pet owner user
  *
- * @param {LoginFormData} data - User login credentials
+ * @param {LoginFormData} data - Pet owner login credentials
  * @returns {Promise<AuthResponse>} - Authentication response
- *
- * Request format:
- * {
- *   username: string, // Email or phone number
- *   password: string,
- *   rememberMe: boolean
- * }
- *
- * Response format:
- * {
- *   success: boolean,
- *   token?: string,
- *   user?: {
- *     id: string,
- *     name: string,
- *     email: string,
- *     role: 'pet-owner' | 'admin' | 'staff'
- *   },
- *   message?: string,
- *   error?: string
- * }
  */
 export async function login(data: LoginFormData): Promise<AuthResponse> {
   try {
     // BACKEND INTEGRATION POINT:
     // Replace this with actual API call
     // Example:
-    // const response = await fetch(`${API_BASE_URL}/auth/login`, {
+    // const response = await fetch(`${API_BASE_URL}/auth/pet-owner/login`, {
     //   method: 'POST',
     //   headers: { 'Content-Type': 'application/json' },
     //   body: JSON.stringify(data)
@@ -60,18 +39,18 @@ export async function login(data: LoginFormData): Promise<AuthResponse> {
         // Simulate successful login
         resolve({
           success: true,
-          token: "sample-jwt-token",
+          token: "sample-pet-owner-jwt-token",
           user: {
-            id: "123",
-            name: "Sample User",
-            email: data.username.includes("@") ? data.username : "user@example.com",
+            id: "pet-owner-123",
+            name: "Pet Owner User",
+            email: data.username.includes("@") ? data.username : "petowner@example.com",
             role: "pet-owner",
           },
         })
       }, 1000)
     })
   } catch (error) {
-    console.error("Login error:", error)
+    console.error("Pet owner login error:", error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "An unknown error occurred",
@@ -80,29 +59,17 @@ export async function login(data: LoginFormData): Promise<AuthResponse> {
 }
 
 /**
- * Request password reset
+ * Request pet owner password reset
  *
  * @param {PasswordResetRequestFormData} data - Contact information for reset
  * @returns {Promise<AuthResponse>} - Response indicating success or failure
- *
- * Request format:
- * {
- *   contact: string, // Email or phone number
- * }
- *
- * Response format:
- * {
- *   success: boolean,
- *   message?: string,
- *   error?: string
- * }
  */
 export async function requestPasswordReset(data: PasswordResetRequestFormData): Promise<AuthResponse> {
   try {
     // BACKEND INTEGRATION POINT:
     // Replace this with actual API call
     // Example:
-    // const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
+    // const response = await fetch(`${API_BASE_URL}/auth/pet-owner/forgot-password`, {
     //   method: 'POST',
     //   headers: { 'Content-Type': 'application/json' },
     //   body: JSON.stringify({
@@ -119,12 +86,12 @@ export async function requestPasswordReset(data: PasswordResetRequestFormData): 
       setTimeout(() => {
         resolve({
           success: true,
-          message: "Password reset instructions sent successfully",
+          message: "Pet owner password reset instructions sent successfully",
         })
       }, 1000)
     })
   } catch (error) {
-    console.error("Password reset request error:", error)
+    console.error("Pet owner password reset request error:", error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "An unknown error occurred",
@@ -133,31 +100,17 @@ export async function requestPasswordReset(data: PasswordResetRequestFormData): 
 }
 
 /**
- * Reset password
+ * Reset pet owner password
  *
  * @param {PasswordResetFormData} data - New password information
  * @returns {Promise<AuthResponse>} - Response indicating success or failure
- *
- * Request format:
- * {
- *   contact: string, // Email or phone number
- *   password: string,
- *   confirmPassword: string
- * }
- *
- * Response format:
- * {
- *   success: boolean,
- *   message?: string,
- *   error?: string
- * }
  */
 export async function resetPassword(data: PasswordResetFormData): Promise<AuthResponse> {
   try {
     // BACKEND INTEGRATION POINT:
     // Replace this with actual API call
     // Example:
-    // const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
+    // const response = await fetch(`${API_BASE_URL}/auth/pet-owner/reset-password`, {
     //   method: 'POST',
     //   headers: { 'Content-Type': 'application/json' },
     //   body: JSON.stringify({
@@ -175,12 +128,12 @@ export async function resetPassword(data: PasswordResetFormData): Promise<AuthRe
       setTimeout(() => {
         resolve({
           success: true,
-          message: "Password reset successful",
+          message: "Pet owner password reset successful",
         })
       }, 1000)
     })
   } catch (error) {
-    console.error("Password reset error:", error)
+    console.error("Pet owner password reset error:", error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "An unknown error occurred",
@@ -189,29 +142,17 @@ export async function resetPassword(data: PasswordResetFormData): Promise<AuthRe
 }
 
 /**
- * Change password
+ * Change pet owner password
  *
  * @param {PasswordResetRequestFormData} data - Contact information for change password
  * @returns {Promise<AuthResponse>} - Response indicating success or failure
- *
- * Request format:
- * {
- *   contact: string, // Email or phone number
- * }
- *
- * Response format:
- * {
- *   success: boolean,
- *   message?: string,
- *   error?: string
- * }
  */
 export async function changePassword(data: PasswordResetRequestFormData): Promise<AuthResponse> {
   try {
     // BACKEND INTEGRATION POINT:
     // Replace this with actual API call
     // Example:
-    // const response = await fetch(`${API_BASE_URL}/auth/change-password-request`, {
+    // const response = await fetch(`${API_BASE_URL}/auth/pet-owner/change-password-request`, {
     //   method: 'POST',
     //   headers: { 'Content-Type': 'application/json' },
     //   body: JSON.stringify({
@@ -228,16 +169,15 @@ export async function changePassword(data: PasswordResetRequestFormData): Promis
       setTimeout(() => {
         resolve({
           success: true,
-          message: "Password change instructions sent successfully",
+          message: "Pet owner password change instructions sent successfully",
         })
       }, 1000)
     })
   } catch (error) {
-    console.error("Change password request error:", error)
+    console.error("Pet owner change password request error:", error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "An unknown error occurred",
     }
   }
 }
-

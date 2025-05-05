@@ -78,7 +78,7 @@ export default function Header() {
 
   const handlePetDashboardClick = useCallback(async () => {
     setIsLoading(true);
-    await router.push("/webapp/auth/login");
+    await router.push("/webapp/auth/pet-owner/login");
     setIsLoading(false);
   }, [router]);
 
@@ -170,7 +170,7 @@ export default function Header() {
                   ))}
                   <div className="flex flex-col gap-4 mt-4 px-2">
                     <Button variant="outline" asChild className="w-full">
-                      <Link href="/webapp/auth/login">Pet Hotel</Link>
+                      <Link href="/webapp/auth/pet-owner/login">Pet Hotel</Link>
                     </Button>
                     <Button asChild className="w-full">
                       <Link href="#contact" onClick={scrollToBookService}>

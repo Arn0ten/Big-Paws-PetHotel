@@ -4,52 +4,48 @@
  * This file contains centralized sample data for the Boarding Management module.
  */
 
-import {
-  type BaseBoardingOrder,
-  type PaymentStatus,
-  getPetImageByType,
-} from "./shared-sample-data";
+import { type BaseBoardingOrder, type PaymentStatus, getPetImageByType } from "./shared-sample-data"
 
 // Extend the base boarding order interface with additional properties
 export interface BoardingOrder extends BaseBoardingOrder {
   pet: {
-    id: string;
-    name: string;
-    type: string;
-    breed: string;
-    size: string;
-    age: number;
-    imageUrl: string;
-  };
+    id: string
+    name: string
+    type: string
+    breed: string
+    size: string
+    age: number
+    imageUrl: string
+  }
   owner: {
-    id: string;
-    name: string;
-    email: string;
-    phone: string;
-    address: string;
-  };
+    id: string
+    name: string
+    email: string
+    phone: string
+    address: string
+  }
   additionalServices?: {
-    name: string;
-    price: number;
-    requestId: string;
-    timestamp: string;
-  }[];
-  lastModifiedBy?: string;
-  lastModificationReason?: string;
+    name: string
+    price: number
+    requestId: string
+    timestamp: string
+  }[]
+  lastModifiedBy?: string
+  lastModificationReason?: string
   paymentHistory?: {
-    status: string;
-    timestamp: string;
-    modifiedBy?: string;
-    reason?: string;
-  }[];
-  releaseTimestamp?: string;
-  receiptGenerated?: boolean;
-  notificationSent?: boolean;
-  originalEndDate?: string;
+    status: string
+    timestamp: string
+    modifiedBy?: string
+    reason?: string
+  }[]
+  releaseTimestamp?: string
+  receiptGenerated?: boolean
+  notificationSent?: boolean
+  originalEndDate?: string
 }
 
 // Helper function to generate random time between 1 and 22 hours
-const randomHours = () => Math.floor(Math.random() * 22) + 1;
+const randomHours = () => Math.floor(Math.random() * 22) + 1
 
 // Sample data for demonstration purposes
 export const sampleBoardingOrders: BoardingOrder[] = [
@@ -90,7 +86,7 @@ export const sampleBoardingOrders: BoardingOrder[] = [
     ],
     createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days ago
     updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
-    isOverdue: false, 
+    isOverdue: false,
     lastModifiedBy: "Admin",
     lastModificationReason: "Grooming service added",
     paymentHistory: [
@@ -131,9 +127,7 @@ export const sampleBoardingOrders: BoardingOrder[] = [
     },
     startDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days ago
     endDate: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000).toISOString(), // 4 days from now
-    originalEndDate: new Date(
-      Date.now() + 1 * 24 * 60 * 60 * 1000,
-    ).toISOString(), // Original end date was 1 day from now
+    originalEndDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString(), // Original end date was 1 day from now
     boardingType: "LongStay",
     boardingStatus: "Boarding",
     paymentStatus: "Paid",
@@ -288,9 +282,7 @@ export const sampleBoardingOrders: BoardingOrder[] = [
     totalPrice: 350.0,
     createdAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(), // 15 days ago
     updatedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days ago
-    releaseTimestamp: new Date(
-      Date.now() - 5 * 24 * 60 * 60 * 1000,
-    ).toISOString(), // 5 days ago
+    releaseTimestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days ago
     isOverdue: false,
     receiptGenerated: true,
     notificationSent: true,
@@ -374,7 +366,7 @@ export const sampleBoardingOrders: BoardingOrder[] = [
     endDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days  // 7 days ago
     boardingType: "LongStay",
     boardingStatus: "Done Boarding",
-    paymentStatus: "Not Paid",
+    paymentStatus: "Pending",
     totalPrice: 300.0,
     createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(), // 10 days ago
     updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
@@ -400,9 +392,7 @@ export const sampleBoardingOrders: BoardingOrder[] = [
       phone: "(555) 567-8901",
       address: "303 Birch Rd, Somewhere Else, IL 60001",
     },
-    startDate: new Date(
-      Date.now() - randomHours() * 60 * 60 * 1000,
-    ).toISOString(), // Random hours ago
+    startDate: new Date(Date.now() - randomHours() * 60 * 60 * 1000).toISOString(), // Random hours ago
     endDate: new Date().toISOString(), // Now
     boardingType: "Daycare",
     boardingStatus: "Done Boarding",
@@ -432,9 +422,7 @@ export const sampleBoardingOrders: BoardingOrder[] = [
       phone: "(555) 678-9012",
       address: "404 Elm St, Anyville, CA 90210",
     },
-    startDate: new Date(
-      Date.now() - randomHours() * 60 * 60 * 1000,
-    ).toISOString(), // Random hours ago
+    startDate: new Date(Date.now() - randomHours() * 60 * 60 * 1000).toISOString(), // Random hours ago
     endDate: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(), // 2 hours from now
     boardingType: "Daycare",
     boardingStatus: "Boarding",
@@ -472,14 +460,12 @@ export const sampleBoardingOrders: BoardingOrder[] = [
     totalPrice: 420.0,
     createdAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(), // 20 days ago
     updatedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days ago
-    releaseTimestamp: new Date(
-      Date.now() - 7 * 24 * 60 * 60 * 1000,
-    ).toISOString(), // 7 days ago
+    releaseTimestamp: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days ago
     isOverdue: false,
     receiptGenerated: true,
     notificationSent: true,
   },
-];
+]
 
 /**
  * Check for overdue pickups based on current date and end date
@@ -487,20 +473,18 @@ export const sampleBoardingOrders: BoardingOrder[] = [
  * @param orders - Array of boarding orders to check
  * @returns Array of boarding orders with updated overdue status
  */
-export const checkOverduePickups = (
-  orders: BoardingOrder[],
-): BoardingOrder[] => {
-  const now = new Date();
+export const checkOverduePickups = (orders: BoardingOrder[]): BoardingOrder[] => {
+  const now = new Date()
 
   return orders.map((order) => {
     if (order.boardingStatus === "Done Boarding") {
-      const endDate = new Date(order.endDate);
-      const isOverdue = endDate < now;
-      return { ...order, isOverdue };
+      const endDate = new Date(order.endDate)
+      const isOverdue = endDate < now
+      return { ...order, isOverdue }
     }
-    return order;
-  });
-};
+    return order
+  })
+}
 
 /**
  * Update boarding status for an order
@@ -509,10 +493,7 @@ export const checkOverduePickups = (
  * @param paymentStatus - The new payment status
  * @returns Updated boarding order
  */
-export const updateBoardingStatus = (
-  order: BoardingOrder,
-  paymentStatus: string,
-): BoardingOrder => {
+export const updateBoardingStatus = (order: BoardingOrder, paymentStatus: string): BoardingOrder => {
   return {
     ...order,
     paymentStatus: paymentStatus as PaymentStatus,
@@ -526,8 +507,8 @@ export const updateBoardingStatus = (
         reason: `Payment status updated to ${paymentStatus}`,
       },
     ],
-  };
-};
+  }
+}
 
 /**
  * Release a pet from boarding
@@ -543,8 +524,8 @@ export const releasePet = (order: BoardingOrder): BoardingOrder => {
     updatedAt: new Date().toISOString(),
     receiptGenerated: true,
     notificationSent: true,
-  };
-};
+  }
+}
 
 /**
  * Filter orders by status
@@ -560,13 +541,11 @@ export const filterOrdersByStatus = (
   paymentStatus = "all",
 ): BoardingOrder[] => {
   return orders.filter((order) => {
-    const matchesBoardingStatus =
-      boardingStatus === "all" || order.boardingStatus === boardingStatus;
-    const matchesPaymentStatus =
-      paymentStatus === "all" || order.paymentStatus === paymentStatus;
-    return matchesBoardingStatus && matchesPaymentStatus;
-  });
-};
+    const matchesBoardingStatus = boardingStatus === "all" || order.boardingStatus === boardingStatus
+    const matchesPaymentStatus = paymentStatus === "all" || order.paymentStatus === paymentStatus
+    return matchesBoardingStatus && matchesPaymentStatus
+  })
+}
 
 /**
  * Search orders by query
@@ -575,17 +554,14 @@ export const filterOrdersByStatus = (
  * @param query - The search query
  * @returns Matching orders
  */
-export const searchOrders = (
-  orders: BoardingOrder[],
-  query: string,
-): BoardingOrder[] => {
-  if (!query) return orders;
+export const searchOrders = (orders: BoardingOrder[], query: string): BoardingOrder[] => {
+  if (!query) return orders
 
-  const lowerQuery = query.toLowerCase();
+  const lowerQuery = query.toLowerCase()
   return orders.filter(
     (order) =>
       order.pet.name.toLowerCase().includes(lowerQuery) ||
       order.owner.name.toLowerCase().includes(lowerQuery) ||
       order.pet.breed.toLowerCase().includes(lowerQuery),
-  );
-};
+  )
+}

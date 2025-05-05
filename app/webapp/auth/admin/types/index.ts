@@ -1,8 +1,7 @@
 /**
- * Authentication Types
+ * Admin Authentication Types
  *
- * This file contains all the type definitions used across the authentication components.
- * Centralizing types helps maintain consistency and makes it easier to update them.
+ * This file contains all the type definitions used across the admin authentication components.
  */
 
 // Common form state types
@@ -10,16 +9,19 @@ export interface LoginFormData {
   username: string
   password: string
   rememberMe: boolean
+  role?: string
 }
 
 export interface PasswordResetRequestFormData {
   contact: string
+  role?: string
 }
 
 export interface PasswordResetFormData {
   contact: string
   password: string
   confirmPassword: string
+  role?: string
 }
 
 // Password criteria validation type
@@ -30,6 +32,7 @@ export interface PasswordCriteria {
   number: boolean
   symbol: boolean
   match: boolean
+  specialRequirement?: boolean // For admin-specific requirements
 }
 
 // API response types
@@ -52,4 +55,3 @@ export interface UserData {
 
 // Navigation origin for change password
 export type ChangePasswordOrigin = "pet-owner" | "admin" | "login"
-

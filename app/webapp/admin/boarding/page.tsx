@@ -1,48 +1,43 @@
-"use client";
+"use client"
 
-import type React from "react";
+import type React from "react"
 
-import { useState, useEffect, useCallback, useRef } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BoardingTable } from "./components/boarding-table";
-import { StatsCards } from "./components/stats-cards";
-import type { BoardingOrder, PaymentStatus } from "./types";
-import { sampleBoardingOrders } from "./data/sample-data";
+import { useState, useEffect, useCallback, useRef } from "react"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { BoardingTable } from "./components/boarding-table"
+import { StatsCards } from "./components/stats-cards"
+import type { BoardingOrder, PaymentStatus } from "./types"
+import { sampleBoardingOrders } from "./data/sample-data"
 import {
   filterOrdersByStatus,
   searchOrders,
   updateBoardingStatus,
   releasePet,
   checkOverduePickups,
-} from "./utils/helpers";
-import { SuccessDialog } from "./components/success-dialog";
-import { Input } from "@/components/ui/input";
-import { Loader2, Search, Filter, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { PaginationControls } from "@/app/webapp/admin/components/pagination-controls";
-import { ActionConfirmationDialog } from "@/components/ui/action-confirmation-dialog";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-} from "@/components/ui/select";
+} from "./utils/helpers"
+import { SuccessDialog } from "./components/success-dialog"
+import { Input } from "@/components/ui/input"
+import { Loader2, Search, Filter, X } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { PaginationControls } from "@/app/webapp/admin/components/pagination-controls"
+import { ActionConfirmationDialog } from "@/components/ui/action-confirmation-dialog"
+import { Skeleton } from "@/components/ui/skeleton"
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table"
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
 
 // Find the FilterBar component and update it:
 
 // Update the FilterBar component props
 interface FilterBarProps {
-  onSearch: (term: string) => void;
-  onFilterBoardingStatus: (status: string) => void;
-  onFilterPaymentStatus: (status: string) => void;
-  onRefresh: () => void;
-  isLoading?: boolean;
-  isRefreshing?: boolean;
-  isSearching?: boolean;
-  boardingStatusFilter: string;
-  paymentStatusFilter: string;
+  onSearch: (term: string) => void
+  onFilterBoardingStatus: (status: string) => void
+  onFilterPaymentStatus: (status: string) => void
+  onRefresh: () => void
+  isLoading?: boolean
+  isRefreshing?: boolean
+  isSearching?: boolean
+  boardingStatusFilter: string
+  paymentStatusFilter: string
 }
 
 // Update the FilterBar component implementation
@@ -57,52 +52,52 @@ export function FilterBar({
   boardingStatusFilter,
   paymentStatusFilter,
 }: FilterBarProps) {
-  const [searchTerm, setSearchTerm] = useState("");
-  const searchInputRef = useRef<HTMLInputElement>(null);
-  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [searchTerm, setSearchTerm] = useState("")
+  const searchInputRef = useRef<HTMLInputElement>(null)
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // Handle real-time search with debounce
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchTerm(value);
+    const value = e.target.value
+    setSearchTerm(value)
 
     // Clear any existing timeout
     if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
+      clearTimeout(searchTimeoutRef.current)
     }
 
     // Debounce the search
     searchTimeoutRef.current = setTimeout(() => {
-      onSearch(value);
-    }, 300); // 300ms debounce
-  };
+      onSearch(value)
+    }, 300) // 300ms debounce
+  }
 
   // Clean up timeout on unmount
   useEffect(() => {
     return () => {
       if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current);
+        clearTimeout(searchTimeoutRef.current)
       }
-    };
-  }, []);
+    }
+  }, [])
 
   const handleClearSearch = () => {
-    setSearchTerm("");
-    onSearch("");
+    setSearchTerm("")
+    onSearch("")
     if (searchInputRef.current) {
-      searchInputRef.current.focus();
+      searchInputRef.current.focus()
     }
-  };
+  }
 
   const clearFilters = () => {
-    setSearchTerm("");
-    onSearch("");
-    onFilterBoardingStatus("all");
-    onFilterPaymentStatus("all");
+    setSearchTerm("")
+    onSearch("")
+    onFilterBoardingStatus("all")
+    onFilterPaymentStatus("all")
     if (searchInputRef.current) {
-      searchInputRef.current.focus();
+      searchInputRef.current.focus()
     }
-  };
+  }
 
   return (
     <div className="flex flex-row justify-between items-center gap-4 flex-wrap md:flex-nowrap">
@@ -161,39 +156,31 @@ export function FilterBar({
           <SelectContent>
             <SelectItem value="all">All Payments</SelectItem>
             <SelectItem value="Paid">Paid</SelectItem>
-            <SelectItem value="Not Paid">Not Paid</SelectItem>
             <SelectItem value="Pending">Pending</SelectItem>
           </SelectContent>
         </Select>
 
-        {(searchTerm ||
-          boardingStatusFilter !== "all" ||
-          paymentStatusFilter !== "all") && (
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={clearFilters}
-            title="Clear filters"
-          >
+        {(searchTerm || boardingStatusFilter !== "all" || paymentStatusFilter !== "all") && (
+          <Button variant="outline" size="icon" onClick={clearFilters} title="Clear filters">
             <X className="h-4 w-4" />
           </Button>
         )}
       </div>
     </div>
-  );
+  )
 }
 
 export default function BoardingManagementPage() {
-  const [boardingOrders, setBoardingOrders] = useState<BoardingOrder[]>([]);
-  const [filteredOrders, setFilteredOrders] = useState<BoardingOrder[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isSearching, setIsSearching] = useState(false);
-  const [activeTab, setActiveTab] = useState("all");
+  const [boardingOrders, setBoardingOrders] = useState<BoardingOrder[]>([])
+  const [filteredOrders, setFilteredOrders] = useState<BoardingOrder[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const [isSearching, setIsSearching] = useState(false)
+  const [activeTab, setActiveTab] = useState("all")
   const [successDialog, setSuccessDialog] = useState({
     open: false,
     message: "",
-  });
+  })
 
   const [actionDialog, setActionDialog] = useState({
     open: false,
@@ -202,103 +189,88 @@ export default function BoardingManagementPage() {
     action: "",
     orderId: "",
     status: "",
-  });
-  const [isProcessing, setIsProcessing] = useState(false);
+  })
+  const [isProcessing, setIsProcessing] = useState(false)
 
   // Filter states
-  const [searchTerm, setSearchTerm] = useState("");
-  const [boardingStatusFilter, setBoardingStatusFilter] = useState("all");
-  const [paymentStatusFilter, setPaymentStatusFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("")
+  const [boardingStatusFilter, setBoardingStatusFilter] = useState("all")
+  const [paymentStatusFilter, setPaymentStatusFilter] = useState("all")
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10; // Standardized to 10 items per page
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 10 // Standardized to 10 items per page
 
   const fetchBoardingOrders = useCallback(async () => {
     try {
-      setIsRefreshing(true);
+      setIsRefreshing(true)
       // In a real implementation, this would be an API call
       // const response = await fetch('/api/boarding-orders');
       // const data = await response.json();
 
       // Using sample data for now
-      await new Promise((resolve) => setTimeout(resolve, 800)); // Simulate API delay
+      await new Promise((resolve) => setTimeout(resolve, 800)) // Simulate API delay
 
       // Check for overdue pickups
-      const ordersWithOverdueStatus = checkOverduePickups(sampleBoardingOrders);
+      const ordersWithOverdueStatus = checkOverduePickups(sampleBoardingOrders)
 
-      setBoardingOrders(ordersWithOverdueStatus);
-      setFilteredOrders(ordersWithOverdueStatus);
+      setBoardingOrders(ordersWithOverdueStatus)
+      setFilteredOrders(ordersWithOverdueStatus)
     } catch (error) {
-      console.error("Error fetching boarding orders:", error);
+      console.error("Error fetching boarding orders:", error)
     } finally {
-      setIsLoading(false);
-      setIsRefreshing(false);
+      setIsLoading(false)
+      setIsRefreshing(false)
     }
-  }, []);
+  }, [])
 
   useEffect(() => {
-    fetchBoardingOrders();
-  }, [fetchBoardingOrders]);
+    fetchBoardingOrders()
+  }, [fetchBoardingOrders])
 
   useEffect(() => {
     // Apply filters whenever filter states change
-    let result = [...boardingOrders];
+    let result = [...boardingOrders]
 
     // Apply search filter
     if (searchTerm) {
-      result = searchOrders(result, searchTerm);
+      result = searchOrders(result, searchTerm)
     }
 
     // Apply status filters
-    result = filterOrdersByStatus(
-      result,
-      boardingStatusFilter,
-      paymentStatusFilter,
-    );
+    result = filterOrdersByStatus(result, boardingStatusFilter, paymentStatusFilter)
 
     // Apply tab filter
     if (activeTab === "active") {
-      result = result.filter((order) => order.boardingStatus === "Boarding");
+      result = result.filter((order) => order.boardingStatus === "Boarding")
     } else if (activeTab === "completed") {
-      result = result.filter(
-        (order) => order.boardingStatus === "Done Boarding",
-      );
+      result = result.filter((order) => order.boardingStatus === "Done Boarding")
     } else if (activeTab === "overdue") {
-      result = result.filter((order) => order.isOverdue);
+      result = result.filter((order) => order.isOverdue)
     } else if (activeTab === "released") {
-      result = result.filter((order) => order.boardingStatus === "Released");
+      result = result.filter((order) => order.boardingStatus === "Released")
     }
 
-    setFilteredOrders(result);
-  }, [
-    boardingOrders,
-    searchTerm,
-    boardingStatusFilter,
-    paymentStatusFilter,
-    activeTab,
-  ]);
+    setFilteredOrders(result)
+  }, [boardingOrders, searchTerm, boardingStatusFilter, paymentStatusFilter, activeTab])
 
   useEffect(() => {
     // Reset to page 1 when filters change
-    setCurrentPage(1);
-  }, [searchTerm, boardingStatusFilter, paymentStatusFilter, activeTab]);
+    setCurrentPage(1)
+  }, [searchTerm, boardingStatusFilter, paymentStatusFilter, activeTab])
 
   // Calculate pagination values
-  const totalItems = filteredOrders.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
-  const currentOrders = filteredOrders.slice(startIndex, endIndex);
+  const totalItems = filteredOrders.length
+  const totalPages = Math.ceil(totalItems / itemsPerPage)
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const endIndex = Math.min(startIndex + itemsPerPage, totalItems)
+  const currentOrders = filteredOrders.slice(startIndex, endIndex)
 
   // Handle page change
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
+    setCurrentPage(page)
+  }
 
-  const handleUpdatePaymentStatus = (
-    orderId: string,
-    status: PaymentStatus,
-  ) => {
+  const handleUpdatePaymentStatus = (orderId: string, status: PaymentStatus) => {
     setActionDialog({
       open: true,
       title: `Confirm Payment Status Change`,
@@ -306,20 +278,19 @@ export default function BoardingManagementPage() {
       action: "updatePayment",
       orderId,
       status,
-    });
-  };
+    })
+  }
 
   const handleReleasePet = (orderId: string) => {
     setActionDialog({
       open: true,
       title: "Confirm Pet Release",
-      description:
-        "Are you sure you want to release this pet? This action cannot be undone.",
+      description: "Are you sure you want to release this pet? This action cannot be undone.",
       action: "releasePet",
       orderId,
       status: "",
-    });
-  };
+    })
+  }
 
   // Update the BoardingManagementPage component to include the Force Release functionality
   // Add the handleForceRelease function after the handleReleasePet function
@@ -333,28 +304,27 @@ export default function BoardingManagementPage() {
       action: "forceRelease",
       orderId,
       status: "",
-    });
-  };
+    })
+  }
 
   const handleDeleteRecord = (orderId: string) => {
     setActionDialog({
       open: true,
       title: "Confirm Record Deletion",
-      description:
-        "Are you sure you want to delete this boarding record? This action cannot be undone.",
+      description: "Are you sure you want to delete this boarding record? This action cannot be undone.",
       action: "deleteRecord",
       orderId,
       status: "",
-    });
-  };
+    })
+  }
 
   const handleConfirmAction = async () => {
-    setIsProcessing(true);
+    setIsProcessing(true)
 
     // Simulate processing delay
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    await new Promise((resolve) => setTimeout(resolve, 1500))
 
-    const { action, orderId, status } = actionDialog;
+    const { action, orderId, status } = actionDialog
 
     // Update local state based on the action
     if (action === "updatePayment") {
@@ -365,35 +335,35 @@ export default function BoardingManagementPage() {
             lastModifiedBy: "Admin",
             updatedAt: new Date().toISOString(),
             lastModificationReason: `Payment status updated to ${status}`,
-          };
-          return updatedOrder;
+          }
+          return updatedOrder
         }
-        return order;
-      });
+        return order
+      })
 
-      setBoardingOrders(updatedOrders);
+      setBoardingOrders(updatedOrders)
       setSuccessDialog({
         open: true,
         message: `Payment status has been updated to ${status}.`,
-      });
+      })
     } else if (action === "releasePet") {
       const updatedOrders = boardingOrders.map((order) => {
         if (order.id === orderId) {
-          const releasedOrder = releasePet(order);
+          const releasedOrder = releasePet(order)
           return {
             ...releasedOrder,
             lastModifiedBy: "Admin",
             lastModificationReason: "Pet released",
-          };
+          }
         }
-        return order;
-      });
+        return order
+      })
 
-      setBoardingOrders(updatedOrders);
+      setBoardingOrders(updatedOrders)
       setSuccessDialog({
         open: true,
         message: "Pet has been successfully released.",
-      });
+      })
     }
     // Update the handleConfirmAction function to include the forceRelease case
     // Inside the handleConfirmAction function, add this case after the releasePet case:
@@ -414,70 +384,66 @@ export default function BoardingManagementPage() {
             lastModifiedBy: "Admin",
             lastModificationReason: "Pet force released",
             paymentStatus: "Paid", // Ensure payment status is set to Paid when force releasing
-          };
-          return releasedOrder;
+          }
+          return releasedOrder
         }
-        return order;
-      });
+        return order
+      })
 
-      setBoardingOrders(updatedOrders);
+      setBoardingOrders(updatedOrders)
       setSuccessDialog({
         open: true,
         message: "Pet has been successfully force released.",
-      });
+      })
     } else if (action === "deleteRecord") {
-      const updatedOrders = boardingOrders.filter(
-        (order) => order.id !== orderId,
-      );
-      setBoardingOrders(updatedOrders);
+      const updatedOrders = boardingOrders.filter((order) => order.id !== orderId)
+      setBoardingOrders(updatedOrders)
       setSuccessDialog({
         open: true,
         message: "Boarding record has been successfully deleted.",
-      });
+      })
     }
 
-    setIsProcessing(false);
-    setActionDialog({ ...actionDialog, open: false });
-  };
+    setIsProcessing(false)
+    setActionDialog({ ...actionDialog, open: false })
+  }
 
   const handleRefresh = () => {
-    fetchBoardingOrders();
-    setSearchTerm("");
-  };
+    fetchBoardingOrders()
+    setSearchTerm("")
+  }
 
   const handleSearch = async (term: string) => {
-    setIsSearching(true);
-    setSearchTerm(term);
+    setIsSearching(true)
+    setSearchTerm(term)
 
     // Simulate search delay
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    setIsSearching(false);
-  };
+    await new Promise((resolve) => setTimeout(resolve, 300))
+    setIsSearching(false)
+  }
 
   const handleFilterBoardingStatus = (status: string) => {
-    setBoardingStatusFilter(status);
-  };
+    setBoardingStatusFilter(status)
+  }
 
   const handleFilterPaymentStatus = (status: string) => {
-    setPaymentStatusFilter(status);
-  };
+    setPaymentStatusFilter(status)
+  }
 
-  const isTableLoading = isLoading || isRefreshing || isSearching;
+  const isTableLoading = isLoading || isRefreshing || isSearching
 
   // Update the BoardingManagementPage component to handle card clicks
   // First, add a function to handle card clicks that will set the active tab
 
   const handleCardClick = (tabValue: string) => {
-    setActiveTab(tabValue);
-  };
+    setActiveTab(tabValue)
+  }
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-            Boarding Management
-          </h1>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Boarding Management</h1>
           <p className="text-muted-foreground mt-1">
             Manage pet boarding orders, update payment status, and release pets.
           </p>
@@ -485,11 +451,7 @@ export default function BoardingManagementPage() {
       </div>
 
       {/* Stats Cards */}
-      <StatsCards
-        boardingOrders={boardingOrders}
-        isLoading={isTableLoading}
-        onCardClick={handleCardClick}
-      />
+      <StatsCards boardingOrders={boardingOrders} isLoading={isTableLoading} onCardClick={handleCardClick} />
 
       {/* Filters */}
       <FilterBar
@@ -567,11 +529,7 @@ export default function BoardingManagementPage() {
                 />
 
                 {/* Standardized Pagination Controls */}
-                <PaginationControls
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  onPageChange={handlePageChange}
-                />
+                <PaginationControls currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
               </>
             )}
           </TabsContent>
@@ -591,11 +549,7 @@ export default function BoardingManagementPage() {
                 />
 
                 {/* Standardized Pagination Controls */}
-                <PaginationControls
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  onPageChange={handlePageChange}
-                />
+                <PaginationControls currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
               </>
             )}
           </TabsContent>
@@ -615,11 +569,7 @@ export default function BoardingManagementPage() {
                 />
 
                 {/* Standardized Pagination Controls */}
-                <PaginationControls
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  onPageChange={handlePageChange}
-                />
+                <PaginationControls currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
               </>
             )}
           </TabsContent>
@@ -639,11 +589,7 @@ export default function BoardingManagementPage() {
                 />
 
                 {/* Standardized Pagination Controls */}
-                <PaginationControls
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  onPageChange={handlePageChange}
-                />
+                <PaginationControls currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
               </>
             )}
           </TabsContent>
@@ -663,11 +609,7 @@ export default function BoardingManagementPage() {
                 />
 
                 {/* Standardized Pagination Controls */}
-                <PaginationControls
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  onPageChange={handlePageChange}
-                />
+                <PaginationControls currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
               </>
             )}
           </TabsContent>
@@ -690,7 +632,7 @@ export default function BoardingManagementPage() {
         isLoading={isProcessing}
       />
     </div>
-  );
+  )
 }
 
 function BoardingTableSkeleton() {
@@ -751,5 +693,5 @@ function BoardingTableSkeleton() {
         </Table>
       </div>
     </div>
-  );
+  )
 }

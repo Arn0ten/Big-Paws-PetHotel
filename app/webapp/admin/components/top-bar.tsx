@@ -58,7 +58,7 @@ export function TopBar() {
       localStorage.removeItem("auth_token");
 
       // Redirect to login page
-      router.push("/webapp/auth/login");
+      router.push("/webapp/auth/admin/login");
     } catch (error) {
       console.error("Logout error:", error);
       toast({

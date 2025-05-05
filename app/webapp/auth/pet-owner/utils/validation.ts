@@ -1,8 +1,7 @@
 /**
- * Authentication Validation Utilities
+ * Pet Owner Authentication Validation Utilities
  *
- * This file contains validation functions used across authentication components.
- * Centralizing validation logic ensures consistency and makes it easier to update.
+ * This file contains validation functions used across pet owner authentication components.
  */
 
 // Validate email format
@@ -72,4 +71,3 @@ export function validatePasswordConfirmation(
 
   return { isValid: true }
 }
-
