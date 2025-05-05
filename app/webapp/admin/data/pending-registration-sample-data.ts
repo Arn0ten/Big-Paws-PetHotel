@@ -1,0 +1,95 @@
+/**
+ * PENDING REGISTRATION SAMPLE DATA
+ *
+ * This file contains sample data for pending registrations.
+ * When implementing actual API integration:
+ * 1. Replace the static data with API calls
+ * 2. Implement proper error handling and loading states
+ * 3. Update the type definitions as needed based on the actual API response
+ */
+
+import type { PendingRegistration } from "../pending-registration/types"
+
+export const pendingRegistrations: PendingRegistration[] = [
+  {
+    id: "pr-001",
+    fullName: "Maria Santos",
+    email: "maria.santos@example.com",
+    phone: "09123456789",
+    address: "123 Rizal Street",
+    city: "Makati City",
+    province: "Metro Manila",
+    registrationDate: "2023-11-15T08:30:00Z",
+    status: "pending",
+    notes: "Interested in boarding services for 2 dogs",
+  },
+  {
+    id: "pr-002",
+    fullName: "Juan Dela Cruz",
+    email: "juan.delacruz@example.com",
+    phone: "09187654321",
+    address: "456 Bonifacio Avenue",
+    city: "Quezon City",
+    province: "Metro Manila",
+    registrationDate: "2023-11-16T10:15:00Z",
+    status: "pending",
+    notes: "Has a senior cat with special dietary needs",
+  },
+  {
+    id: "pr-003",
+    fullName: "Ana Reyes",
+    email: "ana.reyes@example.com",
+    phone: "09234567890",
+    address: "789 Mabini Street",
+    city: "Pasig City",
+    province: "Metro Manila",
+    registrationDate: "2023-11-17T14:45:00Z",
+    status: "pending",
+  },
+  {
+    id: "pr-004",
+    fullName: "Carlos Mendoza",
+    email: "carlos.mendoza@example.com",
+    phone: "09345678901",
+    address: "101 Luna Road",
+    city: "Taguig City",
+    province: "Metro Manila",
+    registrationDate: "2023-11-18T09:20:00Z",
+    status: "pending",
+    notes: "Referred by Dr. Garcia from Animal Care Clinic",
+  },
+  {
+    id: "pr-005",
+    fullName: "Sofia Lim",
+    email: "sofia.lim@example.com",
+    phone: "09456789012",
+    address: "202 Aguinaldo Highway",
+    city: "Dasmariñas",
+    province: "Cavite",
+    registrationDate: "2023-11-19T11:05:00Z",
+    status: "pending",
+  },
+  {
+    id: "pr-006",
+    fullName: "Miguel Tan",
+    email: "miguel.tan@example.com",
+    phone: "09567890123",
+    address: "303 Lapu-Lapu Street",
+    city: "Cebu City",
+    province: "Cebu",
+    registrationDate: "2023-11-20T16:30:00Z",
+    status: "pending",
+    notes: "Has multiple pets (3 dogs, 2 cats)",
+  },
+  {
+    id: "pr-007",
+    fullName: "Isabella Garcia",
+    email: "isabella.garcia@example.com",
+    phone: "09678901234",
+    address: "404 Magsaysay Boulevard",
+    city: "Davao City",
+    province: "Davao del Sur",
+    registrationDate: "2023-11-21T13:15:00Z",
+    status: "pending",
+  },
+]
