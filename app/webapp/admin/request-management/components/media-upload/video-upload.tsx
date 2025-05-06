@@ -1001,7 +1001,7 @@ export function VideoUpload({
               </div>
 
               <div className="flex gap-2 w-full sm:w-auto">
-                <Button
+                {/* <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setShowAudioSelector(true)}
@@ -1010,7 +1010,7 @@ export function VideoUpload({
                 >
                   <PiMusicNotesPlusFill className="h-4 w-4 mr-1" />
                   {selectedAudio ? "Change Music" : "Add Music"}
-                </Button>
+                </Button> */}
                 {/* {selectedAudio && audioMerged && (
                   <Button
                     variant="outline"

@@ -74,13 +74,13 @@ const menuItems: MenuItem[] = [
     expanded: false,
     children: [
       {
-        title: "Register Petowner",
+        title: "Register",
         href: "/webapp/admin/registration",
         section: "management",
         icon: HiUserAdd,
       },
       {
-        title: "Pending Registrations",
+        title: "Pendings",
         href: "/webapp/admin/pending-registration",
         section: "management",
         icon: FaHistory,

@@ -5,7 +5,7 @@
  * and optionally shows criteria for a strong password.
  */
 
-import { CheckCircle2, XCircle } from "lucide-react"
+import { CheckCircle2, XCircle, CheckCircle, Circle } from "lucide-react"
 import type { PasswordCriteria } from "../types"
 
 interface PasswordStrengthMeterProps {
@@ -13,6 +13,27 @@ interface PasswordStrengthMeterProps {
   criteria: PasswordCriteria
   showCriteria?: boolean
   isAdmin?: boolean
+}
+
+const getCriteriaText = (key: keyof PasswordCriteria, isAdmin: boolean): string => {
+  switch (key) {
+    case "length":
+      return isAdmin ? "At least 10 characters" : "At least 8 characters"
+    case "uppercase":
+      return "At least 1 uppercase letter"
+    case "lowercase":
+      return "At least 1 lowercase letter"
+    case "number":
+      return "At least 1 number"
+    case "symbol":
+      return "At least 1 special character"
+    case "specialRequirement":
+      return "At least 2 special characters"
+    case "match":
+      return "Passwords match"
+    default:
+      return ""
+  }
 }
 
 export function PasswordStrengthMeter({
@@ -47,22 +68,23 @@ export function PasswordStrengthMeter({
 
       {/* Password criteria checklist */}
       {showCriteria && (
-        <div className="mt-4 space-y-1 text-sm">
-          <p className="font-medium mb-2">Password requirements:</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
-            <CriteriaItem
-              isValid={criteria.length}
-              text={isAdmin ? "At least 10 characters" : "At least 8 characters"}
-            />
-            <CriteriaItem isValid={criteria.uppercase} text="At least 1 uppercase letter" />
-            <CriteriaItem isValid={criteria.lowercase} text="At least 1 lowercase letter" />
-            <CriteriaItem isValid={criteria.number} text="At least 1 number" />
-            <CriteriaItem isValid={criteria.symbol} text="At least 1 special character" />
-            {isAdmin && (
-              <CriteriaItem isValid={criteria.specialRequirement || false} text="At least 2 special characters" />
-            )}
-            <CriteriaItem isValid={criteria.match} text="Passwords match" />
-          </div>
+        <div className="space-y-2 mt-3">
+          <p className="text-sm font-medium">Password requirements:</p>
+          <ul className="space-y-1 text-sm">
+            {Object.entries(criteria).map(([key, value]) => {
+              const criteriaText = getCriteriaText(key as keyof PasswordCriteria, isAdmin)
+              return (
+                <li key={key} className="flex items-center">
+                  {value ? (
+                    <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+                  ) : (
+                    <Circle className="h-4 w-4 text-muted-foreground mr-2" />
+                  )}
+                  <span className={value ? "text-green-500" : "text-muted-foreground"}>{criteriaText}</span>
+                </li>
+              )
+            })}
+          </ul>
         </div>
       )}
     </div>

@@ -24,6 +24,7 @@ import {
   Mail,
   Phone,
   X,
+  Filter,
 } from "lucide-react";
 import { formatDate } from "@/app/webapp/admin/request-management/utils/ui-helpers";
 import { ConfirmationDialog } from "./confirm-dialog";
@@ -210,14 +211,19 @@ export function PendingRegistrationTable({
               <Button
                 variant="outline"
                 className={cn(
-                  "w-[140px] h-10 justify-start text-left font-normal",
+                  "w-[160px] h-10 justify-start text-left font-normal overflow-hidden whitespace-nowrap",
                   !dateFilter && "text-muted-foreground",
                 )}
+                style={{ textOverflow: "ellipsis" }}
               >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {dateFilter
-                  ? format(new Date(dateFilter), "PPP")
-                  : "Filter by date"}
+                <Filter className="mr-2 h-4 w-4" />
+                {dateFilter ? (
+                  <span className="text-xs truncate">
+                    {format(new Date(dateFilter), "PPP")}
+                  </span>
+                ) : (
+                  "Filter by date"
+                )}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">

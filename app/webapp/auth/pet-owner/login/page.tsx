@@ -573,8 +573,8 @@ export default function PetOwnerLoginPage() {
 
             <Button
               type="button"
-              variant="secondary"
-              className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-medium text-base py-6"
+              variant="outline"
+              className="w-full border-primary text-primary bg-white hover:bg-muted font-medium text-base py-6"
               onClick={() => router.push("/webapp/auth/pet-owner/register")}
             >
               Register as Pet Owner
