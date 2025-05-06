@@ -21,6 +21,11 @@ import {
 import { formatDate } from "@/app/webapp/admin/request-management/utils/ui-helpers";
 import type { PendingRegistration } from "../types";
 
+import { FaThumbsUp, FaThumbsDown } from "react-icons/fa6";
+import { MdLocationOn } from "react-icons/md";
+import { IoMail } from "react-icons/io5";
+import { FaPhone } from "react-icons/fa6";
+
 interface RegistrationDetailsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -63,7 +68,7 @@ export function RegistrationDetailsDialog({
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-start space-x-3 bg-muted/40 p-3 rounded-md">
-                  <Mail className="h-5 w-5 text-muted-foreground mt-0.5" />
+                  <IoMail className="h-5 w-5 text-muted-foreground mt-0.5" />
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">
                       Email
@@ -73,7 +78,7 @@ export function RegistrationDetailsDialog({
                 </div>
 
                 <div className="flex items-start space-x-3 bg-muted/40 p-3 rounded-md">
-                  <Phone className="h-5 w-5 text-muted-foreground mt-0.5" />
+                  <FaPhone className="h-5 w-5 text-muted-foreground mt-0.5" />
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">
                       Phone
@@ -90,7 +95,7 @@ export function RegistrationDetailsDialog({
             <h3 className="text-lg font-medium">Address Information</h3>
             <div className="grid grid-cols-1 gap-4">
               <div className="flex items-start space-x-3 bg-muted/40 p-3 rounded-md">
-                <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
+                <MdLocationOn className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">
                     Address
@@ -151,7 +156,7 @@ export function RegistrationDetailsDialog({
                 setTimeout(onReject, 100); // Open confirmation dialog after a short delay
               }}
             >
-              <ThumbsDown className="h-4 w-4 mr-2" />
+              <FaThumbsDown className="h-4 w-4 mr-2" />
               Reject
             </Button>
             <Button
@@ -161,7 +166,7 @@ export function RegistrationDetailsDialog({
                 setTimeout(onApprove, 100); // Open confirmation dialog after a short delay
               }}
             >
-              <ThumbsUp className="h-4 w-4 mr-2" />
+              <FaThumbsUp className="h-4 w-4 mr-2" />
               Approve
             </Button>
           </div>

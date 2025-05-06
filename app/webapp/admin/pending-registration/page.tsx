@@ -1,6 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
-import { PendingRegistrationTable } from "./components/peding-registration-table";
+import { PendingRegistrationTable } from "./components/pending-registration-table";
 import { pendingRegistrations } from "../data/pending-registration-sample-data";
 
 export default function PendingRegistrationPage() {

@@ -36,11 +36,7 @@ export default function PendingRegistrationLoading() {
         <div className="flex gap-2 items-center">
           <div className="flex flex-col md:flex-row gap-2">
             <div className="flex items-center gap-2">
-              <span className="text-sm whitespace-nowrap">From:</span>
-              <Skeleton className="h-10 w-[120px]" />
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm whitespace-nowrap">To:</span>
+              <span className="text-sm whitespace-nowrap">Date:</span>
               <Skeleton className="h-10 w-[120px]" />
             </div>
           </div>

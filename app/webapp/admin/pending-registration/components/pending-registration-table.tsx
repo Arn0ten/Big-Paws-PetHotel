@@ -12,9 +12,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 import {
   ThumbsUp,
   ThumbsDown,
+  CalendarIcon,
   Search,
   Eye,
   Mail,
@@ -26,7 +30,15 @@ import { ConfirmationDialog } from "./confirm-dialog";
 import { RegistrationDetailsDialog } from "./registration-details-dialog";
 import { useToast } from "@/hooks/use-toast";
 import type { PendingRegistration } from "../types";
-
+import { MdLocationOn } from "react-icons/md";
+import { IoMail } from "react-icons/io5";
+import { FaPhone } from "react-icons/fa6";
+import { FaThumbsUp, FaThumbsDown } from "react-icons/fa6";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 interface PendingRegistrationTableProps {
   registrations: PendingRegistration[];
 }
@@ -190,29 +202,46 @@ export function PendingRegistrationTable({
         </div>
 
         {/* Replace the date filter UI with this calendar-based filter */}
-        {/* Replace the date filter section in the JSX with: */}
+
         <div className="flex gap-2 items-center">
-          <div className="flex items-center gap-2">
-            <span className="text-sm whitespace-nowrap">Date:</span>
-            <div className="relative">
-              <Input
-                type="date"
-                className="w-full pr-10"
-                value={dateFilter || ""}
-                onChange={(e) => setDateFilter(e.target.value || null)}
+          <span className="text-sm whitespace-nowrap">Date:</span>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-[140px] h-10 justify-start text-left font-normal",
+                  !dateFilter && "text-muted-foreground",
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {dateFilter
+                  ? format(new Date(dateFilter), "PPP")
+                  : "Filter by date"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={dateFilter ? new Date(dateFilter) : undefined}
+                onSelect={(date) =>
+                  setDateFilter(date ? date.toISOString().slice(0, 10) : null)
+                }
+                initialFocus
               />
               {dateFilter && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-0 top-0 h-full px-3"
-                  onClick={() => setDateFilter(null)}
-                >
-                  <X className="h-4 w-4 text-muted-foreground" />
-                </Button>
+                <div className="p-3 border-t border-border">
+                  <Button
+                    variant="ghost"
+                    className="w-full"
+                    onClick={() => setDateFilter(null)}
+                  >
+                    Clear
+                  </Button>
+                </div>
               )}
-            </div>
-          </div>
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
 
@@ -221,11 +250,11 @@ export function PendingRegistrationTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="text-center">Name</TableHead>
-              <TableHead className="text-center">Contact</TableHead>
-              <TableHead className="text-center">Registration Date</TableHead>
-              <TableHead className="text-center">Status</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead className="text">Name</TableHead>
+              <TableHead className="text">Contact</TableHead>
+              <TableHead className="text">Registration Date</TableHead>
+              <TableHead className="text">Status</TableHead>
+              <TableHead className="text-end">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -253,11 +282,11 @@ export function PendingRegistrationTable({
                   <TableCell>
                     <div className="flex flex-col space-y-1">
                       <div className="flex items-center text-sm">
-                        <Mail className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
+                        <IoMail className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
                         {registration.email}
                       </div>
                       <div className="flex items-center text-sm">
-                        <Phone className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
+                        <FaPhone className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
                         {registration.phone}
                       </div>
                     </div>
@@ -296,7 +325,7 @@ export function PendingRegistrationTable({
                         }}
                         title="Approve"
                       >
-                        <ThumbsUp className="h-4 w-4" />
+                        <FaThumbsUp className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="ghost"
@@ -309,7 +338,7 @@ export function PendingRegistrationTable({
                         }}
                         title="Reject"
                       >
-                        <ThumbsDown className="h-4 w-4" />
+                        <FaThumbsDown className="h-4 w-4" />
                       </Button>
                     </div>
                   </TableCell>
