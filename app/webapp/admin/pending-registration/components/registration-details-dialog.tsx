@@ -98,29 +98,9 @@ export function RegistrationDetailsDialog({
                 <MdLocationOn className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">
-                    Address
+                    Full Address
                   </p>
-                  <p>{registration.address}</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex items-start space-x-3 bg-muted/40 p-3 rounded-md">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">
-                      City
-                    </p>
-                    <p>{registration.city}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-3 bg-muted/40 p-3 rounded-md">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">
-                      Province
-                    </p>
-                    <p>{registration.province}</p>
-                  </div>
+                  <p>{`${registration.address}, ${registration.city}, ${registration.province}`}</p>
                 </div>
               </div>
             </div>
@@ -150,10 +130,10 @@ export function RegistrationDetailsDialog({
           <div className="space-x-2">
             <Button
               variant="outline"
-              className="border-red-200 bg-red-50 hover:bg-red-100 text-red-600"
+              className="border-red-600 bg-red-600 hover:bg-red-700 text-white hover:text-white"
               onClick={() => {
-                onOpenChange(false); // Close details dialog first
-                setTimeout(onReject, 100); // Open confirmation dialog after a short delay
+                onOpenChange(false);
+                setTimeout(onReject, 100);
               }}
             >
               <FaThumbsDown className="h-4 w-4 mr-2" />
@@ -162,8 +142,8 @@ export function RegistrationDetailsDialog({
             <Button
               className="bg-green-600 hover:bg-green-700"
               onClick={() => {
-                onOpenChange(false); // Close details dialog first
-                setTimeout(onApprove, 100); // Open confirmation dialog after a short delay
+                onOpenChange(false);
+                setTimeout(onApprove, 100);
               }}
             >
               <FaThumbsUp className="h-4 w-4 mr-2" />
