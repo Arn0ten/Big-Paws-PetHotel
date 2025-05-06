@@ -22,6 +22,8 @@ import { Eye, EyeOff, AlertCircle, ArrowLeft } from "lucide-react";
 import { AuthLayout } from "../components/AuthLayout";
 import { login } from "../services/authService";
 import type { LoginFormData } from "../types";
+// Import validation utilities
+import { isValidEmail, isValidPhone } from "../utils/validation";
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState("");
@@ -29,10 +31,70 @@ export default function AdminLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  // Add field-specific error states
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  // Add contact type detection
+  const [contactType, setContactType] = useState<"email" | "phone">("email");
   const router = useRouter();
+
+  // Handle email/phone input change with contact type detection
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setEmail(value);
+
+    // Detect if input is email or phone
+    if (value.includes("@")) {
+      setContactType("email");
+    } else {
+      setContactType("phone");
+    }
+
+    // Clear error for this field
+    if (formErrors.email) {
+      setFormErrors((prev) => ({ ...prev, email: "" }));
+    }
+  };
+
+  // Handle password input change
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value);
+
+    // Clear error for this field
+    if (formErrors.password) {
+      setFormErrors((prev) => ({ ...prev, password: "" }));
+    }
+  };
+
+  // Validate form before submission
+  const validateForm = (): boolean => {
+    const errors: Record<string, string> = {};
+
+    // Validate email/phone
+    if (!email.trim()) {
+      errors.email = "Email or phone number is required";
+    } else if (contactType === "email" && !isValidEmail(email)) {
+      errors.email = "Please enter a valid email address";
+    } else if (contactType === "phone" && !isValidPhone(email)) {
+      errors.email = "Please enter a valid phone number (numbers only)";
+    }
+
+    // Validate password
+    if (!password.trim()) {
+      errors.password = "Password is required";
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate form first
+    if (!validateForm()) {
+      return;
+    }
+
     setIsLoading(true);
     setError("");
 
@@ -81,15 +143,26 @@ export default function AdminLoginPage() {
           <form onSubmit={handleSubmit}>
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">Email or Phone Number</Label>
                 <Input
                   id="email"
-                  type="email"
-                  placeholder="admin@example.com"
+                  type="text"
+                  placeholder="admin@example.com or phone number"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={handleEmailChange}
                   required
+                  className={formErrors.email ? "border-destructive" : ""}
                 />
+                {email && (
+                  <p className="text-xs text-muted-foreground">
+                    {contactType === "email"
+                      ? "Using email for login"
+                      : "Using phone number for login"}
+                  </p>
+                )}
+                {formErrors.email && (
+                  <p className="text-destructive text-sm">{formErrors.email}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
@@ -99,8 +172,9 @@ export default function AdminLoginPage() {
                     type={showPassword ? "text" : "password"}
                     placeholder="••••••••"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={handlePasswordChange}
                     required
+                    className={formErrors.password ? "border-destructive" : ""}
                   />
                   <button
                     type="button"
@@ -110,6 +184,11 @@ export default function AdminLoginPage() {
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
+                {formErrors.password && (
+                  <p className="text-destructive text-sm">
+                    {formErrors.password}
+                  </p>
+                )}
               </div>
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? "Logging in..." : "Login"}

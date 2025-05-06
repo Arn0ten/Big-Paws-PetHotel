@@ -559,6 +559,33 @@ export default function PetOwnerLoginPage() {
               )}
             </Button>
 
+            {/* Registration Section */}
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-muted" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  New to Big Paws?
+                </span>
+              </div>
+            </div>
+
+            <Button
+              type="button"
+              variant="secondary"
+              className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-medium text-base py-6"
+              onClick={() => router.push("/webapp/auth/pet-owner/register")}
+            >
+              Register as Pet Owner
+            </Button>
+
+            <div className="text-center mt-2">
+              <p className="text-sm text-muted-foreground">
+                Create an account to manage your pets and bookings
+              </p>
+            </div>
+
             {/* Change Password Link */}
             <div className="text-center">
               <Link

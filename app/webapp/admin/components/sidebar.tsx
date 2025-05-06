@@ -8,11 +8,7 @@ import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import {
-  ChevronLeft,
-  Menu,
-  ChevronRight,
-} from "lucide-react";
+import { ChevronLeft, Menu, ChevronRight, ChevronDown } from "lucide-react";
 import { FaChartSimple } from "react-icons/fa6";
 import { MdPets } from "react-icons/md";
 import { HiUsers } from "react-icons/hi2";
@@ -30,7 +26,19 @@ import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
 import { LogoutConfirmationDialog } from "@/components/ui/logout-confirmation-dialog";
 
-const menuItems = [
+// Define the menu item type
+interface MenuItem {
+  title: string;
+  icon?: React.ElementType;
+  href?: string;
+  section?: string;
+  color?: string;
+  type?: "header" | "item" | "submenu";
+  children?: MenuItem[];
+  expanded?: boolean;
+}
+
+const menuItems: MenuItem[] = [
   {
     title: "Dashboard",
     icon: FaChartSimple,
@@ -58,11 +66,26 @@ const menuItems = [
     color: "text-violet-500",
   },
   {
-    title: "Pet Owner Registration",
+    title: "Registration",
     icon: HiUserAdd,
-    href: "/webapp/admin/registration",
     section: "management",
     color: "text-pink-500",
+    type: "submenu",
+    expanded: false,
+    children: [
+      {
+        title: "Register Petowner",
+        href: "/webapp/admin/registration",
+        section: "management",
+        icon: HiUserAdd,
+      },
+      {
+        title: "Pending Registrations",
+        href: "/webapp/admin/pending-registration",
+        section: "management",
+        icon: FaHistory,
+      },
+    ],
   },
   {
     title: "Boarding Management",
@@ -118,11 +141,15 @@ export function AdminSidebar({ onCollapse }: AdminSidebarProps) {
   const [viewedNotifications, setViewedNotifications] = useState<
     Record<string, boolean>
   >({});
+  const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>(
+    {},
+  );
 
   // Sample notification counts - in a real app, this would come from an API
   const [notificationCounts, setNotificationCounts] = useState({
     "/webapp/admin/requests": 10, // 10 unread new requests (sample data)
     "/webapp/admin/request-management": 5, // 5 unread "In Progress" requests (sample data)
+    "/webapp/admin/pending-registration": 3, // 3 pending registrations (sample data)
   });
 
   // Add these refs after the state declarations
@@ -144,6 +171,22 @@ export function AdminSidebar({ onCollapse }: AdminSidebarProps) {
       window.removeEventListener("error", handleError as any);
     };
   }, []);
+
+  // Initialize expanded state for submenus
+  useEffect(() => {
+    const initialExpandedState: Record<string, boolean> = {};
+    menuItems.forEach((item) => {
+      if (item.type === "submenu") {
+        // Check if any child route is active
+        const isActive = item.children?.some(
+          (child) => pathname === child.href,
+        );
+        initialExpandedState[item.title] = isActive || false;
+      }
+    });
+    setExpandedMenus(initialExpandedState);
+  }, [pathname]);
+
   const handleLogout = async () => {
     try {
       setIsLoggingOut(true);
@@ -328,6 +371,23 @@ export function AdminSidebar({ onCollapse }: AdminSidebarProps) {
     }
   };
 
+  const toggleSubmenu = (title: string) => {
+    setExpandedMenus((prev) => ({
+      ...prev,
+      [title]: !prev[title],
+    }));
+  };
+
+  // Function to check if a submenu should be expanded
+  const isSubmenuExpanded = (item: MenuItem): boolean => {
+    return !!expandedMenus[item.title];
+  };
+
+  // Function to check if a submenu has an active child
+  const hasActiveChild = (item: MenuItem): boolean => {
+    return !!item.children?.some((child) => pathname === child.href);
+  };
+
   return (
     <>
       {/* Mobile overlay */}
@@ -435,6 +495,125 @@ export function AdminSidebar({ onCollapse }: AdminSidebarProps) {
                     ) : null;
                   }
 
+                  // Handle submenu items
+                  if (item.type === "submenu") {
+                    const isExpanded = isSubmenuExpanded(item);
+                    const isActive = hasActiveChild(item);
+
+                    return (
+                      <div key={`submenu-${index}`}>
+                        <button
+                          onClick={() => toggleSubmenu(item.title)}
+                          className={cn(
+                            "flex items-center gap-3 rounded-lg px-3 py-2 text-slate-300 transition-all w-full",
+                            "hover:bg-slate-700/50 hover:text-white",
+                            isActive
+                              ? "bg-slate-700/70 text-white font-medium"
+                              : "",
+                          )}
+                        >
+                          <div
+                            className={cn(
+                              "flex h-7 w-7 items-center justify-center rounded-md relative",
+                              isActive
+                                ? `${item.color} bg-slate-800`
+                                : "text-slate-400",
+                            )}
+                          >
+                            {item.icon && <item.icon size={18} />}
+                          </div>
+
+                          {(!isCollapsed || (isMobile && isMobileMenuOpen)) && (
+                            <>
+                              <span className="text-sm flex-1 text-left">
+                                {item.title}
+                              </span>
+                              {isExpanded ? (
+                                <ChevronDown
+                                  size={16}
+                                  className="transition-transform duration-200"
+                                />
+                              ) : (
+                                <ChevronRight
+                                  size={16}
+                                  className="transition-transform duration-200"
+                                />
+                              )}
+                            </>
+                          )}
+                        </button>
+
+                        {/* Submenu items */}
+                        {(!isCollapsed || (isMobile && isMobileMenuOpen)) &&
+                          isExpanded && (
+                            <div className="ml-9 mt-1 space-y-1">
+                              {item.children?.map((child, childIndex) => {
+                                const childIsActive = pathname === child.href;
+                                // Check if this submenu item has notifications
+                                const hasNotifications =
+                                  child.href &&
+                                  notificationCounts[child.href] &&
+                                  !viewedNotifications[child.href];
+                                const notificationCount = hasNotifications
+                                  ? notificationCounts[child.href!]
+                                  : 0;
+
+                                return (
+                                  <Link
+                                    key={`submenu-item-${childIndex}`}
+                                    href={child.href || "#"}
+                                    onClick={(e) =>
+                                      child.href &&
+                                      handleNavigation(e, child.href)
+                                    }
+                                    className={cn(
+                                      "flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-300 transition-all",
+                                      "hover:bg-slate-700/50 hover:text-white",
+                                      childIsActive
+                                        ? "bg-slate-700/70 text-white font-medium"
+                                        : "",
+                                    )}
+                                  >
+                                    {/* Add icon for submenu items */}
+                                    {child.icon && (
+                                      <div
+                                        className={cn(
+                                          "flex h-5 w-5 items-center justify-center",
+                                          childIsActive
+                                            ? "text-blue-400"
+                                            : "text-slate-400",
+                                        )}
+                                      >
+                                        <child.icon size={14} />
+                                      </div>
+                                    )}
+                                    <span className="flex-1">
+                                      {child.title}
+                                    </span>
+                                    {/* Notification counter badge for submenu items */}
+                                    {hasNotifications && (
+                                      <div className="flex items-center justify-center min-w-[18px] h-[18px] text-[10px] font-bold bg-red-500 text-white rounded-full px-1">
+                                        {notificationCount > 99
+                                          ? "99+"
+                                          : notificationCount}
+                                      </div>
+                                    )}
+                                    {childIsActive && (
+                                      <motion.div
+                                        layoutId="activeIndicatorSubmenu"
+                                        className="h-2 w-2 rounded-full bg-blue-500"
+                                        transition={{ duration: 0.2 }}
+                                      />
+                                    )}
+                                  </Link>
+                                );
+                              })}
+                            </div>
+                          )}
+                      </div>
+                    );
+                  }
+
                   if (!item.href) return null;
 
                   const isActive = pathname === item.href;
@@ -471,7 +650,7 @@ export function AdminSidebar({ onCollapse }: AdminSidebarProps) {
                             : "text-slate-400",
                         )}
                       >
-                        <Icon size={18} />
+                        {Icon && <Icon size={18} />}
 
                         {/* Notification counter badge */}
                         {hasNotifications && (
