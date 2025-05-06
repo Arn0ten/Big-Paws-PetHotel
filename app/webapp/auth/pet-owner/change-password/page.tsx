@@ -2,9 +2,8 @@
 
 import type React from "react";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,7 +31,21 @@ export default function ChangePasswordPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [source, setSource] = useState<"profile" | "login">("login");
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    // Check if the user came from the profile page
+    const fromProfile = searchParams.get("from") === "profile";
+    setSource(fromProfile ? "profile" : "login");
+
+    // Pre-fill contact if provided in URL
+    const contactParam = searchParams.get("contact");
+    if (contactParam) {
+      setContact(contactParam);
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,6 +81,14 @@ export default function ChangePasswordPage() {
       console.error("Change password request error:", err);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleBackClick = () => {
+    if (source === "profile") {
+      router.push("/webapp/pet-owner/profile");
+    } else {
+      router.push("/webapp/auth/pet-owner/login");
     }
   };
 
@@ -142,11 +163,13 @@ export default function ChangePasswordPage() {
           )}
         </CardContent>
         <CardFooter className="flex flex-col space-y-2">
-          <Button variant="outline" asChild className="w-full">
-            <Link href="/webapp/auth/pet-owner/login">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Login
-            </Link>
+          <Button
+            variant="outline"
+            onClick={handleBackClick}
+            className="w-full"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            {source === "profile" ? "Back to Profile" : "Back to Login"}
           </Button>
         </CardFooter>
       </Card>
