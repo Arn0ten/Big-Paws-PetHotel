@@ -1,6 +1,6 @@
-"use client";
+"use client"
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -8,30 +8,21 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  ThumbsUp,
-  ThumbsDown,
-  User,
-  Mail,
-  Phone,
-  MapPin,
-  Calendar,
-} from "lucide-react";
-import { formatDate } from "@/app/webapp/admin/request-management/utils/ui-helpers";
-import type { PendingRegistration } from "../types";
+} from "@/components/ui/dialog"
+import { User, MapPin, Calendar } from "lucide-react"
+import { formatDate } from "@/app/webapp/admin/request-management/utils/ui-helpers"
+import type { PendingRegistration } from "../types"
 
-import { FaThumbsUp, FaThumbsDown } from "react-icons/fa6";
-import { MdLocationOn } from "react-icons/md";
-import { IoMail } from "react-icons/io5";
-import { FaPhone } from "react-icons/fa6";
+import { FaThumbsUp, FaThumbsDown } from "react-icons/fa6"
+import { IoMail } from "react-icons/io5"
+import { FaPhone } from "react-icons/fa6"
 
 interface RegistrationDetailsDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  registration: PendingRegistration;
-  onApprove: () => void;
-  onReject: () => void;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  registration: PendingRegistration
+  onApprove: () => void
+  onReject: () => void
 }
 
 export function RegistrationDetailsDialog({
@@ -46,9 +37,7 @@ export function RegistrationDetailsDialog({
       <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl">Registration Details</DialogTitle>
-          <DialogDescription>
-            Review the registration information before making a decision.
-          </DialogDescription>
+          <DialogDescription>Review the registration information before making a decision.</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
@@ -59,9 +48,7 @@ export function RegistrationDetailsDialog({
               <div className="flex items-start space-x-3 bg-muted/40 p-3 rounded-md">
                 <User className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Full Name
-                  </p>
+                  <p className="text-sm font-medium text-muted-foreground">Full Name</p>
                   <p className="font-medium">{registration.fullName}</p>
                 </div>
               </div>
@@ -70,9 +57,7 @@ export function RegistrationDetailsDialog({
                 <div className="flex items-start space-x-3 bg-muted/40 p-3 rounded-md">
                   <IoMail className="h-5 w-5 text-muted-foreground mt-0.5" />
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">
-                      Email
-                    </p>
+                    <p className="text-sm font-medium text-muted-foreground">Email</p>
                     <p>{registration.email}</p>
                   </div>
                 </div>
@@ -80,9 +65,7 @@ export function RegistrationDetailsDialog({
                 <div className="flex items-start space-x-3 bg-muted/40 p-3 rounded-md">
                   <FaPhone className="h-5 w-5 text-muted-foreground mt-0.5" />
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">
-                      Phone
-                    </p>
+                    <p className="text-sm font-medium text-muted-foreground">Phone</p>
                     <p>{registration.phone}</p>
                   </div>
                 </div>
@@ -95,12 +78,13 @@ export function RegistrationDetailsDialog({
             <h3 className="text-lg font-medium">Address Information</h3>
             <div className="grid grid-cols-1 gap-4">
               <div className="flex items-start space-x-3 bg-muted/40 p-3 rounded-md">
-                <MdLocationOn className="h-5 w-5 text-muted-foreground mt-0.5" />
+                <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Full Address
+                  <p className="text-sm font-medium text-muted-foreground">Full Address</p>
+                  <p>
+                    {registration.fullAddress ||
+                      `${registration.address}, ${registration.city}, ${registration.province}`}
                   </p>
-                  <p>{`${registration.address}, ${registration.city}, ${registration.province}`}</p>
                 </div>
               </div>
             </div>
@@ -113,9 +97,7 @@ export function RegistrationDetailsDialog({
               <div className="flex items-start space-x-3 bg-muted/40 p-3 rounded-md">
                 <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Registration Date
-                  </p>
+                  <p className="text-sm font-medium text-muted-foreground">Registration Date</p>
                   <p>{formatDate(registration.registrationDate)}</p>
                 </div>
               </div>
@@ -132,8 +114,8 @@ export function RegistrationDetailsDialog({
               variant="outline"
               className="border-red-600 bg-red-600 hover:bg-red-700 text-white hover:text-white"
               onClick={() => {
-                onOpenChange(false);
-                setTimeout(onReject, 100);
+                onOpenChange(false)
+                setTimeout(onReject, 100)
               }}
             >
               <FaThumbsDown className="h-4 w-4 mr-2" />
@@ -142,8 +124,8 @@ export function RegistrationDetailsDialog({
             <Button
               className="bg-green-600 hover:bg-green-700"
               onClick={() => {
-                onOpenChange(false);
-                setTimeout(onApprove, 100);
+                onOpenChange(false)
+                setTimeout(onApprove, 100)
               }}
             >
               <FaThumbsUp className="h-4 w-4 mr-2" />
@@ -153,5 +135,5 @@ export function RegistrationDetailsDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

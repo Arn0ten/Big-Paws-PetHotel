@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-
+import { FaCheckCircle } from "react-icons/fa";
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
@@ -123,7 +123,7 @@ export default function PetOwnerRegistrationPage() {
           setCities(data);
           if (
             formData.city &&
-            !data.some((city: { name: string; }) => city.name === formData.city)
+            !data.some((city: { name: string }) => city.name === formData.city)
           ) {
             setFormData((prev) => ({ ...prev, city: "", cityCode: "" }));
           }
@@ -754,9 +754,9 @@ export default function PetOwnerRegistrationPage() {
             </DialogHeader>
             <div className="text-center space-y-4">
               <div className="p-3 mx-auto bg-green-100 dark:bg-green-900 rounded-full w-16 h-16 flex items-center justify-center">
-                <CheckCircle2 className="h-10 w-10 text-green-600 dark:text-green-400" />
+                <FaCheckCircle className="h-10 w-10 text-green-600 dark:text-green-400" />
               </div>
-              <p>Your account has been registered successfully!</p>
+              <p>Your account has been temporarily registered!</p>
               <Alert className="bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800 text-left">
                 <AlertDescription className="text-sm">
                   <p className="font-medium mb-1">Important:</p>
@@ -766,7 +766,7 @@ export default function PetOwnerRegistrationPage() {
                   </p>
                   <p className="mt-2">
                     You may contact Big Paws Pet Hotel directly or visit in
-                    person to expedite the approval process.
+                    person to verify the approval process.
                   </p>
                 </AlertDescription>
               </Alert>
