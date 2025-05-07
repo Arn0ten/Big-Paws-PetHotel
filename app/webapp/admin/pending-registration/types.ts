@@ -6,15 +6,15 @@
  */
 
 export interface PendingRegistration {
-  id: string
-  fullName: string
-  email: string
-  phone: string
-  address: string
-  city: string
-  province: string
-  fullAddress?: string // Pre-concatenated address from backend
-  registrationDate: string
-  status: "pending" | "approved" | "rejected"
-  notes?: string
+  id: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  province: string;
+  fullAddress?: string; // Pre-concatenated address from backend
+  registrationDate: string;
+  status: "pending" | "approved" | "rejected";
+  notes?: string;
 }
