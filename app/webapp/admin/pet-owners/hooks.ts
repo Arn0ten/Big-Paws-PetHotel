@@ -1,152 +1,117 @@
-"use client"
+"use client";
 
-// Consolidated hooks file
-import { useState, useCallback } from "react"
-import type { PetOwner, Pet, FormErrors, PetFormState } from "./utils/types"
-// import { MOCK_PET_OWNERS } from "@/app/webapp/admin/data/pet-owner-sample-data"
-import { MOCK_PET_OWNERS } from "../data/pet-owner-sample-data"
+import { useState, useEffect, useCallback } from "react";
+import { preloadActivePetOwnerData } from "@/lib/preload";
+import type { PetOwner, Pet, FormErrors, PetFormState } from "./utils/types";
 
 /**
- * Custom hook for managing pet owners data
- *
- * BACKEND INTEGRATION:
- * Replace this hook with actual API calls in production
+ * Custom hook for managing pet owners data (integrated with backend)
  */
 export function usePetOwners() {
-  const [petOwners, setPetOwners] = useState<PetOwner[]>(MOCK_PET_OWNERS)
-  const [isLoading, setIsLoading] = useState(false)
-  const [isRefreshing, setIsRefreshing] = useState(false)
+  const [petOwners, setPetOwners] = useState<PetOwner[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isError, setIsError] = useState<boolean>(false);
 
-  // Refresh pet owners data
-  const refreshPetOwners = useCallback(async () => {
-    setIsRefreshing(true)
+  const fetchPetOwners = useCallback(async () => {
+    setIsRefreshing(true);
+    setIsError(false);
+    try {
+      const response = await preloadActivePetOwnerData();
+      console.log("API Response:", response);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    // In a real implementation, this would be an API call
-    // const response = await fetch('/api/pet-owners')
-    // const data = await response.json()
-    // setPetOwners(data)
-
-    setIsRefreshing(false)
-  }, [])
-
-  // Add a new pet owner
-  const addPetOwner = useCallback(async (ownerData: Partial<PetOwner>) => {
-    setIsLoading(true)
-
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    // Generate a new pet owner with the provided data
-    const newPetOwner: PetOwner = {
-      id: `owner-${Date.now()}`,
-      name: ownerData.name!,
-      email: ownerData.email!,
-      phone: ownerData.phone!,
-      address: ownerData.address!,
-      avatar: ownerData.avatar || `/placeholder.svg?height=200&width=200`,
-      pets: [],
-      createdAt: new Date().toISOString(),
+      if (response && Array.isArray(response)) {
+        setPetOwners(response);
+      } else {
+        console.error("API response does not contain expected data format.");
+        setIsError(true);
+      }
+    } catch (error) {
+      console.error("Error fetching pet owners:", error);
+      setIsError(true);
+    } finally {
+      setIsRefreshing(false);
+      setIsLoading(false);
     }
+  }, []);
 
-    // Update local state
-    setPetOwners((prev) => [...prev, newPetOwner])
+  useEffect(() => {
+    console.log("Calling fetchPetOwners...");
+    fetchPetOwners(); // Fetch owners when the component is mounted
+  }, [fetchPetOwners]);
 
-    setIsLoading(false)
-    return newPetOwner
-  }, [])
+  // Placeholder methods for backend-managed actions
+  const addPetOwner = useCallback(async () => {
+    console.warn("Backend-managed: Adding pet owners not supported via UI");
+  }, []);
 
-  // Update an existing pet owner
-  const updatePetOwner = useCallback(async (id: string, ownerData: Partial<PetOwner>) => {
-    setIsLoading(true)
+  const updatePetOwner = useCallback(async () => {
+    console.warn("Backend-managed: Updating pet owners not supported via UI");
+  }, []);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    // Update local state
-    setPetOwners((prev) => prev.map((owner) => (owner.id === id ? { ...owner, ...ownerData } : owner)))
-
-    setIsLoading(false)
-  }, [])
-
-  // Remove a pet owner
-  const removePetOwner = useCallback(async (id: string) => {
-    setIsLoading(true)
-
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    // Update local state
-    setPetOwners((prev) => prev.filter((owner) => owner.id !== id))
-
-    setIsLoading(false)
-  }, [])
+  const removePetOwner = useCallback(async () => {
+    console.warn("Backend-managed: Removing pet owners not supported via UI");
+  }, []);
 
   return {
     petOwners,
+    isError,
     setPetOwners,
     isLoading,
     isRefreshing,
-    refreshPetOwners,
+    refreshPetOwners: fetchPetOwners,
     addPetOwner,
     updatePetOwner,
     removePetOwner,
-  }
+  };
 }
 
 /**
  * Custom hook for managing pet form state and validation
  */
-export function usePetForm(initialState: PetFormState = { type: "Dog", size: "Medium" }) {
-  const [formState, setFormState] = useState<PetFormState>(initialState)
-  const [formErrors, setFormErrors] = useState<FormErrors>({})
-  const [isSubmitting, setIsSubmitting] = useState(false)
+export function usePetForm(initialState: PetFormState = { animal: "Dog", size: "Medium" }) {
+  const [formState, setFormState] = useState<PetFormState>(initialState);
+  const [formErrors, setFormErrors] = useState<FormErrors>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Update form field
   const updateField = useCallback(
     (field: keyof Pet, value: any) => {
       setFormState((prev) => ({
         ...prev,
         [field]: value,
-        // Reset breed if pet type changes
-        ...(field === "type" && { breed: undefined }),
-      }))
+        ...(field === "animal" && { breed: undefined }), // Reset breed if animal is changed
+      }));
 
-      // Clear error for this field if it exists
       if (formErrors[field]) {
         setFormErrors((prev) => {
-          const newErrors = { ...prev }
-          delete newErrors[field]
-          return newErrors
-        })
+          const newErrors = { ...prev };
+          delete newErrors[field];
+          return newErrors;
+        });
       }
     },
-    [formErrors],
-  )
+    [formErrors]
+  );
 
-  // Validate form
   const validateForm = useCallback(() => {
-    const errors: FormErrors = {}
-    const requiredFields: (keyof Pet)[] = ["name", "type", "breed", "age", "size"]
+    const errors: FormErrors = {};
+    const requiredFields: (keyof Pet)[] = ["name", "animal", "breed", "age", "size"];
 
     requiredFields.forEach((field) => {
       if (!formState[field]) {
-        errors[field] = true
+        errors[field] = true;
       }
-    })
+    });
 
-    setFormErrors(errors)
-    return Object.keys(errors).length === 0
-  }, [formState])
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  }, [formState]);
 
-  // Reset form
   const resetForm = useCallback(() => {
-    setFormState({ type: "Dog", size: "Medium" })
-    setFormErrors({})
-    setIsSubmitting(false)
-  }, [])
+    setFormState({ animal: "Dog", size: "Medium" });
+    setFormErrors({});
+    setIsSubmitting(false);
+  }, []);
 
   return {
     formState,
@@ -156,35 +121,103 @@ export function usePetForm(initialState: PetFormState = { type: "Dog", size: "Me
     updateField,
     validateForm,
     resetForm,
-  }
+  };
 }
 
 /**
  * Custom hook for pagination
  */
 export function usePagination({ totalItems, itemsPerPage = 5 }: { totalItems: number; itemsPerPage?: number }) {
-  const [currentPage, setCurrentPage] = useState(1)
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage))
+  const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
 
-  // Ensure current page is within valid range
-  if (currentPage > totalPages) {
-    setCurrentPage(totalPages)
-  }
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
 
   const goToPage = (page: number) => {
-    const validPage = Math.max(1, Math.min(page, totalPages))
-    setCurrentPage(validPage)
-  }
+    const validPage = Math.max(1, Math.min(page, totalPages));
+    setCurrentPage(validPage);
+  };
 
   const resetPage = () => {
-    setCurrentPage(1)
-  }
+    setCurrentPage(1);
+  };
 
   return {
     currentPage,
     totalPages,
     goToPage,
     resetPage,
-  }
+  };
+}
+
+const DOMAIN_HOST = process.env.NEXT_PUBLIC_DOMAIN_HOST;
+
+// Manual call registration of a pet
+export function useRegisterPet() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [response, setResponse] = useState<any>(null);
+  const [photoFile, setPhotoFile] = useState(null);
+
+  const registerPet = async (petData: Pet) => {
+    setLoading(true);
+    setError(null);
+    setResponse(null);
+
+    try {
+      const res = await fetch("${DOMAIN_HOST}/api/v1/admin/pets/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(petData)
+      });
+
+      const registerJson = await res.json();
+      if (!registerJson.ok)  throw new Error(registerJson.message || "Failed to register pet.");
+      
+
+      if (photoFile && registerJson.data?.apiUrl) {
+        const tokenRes  = await fetch(registerJson.data.apiUrl, {
+          method: "POST",
+        });
+
+        const tokenJson = await tokenRes.json();
+        if (!tokenRes.ok) throw new Error(tokenJson.message || "Failed to get upload URL.");
+
+        const uploadUrl = tokenJson.data?.uploadUrl;
+        if (!uploadUrl) throw new Error("Upload URL not received.");
+
+        // Step 3: Upload to presigned URL
+        const uploadRes = await fetch(uploadUrl, {
+          method: "PUT",
+          headers: {
+            "Content-Type": photoFile.type
+          },
+          body: photoFile
+        });
+
+        if (!uploadRes.ok) throw new Error("Photo upload failed.");
+        registerJson.photoUpload = { success: true };
+      }
+
+      setResponse(registerJson);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An unknown error occurred.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return {
+    registerPet,
+    loading,
+    error,
+    response,
+  };
 }

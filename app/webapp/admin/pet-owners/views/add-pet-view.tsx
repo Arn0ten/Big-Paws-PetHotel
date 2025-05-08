@@ -30,11 +30,18 @@ import {
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Upload, Loader2, PlusCircle } from "lucide-react";
-import type { Pet } from "../utils/types";
+import type { LegacyPet } from "../utils/types";
 import PageLayout from "@/app/webapp/components/PageLayout";
 import { FaShieldCat, FaShieldDog } from "react-icons/fa6";
 import { FaUpload } from "react-icons/fa6";
 import { IoAlertCircle } from "react-icons/io5";
+
+
+import { useRegisterPet } from "../hooks";
+import { PetRegister } from "@/types/pet";
+
+const { registerPet, loading, error, response } = useRegisterPet();
+
 
 // Define the FormErrors type
 interface FormErrors {
@@ -96,7 +103,7 @@ interface AddPetViewProps {
   ownerId: string | null;
   ownerName?: string;
   onBack: () => void;
-  onSubmit: (petData: Partial<Pet>) => Promise<boolean>;
+  onSubmit: (petData: Partial<PetRegister>) => Promise<boolean>;
   isSubmitting: boolean;
 }
 
@@ -107,8 +114,8 @@ export default function AddPetView({
   onSubmit,
   isSubmitting,
 }: AddPetViewProps) {
-  const [formData, setFormData] = useState<Partial<Pet>>({
-    type: "Dog",
+  const [formData, setFormData] = useState<Partial<PetRegister>>({
+    animalType: "Dog",
     size: "Medium",
   });
   const [formErrors, setFormErrors] = useState<FormErrors>({});
@@ -193,9 +200,9 @@ export default function AddPetView({
 
   const validateForm = () => {
     const errors: FormErrors = {};
-    const requiredFields: (keyof Pet)[] = [
-      "name",
-      "type",
+    const requiredFields: (keyof PetRegister)[] = [
+      "petName",
+      "animalType",
       "breed",
       "age",
       "size",
@@ -203,7 +210,7 @@ export default function AddPetView({
 
     requiredFields.forEach((field) => {
       if (!formData[field]) {
-        errors[field] = true;
+        errors[field as keyof FormErrors] = true;
       }
     });
 
@@ -215,13 +222,13 @@ export default function AddPetView({
     if (!validateForm() || !ownerId) return;
 
     // Set default image based on pet type if no image is provided
-    if (!formData.image) {
-      const defaultImage =
-        formData.type === "Dog"
-          ? "/default-images/dog.png"
-          : "/default-images/cat.png";
-      formData.image = defaultImage;
-    }
+    // if (!formData.pet) {
+    //   const defaultImage =
+    //     formData.type === "Dog"
+    //       ? "/default-images/dog.png"
+    //       : "/default-images/cat.png";
+    //   formData.image = defaultImage;
+    // }
 
     // Add owner ID to the pet data
     const petDataWithOwner = {
@@ -234,7 +241,7 @@ export default function AddPetView({
 
   // Get default image based on pet type
   const getDefaultImage = () => {
-    return formData.type === "Dog"
+    return formData.animalType === "Dog"
       ? "/default-images/dog.png"
       : "/default-images/cat.png";
   };
@@ -253,7 +260,7 @@ export default function AddPetView({
               />
             ) : (
               <div className="flex flex-col items-center justify-center text-muted-foreground w-full h-full">
-                {formData.type === "Dog" ? (
+                {formData.ab === "Dog" ? (
                   <FaShieldDog className="h-14 w-14 mb-2" />
                 ) : (
                   <FaShieldCat className="h-14 w-14 mb-2" />
@@ -299,7 +306,7 @@ export default function AddPetView({
               id="name"
               name="name"
               placeholder="Enter pet name"
-              value={formData.name || ""}
+              value={formData.specialDescription || ""}
               onChange={handleInputChange}
               className={
                 formErrors.name
@@ -323,7 +330,7 @@ export default function AddPetView({
               Pet Type <span className="text-red-500 ml-1">*</span>
             </Label>
             <Select
-              value={formData.type || "Dog"}
+              value={formData.animalType || "Dog"}
               onValueChange={(value) => handleSelectChange("type", value)}
             >
               <SelectTrigger
@@ -381,7 +388,7 @@ export default function AddPetView({
                 <SelectValue placeholder="Select breed" />
               </SelectTrigger>
               <SelectContent>
-                {(formData.type === "Dog" ? DOG_BREEDS : CAT_BREEDS).map(
+                {(formData.animalType === "Dog" ? DOG_BREEDS : CAT_BREEDS).map(
                   (breed) => (
                     <SelectItem key={breed} value={breed}>
                       {breed}
@@ -476,7 +483,7 @@ export default function AddPetView({
             id="notes"
             name="notes"
             placeholder="Enter any additional notes about this pet"
-            value={formData.notes || ""}
+            value={formData.specialDescription || ""}
             onChange={handleInputChange}
             className="min-h-[80px]"
           />

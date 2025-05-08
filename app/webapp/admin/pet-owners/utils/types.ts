@@ -1,6 +1,13 @@
 // Define types for the Pet Owner Management module
+import { PetOwnerActive } from "@/types/petOwner"; 
+import { PetDTO } from "@/types/petOwner"; 
 
-export interface Pet {
+
+export type PetOwner = PetOwnerActive;
+export type Pet = PetDTO;
+
+
+export interface LegacyPet {
   id: string;
   name: string;
   type: "Dog" | "Cat";
@@ -12,7 +19,7 @@ export interface Pet {
   notes?: string;
 }
 
-export interface PetOwner {
+export interface LegacyPetOwner {
   id: string;
   name: string;
   email: string;
@@ -25,8 +32,9 @@ export interface PetOwner {
   };
   notes?: string;
   avatar?: string;
-  pets?: Pet[];
+  pets?: LegacyPet[];
 }
+
 
 export interface FormErrors {
   [key: string]: boolean;

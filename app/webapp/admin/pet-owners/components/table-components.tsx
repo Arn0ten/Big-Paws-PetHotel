@@ -57,6 +57,8 @@ import { FaShieldDog, FaShieldCat } from "react-icons/fa6";
 import { MdLocationOn } from "react-icons/md";
 import { IoMail } from "react-icons/io5";
 import { FaPhone } from "react-icons/fa6";
+
+
 /**
  * Component for displaying pet badges
  */
@@ -138,17 +140,15 @@ interface PetBadgeProps {
 
 // Ensure the PetBadge component uses the same styling as the pet type badges in the PetsTable
 // Update the PetBadge function:
-
 function PetBadge({ pet, onClick }: PetBadgeProps) {
   return (
     <Badge
       variant="outline"
       className={`
         whitespace-nowrap cursor-pointer transition-all hover:scale-105
-        ${
-          pet.type === "Dog"
-            ? "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-700 dark:text-white dark:hover:bg-blue-600"
-            : "bg-purple-600 text-white hover:bg-purple-700 dark:bg-purple-700 dark:text-white dark:hover:bg-purple-600"
+        ${pet.animal === "Dog"
+          ? "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-700 dark:text-white dark:hover:bg-blue-600"
+          : "bg-purple-600 text-white hover:bg-purple-700 dark:bg-purple-700 dark:text-white dark:hover:bg-purple-600"
         }
       `}
       onClick={(e) => {
@@ -156,13 +156,13 @@ function PetBadge({ pet, onClick }: PetBadgeProps) {
         onClick();
       }}
     >
-      {pet.type === "Dog" ? (
+      {pet.animal === "Dog" ? (
         <FaShieldDog className="h-3 w-3 mr-1" />
       ) : (
         <FaShieldCat className="h-3 w-3 mr-1" />
       )}
       {pet.name}
-      {pet.isBoarding && (
+      {pet.boarding && (
         <span
           className="ml-1 h-2 w-2 rounded-full bg-green-300"
           title="Currently boarding"
@@ -171,6 +171,8 @@ function PetBadge({ pet, onClick }: PetBadgeProps) {
     </Badge>
   );
 }
+
+
 
 /**
  * Component for displaying a pet owner row
@@ -186,6 +188,7 @@ export interface PetOwnerTableRowProps {
   onDeleteOwner: (id: string) => void;
 }
 
+
 // Make the entire row clickable to show pet owner details
 // Add this to the PetOwnerTableRow function
 export function PetOwnerTableRow({
@@ -197,7 +200,7 @@ export function PetOwnerTableRow({
   onBoardPet,
   onEditOwner,
   onDeleteOwner,
-  onRowClick, // Add this new prop
+  onRowClick,
 }: PetOwnerTableRowProps & { onRowClick: (id: string) => void }) {
   return (
     <TableRow
@@ -215,16 +218,16 @@ export function PetOwnerTableRow({
     >
       <TableCell>
         <Avatar className="border-2 border-primary/20">
-          <AvatarImage src={owner.avatar} alt={owner.name} />
+          <AvatarImage src={"/path/to/nonexistent/image.png"} alt={owner.fullName} />
           <AvatarFallback className="bg-primary/10 text-primary">
-            {owner.name
+            {owner.fullName
               .split(" ")
               .map((n) => n[0])
               .join("")}
           </AvatarFallback>
         </Avatar>
       </TableCell>
-      <TableCell className="font-medium">{owner.name}</TableCell>
+      <TableCell className="font-medium">{owner.fullName}</TableCell>
       <TableCell>
         <div className="space-y-1">
           <div className="flex items-center">
@@ -233,7 +236,7 @@ export function PetOwnerTableRow({
           </div>
           <div className="flex items-center">
             <FaPhone className="h-3.5 w-3.5 mr-1 " />
-            <span className="text-sm">{owner.phone}</span>
+            <span className="text-sm">{owner.phoneNumber}</span>
           </div>
         </div>
       </TableCell>
@@ -254,7 +257,7 @@ export function PetOwnerTableRow({
       </TableCell>
       <TableCell>
         <PetBadges
-          pets={owner.pets}
+          pets={owner.petDTOList}
           ownerId={owner.id}
           expandedIds={expandedPetsList}
           onToggleExpand={onToggleExpandPets}
@@ -357,7 +360,7 @@ export function PetOwnerTableRow({
  * Component for the pet owner table
  */
 export interface PetOwnerTableProps {
-  owners: PetOwner[];
+  owners: PetOwner[]; 
   isLoading: boolean;
   expandedPetsList: string[];
   onToggleExpandPets: (id: string) => void;
@@ -371,7 +374,8 @@ export interface PetOwnerTableProps {
   searchQuery: string;
 }
 
-// Fix the skeleton colors in PetOwnerTable
+
+// Add the PetOwnerTable component here
 export function PetOwnerTable({
   owners,
   isLoading,
@@ -382,13 +386,11 @@ export function PetOwnerTable({
   onBoardPet,
   onEditOwner,
   onDeleteOwner,
-  onRowClick, // Add this new prop
+  onRowClick,
   itemsPerPage,
   searchQuery,
 }: PetOwnerTableProps) {
   // Create empty rows to maintain fixed height
-  const emptyRowsCount = Math.max(0, itemsPerPage - owners.length);
-  const emptyRows = Array(emptyRowsCount).fill(null);
 
   return (
     <div className="overflow-hidden">
@@ -492,7 +494,7 @@ export function PetOwnerTable({
 
           {/* Empty rows to maintain fixed height */}
           {!isLoading &&
-            emptyRows.map((_, index) => (
+            Array.from({ length: Math.max(0, itemsPerPage - owners.length) }).map((_, index) => (
               <TableRow key={`empty-${index}`} className="h-[73px]">
                 <TableCell colSpan={6}></TableCell>
               </TableRow>

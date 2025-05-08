@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   Trash2,
   Plus,
@@ -27,6 +26,7 @@ import { FaPhone } from "react-icons/fa6";
 import { IoMdArrowDropleft } from "react-icons/io";
 import { FaEdit } from "react-icons/fa";
 
+
 interface PetOwnerDetailsViewProps {
   owner: PetOwner | null;
   onBack: () => void;
@@ -46,8 +46,7 @@ export default function PetOwnerDetailsView({
   onBoardPet,
   onPetClick,
 }: PetOwnerDetailsViewProps) {
-  const [activeTab, setActiveTab] = useState("pets");
-
+ 
   if (!owner) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -76,86 +75,8 @@ export default function PetOwnerDetailsView({
   };
 
   // Count active boardings
-  const activeBoardings = owner.pets.filter((pet) => pet.isBoarding).length;
+  const activeBoardings = owner.petDTOList.filter((pet) => pet.boarding).length;
 
-  const boardingHistory = [
-    {
-      id: "bh1",
-      petName: "Max",
-      petType: "Dog",
-      startDate: "2023-12-15",
-      endDate: "2023-12-20",
-      checkInTime: "10:00 AM",
-      checkOutTime: "5:00 PM",
-      duration: "5 days",
-      status: "completed",
-      type: "LongStay",
-      notes: "Regular diet, daily walks, no issues reported",
-      totalPrice: 2400,
-      paymentStatus: "Paid",
-    },
-    {
-      id: "bh2",
-      petName: "Bella",
-      petType: "Cat",
-      startDate: "2023-10-03",
-      endDate: "2023-10-10",
-      checkInTime: "9:30 AM",
-      checkOutTime: "4:00 PM",
-      duration: "7 days",
-      status: "completed",
-      type: "LongStay",
-      notes: "Special diet required, medication administered twice daily",
-      totalPrice: 3360,
-      paymentStatus: "Paid",
-    },
-    {
-      id: "bh3",
-      petName: "Charlie",
-      petType: "Dog",
-      startDate: "2023-11-25",
-      endDate: "2023-11-25",
-      checkInTime: "8:00 AM",
-      checkOutTime: "4:00 PM",
-      duration: "8 hours",
-      status: "completed",
-      type: "Daycare",
-      notes: "Socialized well with other pets, enjoyed playtime",
-      totalPrice: 240,
-      paymentStatus: "Paid",
-    },
-    {
-      id: "bh4",
-      petName: "Luna",
-      petType: "Cat",
-      startDate: "2024-01-05",
-      endDate: "2024-01-12",
-      checkInTime: "11:00 AM",
-      checkOutTime: "3:00 PM",
-      duration: "7 days",
-      status: "completed",
-      type: "LongStay",
-      notes: "Preferred quiet spaces, enjoyed window perches",
-      totalPrice: 3150,
-      paymentStatus: "Paid",
-    },
-  ];
-
-  const actions = (
-    <>
-      <Button variant="outline" onClick={onEdit}>
-        <FaEdit className="mr-2 h-4 w-4" />
-        Edit
-      </Button>
-      <Button
-        onClick={onBoardPet}
-        className="bg-amber-600 hover:bg-amber-700 text-white"
-      >
-        <Hotel className="mr-2 h-4 w-4" />
-        Board Pet
-      </Button>
-    </>
-  );
 
   return (
     <div className="space-y-6">
@@ -170,50 +91,41 @@ export default function PetOwnerDetailsView({
             <IoMdArrowDropleft className="h-4 w-4" />
             Back
           </Button>
-          <h1 className="text-2xl font-bold tracking-tight">
-            Pet Owner Details
-          </h1>
+          <h1 className="text-2xl font-bold tracking-tight">Pet Owner Details</h1>
         </div>
-        <div className="flex gap-2">{actions}</div>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={onEdit}>
+            <FaEdit className="mr-2 h-4 w-4" />
+            Edit
+          </Button>
+          <Button onClick={onBoardPet} className="bg-amber-600 hover:bg-amber-700 text-white">
+            <Hotel className="mr-2 h-4 w-4" />
+            Board Pet
+          </Button>
+        </div>
       </div>
 
-      {/* Owner details and status */}
+      {/* Owner details */}
       <div className="flex flex-col md:flex-row gap-6">
         <div className="w-full md:w-1/3">
           <div className="aspect-square w-full max-w-xs mx-auto rounded-lg overflow-hidden bg-muted flex items-center justify-center">
-            {owner.avatar ? (
-              <img
-                src={owner.avatar || "/placeholder.svg"}
-                alt={owner.name}
-                className="w-full h-full object-cover"
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
-              />
-            ) : (
-              <div className="flex flex-col items-center justify-center text-muted-foreground w-full h-full">
-                <Users className="h-16 w-16 mb-2" />
-                <span>No image available</span>
-              </div>
-            )}
+            <div className="flex flex-col items-center justify-center text-muted-foreground w-full h-full">
+              <Users className="h-16 w-16 mb-2" />
+              <span>No image available</span>
+            </div>
           </div>
         </div>
 
         <div className="w-full md:w-2/3 space-y-4">
-          {/* Owner name and primary info */}
           <div>
-            <h2 className="text-3xl font-bold mb-2">{owner.name}</h2>
+            <h2 className="text-3xl font-bold mb-2">{owner.fullName}</h2>
             <div className="flex flex-wrap gap-2 mb-2">
-              <Badge
-                variant="secondary"
-                className="flex items-center gap-1 px-3 py-1"
-              >
+              <Badge variant="secondary" className="flex items-center gap-1 px-3 py-1">
                 <Users className="h-3 w-3" />
-                {owner.pets.length} {owner.pets.length === 1 ? "Pet" : "Pets"}
+                {owner.petDTOList.length} {owner.petDTOList.length === 1 ? "Pet" : "Pets"}
               </Badge>
               {activeBoardings > 0 && (
-                <Badge
-                  variant="outline"
-                  className="flex items-center gap-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 px-3 py-1"
-                >
+                <Badge variant="outline" className="flex items-center gap-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 px-3 py-1">
                   <Hotel className="h-3 w-3" />
                   {activeBoardings} Boarding
                 </Badge>
@@ -221,16 +133,16 @@ export default function PetOwnerDetailsView({
             </div>
             <div className="flex items-center text-muted-foreground">
               <Calendar className="h-4 w-4 mr-1" />
-              <span>Customer since {formatDate(owner.createdAt)}</span>
+              <span>Customer since {formatDate(owner.customerSince)}</span>
             </div>
           </div>
 
-          {/* Contact details grid */}
+          {/* Contact details */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
             <div className="border rounded-lg p-3 flex flex-col">
               <div className="text-sm text-muted-foreground mb-1">Email</div>
               <div className="font-semibold flex items-center">
-                <IoMail className="h-4 w-4 mr-1 text-blue-500" />
+                <FaPhone className="h-4 w-4 mr-1 text-green-500" />
                 {owner.email}
               </div>
             </div>
@@ -238,7 +150,7 @@ export default function PetOwnerDetailsView({
               <div className="text-sm text-muted-foreground mb-1">Phone</div>
               <div className="font-semibold flex items-center">
                 <FaPhone className="h-4 w-4 mr-1 text-green-500" />
-                {owner.phone}
+                {owner.phoneNumber}
               </div>
             </div>
           </div>
@@ -246,7 +158,7 @@ export default function PetOwnerDetailsView({
           {/* Address */}
           <div className="mt-4 p-4 border rounded-md bg-muted/20">
             <h3 className="font-semibold mb-2 flex items-center">
-              <MdLocationOn className="h-4 w-4 mr-2" />
+              <FaPhone className="h-4 w-4 mr-2" />
               Address:
             </h3>
             <p className="text-muted-foreground">{owner.address}</p>
@@ -257,13 +169,13 @@ export default function PetOwnerDetailsView({
       {/* Tabs for different sections */}
       <Tabs
         defaultValue="pets"
-        value={activeTab}
-        onValueChange={setActiveTab}
+        // value={activeTab}
+        // onValueChange={setActiveTab}
         className="w-full"
       >
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="pets">
-            Pets ({owner.pets.length})
+            Pets ({owner.petDTOList.length})
             {activeBoardings > 0 && (
               <Badge
                 variant="secondary"
@@ -278,7 +190,7 @@ export default function PetOwnerDetailsView({
 
         {/* Pets Tab */}
         <TabsContent value="pets" className="pt-4">
-          {owner.pets.length === 0 ? (
+          {owner.petDTOList.length === 0 ? (
             <div className="text-center py-8">
               <h3 className="text-lg font-medium">No pets registered</h3>
               <p className="text-muted-foreground mt-1">
@@ -292,20 +204,19 @@ export default function PetOwnerDetailsView({
           ) : (
             <div className="space-y-4">
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {owner.pets.map((pet) => (
+                {owner.petDTOList.map((pet) => (
                   <Card
                     key={pet.id}
-                    className={`cursor-pointer transition-all hover:shadow-md ${
-                      pet.isBoarding
-                        ? "border-green-300 bg-green-50 dark:border-green-800 dark:bg-green-900/20"
-                        : ""
-                    }`}
+                    className={`cursor-pointer transition-all hover:shadow-md ${pet.boarding
+                      ? "border-green-300 bg-green-50 dark:border-green-800 dark:bg-green-900/20"
+                      : ""
+                      }`}
                     onClick={() => onPetClick(pet)}
                   >
                     <CardHeader className="pb-2">
                       <div className="flex justify-between items-start">
                         <CardTitle className="text-lg">{pet.name}</CardTitle>
-                        {pet.isBoarding && (
+                        {pet.boarding && (
                           <Badge className="bg-green-500 text-white">
                             Boarding
                           </Badge>
@@ -321,17 +232,17 @@ export default function PetOwnerDetailsView({
                         <div className="flex items-center gap-2">
                           <Badge
                             className={
-                              pet.type === "Dog"
+                              pet.animal === "Dog"
                                 ? "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-700 dark:text-white dark:hover:bg-blue-600"
                                 : "bg-purple-600 text-white hover:bg-purple-700 dark:bg-purple-700 dark:text-white dark:hover:bg-purple-600"
                             }
                           >
-                            {pet.type === "Dog" ? (
+                            {pet.animal === "Dog" ? (
                               <FaShieldDog className="mr-1 h-3 w-3" />
                             ) : (
                               <FaShieldCat className="mr-1 h-3 w-3" />
                             )}
-                            {pet.type}
+                            {pet.animal}
                           </Badge>
                           <Badge variant="outline">{pet.size}</Badge>
                         </div>
@@ -345,7 +256,7 @@ export default function PetOwnerDetailsView({
         </TabsContent>
 
         {/* Boarding History Tab */}
-        <TabsContent value="history" className="pt-4">
+        {/* <TabsContent value="history" className="pt-4">
           {boardingHistory.length > 0 ? (
             <div className="rounded-md border">
               <div className="overflow-x-auto">
@@ -448,7 +359,7 @@ export default function PetOwnerDetailsView({
               </div>
             </div>
           )}
-        </TabsContent>
+        </TabsContent> */}
       </Tabs>
       {/* Bottom action buttons */}
       <div className="pt-4 border-t flex justify-between">

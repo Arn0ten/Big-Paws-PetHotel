@@ -1,10 +1,10 @@
 // Utility functions for the Pet Owner Management module
-import type { PetOwner } from "./types"
+import type { LegacyPetOwner } from "./types"
 
 /**
  * Filter pet owners based on search query
  */
-export function filterPetOwners(owners: PetOwner[], query: string): PetOwner[] {
+export function filterPetOwners(owners: LegacyPetOwner[], query: string): LegacyPetOwner[] {
   if (!query) return owners
 
   const lowercaseQuery = query.toLowerCase()
@@ -19,7 +19,7 @@ export function filterPetOwners(owners: PetOwner[], query: string): PetOwner[] {
 /**
  * Paginate pet owners
  */
-export function paginatePetOwners(owners: PetOwner[], currentPage: number, itemsPerPage: number): PetOwner[] {
+export function paginatePetOwners(owners: LegacyPetOwner[], currentPage: number, itemsPerPage: number): LegacyPetOwner[] {
   const startIndex = (currentPage - 1) * itemsPerPage
   return owners.slice(startIndex, startIndex + itemsPerPage)
 }
