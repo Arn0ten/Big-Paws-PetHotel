@@ -638,7 +638,6 @@ export default function PetOwnerRegistrationPage() {
             )}
           </div>
 
-          {/* Confirm Password */}
           <div className="space-y-2">
             <Label htmlFor="confirmPassword">
               Confirm Password <span className="text-destructive">*</span>
