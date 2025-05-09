@@ -2,7 +2,7 @@
 import { PetRegister } from "@/types/pet";
 import { PetOwnerApiResponse, PresignedUrlResponse } from "@/types/pet";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_DOMAIN_HOST;
+const API_BASE_URL = process.env.API_DOMAIN_HOST;
 
 export class PetRegistrationError extends Error {
   constructor(message: string, public response?: any) {
