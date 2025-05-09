@@ -1,4 +1,6 @@
 // Define the structure of our form data
+import {PetOwnerRegister} from "@/types/petOwner";
+
 export interface PetOwnerFormData {
   // Basic Information
   fullName: string;
@@ -229,7 +231,7 @@ export async function logAdminActivity(
  */
 export const mockRegistrationApi = {
   registerPetOwner: async (
-    data: PetOwnerFormData,
+    data: PetOwnerRegister,
   ): Promise<RegistrationResponse> => {
     // Simulate API delay
     await new Promise((resolve) => setTimeout(resolve, 1500));

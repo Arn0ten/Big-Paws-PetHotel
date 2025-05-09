@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/popover";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format } from "date-fns";
-import type { PetOwner, BoardingDetails } from "../utils/types";
+import type { BoardingDetails, PetOwner } from "../utils/types";
 import PageLayout from "@/app/webapp/components/PageLayout";
 import { Calendar } from "@/components/ui/calendar";
 import { FaCalendarDay } from "react-icons/fa";
@@ -54,11 +54,10 @@ const TimePicker = ({
           {hours.map((hour) => (
             <div
               key={hour}
-              className={`cursor-pointer rounded-md p-2 text-center text-sm hover:bg-muted ${
-                selectedHour === hour
+              className={`cursor-pointer rounded-md p-2 text-center text-sm hover:bg-muted ${selectedHour === hour
                   ? "bg-primary text-primary-foreground hover:bg-primary/90"
                   : ""
-              }`}
+                }`}
               onClick={() => {
                 onChange(
                   `${hour.toString().padStart(2, "0")}:${selectedMinute}`,
@@ -73,11 +72,10 @@ const TimePicker = ({
           {minutes.map((minute) => (
             <div
               key={minute}
-              className={`cursor-pointer rounded-md p-2 text-center text-sm hover:bg-muted ${
-                selectedMinute === minute
+              className={`cursor-pointer rounded-md p-2 text-center text-sm hover:bg-muted ${selectedMinute === minute
                   ? "bg-primary text-primary-foreground hover:bg-primary/90"
                   : ""
-              }`}
+                }`}
               onClick={() => {
                 onChange(
                   `${selectedHour.toString().padStart(2, "0")}:${minute}`,
@@ -171,7 +169,7 @@ export default function BoardPetsView({
   }
 
   // Get available pets (not currently boarding)
-  const availablePets = owner.pets.filter((pet) => !pet.isBoarding);
+  const availablePets = owner.petDTOList.filter((petDTOList) => !petDTOList.boarding);
 
   // Handle pet selection
   const handlePetSelection = (petId: string) => {
@@ -206,17 +204,17 @@ export default function BoardPetsView({
       // Reset dates/times based on type
       ...(type === "Daycare"
         ? {
-            startDate: today,
-            endDate: today,
-            startTime: "09:00",
-            endTime: "17:00",
-          }
+          startDate: today,
+          endDate: today,
+          startTime: "09:00",
+          endTime: "17:00",
+        }
         : {
-            startDate: today,
-            endDate: tomorrow,
-            startTime: undefined,
-            endTime: undefined,
-          }),
+          startDate: today,
+          endDate: tomorrow,
+          startTime: undefined,
+          endTime: undefined,
+        }),
     }));
   };
 
@@ -310,7 +308,7 @@ export default function BoardPetsView({
 
     // Calculate cost for each selected pet
     formData.petIds.forEach((petId) => {
-      const pet = owner.pets.find((p) => p.id === petId);
+      const pet = owner.petDTOList.find((p) => p.id === petId);
       if (!pet) return;
 
       if (formData.type === "Daycare") {
@@ -338,13 +336,13 @@ export default function BoardPetsView({
           dogDaycarePricing.Medium;
         totalCost += hourlyRate * hours;
       } else {
-        if (pet.type === "Dog") {
+        if (pet.animal === "Dog") {
           const dailyRate =
             dogAccommodationPricing[
-              pet.size as keyof typeof dogAccommodationPricing
+            pet.size as keyof typeof dogAccommodationPricing
             ] || dogAccommodationPricing.Medium;
           totalCost += dailyRate * duration;
-        } else if (pet.type === "Cat") {
+        } else if (pet.animal === "Cat") {
           const isKitten = pet.age < 1;
           const dailyRate = isKitten
             ? catPricing.standard.kitten
@@ -403,16 +401,16 @@ export default function BoardPetsView({
   };
 
   return (
-    <PageLayout title={`Board Pet: ${owner.name}`} onBack={onBack}>
+    <PageLayout title={`Board Pet: ${owner.fullName}`} onBack={onBack}>
       <div className="space-y-6">
         {/* Owner info */}
         <div className="flex items-center space-x-4 p-4 bg-muted/30 rounded-lg">
           <Avatar className="h-16 w-16 border">
-            <AvatarImage src={owner.avatar} alt={owner.name} />
-            <AvatarFallback>{owner.name.charAt(0)}</AvatarFallback>
+            <AvatarImage src="/nonexist" alt={owner.fullName} />
+            <AvatarFallback>{owner.fullName.charAt(0)}</AvatarFallback>
           </Avatar>
           <div>
-            <h4 className="text-lg font-medium">{owner.name}</h4>
+            <h4 className="text-lg font-medium">{owner.fullName}</h4>
             <div className="flex items-center text-sm text-muted-foreground">
               <IoMdMail className="h-4 w-4 mr-1" />
               {owner.email}
@@ -437,7 +435,7 @@ export default function BoardPetsView({
                 No pets available for boarding.
               </p>
               <p className="text-sm text-muted-foreground mt-1">
-                All of {owner.name}'s pets are currently boarding or no pets
+                All of {owner.fullName}'s pets are currently boarding or no pets
                 have been registered.
               </p>
             </div>
@@ -446,11 +444,10 @@ export default function BoardPetsView({
               {availablePets.map((pet) => (
                 <div
                   key={pet.id}
-                  className={`rounded-md border p-4 cursor-pointer transition-all ${
-                    formData.petIds.includes(pet.id)
+                  className={`rounded-md border p-4 cursor-pointer transition-all ${formData.petIds.includes(pet.id)
                       ? "border-primary bg-primary/10 shadow-sm"
                       : "hover:bg-muted/50"
-                  }`}
+                    }`}
                   onClick={() => handlePetSelection(pet.id)}
                 >
                   <div className="flex items-start gap-3">
@@ -470,17 +467,17 @@ export default function BoardPetsView({
                       <div className="flex items-center gap-2 mt-1">
                         <Badge
                           className={
-                            pet.type === "Dog"
+                            pet.animal === "Dog"
                               ? "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-700 dark:text-white dark:hover:bg-blue-600"
                               : "bg-purple-600 text-white hover:bg-purple-700 dark:bg-purple-700 dark:text-white dark:hover:bg-purple-600"
                           }
                         >
-                          {pet.type === "Dog" ? (
+                          {pet.animal === "Dog" ? (
                             <Dog className="mr-1 h-3 w-3" />
                           ) : (
                             <Cat className="mr-1 h-3 w-3" />
                           )}
-                          {pet.type}
+                          {pet.animal}
                         </Badge>
                         <Badge variant="outline">{pet.size}</Badge>
                       </div>
@@ -509,11 +506,10 @@ export default function BoardPetsView({
                 className="flex flex-col space-y-2"
               >
                 <div
-                  className={`flex items-center space-x-3 p-3 rounded-lg border transition-colors ${
-                    formData.type === "Daycare"
+                  className={`flex items-center space-x-3 p-3 rounded-lg border transition-colors ${formData.type === "Daycare"
                       ? "border-primary bg-primary/10 shadow-sm"
                       : "hover:bg-muted/50 border-border"
-                  }`}
+                    }`}
                 >
                   <RadioGroupItem
                     value="Daycare"
@@ -534,11 +530,10 @@ export default function BoardPetsView({
                   </Label>
                 </div>
                 <div
-                  className={`flex items-center space-x-3 p-3 rounded-lg border transition-colors ${
-                    formData.type === "LongStay"
+                  className={`flex items-center space-x-3 p-3 rounded-lg border transition-colors ${formData.type === "LongStay"
                       ? "border-primary bg-primary/10 shadow-sm"
                       : "hover:bg-muted/50 border-border"
-                  }`}
+                    }`}
                 >
                   <RadioGroupItem
                     value="LongStay"

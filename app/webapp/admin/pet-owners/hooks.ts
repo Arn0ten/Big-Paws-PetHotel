@@ -1,190 +1,243 @@
-"use client"
+"use client";
 
-// Consolidated hooks file
-import { useState, useCallback } from "react"
-import type { PetOwner, Pet, FormErrors, PetFormState } from "./utils/types"
-// import { MOCK_PET_OWNERS } from "@/app/webapp/admin/data/pet-owner-sample-data"
-import { MOCK_PET_OWNERS } from "../data/pet-owner-sample-data"
+import {useState, useEffect, useCallback} from "react";
+import {preloadActivePetOwnerData} from "@/lib/preload";
+import type {PetOwner, Pet, FormErrors, PetFormState} from "./utils/types";
+import {PetOwnerApiResponse, PetRegister, PresignedUrlResponse} from "@/types/pet";
+import {petService} from "@/lib/add-pet";
 
 /**
- * Custom hook for managing pet owners data
- *
- * BACKEND INTEGRATION:
- * Replace this hook with actual API calls in production
+ * Custom hook for managing pet owners data (integrated with backend)
  */
 export function usePetOwners() {
-  const [petOwners, setPetOwners] = useState<PetOwner[]>(MOCK_PET_OWNERS)
-  const [isLoading, setIsLoading] = useState(false)
-  const [isRefreshing, setIsRefreshing] = useState(false)
+    const [petOwners, setPetOwners] = useState<PetOwner[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isRefreshing, setIsRefreshing] = useState(false);
+    const [isError, setIsError] = useState<boolean>(false);
 
-  // Refresh pet owners data
-  const refreshPetOwners = useCallback(async () => {
-    setIsRefreshing(true)
+    const fetchPetOwners = useCallback(async () => {
+        setIsRefreshing(true);
+        setIsError(false);
+        try {
+            const response = await preloadActivePetOwnerData();
+            console.log("API Response:", response);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+            if (response && Array.isArray(response)) {
+                setPetOwners(response);
+            } else {
+                console.error("API response does not contain expected data format.");
+                setIsError(true);
+            }
+        } catch (error) {
+            console.error("Error fetching pet owners:", error);
+            setIsError(true);
+        } finally {
+            setIsRefreshing(false);
+            setIsLoading(false);
+        }
+    }, []); // Empty dependency array since it doesn't use any external values
 
-    // In a real implementation, this would be an API call
-    // const response = await fetch('/api/pet-owners')
-    // const data = await response.json()
-    // setPetOwners(data)
+    useEffect(() => {
+        console.log("Calling fetchPetOwners...");
+        fetchPetOwners();
+    }, []); // Remove fetchPetOwners from dependencies since it's memoized
 
-    setIsRefreshing(false)
-  }, [])
+    // Placeholder methods for backend-managed actions
+    const addPetOwner = useCallback(async () => {
+        console.warn("Backend-managed: Adding pet owners not supported via UI");
+    }, []);
 
-  // Add a new pet owner
-  const addPetOwner = useCallback(async (ownerData: Partial<PetOwner>) => {
-    setIsLoading(true)
+    const updatePetOwner = useCallback(async () => {
+        console.warn("Backend-managed: Updating pet owners not supported via UI");
+    }, []);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    const removePetOwner = useCallback(async () => {
+        console.warn("Backend-managed: Removing pet owners not supported via UI");
+    }, []);
 
-    // Generate a new pet owner with the provided data
-    const newPetOwner: PetOwner = {
-      id: `owner-${Date.now()}`,
-      name: ownerData.name!,
-      email: ownerData.email!,
-      phone: ownerData.phone!,
-      address: ownerData.address!,
-      avatar: ownerData.avatar || `/placeholder.svg?height=200&width=200`,
-      pets: [],
-      createdAt: new Date().toISOString(),
-    }
-
-    // Update local state
-    setPetOwners((prev) => [...prev, newPetOwner])
-
-    setIsLoading(false)
-    return newPetOwner
-  }, [])
-
-  // Update an existing pet owner
-  const updatePetOwner = useCallback(async (id: string, ownerData: Partial<PetOwner>) => {
-    setIsLoading(true)
-
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    // Update local state
-    setPetOwners((prev) => prev.map((owner) => (owner.id === id ? { ...owner, ...ownerData } : owner)))
-
-    setIsLoading(false)
-  }, [])
-
-  // Remove a pet owner
-  const removePetOwner = useCallback(async (id: string) => {
-    setIsLoading(true)
-
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    // Update local state
-    setPetOwners((prev) => prev.filter((owner) => owner.id !== id))
-
-    setIsLoading(false)
-  }, [])
-
-  return {
-    petOwners,
-    setPetOwners,
-    isLoading,
-    isRefreshing,
-    refreshPetOwners,
-    addPetOwner,
-    updatePetOwner,
-    removePetOwner,
-  }
+    return {
+        petOwners,
+        isError,
+        setPetOwners,
+        isLoading,
+        isRefreshing,
+        refreshPetOwners: fetchPetOwners,
+        addPetOwner,
+        updatePetOwner,
+        removePetOwner,
+    };
 }
 
 /**
  * Custom hook for managing pet form state and validation
  */
-export function usePetForm(initialState: PetFormState = { type: "Dog", size: "Medium" }) {
-  const [formState, setFormState] = useState<PetFormState>(initialState)
-  const [formErrors, setFormErrors] = useState<FormErrors>({})
-  const [isSubmitting, setIsSubmitting] = useState(false)
+export function usePetForm(initialState: PetFormState = {animal: "Dog", size: "Medium"}) {
+    const [formState, setFormState] = useState<PetFormState>(initialState);
+    const [formErrors, setFormErrors] = useState<FormErrors>({});
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Update form field
-  const updateField = useCallback(
-    (field: keyof Pet, value: any) => {
-      setFormState((prev) => ({
-        ...prev,
-        [field]: value,
-        // Reset breed if pet type changes
-        ...(field === "type" && { breed: undefined }),
-      }))
+    const updateField = useCallback(
+        (field: keyof Pet, value: any) => {
+            setFormState((prev) => ({
+                ...prev,
+                [field]: value,
+                ...(field === "animal" && {breed: undefined}), // Reset breed if animal is changed
+            }));
 
-      // Clear error for this field if it exists
-      if (formErrors[field]) {
-        setFormErrors((prev) => {
-          const newErrors = { ...prev }
-          delete newErrors[field]
-          return newErrors
-        })
-      }
-    },
-    [formErrors],
-  )
+            if (formErrors[field]) {
+                setFormErrors((prev) => {
+                    const newErrors = {...prev};
+                    delete newErrors[field];
+                    return newErrors;
+                });
+            }
+        },
+        [formErrors]
+    );
 
-  // Validate form
-  const validateForm = useCallback(() => {
-    const errors: FormErrors = {}
-    const requiredFields: (keyof Pet)[] = ["name", "type", "breed", "age", "size"]
+    const validateForm = useCallback(() => {
+        const errors: FormErrors = {};
+        const requiredFields: (keyof Pet)[] = ["name", "animal", "breed", "age", "size"];
 
-    requiredFields.forEach((field) => {
-      if (!formState[field]) {
-        errors[field] = true
-      }
-    })
+        requiredFields.forEach((field) => {
+            if (!formState[field]) {
+                errors[field] = true;
+            }
+        });
 
-    setFormErrors(errors)
-    return Object.keys(errors).length === 0
-  }, [formState])
+        setFormErrors(errors);
+        return Object.keys(errors).length === 0;
+    }, [formState]);
 
-  // Reset form
-  const resetForm = useCallback(() => {
-    setFormState({ type: "Dog", size: "Medium" })
-    setFormErrors({})
-    setIsSubmitting(false)
-  }, [])
+    const resetForm = useCallback(() => {
+        setFormState({animal: "Dog", size: "Medium"});
+        setFormErrors({});
+        setIsSubmitting(false);
+    }, []);
 
-  return {
-    formState,
-    formErrors,
-    isSubmitting,
-    setIsSubmitting,
-    updateField,
-    validateForm,
-    resetForm,
-  }
+    return {
+        formState,
+        formErrors,
+        isSubmitting,
+        setIsSubmitting,
+        updateField,
+        validateForm,
+        resetForm,
+    };
 }
 
 /**
  * Custom hook for pagination
  */
-export function usePagination({ totalItems, itemsPerPage = 5 }: { totalItems: number; itemsPerPage?: number }) {
-  const [currentPage, setCurrentPage] = useState(1)
+export function usePagination({totalItems, itemsPerPage = 5}: { totalItems: number; itemsPerPage?: number }) {
+    const [currentPage, setCurrentPage] = useState(1);
 
-  const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage))
+    const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
 
-  // Ensure current page is within valid range
-  if (currentPage > totalPages) {
-    setCurrentPage(totalPages)
-  }
+    useEffect(() => {
+        if (currentPage > totalPages) {
+            setCurrentPage(totalPages);
+        }
+    }, [currentPage, totalPages]);
 
-  const goToPage = (page: number) => {
-    const validPage = Math.max(1, Math.min(page, totalPages))
-    setCurrentPage(validPage)
-  }
+    const goToPage = (page: number) => {
+        const validPage = Math.max(1, Math.min(page, totalPages));
+        setCurrentPage(validPage);
+    };
 
-  const resetPage = () => {
-    setCurrentPage(1)
-  }
+    const resetPage = () => {
+        setCurrentPage(1);
+    };
 
-  return {
-    currentPage,
-    totalPages,
-    goToPage,
-    resetPage,
-  }
+    return {
+        currentPage,
+        totalPages,
+        goToPage,
+        resetPage,
+    };
+}
+
+
+// Manual call registration of a pet
+interface RegisterPetState {
+    isRegistering: boolean;
+    isUploadingPhoto: boolean;
+    error: string | null;
+    response: PetOwnerApiResponse | null;
+}
+
+export function useRegisterPet() {
+    const [state, setState] = useState<RegisterPetState>({
+        isRegistering: false,
+        isUploadingPhoto: false,
+        error: null,
+        response: null,
+    });
+    const [photoFile, setPhotoFile] = useState<File | null>(null);
+
+    const registerPet = useCallback(async (petData: PetRegister) => {
+        setState(prev => ({
+            ...prev,
+            isRegistering: true,
+            error: null,
+            response: null,
+        }));
+
+        try {
+            // Step 1: Register pet
+            const registrationResponse = await petService.registerPet(petData);
+            setState(prev => ({
+                ...prev,
+                isRegistering: false,
+                response: registrationResponse,
+            }));
+
+            // Step 2 & 3: Handle photo upload if exists
+            if (photoFile && registrationResponse.data.apiUrl) {
+                setState(prev => ({
+                    ...prev,
+                    isUploadingPhoto: true,
+                }));
+
+                try {
+                    await petService.uploadPetPhoto(
+                        registrationResponse.data.apiUrl,
+                        photoFile
+                    );
+                } catch (uploadError) {
+                    console.error('Photo upload failed:', uploadError);
+                    // Just log the error but don't affect the return value
+                } finally {
+                    setState(prev => ({
+                        ...prev,
+                        isUploadingPhoto: false,
+                    }));
+                }
+            }
+
+            // Return true regardless of photo upload success/failure
+            return true;
+            
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : "An unknown error occurred";
+            setState(prev => ({
+                ...prev,
+                isRegistering: false,
+                isUploadingPhoto: false,
+                error: errorMessage,
+            }));
+            return false;
+        }
+    }, [photoFile]);
+
+    return {
+        registerPet,
+        loading: state.isRegistering || state.isUploadingPhoto,
+        isRegistering: state.isRegistering,
+        isUploadingPhoto: state.isUploadingPhoto,
+        error: state.error,
+        response: state.response,
+        setPhotoFile,
+        photoFile
+    };
 }
