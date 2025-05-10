@@ -269,7 +269,7 @@ export default function PetsPage() {
         setSuccessDialog({
           isOpen: true,
           title: "Pet Added Successfully",
-          description: `${petData.name} has been added to the system.`,
+          description: petData.name + ` has been added to the system.`,
           actionLabel: "",
           onAction: () => {},
         });

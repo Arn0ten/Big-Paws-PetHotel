@@ -162,8 +162,7 @@ export function AdminSidebar({ onCollapse }: AdminSidebarProps) {
   // Add this at the top of the component
   useEffect(() => {
     const handleError = (error: Error) => {
-      console.error("Sidebar error:", error);
-      // Prevent complete UI crash by handling errors
+      console.log("Sidebar error:", error);
     };
 
     window.addEventListener("error", handleError as any);

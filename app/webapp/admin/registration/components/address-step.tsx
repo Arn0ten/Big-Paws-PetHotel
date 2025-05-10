@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import { FaLocationDot } from "react-icons/fa6";
 import type { FormValues } from "../types";
 import { TOAST_MESSAGES } from "../constants";
+import {PetOwnerRegister} from "@/types/petOwner";
 
 interface AddressStepProps {
   navigateToPreviousStep: () => void;
@@ -35,7 +36,7 @@ export function AddressStep({
     watch,
     setValue,
     trigger,
-  } = useFormContext<FormValues>();
+  } = useFormContext<PetOwnerRegister>();
 
   const { toast } = useToast();
 
@@ -78,7 +79,7 @@ export function AddressStep({
   };
 
   const handleNext = async () => {
-    const isValid = await trigger(["streetAddress", "province", "city"]);
+    const isValid = await trigger(["streetAddress", "stateAddress", "cityAddress"]);
 
     if (isValid) {
       toast({
@@ -102,7 +103,7 @@ export function AddressStep({
     }
   };
 
-  const renderError = (field: keyof FormValues) =>
+  const renderError = (field: keyof PetOwnerRegister) =>
     errors[field] && (
       <p className="text-destructive dark:text-red-400 text-sm flex items-center mt-1.5">
         <AlertCircle className="h-4 w-4 mr-1" />
@@ -156,15 +157,14 @@ export function AddressStep({
                 <Select
                   onValueChange={(value) => {
                     const [id, name] = value.split("|");
-                    setValue("province", name, { shouldValidate: true });
-                    setValue("provinceCode", id, { shouldValidate: true });
+                    setValue("stateAddress", name, { shouldValidate: true });
                     fetchCities(id); // Fetch cities based on selected province
                   }}
                 >
                   <SelectTrigger
                     id="province"
                     className={cn(
-                      errors.province &&
+                      errors.stateAddress &&
                         "border-destructive dark:border-red-400 focus-visible:ring-destructive dark:focus-visible:ring-red-400",
                     )}
                   >
@@ -183,12 +183,11 @@ export function AddressStep({
                 </Select>
               )}
               <input
-                {...register("province", { required: "Province is required" })}
+                {...register("stateAddress", { required: "Province is required" })}
                 type="hidden"
               />
-              <input {...register("provinceCode")} type="hidden" />
             </div>
-            {renderError("province")}
+            {renderError("stateAddress")}
           </div>
 
           {/* City */}
@@ -202,24 +201,23 @@ export function AddressStep({
               ) : (
                 <Select
                   disabled={
-                    !watch("province") || cities.length === 0 || isLoadingCities
+                    !watch("stateAddress") || cities.length === 0 || isLoadingCities
                   }
                   onValueChange={(value) => {
                     const [id, name] = value.split("|");
-                    setValue("city", name, { shouldValidate: true });
-                    setValue("cityCode", id, { shouldValidate: true });
+                    setValue("cityAddress", name, { shouldValidate: true });
                   }}
                 >
                   <SelectTrigger
                     id="city"
                     className={cn(
-                      errors.city &&
+                      errors.cityAddress &&
                         "border-destructive dark:border-red-400 focus-visible:ring-destructive dark:focus-visible:ring-red-400",
                     )}
                   >
                     <SelectValue
                       placeholder={
-                        !watch("province")
+                        !watch("stateAddress")
                           ? "Select province first"
                           : cities.length === 0
                             ? "Loading cities..."
@@ -240,14 +238,13 @@ export function AddressStep({
                 </Select>
               )}
               <input
-                {...register("city", {
+                {...register("cityAddress", {
                   required: "City/Municipality is required",
                 })}
                 type="hidden"
               />
-              <input {...register("cityCode")} type="hidden" />
             </div>
-            {renderError("city")}
+            {renderError("cityAddress")}
           </div>
         </div>
       </div>

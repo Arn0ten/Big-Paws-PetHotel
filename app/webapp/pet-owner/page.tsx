@@ -151,7 +151,6 @@ export default function PetOwnerHomePage() {
       setIsLoading(true);
 
       // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 500));
 
       // Get all active boarding pets
       const boardingPets = getBoardingPets();

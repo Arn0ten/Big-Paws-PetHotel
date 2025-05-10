@@ -42,7 +42,7 @@ import {
 import { FaUserCheck } from "react-icons/fa";
 
 // Import types and components from consolidated files
-import { ITEMS_PER_PAGE, type Pet, BoardingDetails } from "./utils/types";
+import { ITEMS_PER_PAGE, type LegacyPet, BoardingDetails } from "./utils/types";
 import { usePetOwners, usePagination } from "./hooks";
 import {
   PetOwnerTable,
@@ -52,13 +52,18 @@ import {
   SuccessDialog as ActionSuccessDialog,
   DeleteConfirmDialog,
 } from "../pets/components/confirmation-dialog";
-import type { PetOwner } from "./utils/types";
+import type { LegacyPetOwner, Pet } from "./utils/types";
 import PetOwnerDetailsView from "./views/pet-owner-details-view";
 import BoardPetsView from "./views/board-pets-view";
 import PetDetailsView from "./views/pet-details-view";
 import EditPetOwnerView from "./views/edit-pet-owner-view";
 import AddPetView from "./views/add-pet-view";
 import EditPetView from "./views/edit-pet-view";
+
+// Preload
+import { preloadActivePetOwnerData } from '@/lib/preload';
+import type { PetDTO, PetOwnerActive } from "@/types/petOwner";
+
 
 // Define the possible views for the module
 type View =
@@ -113,7 +118,7 @@ export default function PetOwnersPage() {
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [filterHasPets, setFilterHasPets] = useState<string>("all");
   const [selectedOwnerId, setSelectedOwnerId] = useState<string | null>(null);
-  const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
+  const [selectedPet, setSelectedPet] = useState<PetDTO | null>(null);
   const [expandedPetsList, setExpandedPetsList] = useState<string[]>([]);
   const [formErrors, setFormErrors] = useState<Record<string, boolean>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -125,7 +130,7 @@ export default function PetOwnersPage() {
     title: "",
     description: "",
     actionLabel: "",
-    onAction: () => {},
+    onAction: () => { },
   });
 
   // Confirmation dialog state
@@ -134,7 +139,7 @@ export default function PetOwnersPage() {
     type: "delete" as "delete" | "edit" | "board" | "endBoarding",
     title: "",
     description: "",
-    onConfirm: () => {},
+    onConfirm: () => { },
   });
 
   // BACKEND INTEGRATION: Replace this hook with actual API calls
@@ -153,15 +158,15 @@ export default function PetOwnersPage() {
     // Search query filter
     const matchesSearch =
       !searchQuery ||
-      owner.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      owner.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       owner.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      owner.phone.includes(searchQuery);
+      owner.phoneNumber.includes(searchQuery);
 
     // Has pets filter
     const matchesHasPets =
       filterHasPets === "all" ||
-      (filterHasPets === "with-pets" && owner.pets.length > 0) ||
-      (filterHasPets === "no-pets" && owner.pets.length === 0);
+      (filterHasPets === "with-pets" && owner.petDTOList.length > 0) ||
+      (filterHasPets === "no-pets" && owner.petDTOList.length === 0);
 
     return matchesSearch && matchesHasPets;
   });
@@ -197,10 +202,10 @@ export default function PetOwnersPage() {
       currentView.type === "editPet"
     ) {
       // Find the pet and its owner
-      let foundPet: Pet | null = null;
+      let foundPet: PetDTO | null = null;
 
       for (const owner of petOwners) {
-        const pet = owner.pets.find((p) => p.id === currentView.petId);
+        const pet = owner.petDTOList.find((p) => p.id === currentView.petId);
         if (pet) {
           foundPet = pet;
           setSelectedOwnerId(owner.id);
@@ -307,7 +312,7 @@ export default function PetOwnersPage() {
         description:
           "The pet owner has been successfully removed from the system.",
         actionLabel: "",
-        onAction: () => {},
+        onAction: () => { },
       });
     });
   };
@@ -328,7 +333,7 @@ export default function PetOwnersPage() {
   };
 
   // Handle add pet owner form submission
-  const handleAddPetOwner = async (ownerData: Partial<PetOwner>) => {
+  const handleAddPetOwner = async (ownerData: Partial<LegacyPetOwner>) => {
     setIsSubmitting(true);
 
     try {
@@ -336,16 +341,7 @@ export default function PetOwnersPage() {
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // Generate a mock ID for the new pet owner
-      const newPetOwner: PetOwner = {
-        ...(ownerData as PetOwner),
-        id: `owner-${Date.now()}`,
-        createdAt: new Date().toISOString(),
-        pets: [],
-      };
 
-      // Update pet owners state
-      setPetOwners([...petOwners, newPetOwner]);
 
       // Navigate back to list view
       navigateTo({ type: "list" });
@@ -356,7 +352,7 @@ export default function PetOwnersPage() {
         title: "Pet Owner Added",
         description: `${ownerData.name} has been successfully added to the system.`,
         actionLabel: "",
-        onAction: () => {},
+        onAction: () => { },
       });
 
       return true;
@@ -373,7 +369,7 @@ export default function PetOwnersPage() {
   };
 
   // Update the handleUpdatePetOwner function to ensure it preserves the address structure
-  const handleUpdatePetOwner = async (ownerData: Partial<PetOwner>) => {
+  const handleUpdatePetOwner = async (ownerData: Partial<PetOwnerActive>) => {
     if (!selectedOwnerId) return false;
 
     setIsSubmitting(true);
@@ -390,8 +386,7 @@ export default function PetOwnersPage() {
             return {
               ...owner,
               ...ownerData,
-              // Preserve pets array and ensure address structure is maintained
-              pets: owner.pets,
+              pets: owner.petDTOList,
               address: ownerData.address || owner.address,
             };
           }
@@ -406,9 +401,9 @@ export default function PetOwnersPage() {
       setSuccessDialog({
         isOpen: true,
         title: "Pet Owner Updated",
-        description: `${ownerData.name} has been successfully updated.`,
+        description: `${ownerData.fullName} has been successfully updated.`,
         actionLabel: "",
-        onAction: () => {},
+        onAction: () => { },
       });
 
       return true;
@@ -426,7 +421,7 @@ export default function PetOwnersPage() {
   };
 
   // Handle add pet
-  const handleAddPet = async (petData: Partial<Pet>) => {
+  const handleAddPet = async (petData: Partial<PetDTO>) => {
     if (!selectedOwnerId) return false;
 
     setIsSubmitting(true);
@@ -436,17 +431,14 @@ export default function PetOwnersPage() {
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      const newPet: Pet = {
+      const newPet: PetDTO = {
         id: `P-${Math.floor(Math.random() * 10000)}`,
         name: petData.name!,
-        type: petData.type as "Dog" | "Cat",
+        animal: petData.animal as "Dog" | "Cat",
         breed: petData.breed!,
         age: petData.age!,
         size: petData.size as "Small" | "Medium" | "Large" | "XL",
-        isBoarding: false,
-        notes: petData.notes,
-        image: petData.image || "/placeholder.svg?height=200&width=200",
-        ownerId: selectedOwnerId,
+        boarding: false,
       };
 
       // Update pet owners state with new pet
@@ -455,7 +447,7 @@ export default function PetOwnersPage() {
           if (owner.id === selectedOwnerId) {
             return {
               ...owner,
-              pets: [...owner.pets, newPet],
+              pets: [...owner.petDTOList, newPet],
             };
           }
           return owner;
@@ -471,7 +463,7 @@ export default function PetOwnersPage() {
       setSuccessDialog({
         isOpen: true,
         title: "Pet Added Successfully",
-        description: `${petData.name} has been added to ${selectedOwner?.name}'s profile.`,
+        description: `${petData.name} has been added to ${selectedOwner?.fullName}'s profile.`,
         actionLabel: "Board Pet",
         onAction: () => {
           setSuccessDialog((prev) => ({ ...prev, isOpen: false }));
@@ -493,7 +485,7 @@ export default function PetOwnersPage() {
   };
 
   // Handle update pet
-  const handleUpdatePet = async (petData: Partial<Pet>) => {
+  const handleUpdatePet = async (petData: Partial<LegacyPet>) => {
     if (!selectedPet) return false;
 
     setIsSubmitting(true);
@@ -508,7 +500,7 @@ export default function PetOwnersPage() {
         petOwners.map((owner) => {
           return {
             ...owner,
-            pets: owner.pets.map((p) => {
+            pets: owner.petDTOList.map((p) => {
               if (p.id === selectedPet?.id) {
                 return {
                   ...p,
@@ -530,7 +522,7 @@ export default function PetOwnersPage() {
         title: "Pet Updated",
         description: `${petData.name || selectedPet?.name} has been successfully updated.`,
         actionLabel: "",
-        onAction: () => {},
+        onAction: () => { },
       });
 
       return true;
@@ -563,7 +555,7 @@ export default function PetOwnersPage() {
           if (owner.id === selectedOwnerId) {
             return {
               ...owner,
-              pets: owner.pets.filter((p) => p.id !== selectedPet.id),
+              pets: owner.petDTOList.filter((p) => p.id !== selectedPet.id),
             };
           }
           return owner;
@@ -581,7 +573,7 @@ export default function PetOwnersPage() {
         title: "Pet Deleted",
         description: `${selectedPet.name} has been removed from the system.`,
         actionLabel: "",
-        onAction: () => {},
+        onAction: () => { },
       });
     } catch (error) {
       toast({
@@ -611,7 +603,7 @@ export default function PetOwnersPage() {
           if (owner.id === selectedOwnerId) {
             return {
               ...owner,
-              pets: owner.pets.map((p) => {
+              pets: owner.petDTOList.map((p) => {
                 if (details.petIds.includes(p.id)) {
                   return {
                     ...p,
@@ -635,7 +627,7 @@ export default function PetOwnersPage() {
         title: "Boarding Started",
         description: `Boarding created successfully for ${details.petIds.length} pet(s)`,
         actionLabel: "",
-        onAction: () => {},
+        onAction: () => { },
       });
 
       return true;
@@ -665,7 +657,7 @@ export default function PetOwnersPage() {
         petOwners.map((owner) => {
           return {
             ...owner,
-            pets: owner.pets.map((p) => {
+            pets: owner.petDTOList.map((p) => {
               if (p.id === petId) {
                 return {
                   ...p,
@@ -694,7 +686,7 @@ export default function PetOwnersPage() {
         title: "Boarding Ended",
         description: `Boarding has been ended successfully`,
         actionLabel: "",
-        onAction: () => {},
+        onAction: () => { },
       });
 
       return true;

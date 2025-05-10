@@ -25,22 +25,22 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Separator } from "@/components/ui/separator"
-import type { PetOwner } from "../utils/types"
+import type { LegacyPetOwner } from "../utils/types"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import PageLayout from "@/app/webapp/components/PageLayout"
 
 import { IoAlertCircle } from "react-icons/io5";
 
 interface EditPetOwnerViewProps {
-  owner: PetOwner | null
+  owner: LegacyPetOwner | null
   onBack: () => void
-  onSubmit: (data: Partial<PetOwner>) => Promise<boolean>
+  onSubmit: (data: Partial<LegacyPetOwner>) => Promise<boolean>
   isSubmitting: boolean
 }
 
 export default function EditPetOwnerView({ owner, onBack, onSubmit, isSubmitting }: EditPetOwnerViewProps) {
   // Form state
-  const [formData, setFormData] = useState<Partial<PetOwner>>({
+  const [formData, setFormData] = useState<Partial<LegacyPetOwner>>({
     name: "",
     email: "",
     phone: "",

@@ -32,7 +32,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { PawPrint, Loader2 } from "lucide-react";
-import type { Pet } from "../utils/types";
+import type { LegacyPet } from "../utils/types";
 import PageLayout from "@/app/webapp/components/PageLayout";
 import { FaShieldDog, FaShieldCat } from "react-icons/fa6";
 import { FaUserCheck } from "react-icons/fa";
@@ -95,11 +95,11 @@ const CAT_BREEDS = [
 ];
 
 interface EditPetViewProps {
-  pet: Pet | null;
+  pet: LegacyPet | null;
   ownerId: string | null;
   ownerName?: string;
   onBack: () => void;
-  onSubmit: (petData: Partial<Pet>) => Promise<boolean>;
+  onSubmit: (petData: Partial<LegacyPet>) => Promise<boolean>;
   isSubmitting: boolean;
 }
 
@@ -111,7 +111,7 @@ export default function EditPetView({
   onSubmit,
   isSubmitting,
 }: EditPetViewProps) {
-  const [formData, setFormData] = useState<Partial<Pet>>({
+  const [formData, setFormData] = useState<Partial<LegacyPet>>({
     type: "Dog",
     size: "Medium",
   });
@@ -214,7 +214,7 @@ export default function EditPetView({
 
   const validateForm = () => {
     const errors: FormErrors = {};
-    const requiredFields: (keyof Pet)[] = [
+    const requiredFields: (keyof LegacyPet)[] = [
       "name",
       "type",
       "breed",
