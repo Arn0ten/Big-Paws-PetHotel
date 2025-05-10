@@ -1,6 +1,6 @@
 import {PetOwnerRegister, PetOwnerRegisterResponse} from "@/types/petOwner";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_DOMAIN_HOST;
+const API_BASE_URL = process.env.API_DOMAIN_HOST;
 
 
 export class PetRegistrationError extends Error {

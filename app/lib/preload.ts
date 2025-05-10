@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import type { PetOwnerApiResponse, PetOwnerActive } from "../types/petOwner"; 
 
 // Assuming DOMAIN_HOST is defined correctly
-const DOMAIN_HOST = process.env.NEXT_PUBLIC_DOMAIN_HOST;
+const DOMAIN_HOST = process.env.API_DOMAIN_HOST;
 
 // Preload the pet owner data from the API
 export async function preloadActivePetOwnerData(): Promise<PetOwnerActive[]> {
