@@ -8,7 +8,7 @@ export interface PetRegister {
     specialDescription: string;
 }
 
-export interface PetOwnerApiResponse extends BaseApiResponse {
+export interface PetRegisterResponse extends BaseApiResponse {
     data: {
         petId: string;
         apiUrl: string;
@@ -16,11 +16,13 @@ export interface PetOwnerApiResponse extends BaseApiResponse {
 
 }
 
-export interface PresignedUrlResponse extends BaseApiResponse {
+export interface PetRegisterPresignUrlResponse extends BaseApiResponse {
     data: {
         id: string;
         url: string;
         expiredAt: Date;
     };
 }
+
+
 

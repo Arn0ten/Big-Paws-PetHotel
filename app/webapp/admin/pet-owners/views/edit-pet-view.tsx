@@ -37,6 +37,7 @@ import PageLayout from "@/app/webapp/components/PageLayout";
 import { FaShieldDog, FaShieldCat } from "react-icons/fa6";
 import { FaUserCheck } from "react-icons/fa";
 import { FaUpload } from "react-icons/fa6";
+import { PetDTO } from "@/types/petOwner";
 
 // Define the FormErrors type
 interface FormErrors {
@@ -95,11 +96,11 @@ const CAT_BREEDS = [
 ];
 
 interface EditPetViewProps {
-  pet: LegacyPet | null;
+  pet: PetDTO | null;
   ownerId: string | null;
   ownerName?: string;
   onBack: () => void;
-  onSubmit: (petData: Partial<LegacyPet>) => Promise<boolean>;
+  onSubmit: (petData: Partial<PetDTO>) => Promise<boolean>;
   isSubmitting: boolean;
 }
 
@@ -111,8 +112,8 @@ export default function EditPetView({
   onSubmit,
   isSubmitting,
 }: EditPetViewProps) {
-  const [formData, setFormData] = useState<Partial<LegacyPet>>({
-    type: "Dog",
+  const [formData, setFormData] = useState<Partial<PetDTO>>({
+    animal: "Dog",
     size: "Medium",
   });
   const [formErrors, setFormErrors] = useState<FormErrors>({});
@@ -124,12 +125,12 @@ export default function EditPetView({
       setFormData({
         id: pet.id,
         name: pet.name,
-        type: pet.type,
+        animal: pet.animal,
         breed: pet.breed,
         age: pet.age,
         size: pet.size,
-        notes: pet.notes || "",
-        image: pet.image,
+        description: pet.description || "",
+        photoUrl: pet.photoUrl,
         ownerId: pet.ownerId,
       });
     }
@@ -214,9 +215,9 @@ export default function EditPetView({
 
   const validateForm = () => {
     const errors: FormErrors = {};
-    const requiredFields: (keyof LegacyPet)[] = [
+    const requiredFields: (keyof PetDTO)[] = [
       "name",
-      "type",
+      "animal",
       "breed",
       "age",
       "size",
@@ -236,12 +237,12 @@ export default function EditPetView({
     if (!validateForm()) return;
 
     // Set default image based on pet type if no image is provided
-    if (!formData.image) {
+    if (!formData.photoUrl) {
       const defaultImage =
-        formData.type === "Dog"
+        formData.photoUrl === "Dog"
           ? "/default-images/dog.png"
           : "/default-images/cat.png";
-      formData.image = defaultImage;
+      formData.photoUrl = defaultImage;
     }
 
     await onSubmit(formData);
@@ -249,7 +250,7 @@ export default function EditPetView({
 
   // Get default image based on pet type
   const getDefaultImage = () => {
-    return formData.type === "Dog"
+    return formData.animal === "Dog"
       ? "/default-images/dog.png"
       : "/default-images/cat.png";
   };
@@ -262,16 +263,16 @@ export default function EditPetView({
         <div className="md:col-span-2 flex flex-col items-center mb-4">
           <div className="w-full md:w-1/3">
             <div className="aspect-square w-full max-w-[180px] mx-auto rounded-lg overflow-hidden bg-muted flex items-center justify-center mb-2">
-              {formData.image ? (
+              {formData.photoUrl ? (
                 <img
-                  src={formData.image || getDefaultImage()}
+                  src={formData.photoUrl || getDefaultImage()}
                   alt="Pet Profile"
                   className="w-full h-full object-cover"
                   style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 />
               ) : (
                 <div className="flex flex-col items-center justify-center text-muted-foreground w-full h-full">
-                  {formData.type === "Dog" ? (
+                  {formData.animal === "Dog" ? (
                     <FaShieldDog className="h-16 w-16 mb-2" />
                   ) : (
                     <FaShieldCat className="h-16 w-16 mb-2" />
@@ -342,7 +343,7 @@ export default function EditPetView({
               Pet Type <span className="text-red-500 ml-1">*</span>
             </Label>
             <Select
-              value={formData.type || "Dog"}
+              value={formData.animal || "Dog"}
               onValueChange={(value) => handleSelectChange("type", value)}
             >
               <SelectTrigger
@@ -400,7 +401,7 @@ export default function EditPetView({
                 <SelectValue placeholder="Select breed" />
               </SelectTrigger>
               <SelectContent>
-                {(formData.type === "Dog" ? DOG_BREEDS : CAT_BREEDS).map(
+                {(formData.animal === "Dog" ? DOG_BREEDS : CAT_BREEDS).map(
                   (breed) => (
                     <SelectItem key={breed} value={breed}>
                       {breed}
@@ -495,7 +496,7 @@ export default function EditPetView({
             id="notes"
             name="notes"
             placeholder="Enter any additional notes about this pet"
-            value={formData.notes || ""}
+            value={formData.description || ""}
             onChange={handleInputChange}
             className="min-h-[80px]"
           />

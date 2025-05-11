@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from "uuid"
 import type { Pet, FilterOptions } from "./types"
+import {PetDetailsDTO} from "@/types/preloadPet";
 
 /**
  * Generate a unique ID for a pet
@@ -18,7 +19,7 @@ export function calculateTotalPages(totalItems: number, itemsPerPage: number): n
 /**
  * Filter pets based on search query and filter options
  */
-export function filterPets(pets: Pet[], options: FilterOptions): Pet[] {
+export function filterPets(pets: PetDetailsDTO[], options: FilterOptions): PetDetailsDTO[] {
   const { searchQuery, type, status } = options
 
   return pets.filter((pet) => {
@@ -28,12 +29,12 @@ export function filterPets(pets: Pet[], options: FilterOptions): Pet[] {
     }
 
     // Filter by pet type
-    if (type && pet.type !== type) {
+    if (type && pet.animal !== type) {
       return false
     }
 
     // Filter by boarding status
-    if (status !== undefined && pet.isBoarding !== status) {
+    if (status !== undefined && pet.boarding !== status) {
       return false
     }
 

@@ -19,9 +19,11 @@ import {
 } from "@/app/webapp/admin/data/pet-management-sample-data";
 import { FaShieldDog, FaShieldCat, FaRulerVertical } from "react-icons/fa6";
 import { FaUserCheck, FaBirthdayCake, FaEdit } from "react-icons/fa";
+import {PetDetailsDTO} from "@/types/preloadPet";
+import {PetOwnerListDTO} from "@/types/petOwner";
 interface PetDetailsViewProps {
-  pet: Pet | null;
-  petOwners: PetOwner[];
+  pet: PetDetailsDTO | null;
+  petOwners: PetOwnerListDTO[];
   onBack: () => void;
   onEdit: () => void;
   onBoard: () => void;
@@ -53,7 +55,7 @@ export default function PetDetailsView({
         <FaEdit className="mr-2 h-4 w-4" />
         Edit
       </Button>
-      {!pet.isBoarding && (
+      {!pet.boarding && (
         <Button
           className="bg-green-600 hover:bg-green-700 text-white"
           onClick={onBoard}
@@ -76,16 +78,16 @@ export default function PetDetailsView({
         <div className="flex flex-col md:flex-row gap-6">
           <div className="w-full md:w-1/3">
             <div className="aspect-square w-full max-w-xs mx-auto rounded-lg overflow-hidden bg-muted flex items-center justify-center">
-              {pet.image ? (
+              {pet.photoId ? (
                 <img
-                  src={pet.image || "/placeholder.svg"}
+                  src={pet.photoUrl || "/placeholder.svg"}
                   alt={pet.name}
                   className="w-full h-full object-cover"
                   style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 />
               ) : (
                 <div className="flex flex-col items-center justify-center text-muted-foreground w-full h-full">
-                  {pet.type === "Dog" ? (
+                  {pet.animal === "Dog" ? (
                     <FaShieldDog className="h-16 w-16 mb-2" />
                   ) : (
                     <FaShieldCat className="h-16 w-16 mb-2" />
@@ -98,7 +100,7 @@ export default function PetDetailsView({
 
           <div className="w-full md:w-2/3 space-y-4">
             {/* Status banner */}
-            {pet.isBoarding && (
+            {pet.boarding && (
               <div className="bg-green-100 dark:bg-green-900/30 p-3 text-center text-green-800 dark:text-green-300 font-medium rounded-md">
                 Currently Boarding
               </div>
@@ -112,17 +114,17 @@ export default function PetDetailsView({
               <div className="flex flex-wrap gap-2 mb-2">
                 <Badge
                   className={
-                    pet.type === "Dog"
+                    pet.photoUrl === "Dog"
                       ? "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-700 dark:text-white dark:hover:bg-blue-600"
                       : "bg-purple-600 text-white hover:bg-purple-700 dark:bg-purple-700 dark:text-white dark:hover:bg-purple-600"
                   }
                 >
-                  {pet.type === "Dog" ? (
+                  {pet.animal === "Dog" ? (
                     <FaShieldDog className="mr-1 h-3 w-3" />
                   ) : (
                     <FaShieldCat className="mr-1 h-3 w-3" />
                   )}
-                  {pet.type}
+                  {pet.animal}
                 </Badge>
                 <Badge variant="outline" className="text-sm px-3 py-1">
                   {pet.breed}
@@ -130,7 +132,7 @@ export default function PetDetailsView({
               </div>
               <div className="flex items-center text-muted-foreground">
                 <FaUserCheck className="h-4 w-4 mr-1" />
-                <span>Owner: {owner?.name || "Unknown"}</span>
+                <span>Owner: {owner?.fullName || "Unknown"}</span>
               </div>
             </div>
 
@@ -153,7 +155,7 @@ export default function PetDetailsView({
               <div className="border rounded-lg p-3 flex flex-col items-center justify-center">
                 <div className="text-sm text-muted-foreground mb-1">Status</div>
                 <div className="font-semibold flex items-center">
-                  {pet.isBoarding ? (
+                  {pet.boarding ? (
                     <Badge className="bg-green-500 text-white">Boarding</Badge>
                   ) : (
                     <Badge className="bg-amber-500 text-white">
@@ -171,7 +173,7 @@ export default function PetDetailsView({
                 Additional Notes:
               </h3>
               <p className="text-muted-foreground">
-                {pet.notes || "No additional notes available for this pet."}
+                {pet.description || "No additional notes available for this pet."}
               </p>
             </div>
           </div>
