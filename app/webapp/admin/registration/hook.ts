@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { petService } from '@/lib/add-pet-owner';
-import type { PetOwnerRegister } from '@/types/petOwner';
+import {useState} from 'react';
+import {petService} from '@/lib/add-pet-owner';
+import type {PetOwnerRegister} from '@/types/petOwner';
 
 export function usePetOwnerRegistration() {
     const [isLoading, setIsLoading] = useState(false);
@@ -10,8 +10,7 @@ export function usePetOwnerRegistration() {
         setIsLoading(true);
         setError(null);
         try {
-            const response = await petService.registerPetOwner(data);
-            return response;
+            return await petService.registerPetOwner(data);
         } catch (err) {
             const message =
                 err instanceof Error ? err.message : 'Unknown registration error';

@@ -3,7 +3,7 @@
 import {useState, useEffect, useCallback} from "react";
 import {preloadActivePetOwnerData} from "@/lib/preload";
 import type {PetOwner, Pet, FormErrors, PetFormState} from "./utils/types";
-import {PetOwnerApiResponse, PetRegister, PresignedUrlResponse} from "@/types/pet";
+import {PetRegisterResponse, PetRegister} from "@/types/pet";
 import {petService} from "@/lib/add-pet";
 
 /**
@@ -163,7 +163,7 @@ interface RegisterPetState {
     isRegistering: boolean;
     isUploadingPhoto: boolean;
     error: string | null;
-    response: PetOwnerApiResponse | null;
+    response: PetRegisterResponse | null;
 }
 
 export function useRegisterPet() {

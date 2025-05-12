@@ -30,7 +30,6 @@ export interface PetDTO {
     photoUrl: string;
 }
 
-
 export interface PetOwnerRegister {
     email: string;
     phoneNumber: string;
@@ -39,6 +38,27 @@ export interface PetOwnerRegister {
     cityAddress: string;
     stateAddress: string;
     emergencyPhoneNumber: string;
+}
+
+export interface PetListDTO {
+    id: string;
+    petName: string;
+    animal: string;
+    boarding: boolean;
+}
+
+
+export interface PetOwnerListDTO {
+    id: string;
+    email: string;
+    phoneNumber: string;
+    fullName: string;
+    address: string;
+    pets: PetListDTO[];
+}
+
+export interface PetOwnerListResponse extends BaseApiResponse {
+    data: PetOwnerListDTO[];
 }
 
 

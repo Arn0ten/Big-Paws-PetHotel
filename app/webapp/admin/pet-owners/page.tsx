@@ -333,7 +333,7 @@ export default function PetOwnersPage() {
   };
 
   // Handle add pet owner form submission
-  const handleAddPetOwner = async (ownerData: Partial<LegacyPetOwner>) => {
+  const handleAddPetOwner = async (ownerData: Partial<PetD>) => {
     setIsSubmitting(true);
 
     try {
@@ -926,7 +926,7 @@ export default function PetOwnersPage() {
         return (
           <AddPetView
             ownerId={selectedOwnerId}
-            ownerName={selectedOwner?.name}
+            ownerName={selectedOwner?.fullName}
             onBack={navigateBack}
             onSubmit={handleAddPet}
             isSubmitting={isSubmitting}
@@ -939,7 +939,7 @@ export default function PetOwnersPage() {
           <EditPetView
             pet={selectedPet}
             ownerId={selectedOwnerId}
-            ownerName={selectedOwner?.name}
+            ownerName={selectedOwner?.fullName}
             onBack={navigateBack}
             onSubmit={handleUpdatePet}
             isSubmitting={isSubmitting}

@@ -31,6 +31,7 @@ import { Separator } from "@/components/ui/separator"
 import type { Pet } from "../utils/types"
 import PageLayout from "@/app/webapp/components/PageLayout"
 import { FaShieldDog, FaShieldCat } from "react-icons/fa6";
+import {PetDetailsDTO} from "@/types/preloadPet";
 
 // Sample boarding history data
 const sampleBoardingHistory = [
@@ -98,7 +99,7 @@ const sampleRequestHistory = [
 ]
 
 interface PetDetailsViewProps {
-  pet: Pet | null
+  pet: PetDetailsDTO | null
   onBack: () => void
   onEdit: () => void
   onDelete: () => void
@@ -166,7 +167,7 @@ export default function EnhancedPetDetailsView({
           <CardContent className="p-0">
             <div className="flex flex-col h-full overflow-hidden">
               {/* Status banner */}
-              {pet.isBoarding && (
+              {pet.boarding && (
                 <div className="bg-green-100 dark:bg-green-900/30 p-3 text-center text-green-800 dark:text-green-300 font-medium border-b">
                   Currently Boarding
                 </div>
@@ -176,9 +177,9 @@ export default function EnhancedPetDetailsView({
               <div className="p-4 flex justify-between items-start border-b">
                 <div className="flex items-center gap-4">
                   <Avatar className="h-16 w-16 border">
-                    <AvatarImage src={pet.image} alt={pet.name} />
+                    <AvatarImage src={pet.photoUrl} alt={pet.name} />
                     <AvatarFallback className="bg-primary/10">
-                      {pet.type === "Dog" ? (
+                      {pet.animal === "Dog" ? (
                         <FaShieldDog className="h-8 w-8 text-primary" />
                       ) : (
                         <FaShieldCat className="h-8 w-8 text-primary" />
@@ -191,13 +192,13 @@ export default function EnhancedPetDetailsView({
                       <Badge
                         variant="outline"
                         className={
-                          pet.type === "Dog"
+                          pet.animal === "Dog"
                             ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
                             : "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400"
                         }
                       >
-                        {pet.type === "Dog" ? <FaShieldDog className="mr-1 h-3 w-3" /> : <FaShieldCat className="mr-1 h-3 w-3" />}
-                        {pet.type}
+                        {pet.animal === "Dog" ? <FaShieldDog className="mr-1 h-3 w-3" /> : <FaShieldCat className="mr-1 h-3 w-3" />}
+                        {pet.animal}
                       </Badge>
                       <Badge variant="outline" className="text-sm px-3 py-1">
                         {pet.breed}
@@ -211,7 +212,7 @@ export default function EnhancedPetDetailsView({
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  {!pet.isBoarding ? (
+                  {!pet.boarding ? (
                     <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={onBoardPet}>
                       <Hotel className="mr-1 h-3.5 w-3.5" />
                       Start Boarding
@@ -279,7 +280,7 @@ export default function EnhancedPetDetailsView({
                       <div>
                         <h3 className="font-semibold mb-2">Additional Notes:</h3>
                         <p className="text-muted-foreground text-sm">
-                          {pet.notes || "No additional notes available for this pet."}
+                          {pet.description || "No additional notes available for this pet."}
                         </p>
                       </div>
                     </div>

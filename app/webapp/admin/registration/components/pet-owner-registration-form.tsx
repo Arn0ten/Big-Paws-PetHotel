@@ -23,7 +23,11 @@ export default function PetOwnerRegistrationForm() {
         e.preventDefault();
         try {
             const response = await registerPetOwner(formData);
-            console.log('Registration successful:', response);
+
+            if(response.status == 200) {
+                console.log('Registration successful:', response);
+            }
+
             // Handle success (show success message, redirect, etc.)
         } catch (err) {
             console.error('Registration failed:', err);

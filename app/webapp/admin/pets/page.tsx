@@ -2,18 +2,7 @@
  * Pet Management Page
  *
  * TODO: Backend Integration
- * This page currently uses sample data. For production:
- * 1. Replace the sample data with API calls to fetch pets and pet owners
- * 2. Implement API endpoints for CRUD operations:
- *    - GET /api/pets - Fetch all pets with pagination and filtering
- *    - GET /api/pets/:id - Fetch a single pet by ID
- *    - POST /api/pets - Create a new pet
- *    - PUT /api/pets/:id - Update a pet
- *    - DELETE /api/pets/:id - Delete a pet
- *    - PUT /api/pets/:id/boarding - Start or end boarding for a pet
- * 3. Add error handling for API calls
- * 4. Implement loading states during API requests
- * 5. Add real-time updates using WebSockets or polling
+
  */
 "use client";
 
@@ -45,7 +34,7 @@ import {
   ConfirmationDialog,
   SuccessDialog,
 } from "./components/confirmation-dialog";
-import { usePets, usePagination } from "./hooks";
+import { usePets, usePagination, usePreloadData } from "./hooks";
 import { filterPets } from "./utils/helpers";
 import type { Pet } from "./utils/types";
 import { PaginationControls } from "@/app/webapp/admin/components/pagination-controls";
@@ -54,6 +43,9 @@ import BoardPetView from "./views/board-pet-view";
 import AddPetView from "./views/add-pet-view";
 import EditPetView from "./views/edit-pet-view";
 import PetOwnerSelectionView from "./views/pet-owner-selection-view";
+
+import {PetDetailsDTO} from "@/types/preloadPet";
+
 
 // Define the possible views for the module with proper navigation tracking
 type View =
@@ -65,7 +57,10 @@ type View =
   | { type: "pet-owner-selection"; previousView: View };
 
 export default function PetsPage() {
+  const { preloadedPets, preloadedPetOwners, isLoading: isPreloading } = usePreloadData();
   const { toast } = useToast();
+
+  console.log('Page preloaded pets:', preloadedPets); // Debug log
 
   // Navigation state with improved tracking
   const [currentView, setCurrentView] = useState<View>({
@@ -80,7 +75,7 @@ export default function PetsPage() {
   const [searchInputValue, setSearchInputValue] = useState("");
   const [filterType, setFilterType] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>("all");
-  const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
+  const [selectedPet, setSelectedPet] = useState<PetDetailsDTO | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [selectedOwnerId, setSelectedOwnerId] = useState<string | null>(null);
@@ -115,7 +110,9 @@ export default function PetsPage() {
     updatePet,
     removePet,
     toggleBoardingStatus,
-  } = usePets();
+  } = usePets(preloadedPets, preloadedPetOwners); // Pass the preloaded data here
+
+  console.log('Page current pets:', pets); // Debug log
 
   // Apply filters
   const filteredPets = filterPets(pets, {
@@ -253,7 +250,7 @@ export default function PetsPage() {
 
   // Handle add pet
   const handleAddPet = useCallback(
-    async (petData: Partial<Pet>, ownerId: string) => {
+    async (petData: Partial<PetDetailsDTO>, ownerId: string) => {
       setIsSubmitting(true);
       try {
         // BACKEND INTEGRATION: Replace with actual API call to add a pet
@@ -400,8 +397,8 @@ export default function PetsPage() {
         // Show success dialog
         setSuccessDialog({
           isOpen: true,
-          title: pet.isBoarding ? "Boarding Ended" : "Boarding Started",
-          description: pet.isBoarding
+          title: pet.boarding ? "Boarding Ended" : "Boarding Started",
+          description: pet.boarding
             ? `${pet.name}'s boarding has been ended.`
             : `${pet.name} has been successfully boarded.`,
           actionLabel: "",

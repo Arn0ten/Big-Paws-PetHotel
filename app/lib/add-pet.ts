@@ -1,8 +1,8 @@
 // services/petService.ts
 import { PetRegister } from "@/types/pet";
-import { PetOwnerApiResponse, PresignedUrlResponse } from "@/types/pet";
+import { PetRegisterResponse, PetRegisterPresignUrlResponse } from "@/types/pet";
 
-const API_BASE_URL = process.env.API_DOMAIN_HOST;
+export const apiDomain = process.env.REACT_APP_DOMAIN ?? "http://localhost:8080";
 
 export class PetRegistrationError extends Error {
   constructor(message: string, public response?: any) {
@@ -12,8 +12,8 @@ export class PetRegistrationError extends Error {
 }
 
 export const petService = {
-  async registerPet(data: PetRegister): Promise<PetOwnerApiResponse> {
-    const response = await fetch(`${API_BASE_URL}/api/v1/admin/pets/register`, {
+  async registerPet(data: PetRegister): Promise<PetRegisterResponse> {
+    const response = await fetch(`${apiDomain}/api/v1/admin/pets/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -38,7 +38,7 @@ export const petService = {
     return responseData;
   },
 
-  async getPresignedUrl(validationUrl: string): Promise<PresignedUrlResponse> {
+  async getPresignedUrl(validationUrl: string): Promise<PetRegisterPresignUrlResponse> {
     const response = await fetch(validationUrl, {
       method: 'POST',
       headers: {

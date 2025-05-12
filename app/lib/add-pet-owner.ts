@@ -1,6 +1,6 @@
 import {PetOwnerRegister, PetOwnerRegisterResponse} from "@/types/petOwner";
 
-const API_BASE_URL = process.env.API_DOMAIN_HOST;
+export const apiDomain = process.env.REACT_APP_DOMAIN ?? "http://localhost:8080";
 
 
 export class PetRegistrationError extends Error {
@@ -12,7 +12,7 @@ export class PetRegistrationError extends Error {
 
 export const petService = {
     async registerPetOwner(data: PetOwnerRegister): Promise<PetOwnerRegisterResponse> {
-        const response = await fetch(`${API_BASE_URL}/api/v1/admin/register/pet-owner`, {
+        const response = await fetch(`${apiDomain}/api/v1/admin/register/pet-owner`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

@@ -27,17 +27,19 @@ import { RiHome5Fill } from "react-icons/ri";
 import { FaShieldDog, FaShieldCat } from "react-icons/fa6";
 import { IoAlertCircle } from "react-icons/io5";
 import { TiEye } from "react-icons/ti";
-import type { Pet, PetOwner } from "../utils/types";
 import { Skeleton } from "@/components/ui/skeleton";
+import {PetDetailsDTO} from "@/types/preloadPet";
+import {PetOwnerListDTO} from "@/types/petOwner";
+
 
 interface PetsTableProps {
-  pets: Pet[];
-  petOwners: PetOwner[];
-  onEdit: (pet: Pet) => void;
-  onEditDetails: (pet: Pet) => void;
-  onDelete: (pet: Pet) => void;
-  onBoard: (pet: Pet) => void;
-  onViewBoarding?: (pet: Pet) => void;
+  pets: PetDetailsDTO[];
+  petOwners: PetOwnerListDTO[];
+  onEdit: (pet: PetDetailsDTO) => void;
+  onEditDetails: (pet: PetDetailsDTO) => void;
+  onDelete: (pet: PetDetailsDTO) => void;
+  onBoard: (pet: PetDetailsDTO) => void;
+  onViewBoarding?: (pet: PetDetailsDTO) => void;
   currentPage: number;
   totalPages: number;
   goToPage: (page: number) => void;
@@ -59,7 +61,7 @@ export function PetsTable({
   // Find owner name by pet's ownerId
   const getOwnerName = (ownerId: string): string => {
     const owner = petOwners.find((owner) => owner.id === ownerId);
-    return owner ? owner.name : "Unknown Owner";
+    return owner ? owner.fullName : "Unknown Owner";
   };
 
   // Add a loading state renderer
@@ -148,7 +150,7 @@ export function PetsTable({
   }
 
   // Handle view boarding action
-  const handleViewBoarding = (pet: Pet) => {
+  const handleViewBoarding = (pet: PetDetailsDTO) => {
     if (onViewBoarding) {
       onViewBoarding(pet);
     } else {
@@ -230,11 +232,11 @@ export function PetsTable({
                   <TableCell>
                     <Avatar className="h-9 w-9 border">
                       <AvatarImage
-                        src={pet.image || "/placeholder.svg"}
+                        src={pet.photoUrl || "/placeholder.svg"}
                         alt={pet.name}
                       />
                       <AvatarFallback className="bg-primary/10">
-                        {pet.type === "Dog" ? (
+                        {pet.animal === "Dog" ? (
                           <FaShieldDog className="h-4 w-4 text-primary" />
                         ) : (
                           <FaShieldCat className="h-4 w-4 text-primary" />
@@ -247,17 +249,17 @@ export function PetsTable({
                   <TableCell>
                     <Badge
                       className={`whitespace-nowrap justify-center ${
-                        pet.type === "Dog"
+                        pet.animal === "Dog"
                           ? "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-700 dark:text-white dark:hover:bg-blue-600"
                           : "bg-purple-600 text-white hover:bg-purple-700 dark:bg-purple-700 dark:text-white dark:hover:bg-purple-600"
                       }`}
                     >
-                      {pet.type === "Dog" ? (
+                      {pet.animal === "Dog" ? (
                         <FaShieldDog className="mr-1 h-3 w-3" />
                       ) : (
                         <FaShieldCat className="mr-1 h-3 w-3" />
                       )}
-                      {pet.type}
+                      {pet.animal}
                     </Badge>
                   </TableCell>
                   <TableCell>{pet.breed}</TableCell>
@@ -266,19 +268,19 @@ export function PetsTable({
                   </TableCell>
                   <TableCell>{pet.size}</TableCell>
                   <TableCell>
-                    {pet.notes ? (
+                    {pet.description ? (
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <div className="flex items-center cursor-help">
                               <span className="truncate max-w-[100px]">
-                                {pet.notes}
+                                {pet.description}
                               </span>
                               <Info className="h-3 w-3 ml-1 text-muted-foreground" />
                             </div>
                           </TooltipTrigger>
                           <TooltipContent>
-                            <p className="max-w-xs">{pet.notes}</p>
+                            <p className="max-w-xs">{pet.description}</p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
@@ -292,18 +294,18 @@ export function PetsTable({
                     <div className="flex justify-center">
                       <Badge
                         className={`whitespace-nowrap w-[110px] h-[24px] flex items-center justify-center text-white ${
-                          pet.isBoarding
+                          pet.boarding
                             ? "bg-green-600 hover:bg-green-700"
                             : "bg-red-600 hover:bg-red-700"
                         }`}
                       >
-                        {pet.isBoarding ? "Boarding" : "Not Boarding"}
+                        {pet.boarding ? "Boarding" : "Not Boarding"}
                       </Badge>
                     </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex justify-end gap-2">
-                      {!pet.isBoarding ? (
+                      {!pet.boarding ? (
                         <Button
                           className="bg-green-600 hover:bg-green-700 text-white w-[120px]"
                           size="sm"

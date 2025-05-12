@@ -151,7 +151,7 @@ export default function RegistrationPage() {
     const {registerPetOwner, isLoading: isRegistering} = usePetOwnerRegistration();
 
     // Confirm registration and submit to backend
-    const handleConfirmRegistration = async (formData: PetOwnerRegister) => {
+    const handleConfirmRegistration = async (formData: PetOwnerRegister) :Promise<void> => {
         setShowConfirmDialog(false);
 
         if (!formData) return;
@@ -159,7 +159,6 @@ export default function RegistrationPage() {
         try {
             // Use the API service to register the pet owner
             const response = await registerPetOwner(formData);
-
 
             if (response.status === 200) {
                 setShowSuccessCard(true);
