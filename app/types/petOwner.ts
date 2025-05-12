@@ -72,4 +72,16 @@ export interface PetOwnerRegisterResponse extends BaseApiResponse {
     };
 }
 
+export interface PetOwnerPendingDTO {
+    id: string;
+    fullName: string;
+    email: string;
+    phoneNumber: string;
+    address: string;
+    registrationDate: string;
+}
 
+
+export interface PetOwnerPendingResponse extends BaseApiResponse {
+    data: PetOwnerPendingDTO[];
+}

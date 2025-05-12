@@ -2,7 +2,7 @@ import {PetOwnerApiResponse, PetOwnerActive, PetOwnerListResponse, PetOwnerListD
 import type {PetDetailsApiResponse, PetDetailsDTO} from "@/types/preloadPet";
 
 // Assuming DOMAIN_HOST is defined correctly
-export const apiDomain = process.env.REACT_APP_DOMAIN ?? "http://localhost:8080";
+export const apiDomain = process.env.REACT_APP_DOMAIN ?? "https://api.bigpawspethotel.me";
 
 // Preload the pet owner data from the API
 export async function preloadActivePetOwnerData(): Promise<PetOwnerActive[]> {

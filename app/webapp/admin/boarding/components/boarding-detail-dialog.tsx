@@ -52,10 +52,11 @@ import { DAYCARE_RATES, CAT_HOTEL_RATES } from "../types"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { getIconBgColorClass } from "../../request-management/utils/ui-helpers"
 import { IoReceipt } from "react-icons/io5"
+import {BoardingDTO} from "@/types/boarding";
 interface BoardingDetailDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  boardingOrder: BoardingOrder
+  boardingOrder: BoardingDTO
   onUpdatePaymentStatus: (orderId: string, status: PaymentStatus) => void
   onReleasePet?: (orderId: string) => void
 }
@@ -67,7 +68,7 @@ export function BoardingDetailDialog({
   onUpdatePaymentStatus,
   onReleasePet,
 }: BoardingDetailDialogProps) {
-  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>(boardingOrder.paymentStatus)
+  const [paymentStatus, setPaymentStatus] = useState<string>(boardingOrder.paymentStatus)
   const [releaseConfirmOpen, setReleaseConfirmOpen] = useState(false)
   const [receiptDialogOpen, setReceiptDialogOpen] = useState(false)
   const [confirmationDialog, setConfirmationDialog] = useState({
@@ -115,11 +116,11 @@ export function BoardingDetailDialog({
 
   const getBoardingStatusColor = (status: string) => {
     switch (status) {
-      case "Boarding":
+      case "BOARDING":
         return "bg-blue-600 hover:bg-blue-600 text-white min-w-[120px] flex justify-center"
-      case "Done Boarding":
+      case "DONE_BOARDING":
         return "bg-green-600 hover:bg-green-600 text-white min-w-[120px] flex justify-center"
-      case "Released":
+      case "RELEASED":
         return "bg-purple-600 hover:bg-purple-600 text-white min-w-[120px] flex justify-center"
       default:
         return "bg-gray-600 hover:bg-gray-600 text-white min-w-[120px] flex justify-center"
@@ -128,9 +129,9 @@ export function BoardingDetailDialog({
 
   const getPaymentStatusColor = (status: string) => {
     switch (status) {
-      case "Paid":
+      case "PAID":
         return "bg-green-600 hover:bg-green-600 text-white min-w-[120px] flex justify-center"
-      case "Pending":
+      case "PENDING":
         return "bg-yellow-600 hover:bg-yellow-600 text-white min-w-[120px] flex justify-center"
       default:
         return "bg-gray-600 hover:bg-gray-600 text-white min-w-[120px] flex justify-center"
@@ -149,18 +150,18 @@ export function BoardingDetailDialog({
   }
 
   const canReleasePet =
-    (isEligibleForRelease(boardingOrder) || (boardingOrder.isOverdue && boardingOrder.paymentStatus === "Paid")) &&
+    (isEligibleForRelease(boardingOrder) || (boardingOrder.overdue && boardingOrder.paymentStatus === "PAID")) &&
     onReleasePet
 
-  const isOverdue = boardingOrder.isOverdue
+  const isOverdue = boardingOrder.overdue
 
   // Calculate duration in both days and hours
-  const durationInHours = calculateDuration(boardingOrder.startDate, boardingOrder.endDate, "Daycare")
-  const durationInDays = calculateDuration(boardingOrder.startDate, boardingOrder.endDate, "LongStay")
+  const durationInHours = calculateDuration(boardingOrder.boardingStart, boardingOrder.boardingEnd, "DAYCARE")
+  const durationInDays = calculateDuration(boardingOrder.boardingStart, boardingOrder.boardingEnd, "LONG_STAY")
 
   // Format the duration based on boarding type
   const formattedDuration =
-    boardingOrder.boardingType === "Daycare"
+    boardingOrder.boardingType === "DAYCARE"
       ? `${durationInHours} hour${durationInHours !== 1 ? "s" : ""}`
       : `${durationInDays} day${durationInDays !== 1 ? "s" : ""}`
 
@@ -177,11 +178,11 @@ export function BoardingDetailDialog({
   // Calculate prices
   const basePrice = calculateBasePrice(boardingOrder)
   const additionalServicesTotal = calculateAdditionalServicesTotal(boardingOrder)
-  const totalPrice = boardingOrder.totalPrice
+  const totalPrice = boardingOrder.total
 
   // Get additional charges from the boardingOrder
-  const additionalCharges = boardingOrder.additionalCharges || 0
-  const additionalChargesReason = boardingOrder.additionalChargesReason || "Additional services"
+  const additionalCharges = boardingOrder.requestBreakdown || 0
+  const additionalChargesReason = boardingOrder.requestBreakdown || "Additional services"
 
   return (
     <>
@@ -226,33 +227,33 @@ export function BoardingDetailDialog({
                   <div className="flex items-start gap-3">
                     <div className="flex-shrink-0">
                       <Image
-                        src={boardingOrder.pet.imageUrl || "/placeholder.svg?height=80&width=80" || "/placeholder.svg"}
-                        alt={boardingOrder.pet.name}
+                        src={boardingOrder.photoUrl || "/placeholder.svg?height=80&width=80" || "/placeholder.svg"}
+                        alt={boardingOrder.petName}
                         width={80}
                         height={80}
                         className="rounded-md object-cover"
                       />
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-semibold text-base mb-2">{boardingOrder.pet.name}</h4>
+                      <h4 className="font-semibold text-base mb-2">{boardingOrder.petName}</h4>
                       <div className="space-y-1.5">
                         <div className="flex items-center justify-between">
                           <span className="text-sm font-medium text-muted-foreground">TYPE:</span>
-                          <Badge variant="secondary" className={getPetTypeColor(boardingOrder.pet.type)}>
-                            {boardingOrder.pet.type}
+                          <Badge variant="secondary" className={getPetTypeColor(boardingOrder.petType)}>
+                            {boardingOrder.petType}
                           </Badge>
                         </div>
                         <div className="flex items-center justify-between">
                           <span className="text-sm font-medium text-muted-foreground">BREED:</span>
-                          <span className="text-sm text-right">{boardingOrder.pet.breed}</span>
+                          <span className="text-sm text-right">{boardingOrder.petBreed}</span>
                         </div>
                         <div className="flex items-center justify-between">
                           <span className="text-sm font-medium text-muted-foreground">SIZE:</span>
-                          <span className="text-sm">{boardingOrder.pet.size}</span>
+                          <span className="text-sm">{boardingOrder.petSize}</span>
                         </div>
                         <div className="flex items-center justify-between">
                           <span className="text-sm font-medium text-muted-foreground">AGE:</span>
-                          <span className="text-sm">{boardingOrder.pet.age} years</span>
+                          <span className="text-sm">{boardingOrder.age} years</span>
                         </div>
                       </div>
                     </div>
@@ -269,20 +270,20 @@ export function BoardingDetailDialog({
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
                       <BiSolidUserCheck className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                      <span className="font-semibold text-base">{boardingOrder.owner.name}</span>
+                      <span className="font-semibold text-base">{boardingOrder.ownerName}</span>
                     </div>
                     <div className="space-y-1.5 mt-2">
                       <div className="flex items-center gap-2 text-sm">
                         <TbMailFilled className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                        <span className="truncate">{boardingOrder.owner.email}</span>
+                        <span className="truncate">{boardingOrder.ownerEmail}</span>
                       </div>
                       <div className="flex items-center gap-2 text-sm">
                         <FaPhone className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                        <span>{boardingOrder.owner.phone}</span>
+                        <span>{boardingOrder.ownerPhoneNumber}</span>
                       </div>
                       <div className="flex items-start gap-2 text-sm">
                         <IoLocationSharp className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                        <span className="break-words">{boardingOrder.owner.address}</span>
+                        <span className="break-words">{boardingOrder.ownerAddress}</span>
                       </div>
                     </div>
                   </div>
@@ -308,10 +309,10 @@ export function BoardingDetailDialog({
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-xs text-muted-foreground">
-                          {boardingOrder.boardingType === "Daycare"
+                          {boardingOrder.boardingType === "DAYCARE"
                             ? "Hourly care (8:00 AM - 7:00 PM)"
                             : boardingOrder.boardingType === "CatHotel"
-                              ? `Cat Hotel - ${boardingOrder.catRoomType} Room`
+                              ? `Cat Hotel Room`
                               : "24-Hour Accommodation"}
                         </span>
                         <Badge
@@ -344,16 +345,16 @@ export function BoardingDetailDialog({
                       <div className="space-y-1">
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground font-medium">Check-in:</span>
-                          <span>{formatDate(boardingOrder.startDate)}</span>
+                          <span>{formatDate(boardingOrder.boardingStart)}</span>
                         </div>
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground font-medium">Check-out:</span>
-                          <span>{formatDate(boardingOrder.endDate)}</span>
+                          <span>{formatDate(boardingOrder.boardingEnd)}</span>
                         </div>
                       </div>
                     </div>
                     <div>
-                      {boardingOrder.releaseTimestamp ? (
+                      {boardingOrder.releasedAt ? (
                         <>
                           <div className="flex items-center gap-2 mb-1">
                             <FaCircleCheck className="h-4 w-4 text-primary" />
@@ -361,7 +362,7 @@ export function BoardingDetailDialog({
                           </div>
                           <div className="flex justify-between text-sm">
                             <span className="text-muted-foreground font-medium">Released on:</span>
-                            <span>{formatDate(boardingOrder.releaseTimestamp)}</span>
+                            <span>{formatDate(boardingOrder.releasedAt)}</span>
                           </div>
                         </>
                       ) : (
@@ -373,16 +374,16 @@ export function BoardingDetailDialog({
                           <div className="flex justify-between text-sm">
                             <span className="text-muted-foreground font-medium">Base Rate:</span>
                             <span>
-                              {boardingOrder.boardingType === "Daycare"
-                                ? `₱${DAYCARE_RATES[boardingOrder.pet.size]}/hour`
+                              {boardingOrder.boardingType === "DAYCARE"
+                                ? `₱${boardingOrder.rate * 24}/hour`
                                 : boardingOrder.boardingType === "CatHotel"
-                                  ? `₱${CAT_HOTEL_RATES.Standard[boardingOrder.catAgeCategory || "Adult"]}/day`
-                                  : `₱${ACCOMMODATION_RATES[boardingOrder.pet.size]}/day`}
+                                  ? `₱${boardingOrder.rate}/hour`
+                                  : `₱${boardingOrder.rate * 24}/day`}
                             </span>
                           </div>
                           <div className="flex justify-between text-sm">
                             <span className="text-muted-foreground font-medium">PET SIZE:</span>
-                            <span>{boardingOrder.pet.size}</span>
+                            <span>{boardingOrder.petSize}</span>
                           </div>
                         </>
                       )}
@@ -401,15 +402,15 @@ export function BoardingDetailDialog({
                         <span>{formatCurrency(basePrice)}</span>
                       </div>
 
-                      {boardingOrder.additionalServices && boardingOrder.additionalServices.length > 0 && (
+                      {boardingOrder.requestBreakdown && boardingOrder.requestBreakdown.length > 0 && (
                         <>
                           <Separator className="my-2" />
                           <h5 className="text-sm font-medium mb-2">Additional Services</h5>
-                          {boardingOrder.additionalServices.map((service, index) => (
+                          {boardingOrder.requestBreakdown.map((service, index) => (
                             <div key={index} className="flex justify-between text-sm">
                               <span className="text-muted-foreground flex items-center">
-                                {service.name}
-                                {service.requestId && (
+                                {service.requestName}
+                                {service.id && (
                                   <TooltipProvider>
                                     <Tooltip>
                                       <TooltipTrigger asChild>
@@ -426,13 +427,13 @@ export function BoardingDetailDialog({
                                     </Tooltip>
                                   </TooltipProvider>
                                 )}
-                                {service.timestamp && (
+                                {service.createdAt && (
                                   <span className="text-xs ml-2 text-muted-foreground">
-                                    ({new Date(service.timestamp).toLocaleDateString()})
+                                    ({new Date(service.createdAt).toLocaleDateString()})
                                   </span>
                                 )}
                               </span>
-                              <span>{formatCurrency(service.price)}</span>
+                              <span>{formatCurrency(service.total)}</span>
                             </div>
                           ))}
 
@@ -448,22 +449,15 @@ export function BoardingDetailDialog({
                       )}
 
                       {/* Display additional charges if present */}
-                      {additionalCharges > 0 && (
+                      {boardingOrder.requestBreakdown.length > 0 && (
                         <div className="flex justify-between text-sm font-medium">
                           <span className="text-muted-foreground flex items-center">
                             Additional Charges:
-                            <span className="text-xs ml-2 text-muted-foreground">({additionalChargesReason})</span>
+                            <span className="text-xs ml-2 text-muted-foreground">()</span>
                           </span>
-                          <span>{formatCurrency(additionalCharges)}</span>
+                          <span>{formatCurrency(totalPrice)}</span>
                         </div>
                       )}
-
-                      {boardingOrder.discounts?.map((discount, index) => (
-                        <div key={index} className="flex justify-between text-sm text-green-600 dark:text-green-400">
-                          <span>{discount.name}:</span>
-                          <span>-{formatCurrency(discount.amount)}</span>
-                        </div>
-                      ))}
 
                       <Separator className="my-2" />
                       <div className="flex justify-between items-center">
@@ -528,7 +522,7 @@ export function BoardingDetailDialog({
       <ReceiptDialog
         open={receiptDialogOpen}
         onOpenChange={handleReceiptDialogClose}
-        boardingOrder={{ ...boardingOrder, totalPrice: totalPrice }}
+        boardingOrder={{ ...boardingOrder, total: totalPrice }}
         showBackButton={true}
       />
 
@@ -554,6 +548,8 @@ export function BoardingDetailDialog({
                   Reason: {boardingOrder.lastModificationReason}
                 </p>
               )}
+
+
             </div>
           </div>
         </div>

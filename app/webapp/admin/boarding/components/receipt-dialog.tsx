@@ -38,11 +38,12 @@ import {
 } from "../utils/helpers";
 import { Printer, Download, Send, ArrowLeft } from "lucide-react";
 import Image from "next/image";
+import {BoardingDTO} from "@/types/boarding";
 
 interface ReceiptDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  boardingOrder: BoardingOrder;
+  boardingOrder: BoardingDTO;
   showBackButton?: boolean;
 }
 
@@ -57,7 +58,7 @@ export function ReceiptDialog({
     const printTemplate = `
     <html>
       <head>
-        <title>Boarding Receipt - ${boardingOrder.pet.name}</title>
+        <title>Boarding Receipt - ${boardingOrder.petName}</title>
         <style>
           /* Previous styles remain the same... */
           body {
@@ -188,19 +189,19 @@ export function ReceiptDialog({
             <div class="section-title">Pet Information</div>
             <div class="row">
               <span class="label">Name:</span>
-              <span class="value">${boardingOrder.pet.name}</span>
+              <span class="value">${boardingOrder.petName}</span>
             </div>
             <div class="row">
               <span class="label">Type:</span>
-              <span class="value">${boardingOrder.pet.type}</span>
+              <span class="value">${boardingOrder.petType}</span>
             </div>
             <div class="row">
               <span class="label">Breed:</span>
-              <span class="value">${boardingOrder.pet.breed}</span>
+              <span class="value">${boardingOrder.petBreed}</span>
             </div>
             <div class="row">
               <span class="label">Size:</span>
-              <span class="value">${boardingOrder.pet.size}</span>
+              <span class="value">${boardingOrder.petSize}</span>
             </div>
           </div>
           
@@ -208,15 +209,15 @@ export function ReceiptDialog({
             <div class="section-title">Owner Information</div>
             <div class="row">
               <span class="label">Name:</span>
-              <span class="value">${boardingOrder.owner.name}</span>
+              <span class="value">${boardingOrder.ownerName}</span>
             </div>
             <div class="row">
               <span class="label">Email:</span>
-              <span class="value">${boardingOrder.owner.email}</span>
+              <span class="value">${boardingOrder.ownerEmail}</span>
             </div>
             <div class="row">
               <span class="label">Phone:</span>
-              <span class="value">${boardingOrder.owner.phone}</span>
+              <span class="value">${boardingOrder.ownerPhoneNumber}</span>
             </div>
           </div>
           
@@ -224,23 +225,23 @@ export function ReceiptDialog({
             <div class="section-title">Boarding Details</div>
             <div class="row">
               <span class="label">Boarding Type:</span>
-              <span class="value">${boardingOrder.boardingType === "Daycare" ? "Daycare (Hourly)" : "Long Stay (Overnight)"}</span>
+              <span class="value">${boardingOrder.boardingType === "DAYCARE" ? "Daycare (Hourly)" : "Long Stay (Overnight)"}</span>
             </div>
             <div class="row">
               <span class="label">Duration:</span>
-              <span class="value">${calculateDuration(boardingOrder.startDate, boardingOrder.endDate, boardingOrder.boardingType)}</span>
+              <span class="value">${calculateDuration(boardingOrder.boardingStart, boardingOrder.boardingEnd, boardingOrder.boardingType)}</span>
             </div>
             <div class="row">
               <span class="label">Check-in:</span>
-              <span class="value">${formatDate(boardingOrder.startDate)}</span>
+              <span class="value">${formatDate(boardingOrder.boardingStart)}</span>
             </div>
             <div class="row">
               <span class="label">Check-out:</span>
-              <span class="value">${formatDate(boardingOrder.endDate)}</span>
+              <span class="value">${formatDate(boardingOrder.boardingEnd)}</span>
             </div>
             <div class="row">
               <span class="label">Released on:</span>
-              <span class="value">${boardingOrder.releaseTimestamp ? formatDate(boardingOrder.releaseTimestamp) : "N/A"}</span>
+              <span class="value">${boardingOrder.releasedAt ? formatDate(boardingOrder.releasedAt) : "N/A"}</span>
             </div>
           </div>
           
@@ -251,7 +252,7 @@ export function ReceiptDialog({
               <span class="status status-paid">${boardingOrder.paymentStatus}</span>
             </div>
             <div class="total">
-              Total Amount: ${formatCurrency(boardingOrder.totalPrice)}
+              Total Amount: ${formatCurrency(boardingOrder.total)}
             </div>
           </div>
           
@@ -280,7 +281,7 @@ export function ReceiptDialog({
     const htmlContent = `
       <html>
         <head>
-          <title>Boarding Receipt - ${boardingOrder.pet.name}</title>
+          <title>Boarding Receipt - ${boardingOrder.petName}</title>
           <style>
             body {
               font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -401,19 +402,19 @@ export function ReceiptDialog({
               <div class="section-title">Pet Information</div>
               <div class="row">
                 <span class="label">Name:</span>
-                <span class="value">${boardingOrder.pet.name}</span>
+                <span class="value">${boardingOrder.petName}</span>
               </div>
               <div class="row">
                 <span class="label">Type:</span>
-                <span class="value">${boardingOrder.pet.type}</span>
+                <span class="value">${boardingOrder.petType}</span>
               </div>
               <div class="row">
                 <span class="label">Breed:</span>
-                <span class="value">${boardingOrder.pet.breed}</span>
+                <span class="value">${boardingOrder.petBreed}</span>
               </div>
               <div class="row">
                 <span class="label">Size:</span>
-                <span class="value">${boardingOrder.pet.size}</span>
+                <span class="value">${boardingOrder.petSize}</span>
               </div>
             </div>
             
@@ -421,15 +422,15 @@ export function ReceiptDialog({
               <div class="section-title">Owner Information</div>
               <div class="row">
                 <span class="label">Name:</span>
-                <span class="value">${boardingOrder.owner.name}</span>
+                <span class="value">${boardingOrder.ownerName}</span>
               </div>
               <div class="row">
                 <span class="label">Email:</span>
-                <span class="value">${boardingOrder.owner.email}</span>
+                <span class="value">${boardingOrder.ownerEmail}</span>
               </div>
               <div class="row">
                 <span class="label">Phone:</span>
-                <span class="value">${boardingOrder.owner.phone}</span>
+                <span class="value">${boardingOrder.ownerPhoneNumber}</span>
               </div>
             </div>
             
@@ -437,23 +438,23 @@ export function ReceiptDialog({
               <div class="section-title">Boarding Details</div>
               <div class="row">
                 <span class="label">Boarding Type:</span>
-                <span class="value">${boardingOrder.boardingType === "Daycare" ? "Daycare (Hourly)" : "Long Stay (Overnight)"}</span>
+                <span class="value">${boardingOrder.boardingType === "DAYCARE" ? "Daycare (Hourly)" : "Long Stay (Overnight)"}</span>
               </div>
               <div class="row">
                 <span class="label">Duration:</span>
-                <span class="value">${calculateDuration(boardingOrder.startDate, boardingOrder.endDate, boardingOrder.boardingType)}</span>
+                <span class="value">${calculateDuration(boardingOrder.boardingStart, boardingOrder.boardingEnd, boardingOrder.boardingType)}</span>
               </div>
               <div class="row">
                 <span class="label">Check-in:</span>
-                <span class="value">${formatDate(boardingOrder.startDate)}</span>
+                <span class="value">${formatDate(boardingOrder.boardingStart)}</span>
               </div>
               <div class="row">
                 <span class="label">Check-out:</span>
-                <span class="value">${formatDate(boardingOrder.endDate)}</span>
+                <span class="value">${formatDate(boardingOrder.boardingEnd)}</span>
               </div>
               <div class="row">
                 <span class="label">Released on:</span>
-                <span class="value">${boardingOrder.releaseTimestamp ? formatDate(boardingOrder.releaseTimestamp) : "N/A"}</span>
+                <span class="value">${boardingOrder.releasedAt ? formatDate(boardingOrder.releasedAt) : "N/A"}</span>
               </div>
             </div>
             
@@ -464,7 +465,7 @@ export function ReceiptDialog({
                 <span class="status status-paid">${boardingOrder.paymentStatus}</span>
               </div>
               <div class="total">
-                Total Amount: ${formatCurrency(boardingOrder.totalPrice)}
+                Total Amount: ${formatCurrency(boardingOrder.total)}
               </div>
             </div>
             
@@ -489,7 +490,7 @@ export function ReceiptDialog({
 
   const handleSendEmail = () => {
     // In a real implementation, this would send an API request to email the receipt
-    alert(`Receipt would be sent to ${boardingOrder.owner.email}`);
+    alert(`Receipt would be sent to ${boardingOrder.ownerEmail}`);
   };
 
   return (
@@ -557,25 +558,25 @@ export function ReceiptDialog({
                   <span className="text-muted-foreground font-medium">
                     Name:
                   </span>
-                  <span>{boardingOrder.pet.name}</span>
+                  <span>{boardingOrder.petName}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground font-medium">
                     Type:
                   </span>
-                  <span>{boardingOrder.pet.type}</span>
+                  <span>{boardingOrder.petType}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground font-medium">
                     Breed:
                   </span>
-                  <span>{boardingOrder.pet.breed}</span>
+                  <span>{boardingOrder.petBreed}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground font-medium">
                     Size:
                   </span>
-                  <span>{boardingOrder.pet.size}</span>
+                  <span>{boardingOrder.petSize}</span>
                 </div>
               </div>
             </div>
@@ -589,19 +590,19 @@ export function ReceiptDialog({
                   <span className="text-muted-foreground font-medium">
                     Name:
                   </span>
-                  <span>{boardingOrder.owner.name}</span>
+                  <span>{boardingOrder.ownerName}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground font-medium">
                     Email:
                   </span>
-                  <span>{boardingOrder.owner.email}</span>
+                  <span>{boardingOrder.ownerEmail}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground font-medium">
                     Phone:
                   </span>
-                  <span>{boardingOrder.owner.phone}</span>
+                  <span>{boardingOrder.ownerPhoneNumber}</span>
                 </div>
               </div>
             </div>
@@ -616,7 +617,7 @@ export function ReceiptDialog({
                     Boarding Type:
                   </span>
                   <span>
-                    {boardingOrder.boardingType === "Daycare"
+                    {boardingOrder.boardingType === "DAYCARE"
                       ? "Daycare (Hourly)"
                       : "Long Stay (Overnight)"}
                   </span>
@@ -627,8 +628,8 @@ export function ReceiptDialog({
                   </span>
                   <span>
                     {calculateDuration(
-                      boardingOrder.startDate,
-                      boardingOrder.endDate,
+                      boardingOrder.boardingStart,
+                      boardingOrder.boardingEnd,
                       boardingOrder.boardingType,
                     )}
                   </span>
@@ -637,28 +638,28 @@ export function ReceiptDialog({
                   <span className="text-muted-foreground font-medium">
                     Check-in:
                   </span>
-                  <span>{formatDate(boardingOrder.startDate)}</span>
+                  <span>{formatDate(boardingOrder.boardingStart)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground font-medium">
                     Check-out:
                   </span>
-                  <span>{formatDate(boardingOrder.endDate)}</span>
+                  <span>{formatDate(boardingOrder.boardingEnd)}</span>
                 </div>
-                {boardingOrder.releaseTimestamp && (
+                {boardingOrder.releasedAt && (
                   <div className="flex justify-between">
                     <span className="text-muted-foreground font-medium">
                       Released on:
                     </span>
-                    <span>{formatDate(boardingOrder.releaseTimestamp)}</span>
+                    <span>{formatDate(boardingOrder.releasedAt)}</span>
                   </div>
                 )}
               </div>
             </div>
 
             {/* Additional Services Section */}
-            {boardingOrder.additionalServices &&
-              boardingOrder.additionalServices.length > 0 && (
+            {boardingOrder.requestBreakdown &&
+              boardingOrder.requestBreakdown.length > 0 && (
                 <div className="space-y-2 mt-4 border-b pb-3">
                   <h3 className="text-sm font-medium text-primary">
                     Additional Services
@@ -672,24 +673,24 @@ export function ReceiptDialog({
                         </tr>
                       </thead>
                       <tbody>
-                        {boardingOrder.additionalServices.map(
+                        {boardingOrder.requestBreakdown.map(
                           (service, index) => (
                             <tr
                               key={index}
                               className={index % 2 === 0 ? "bg-muted/20" : ""}
                             >
                               <td className="p-2">
-                                {service.name}
-                                {service.timestamp && (
+                                {service.requestName}
+                                {service.createdAt && (
                                   <span className="text-xs text-muted-foreground block">
                                     {new Date(
-                                      service.timestamp,
+                                      service.createdAt,
                                     ).toLocaleDateString()}
                                   </span>
                                 )}
                               </td>
                               <td className="p-2 text-right">
-                                {formatCurrency(service.price)}
+                                {formatCurrency(service.total)}
                               </td>
                             </tr>
                           ),
@@ -713,7 +714,7 @@ export function ReceiptDialog({
                 </span>
               </div>
               <div className="text-right text-lg font-bold text-green-600 dark:text-green-400">
-                Total Amount: {formatCurrency(boardingOrder.totalPrice)}
+                Total Amount: {formatCurrency(boardingOrder.total)}
               </div>
             </div>
           </div>

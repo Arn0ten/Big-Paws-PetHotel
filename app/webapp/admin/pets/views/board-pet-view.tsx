@@ -1,6 +1,6 @@
 "use client";
 
-import {useState, useEffect} from "react";
+import React, {useState, useEffect} from "react";
 import {format} from "date-fns";
 import {Hotel, Loader2} from "lucide-react";
 import {Button} from "@/components/ui/button";
@@ -21,6 +21,10 @@ import type {Pet} from "../utils/types";
 import PageLayout from "@/app/webapp/components/PageLayout";
 import {FaShieldDog, FaShieldCat} from "react-icons/fa6";
 import {PetDetailsDTO} from "@/types/preloadPet";
+import {useCreateBoardingPet} from "@/webapp/admin/pets/hooks";
+import {PetBoardingRequestDTO} from "@/types/boarding";
+
+import {boardingService} from "@/lib/boardingManagement";
 
 // Custom time picker component
 const TimePicker = ({
@@ -215,11 +219,12 @@ const calculateBoardingPrice = (
 };
 
 interface BoardPetViewProps {
-    pet: PetDetailsDTO | null;
+    pet: PetDetailsDTO;
     onBack: () => void;
     onSubmit: (details: BoardingDetails) => Promise<boolean>;
     isSubmitting: boolean;
 }
+
 
 export default function BoardPetView({
                                          pet,
@@ -303,11 +308,6 @@ export default function BoardPetView({
         boardingDetails.endTime,
     ]);
 
-    // Handle form submission
-    const handleSubmit = async () => {
-        if (!pet) return;
-        await onSubmit(boardingDetails);
-    };
 
     // Format date for display
     const formatDate = (date: Date) => {
@@ -324,6 +324,72 @@ export default function BoardPetView({
     };
 
     if (!pet) return null;
+
+
+    function toLocalDateTimeString(date: Date, time: string): string {
+        const [hours, minutes] = time.split(":").map(Number);
+        const localDate = new Date(date);
+        localDate.setHours(hours, minutes, 0, 0);
+
+        const year = localDate.getFullYear();
+        const month = String(localDate.getMonth() + 1).padStart(2, "0");
+        const day = String(localDate.getDate()).padStart(2, "0");
+        const hour = String(localDate.getHours()).padStart(2, "0");
+        const minute = String(localDate.getMinutes()).padStart(2, "0");
+
+        return `${year}-${month}-${day}T${hour}:${minute}:00`;
+    }
+
+
+    function toPetBoardingRequest(formData: BoardingDetails): PetBoardingRequestDTO {
+
+        const petId = formData.petIds[0];
+
+        let boardingStart: string;
+        let boardingEnd: string;
+
+        if (formData.type === "DAYCARE") {
+            boardingStart = toLocalDateTimeString(formData.startDate, formData.startTime ?? "09:00");
+            boardingEnd = toLocalDateTimeString(formData.endDate, formData.endTime ?? "17:00");
+        } else {
+            // LONG_STAY: use midnight as default time
+            boardingStart = toLocalDateTimeString(formData.startDate, "00:00");
+            boardingEnd = toLocalDateTimeString(formData.endDate, "00:00");
+        }
+        return {
+            petId,
+            ownerId: pet.ownerId,
+            boardingType: formData.type,
+            boardingStart,
+            boardingEnd,
+            paymentStatus: "NOT_PAID", // or your default logic
+            notes: formData?.notes != null ? formData.notes : "",
+        };
+    }
+
+    // Handle form submission
+    const handleSubmit = async (e: React.FormEvent) => {
+
+
+        e.preventDefault();
+        console.log('Boarding Details:', boardingDetails);
+        const success = await onSubmit(boardingDetails);
+        if(success) {
+
+        }
+        try {
+            const boardingData = toPetBoardingRequest(boardingDetails); // Convert formData to PetBoardingRequestDTO
+            const newBoarding = await boardingService.boardPet(boardingData); // Call the createBoarding function from the hook
+            console.log('New boarding created:', newBoarding);
+            const success = await onSubmit(boardingDetails);
+            if(success) {
+
+            }
+        } catch (err) {
+            console.error('Error creating boarding:', err);
+        }
+    };
+
 
     return (
         <PageLayout title={`Board Pet: ${pet?.name}`} onBack={onBack}>
@@ -671,7 +737,7 @@ export default function BoardPetView({
                         Cancel
                     </Button>
                     <Button
-                        onClick={handleSubmit}
+                        onClick={(e) => handleSubmit(e)}
                         disabled={isSubmitting}
                         className="bg-green-600 hover:bg-green-700 text-white"
                     >

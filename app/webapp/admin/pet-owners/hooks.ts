@@ -5,6 +5,10 @@ import {preloadActivePetOwnerData} from "@/lib/preload";
 import type {PetOwner, Pet, FormErrors, PetFormState} from "./utils/types";
 import {PetRegisterResponse, PetRegister} from "@/types/pet";
 import {petService} from "@/lib/add-pet";
+import {boardingService} from "@/lib/boardingManagement";
+import {PetBoardingRequestDTO, PetBoardingResponse} from "@/types/boarding";
+
+
 
 /**
  * Custom hook for managing pet owners data (integrated with backend)
@@ -239,5 +243,39 @@ export function useRegisterPet() {
         response: state.response,
         setPhotoFile,
         photoFile
+    };
+}
+
+
+// Board pet
+export function useCreateBoarding() {
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [currentBoarding, setCurrentBoarding] = useState<PetBoardingResponse | null>(null);
+
+    const createBoarding = async (boardingData: PetBoardingRequestDTO): Promise<PetBoardingResponse> => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            const response = await boardingService.boardPet(boardingData);
+            setCurrentBoarding(response.data);
+            return response.data;
+        } catch (err) {
+            const message = err instanceof Error ? err.message : "Failed to create boarding";
+            setError(message);
+            throw err;
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const resetError = () => setError(null);
+
+    return {
+        isLoading,
+        error,
+        currentBoarding,
+        createBoarding,
+        resetError
     };
 }
