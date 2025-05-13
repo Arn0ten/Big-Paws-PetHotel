@@ -421,7 +421,7 @@ export const requests: Request[] = [
     mediaFiles: {
       type: "video",
       urls: [
-        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/481680804_28744805481832748_1861448157952924189_n-QhfRhcm35IvtWfk0Cr5xghpgSDfOH0.mp4",
+"https://bigpawspethotel.sgp1.digitaloceanspaces.com/video/30%20second%20Cavapoo%20trim%21%20%23dog%20%20%23puppy%20%23doggrooming%20%23asmr%20%23cavapoo%20%23cavapoos.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=DO00HJAPXZRJN7FKPURD%2F20250513%2Fsgp1%2Fs3%2Faws4_request&X-Amz-Date=20250513T021427Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=228c0bdd5879749fff6011cf2934b29c0f385123a21097c16702a39251675250"
       ],
       count: 1,
     },
@@ -1090,7 +1090,7 @@ export const mediaItems: MediaItem[] = [
     requestType: "video",
     description: "Whiskers playing with a toy",
     mediaUrls: [
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/481817843_9277714875675610_7115125575926345799_n-lCz1vZTDTYlcmAGIgVjrqw52ElqlYm.mp4",
+      "https://bigpawspethotel.sgp1.digitaloceanspaces.com/video/30%20second%20Cavapoo%20trim%21%20%23dog%20%20%23puppy%20%23doggrooming%20%23asmr%20%23cavapoo%20%23cavapoos.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=DO00HJAPXZRJN7FKPURD%2F20250513%2Fsgp1%2Fs3%2Faws4_request&X-Amz-Date=20250513T021542Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=78cebb4c52d808f6058c2d3a1067b03273cae7175749db6bcaa1ac16d9192f51",
     ],
   },
   {
