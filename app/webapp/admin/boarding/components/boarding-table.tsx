@@ -22,6 +22,7 @@ import { IoAlertCircle } from "react-icons/io5"
 import { FaShieldDog, FaShieldCat } from "react-icons/fa6"
 import { FaSignOutAlt } from "react-icons/fa"
 import { MdPendingActions } from "react-icons/md"
+import {BoardingDTO} from "@/types/boarding";
 interface BoardingTableProps {
   boardingOrders: BoardingOrder[]
   onUpdatePaymentStatus: (orderId: string, status: PaymentStatus) => void
@@ -43,7 +44,7 @@ export function BoardingTable({
   tabName = "",
   isProcessing = false,
 }: {
-  boardingOrders: BoardingOrder[]
+  boardingOrders: BoardingDTO[]
   onUpdatePaymentStatus: (orderId: string, status: PaymentStatus) => void
   onReleasePet?: (orderId: string) => void
   onForceRelease?: (orderId: string) => void
@@ -52,17 +53,17 @@ export function BoardingTable({
   tabName?: string
   isProcessing?: boolean
 }) {
-  const [selectedOrder, setSelectedOrder] = useState<BoardingOrder | null>(null)
+  const [selectedOrder, setSelectedOrder] = useState<BoardingDTO | null>(null)
   const [detailDialogOpen, setDetailDialogOpen] = useState(false)
   const [receiptDialogOpen, setReceiptDialogOpen] = useState(false)
   const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false)
 
-  const handleViewDetails = (order: BoardingOrder) => {
+  const handleViewDetails = (order: BoardingDTO) => {
     setSelectedOrder(order)
     setDetailDialogOpen(true)
   }
 
-  const handleViewReceipt = (order: BoardingOrder) => {
+  const handleViewReceipt = (order: BoardingDTO) => {
     setSelectedOrder(order)
     setReceiptDialogOpen(true)
   }
@@ -85,18 +86,18 @@ export function BoardingTable({
     }
   }
 
-  const handleRowClick = (order: BoardingOrder) => {
+  const handleRowClick = (order: BoardingDTO) => {
     setSelectedOrder(order)
     setDetailDialogOpen(true)
   }
 
   const getBoardingStatusColor = (status: string) => {
     switch (status) {
-      case "Boarding":
+      case "BOARDING":
         return "bg-blue-600 hover:bg-blue-600 text-white min-w-[100px] flex justify-center"
-      case "Done Boarding":
+      case "DONE_BOARDING":
         return "bg-green-600 hover:bg-green-600 text-white min-w-[100px] flex justify-center"
-      case "Released":
+      case "RELEASED":
         return "bg-purple-600 hover:bg-purple-600 text-white min-w-[100px] flex justify-center"
       default:
         return "bg-gray-600 hover:bg-gray-600 text-white min-w-[100px] flex justify-center"
@@ -105,9 +106,9 @@ export function BoardingTable({
 
   const getPaymentStatusColor = (status: string) => {
     switch (status) {
-      case "Paid":
+      case "PAID":
         return "bg-green-600 hover:bg-green-600 text-white min-w-[100px] flex justify-center"
-      case "Pending":
+      case "PENDING":
         return "bg-yellow-600 hover:bg-yellow-600 text-white min-w-[100px] flex justify-center"
       default:
         return "bg-gray-600 hover:bg-gray-600 text-white min-w-[100px] flex justify-center"
@@ -149,11 +150,11 @@ export function BoardingTable({
   }
 
   // Format duration to show both days and hours
-  const formatDuration = (order: BoardingOrder) => {
-    const durationInHours = calculateDuration(order.startDate, order.endDate, "Daycare")
-    const durationInDays = calculateDuration(order.startDate, order.endDate, "LongStay")
+  const formatDuration = (order: BoardingDTO) => {
+    const durationInHours = calculateDuration(order.boardingStart, order.boardingEnd, "DAYCARE")
+    const durationInDays = calculateDuration(order.boardingStart, order.boardingEnd, "LONG_STAY")
 
-    if (order.boardingType === "Daycare") {
+    if (order.boardingType === "DAYCARE") {
       return `${durationInHours} hour${durationInHours !== 1 ? "s" : ""}`
     }
 
@@ -200,9 +201,9 @@ export function BoardingTable({
                 tableRows.map((order, index) => (
                   <TableRow
                     key={order ? order.id : `empty-${index}`}
-                    className={`${order?.isOverdue ? "bg-red-50 dark:bg-red-950/20" : ""} 
+                    className={`${order?.overdue ? "bg-red-50 dark:bg-red-950/20" : ""} 
     ${
-      order?.additionalServices && order?.additionalServices.length > 0 && order?.paymentStatus === "Pending"
+      order?.requestBreakdown && order?.requestBreakdown.length > 0 && order?.paymentStatus === "PENDING"
         ? "bg-amber-50 dark:bg-amber-950/20"
         : ""
     } 
@@ -214,8 +215,8 @@ export function BoardingTable({
                         <TableCell>
                           <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-gray-100">
                             <Image
-                              src={order.pet.imageUrl || "/placeholder.svg?height=40&width=40" || "/placeholder.svg"}
-                              alt={order.pet.name}
+                              src={order.photoUrl || "/placeholder.svg?height=40&width=40" || "/placeholder.svg"}
+                              alt={order.petName}
                               width={40}
                               height={40}
                               className="object-cover w-10 h-10"
@@ -224,15 +225,15 @@ export function BoardingTable({
                         </TableCell>
                         <TableCell className="font-medium">
                           <div className="flex flex-col">
-                            <span>{order.pet.name}</span>
-                            <span className="text-xs text-muted-foreground">{order.pet.breed}</span>
-                            {order.isOverdue && (
+                            <span>{order.petName}</span>
+                            <span className="text-xs text-muted-foreground">{order.petBreed}</span>
+                            {order.overdue && (
                               <div className="flex items-center text-xs text-red-600 mt-1">
                                 <IoAlertCircle className="h-3 w-3 mr-1 flex-shrink-0" /> Overdue
                               </div>
                             )}
-                            {order.additionalServices &&
-                              order.additionalServices.length > 0 &&
+                            {order.requestBreakdown &&
+                              order.requestBreakdown.length > 0 &&
                               order.paymentStatus === "Pending" && (
                                 <div className="flex items-center text-xs text-amber-600 mt-1">
                                   <PhilippinePesoIcon className="h-3 w-3 mr-1 flex-shrink-0" /> Additional charges
@@ -242,17 +243,17 @@ export function BoardingTable({
                         </TableCell>
                         <TableCell className="hidden md:table-cell">
                           <div className="flex flex-col">
-                            <span>{order.owner.name}</span>
+                            <span>{order.ownerName}</span>
                             <span className="text-xs text-muted-foreground truncate max-w-[150px]">
-                              {order.owner.email}
+                              {order.ownerEmail}
                             </span>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Badge variant="secondary" className={getPetTypeColor(order.pet.type)}>
+                          <Badge variant="secondary" className={getPetTypeColor(order.petType)}>
                             <div className="flex items-center justify-center w-full">
-                              {getPetTypeIcon(order.pet.type)}
-                              {order.pet.type}
+                              {getPetTypeIcon(order.petType)}
+                              {order.petType}
                             </div>
                           </Badge>
                         </TableCell>
@@ -260,7 +261,7 @@ export function BoardingTable({
                           <div className="flex flex-col">
                             <span>{order.boardingType}</span>
                             <span className="text-xs text-muted-foreground">
-                              {order.boardingType === "Daycare" ? "Hourly" : "Overnight"}
+                              {order.boardingType === "DAYCARE" ? "Hourly" : "Overnight"}
                             </span>
                           </div>
                         </TableCell>
@@ -268,7 +269,7 @@ export function BoardingTable({
                           <div className="flex flex-col">
                             <span className="text-sm">{formatDuration(order)}</span>
                             <span className="text-xs text-muted-foreground">
-                              {formatDate(order.startDate).split(",")[0]}
+                              {formatDate(order.boardingStart).split(",")[0]}
                             </span>
                           </div>
                         </TableCell>
@@ -290,7 +291,7 @@ export function BoardingTable({
                         </TableCell>
                         <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                           <div className="flex items-center justify-end gap-1">
-                            {(isEligibleForRelease(order) || (order.isOverdue && order.paymentStatus === "Paid")) &&
+                            {(isEligibleForRelease(order)) &&
                               onReleasePet &&
                               !isReadOnly && (
                                 <Button
@@ -331,7 +332,7 @@ export function BoardingTable({
                                       <MdOutlineMoreHoriz className="h-4 w-4 mr-2 text-blue-600" />
                                       View Boarding Details
                                     </DropdownMenuItem>
-                                    {order.boardingStatus === "Released" && (
+                                    {order.boardingStatus === "RELEASED" && (
                                       <>
                                         <DropdownMenuItem onClick={() => handleViewReceipt(order)}>
                                           <IoReceipt className="h-4 w-4 mr-2 text-purple-600" />
@@ -353,9 +354,9 @@ export function BoardingTable({
                                       <MdOutlineMoreHoriz className="h-4 w-4 mr-2 text-blue-600" />
                                       View Boarding Details
                                     </DropdownMenuItem>
-                                    {order.paymentStatus !== "Paid" && (
+                                    {order.paymentStatus !== "PAID" && (
                                       <DropdownMenuItem
-                                        onClick={() => onUpdatePaymentStatus(order.id, "Paid")}
+                                        onClick={() => onUpdatePaymentStatus(order.id, "PAID")}
                                         className="text-green-600"
                                         disabled={isProcessing}
                                       >
@@ -367,9 +368,9 @@ export function BoardingTable({
                                         Mark as Paid
                                       </DropdownMenuItem>
                                     )}
-                                    {order.paymentStatus !== "Pending" && (
+                                    {order.paymentStatus !== "PENDING" && (
                                       <DropdownMenuItem
-                                        onClick={() => onUpdatePaymentStatus(order.id, "Pending")}
+                                        onClick={() => onUpdatePaymentStatus(order.id, "PENDING")}
                                         className="text-yellow-600"
                                         disabled={isProcessing}
                                       >

@@ -7,11 +7,12 @@ import { GiDogHouse } from "react-icons/gi";
 import { FaSignOutAlt } from "react-icons/fa";
 import { TbAlertCircleFilled } from "react-icons/tb";
 interface StatsCardsProps {
-  boardingOrders: BoardingOrder[];
+  boardingOrders: BoardingDTO[];
   isLoading?: boolean;
   onCardClick?: (tabValue: string) => void; // Add this prop for card click handling
 }
 import { FaClipboardCheck } from "react-icons/fa6";
+import {BoardingDTO} from "@/types/boarding";
 
 export function StatsCards({
   boardingOrders,
@@ -22,19 +23,19 @@ export function StatsCards({
   const totalBoardings = boardingOrders.length;
 
   const activeBoardings = boardingOrders.filter(
-    (order) => order.boardingStatus === "Boarding",
+    (order) => !order.overdue && order.boardingStatus === "BOARDING",
   ).length;
 
   const completedBoardings = boardingOrders.filter(
-    (order) => order.boardingStatus === "Done Boarding",
+    (order) => !order.overdue && order.boardingStatus === "DONE_BOARDING",
   ).length;
 
   const releasedPets = boardingOrders.filter(
-    (order) => order.boardingStatus === "Released",
+    (order) => order.boardingStatus === "RELEASED" ,
   ).length;
 
   const overduePickups = boardingOrders.filter(
-    (order) => order.isOverdue,
+    (order) => order.overdue && order.boardingStatus != "RELEASED",
   ).length;
 
   // Handle card click

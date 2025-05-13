@@ -1,6 +1,6 @@
 export type PetSize = "Small" | "Medium" | "Large" | "XLarge"
 export type BoardingType = "Daycare" | "LongStay" | "CatHotel"
-export type PaymentStatus = "Paid" | "Pending"
+export type PaymentStatus = "PAID" | "PENDING"
 export type BoardingStatus = "Boarding" | "Done Boarding" | "Released"
 export type CatRoomType = "Standard" | "ExtraGuest"
 export type CatAgeCategory = "Kitten" | "Adult"

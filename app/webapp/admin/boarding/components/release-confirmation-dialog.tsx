@@ -13,11 +13,12 @@ import {
 import type { BoardingOrder } from "../types";
 import { formatCurrency } from "../utils/helpers";
 import { LogOut } from "lucide-react";
+import {BoardingDTO} from "@/types/boarding";
 
 interface ReleaseConfirmationDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  boardingOrder: BoardingOrder;
+  boardingOrder: BoardingDTO;
   onConfirmRelease: (orderId: string) => void;
 }
 
@@ -42,13 +43,13 @@ export function ReleaseConfirmationDialog({
           </AlertDialogTitle>
           <AlertDialogDescription>
             You are about to release{" "}
-            <span className="font-medium">{boardingOrder.pet.name}</span> to its
+            <span className="font-medium">{boardingOrder.petName}</span> to its
             owner. This action will:
             <ul className="list-disc pl-5 mt-2 space-y-1 text-sm text-muted-foreground">
               <li>Mark the pet as released</li>
               <li>
                 Generate a receipt for{" "}
-                {formatCurrency(boardingOrder.totalPrice)}
+                {formatCurrency(boardingOrder.total)}
               </li>
               <li>Send a notification to the owner</li>
               <li>Remove the pet from active boarding list</li>

@@ -2,7 +2,7 @@
 import { PetRegister } from "@/types/pet";
 import { PetRegisterResponse, PetRegisterPresignUrlResponse } from "@/types/pet";
 
-export const apiDomain = process.env.REACT_APP_DOMAIN ?? "http://localhost:8080";
+export const apiDomain = process.env.REACT_APP_DOMAIN ?? "https://api.bigpawspethotel.me";
 
 export class PetRegistrationError extends Error {
   constructor(message: string, public response?: any) {

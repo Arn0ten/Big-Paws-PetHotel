@@ -1,6 +1,6 @@
 import type {PetDetailsApiResponse, PetDetailsDTO} from "@/types/preloadPet";
 
-export const apiDomain = process.env.REACT_APP_DOMAIN ?? "http://localhost:8080";
+export const apiDomain = process.env.REACT_APP_DOMAIN ?? "https://api.bigpawspethotel.me";
 
 export async function recentPetDetails(): Promise<PetDetailsDTO | Error> {
     const apiUrl = `${apiDomain}/api/v1/admin/search/pet/recent`;

@@ -46,7 +46,8 @@ export interface PetFormState extends Partial<Pet> {
 
 export interface BoardingDetails {
   petIds: string[];
-  type: "Daycare" | "LongStay";
+  ownerId: string
+  type: "DAYCARE" | "LONG_STAY";
   startDate: Date;
   endDate: Date;
   startTime?: string;

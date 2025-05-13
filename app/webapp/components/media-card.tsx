@@ -9,7 +9,7 @@ interface MediaCardProps {
   id: string
   timestamp: string | Date
   petName: string
-  requestType: "photo" | "video"
+  requestType: "PHOTO_REQUEST" | "VIDEO_REQUEST"
   description?: string
   mediaUrls: string[]
   onClick: () => void
@@ -52,7 +52,7 @@ export function MediaCard({ id, timestamp, petName, requestType, description, me
       onClick={onClick}
     >
       <div className="relative aspect-square bg-muted">
-        {requestType === "photo" && mediaUrls.length > 0 && (
+        {requestType === "PHOTO_REQUEST" && mediaUrls.length > 0 && (
           <>
             {/* Main image */}
             <img
@@ -94,7 +94,7 @@ export function MediaCard({ id, timestamp, petName, requestType, description, me
             )}
           </>
         )}
-        {requestType === "video" && mediaUrls[0] && (
+        {requestType === "VIDEO_REQUEST" && mediaUrls[0] && (
           <div className="relative w-full h-full bg-black flex items-center justify-center">
             <video src={mediaUrls[0]} className="w-full h-full object-cover" controls={false} />
             <div className="absolute inset-0 flex items-center justify-center">

@@ -1,4 +1,5 @@
 import type { BoardingOrder, PaymentStatus, BoardingType } from "../types"
+import {BoardingDTO, RequestBreakdown} from "@/types/boarding"
 
 /**
  * Format date to a readable string
@@ -46,13 +47,13 @@ export const formatTime = (timeString: string): string => {
  *
  * @dev This calculation should match your business logic for billing periods
  */
-export const calculateDuration = (startDate: string, endDate: string, boardingType: BoardingType): number => {
+export const calculateDuration = (startDate: string, endDate: string, boardingType: String): number => {
   const start = new Date(startDate)
   const end = new Date(endDate)
 
   const diffTime = Math.abs(end.getTime() - start.getTime())
 
-  if (boardingType === "Daycare") {
+  if (boardingType === "DAYCARE") {
     return Math.ceil(diffTime / (1000 * 60 * 60)) // Return hours for daycare
   }
 
@@ -66,8 +67,8 @@ export const calculateDuration = (startDate: string, endDate: string, boardingTy
  * @param boardingType Type of boarding (Daycare, LongStay, CatHotel)
  * @returns Formatted duration string
  */
-export const formatDuration = (duration: number, boardingType: BoardingType): string => {
-  if (boardingType === "Daycare") {
+export const formatDuration = (duration: number, boardingType: String): string => {
+  if (boardingType === "DAYCARE") {
     return `${duration} hour${duration !== 1 ? "s" : ""}`
   }
   return `${duration} day${duration !== 1 ? "s" : ""}`
@@ -97,12 +98,12 @@ export const formatCurrency = (amount: number): string => {
  * @dev This function should be used consistently across the application
  * to ensure the same calculation logic is applied everywhere
  */
-export const calculateAdditionalServicesTotal = (order: BoardingOrder): number => {
-  if (!order.additionalServices || order.additionalServices.length === 0) {
+export const calculateAdditionalServicesTotal = (order: BoardingDTO): number => {
+  if (!order.requestBreakdown || order.requestBreakdown.length === 0) {
     return 0
   }
 
-  return order.additionalServices.reduce((total, service) => total + service.price, 0)
+  return order.requestBreakdown.reduce((total, service) => total + service.total, 0)
 }
 
 /**
@@ -112,15 +113,15 @@ export const calculateAdditionalServicesTotal = (order: BoardingOrder): number =
  *
  * @dev This should match your business logic for calculating base boarding rates
  */
-export const calculateBasePrice = (order: BoardingOrder): number => {
+export const calculateBasePrice = (order: BoardingDTO): number => {
   // If baseAmount is explicitly set, use it
-  if (order.baseAmount) {
-    return order.baseAmount
+  if (order.boardingPrice) {
+    return order.boardingPrice
   }
 
   // Otherwise calculate from total price minus additional services
   const additionalServicesTotal = calculateAdditionalServicesTotal(order)
-  return order.totalPrice - additionalServicesTotal
+  return order.total - additionalServicesTotal
 }
 
 /**
@@ -132,7 +133,7 @@ export const calculateBasePrice = (order: BoardingOrder): number => {
  * @dev This function implements business logic for status transitions
  * and should be aligned with your application's workflow
  */
-export const updateBoardingStatus = (order: BoardingOrder, newPaymentStatus: PaymentStatus): BoardingOrder => {
+export const updateBoardingStatus = (order: BoardingDTO, newPaymentStatus: PaymentStatus): BoardingDTO => {
   const updatedOrder = {
     ...order,
     paymentStatus: newPaymentStatus,
@@ -142,43 +143,43 @@ export const updateBoardingStatus = (order: BoardingOrder, newPaymentStatus: Pay
   }
 
   // If the order is overdue and the new payment status is 'Paid', don't change the boarding status
-  if (order.isOverdue && newPaymentStatus === "Paid") {
+  if (order.overdue && newPaymentStatus === "PAID") {
     // Log the successful operation
     logAdminActivity({
       module: "boarding",
       action: "update-payment",
-      description: `Updated payment status to ${newPaymentStatus} for overdue boarding: ${order.pet.name}`,
+      description: `Updated payment status to ${newPaymentStatus} for overdue boarding: ${order.petName}`,
       status: "completed",
       entityId: order.id,
-      relatedEntityId: order.pet.id,
+      relatedEntityId: order.petId,
     })
 
     return updatedOrder
   }
 
   // Only update the boarding status if the current status is 'Done Boarding' and the new payment status is 'Paid'
-  if (order.boardingStatus === "Done Boarding" && newPaymentStatus === "Paid") {
-    updatedOrder.boardingStatus = "Released"
-    updatedOrder.releaseTimestamp = new Date().toISOString()
+  if (order.boardingStatus === "DONE_BOARDING" && newPaymentStatus === "PAID") {
+    updatedOrder.boardingStatus = "RELEASED"
+    updatedOrder.releasedAt = new Date().toISOString()
 
     // Log the successful operation with release info
     logAdminActivity({
-      module: "boarding",
+      module: "BOARDING",
       action: "update-payment-and-release",
-      description: `Updated payment status to Paid and released pet: ${order.pet.name}`,
+      description: `Updated payment status to Paid and released pet: ${order.petName}`,
       status: "completed",
       entityId: order.id,
-      relatedEntityId: order.pet.id,
+      relatedEntityId: order.petId,
     })
   } else {
     // Log just the payment update
     logAdminActivity({
-      module: "boarding",
+      module: "BOARDING",
       action: "update-payment",
-      description: `Updated payment status to ${newPaymentStatus} for boarding: ${order.pet.name}`,
+      description: `Updated payment status to ${newPaymentStatus} for boarding: ${order.petName}`,
       status: "completed",
       entityId: order.id,
-      relatedEntityId: order.pet.id,
+      relatedEntityId: order.petId,
     })
   }
 
@@ -196,10 +197,10 @@ export const updateBoardingStatus = (order: BoardingOrder, newPaymentStatus: Pay
  * For production, consider implementing server-side filtering for better performance
  */
 export const filterOrdersByStatus = (
-  orders: BoardingOrder[],
+  orders: BoardingDTO[],
   boardingStatus?: string,
   paymentStatus?: string,
-): BoardingOrder[] => {
+): BoardingDTO[] => {
   return orders.filter((order) => {
     const matchesBoardingStatus = !boardingStatus || boardingStatus === "all" || order.boardingStatus === boardingStatus
     const matchesPaymentStatus = !paymentStatus || paymentStatus === "all" || order.paymentStatus === paymentStatus
@@ -215,15 +216,15 @@ export const filterOrdersByStatus = (
  *
  * @dev For production, implement server-side search with proper indexing
  */
-export const searchOrders = (orders: BoardingOrder[], searchTerm: string): BoardingOrder[] => {
+export const searchOrders = (orders: BoardingDTO[], searchTerm: string): BoardingDTO[] => {
   if (!searchTerm) return orders
 
   const lowerCaseSearchTerm = searchTerm.toLowerCase()
 
   return orders.filter(
     (order) =>
-      order.pet.name.toLowerCase().includes(lowerCaseSearchTerm) ||
-      order.owner.name.toLowerCase().includes(lowerCaseSearchTerm),
+      order.petName.toLowerCase().includes(lowerCaseSearchTerm) ||
+      order.ownerName.toLowerCase().includes(lowerCaseSearchTerm),
   )
 }
 
@@ -234,8 +235,8 @@ export const searchOrders = (orders: BoardingOrder[], searchTerm: string): Board
  *
  * @dev This implements business logic for when pets can be released
  */
-export const isEligibleForRelease = (order: BoardingOrder): boolean => {
-  return order.paymentStatus === "Paid" && order.boardingStatus === "Done Boarding"
+export const isEligibleForRelease = (order: BoardingDTO): boolean => {
+  return order.paymentStatus === "PAID" && order.boardingStatus === "DONE_BOARDING" || order.boardingStatus === "BOARDING"
 }
 
 /**
@@ -246,17 +247,18 @@ export const isEligibleForRelease = (order: BoardingOrder): boolean => {
  * @dev This implements business logic for when pets can be force released
  * BACKEND INTEGRATION: This logic should match the backend validation
  */
-export const isEligibleForForceRelease = (order: BoardingOrder): boolean => {
+export const isEligibleForForceRelease = (order: BoardingDTO): boolean => {
   // Only pets with Paid status can be force released
-  return order.paymentStatus === "Paid" && order.boardingStatus === "Boarding"
+  // CARE INCASE OF ERROR
+  return order.paymentStatus === "PAID" && order.boardingStatus === "BOARDING"
 }
 
 // Add logging to the releasePet function
-export const releasePet = (order: BoardingOrder): BoardingOrder => {
+export const releasePet = (order: BoardingDTO): BoardingDTO => {
   const now = new Date().toISOString()
   const updatedOrder = {
     ...order,
-    boardingStatus: "Released",
+    boardingStatus: "RELEASED",
     releaseTimestamp: now,
     updatedAt: now,
     receiptGenerated: true,
@@ -269,17 +271,17 @@ export const releasePet = (order: BoardingOrder): BoardingOrder => {
 
   // Log the successful operation
   logAdminActivity({
-    module: "boarding",
-    action: "release",
-    description: `Released pet: ${order.pet.name} (Owner: ${order.owner.name})`,
+    module: "BOARDING",
+    action: "RELEASED",
+    description: `Released pet: ${order.petName} (Owner: ${order.ownerName})`,
     status: "completed",
     entityId: order.id,
-    relatedEntityId: order.pet.id,
+    relatedEntityId: order.petId,
     metadata: {
       boardingType: order.boardingType,
-      totalPrice: order.totalPrice,
-      startDate: order.startDate,
-      endDate: order.endDate,
+      totalPrice: order.total,
+      startDate: order.boardingStart,
+      endDate: order.boardingEnd,
       releaseDate: now,
     },
   })
@@ -288,11 +290,11 @@ export const releasePet = (order: BoardingOrder): BoardingOrder => {
 }
 
 // Add logging to the forceReleasePet function
-export const forceReleasePet = (order: BoardingOrder): BoardingOrder => {
+export const forceReleasePet = (order: BoardingDTO): BoardingDTO => {
   const now = new Date().toISOString()
   const updatedOrder = {
     ...order,
-    boardingStatus: "Released",
+    boardingStatus: "RELEASED",
     releaseTimestamp: now,
     updatedAt: now,
     receiptGenerated: true,
@@ -307,17 +309,17 @@ export const forceReleasePet = (order: BoardingOrder): BoardingOrder => {
   logAdminActivity({
     module: "boarding",
     action: "force-release",
-    description: `Force released pet: ${order.pet.name} (Owner: ${order.owner.name})`,
+    description: `Force released pet: ${order.petName} (Owner: ${order.ownerName})`,
     status: "completed",
     entityId: order.id,
-    relatedEntityId: order.pet.id,
+    relatedEntityId: order.petId,
     metadata: {
       boardingType: order.boardingType,
-      totalPrice: order.totalPrice,
-      startDate: order.startDate,
-      endDate: order.endDate,
+      totalPrice: order.total,
+      startDate: order.boardingStart,
+      endDate: order.boardingEnd,
       releaseDate: now,
-      wasOverdue: order.isOverdue,
+      wasOverdue: order.overdue,
     },
   })
 
@@ -332,12 +334,12 @@ export const forceReleasePet = (order: BoardingOrder): BoardingOrder => {
  * @dev This should be run regularly to identify overdue pickups
  * Consider implementing as a scheduled job in production
  */
-export const checkOverduePickups = (orders: BoardingOrder[]): BoardingOrder[] => {
+export const checkOverduePickups = (orders: BoardingDTO[]): BoardingDTO[] => {
   const now = new Date()
 
   return orders.map((order) => {
     // If the pet is still boarding and the end date has passed
-    if (order.boardingStatus === "Done Boarding" && new Date(order.endDate) < now) {
+    if (order.boardingStatus === "Done Boarding" && new Date(order.boardingEnd) < now) {
       return { ...order, isOverdue: true }
     }
     return { ...order, isOverdue: false }
@@ -351,9 +353,9 @@ export const checkOverduePickups = (orders: BoardingOrder[]): BoardingOrder[] =>
  *
  * @dev In production, this should generate a proper PDF or HTML receipt
  */
-export const generateReceipt = (order: BoardingOrder): string => {
-  const duration = calculateDuration(order.startDate, order.endDate, order.boardingType)
-  const formattedPrice = formatCurrency(order.totalPrice)
+export const generateReceipt = (order: BoardingDTO): string => {
+  const duration = calculateDuration(order.boardingStart, order.boardingEnd, order.boardingType)
+  const formattedPrice = formatCurrency(order.total)
   const basePrice = calculateBasePrice(order)
   const additionalServicesTotal = calculateAdditionalServicesTotal(order)
 
@@ -363,20 +365,20 @@ export const generateReceipt = (order: BoardingOrder): string => {
     Receipt ID: REC-${order.id}
     Date: ${formatDate(new Date().toISOString())}
     
-    Pet: ${order.pet.name} (${order.pet.breed})
-    Owner: ${order.owner.name}
+    Pet: ${order.petName} (${order.petBreed})
+    Owner: ${order.ownerName}
     
     Boarding Type: ${order.boardingType}
     Duration: ${duration}
-    From: ${formatDate(order.startDate)}
-    To: ${formatDate(order.endDate)}
+    From: ${formatDate(order.boardingStart)}
+    To: ${formatDate(order.boardingEnd)}
     
     Base Amount: ${formatCurrency(basePrice)}
     Additional Services: ${formatCurrency(additionalServicesTotal)}
     Total Amount: ${formattedPrice}
     Payment Status: ${order.paymentStatus}
     
-    Released on: ${order.releaseTimestamp ? formatDate(order.releaseTimestamp) : "N/A"}
+    Released on: ${order.releasedAt ? formatDate(order.releasedAt) : "N/A"}
     
     Thank you for choosing our services!
   `
