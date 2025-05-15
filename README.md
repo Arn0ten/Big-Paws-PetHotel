@@ -2,7 +2,7 @@
 
 ![Big Paws Logo](https://github.com/user-attachments/assets/ba6ae16f-8fb9-42d9-be80-71b02d2a98f4)
 
-## Tech Stack
+## Tech Stack 
 
 ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)  
 ![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white)  
